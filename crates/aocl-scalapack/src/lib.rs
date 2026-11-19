@@ -8,15 +8,17 @@
 //!
 //! # Runtime
 //!
-//! Any program calling these functions must be launched under an MPI
-//! runtime (MS-MPI on Windows, MPICH / OpenMPI on Linux). MPI is **not**
+//! Any program calling the distributed routines or building a [`Grid`] must
+//! be launched under an MPI runtime (on Windows the AOCL 5.3.2 `scalapack.dll` imports Intel MPI
+//! `impi.dll`, checked with `dumpbin /dependents`; MPICH / OpenMPI on Linux). MPI is **not**
 //! a Cargo dependency of this crate — link against your platform's MPI
 //! library at the binary level if you need additional MPI symbols.
+//! [`numroc`] needs no MPI launcher or BLACS grid, but the library's DLLs
+//! (including `impi.dll` on Windows) must still be loadable.
 //!
-//! Tests in this module are `#[ignore]`d by default because they
-//! require a multi-rank MPI environment to do anything meaningful;
-//! invoke them via `mpiexec -n N cargo test -- --ignored` from inside
-//! a properly configured MPI host.
+//! The tests here are the ones that need no MPI (`numroc`). Tests of the
+//! distributed routines need a multi-rank MPI host and are not written
+//! yet; there are no `#[ignore]`d placeholders.
 
 #![allow(
     clippy::too_many_arguments,
@@ -105,7 +107,7 @@ impl Grid {
         }
         let mut ctxt: c_int = 0;
         unsafe { sys::Cblacs_get(-1, 0, &mut ctxt) };
-        let order = b"R\0".as_ptr() as *const c_char;
+        let order = c"R".as_ptr();
         unsafe { sys::Cblacs_gridinit(&mut ctxt, order, nprow as c_int, npcol as c_int) };
 
         let mut g_nprow = 0;
@@ -1051,29 +1053,25 @@ pub fn pzgesv(
 mod tests {
     use super::*;
 
-    /// Smoke-test that the FFI declarations match what the linker can
-    /// resolve. No actual ScaLAPACK call — just compile-time + link-time
-    /// symbol existence verification (the link directives will pull
-    /// scalapack.dll in regardless).
-    ///
-    /// Real distributed-routine tests must be run under MPI:
-    /// ```bash
-    /// mpiexec -n 4 cargo test -p aocl-scalapack -- --ignored
-    /// ```
+    /// `numroc` is a pure tool routine (no BLACS grid, no MPI), so it runs
+    /// anywhere the library links. Expected values follow from the
+    /// block-cyclic definition: 10 rows in blocks of 2 over 3 process rows
+    /// deal blocks 0,3 / 1,4 / 2 to rows 0 / 1 / 2. The values are worked
+    /// by hand from the definition, cross-checked against nothing external
+    /// except this test passing against AOCL 5.3.2's `scalapack.dll` in a
+    /// single process (2026-11-19, no `mpiexec`); a multi-rank run has not
+    /// been done.
     #[test]
-    fn ffi_declarations_link() {
-        // No-op: getting here means the linker resolved every symbol
-        // we declared in aocl-scalapack-sys. If that fails the test
-        // exe will never start.
-    }
-
-    #[test]
-    #[ignore = "needs MPI runtime; launch via `mpiexec -n 4`"]
-    fn pdgesv_distributed_solve() {
-        // Sketch (won't run without mpiexec):
-        // let _grid = Grid::new(2, 2).unwrap();
-        // let desca = BlockCyclic::new(&_grid, 8, 8, 4, 4, 0, 0, 4).unwrap();
-        // let descb = BlockCyclic::new(&_grid, 8, 1, 4, 1, 0, 0, 4).unwrap();
-        // pdgesv(8, 1, ..., 1, 1, &desca, ..., ..., 1, 1, &descb).unwrap();
+    fn numroc_block_cyclic_split() {
+        let got: Vec<usize> = (0..3).map(|p| numroc(10, 2, p, 0, 3)).collect();
+        assert_eq!(got, [4, 4, 2]);
+        // Every global row is owned exactly once.
+        assert_eq!(got.iter().sum::<usize>(), 10);
+        // Source process 1 takes block 0, so owners rotate: rows 1,2,0.
+        let rot: Vec<usize> = (0..3).map(|p| numroc(10, 2, p, 1, 3)).collect();
+        assert_eq!(rot, [2, 4, 4]);
+        // One process owns everything; an empty array owns nothing.
+        assert_eq!(numroc(7, 3, 0, 0, 1), 7);
+        assert_eq!(numroc(0, 2, 0, 0, 3), 0);
     }
 }

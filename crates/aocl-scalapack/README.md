@@ -2,7 +2,7 @@
 
 Safe Rust wrappers for AOCL-ScaLAPACK — distributed linear algebra over MPI.
 
-**Under construction.** ScaLAPACK ships only Fortran sources and Fortran-style symbols (no public C headers). Hand-written `extern "C"` declarations for the BLACS lifecycle (`Cblacs_*`) and ScaLAPACK Fortran routines (`pdgesv_`, `pdgemm_`, …), plus a safe `Grid` / `BlockCyclic`-descriptor wrapper, are queued as the next milestone after the workspace restructure stabilizes.
+**Wrappers written, distributed routines untested.** ScaLAPACK ships only Fortran-style symbols (no public C headers), so `aocl-scalapack-sys` hand-declares them. This crate has a `Grid` (BLACS) wrapper, a `BlockCyclic` descriptor, `numroc`, and wrappers for the `gesv`, `gemm`, `potrf`, `getrf`, `getrs`, `potrs`, `syev`, `gels` and `geqrf` routines in real single (`ps*`) and double (`pd*`) precision only; the only complex wrappers are `pcgesv` and `pzgesv`. Only `numroc`, which needs no MPI initialisation, has a test. Nothing that builds a grid or calls a distributed routine has ever been run in CI, because that needs a multi-rank MPI host. On Windows, loading AOCL 5.3.2 `scalapack.dll` also needs Intel MPI (`impi.dll`), the Intel Fortran runtime, and AOCL BLIS, libFLAME and utils DLLs on `PATH`.
 
 Built on top of [`aocl-scalapack-sys`](../aocl-scalapack-sys/).
 

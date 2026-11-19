@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.8 (docs + real numroc test; public API unchanged; allocated by pm-assist 2026-11-19)
+
+- `aocl-scalapack`: replace the no-op link test and the empty `#[ignore]`d MPI sketch with a real MPI-free test of `numroc`; README and crate docs now say what is written and what is untested (the Windows DLL needs Intel MPI, not MS-MPI). Public API unchanged.
+
 ## 0.1.7
 
 - Docs only: ROADMAP row 7 (`aocl-scalapack`) is scheduled for when an MPI consumer exists, per PM ruling 2026-11-01. No code change.
