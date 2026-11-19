@@ -2,17 +2,21 @@
 # runners have neither, so hosted CI (ci.yml) only stub-builds the *-sys crates (CLAUDE.md "tests that cannot run
 # on GitHub"; same conditions as ThinkersJournal/cpufish .github/workflows/aocl.yml at 54d02f8, which was dispatch only).
 #
-# Triggers: push to main, weekly schedule, dispatch. No pull_request: a PR would run unreviewed code on the maintainer's
+# Triggers: dispatch only for now (see `on:` below). No pull_request: a PR would run unreviewed code on the maintainer's
 # machine. (Same-repo PRs behind an environment gate are a repo setting that does not exist yet: create the environment
 # with required reviewers BEFORE adding a pull_request trigger.) No secrets, no third-party actions, no fork code.
 # Until the runner is registered (CireSnave board 467) the job waits for one and runs nothing.
 name: selfhosted
 
+# Dispatch only until the runner is registered (PM ruling 2026-11-19: a push or cron job with no runner queues until
+# timeout and leaves noise on a public repo). When the runner exists, widen to:
+#   on:
+#     push:
+#       branches: [main]
+#     schedule:
+#       - cron: '17 6 * * 1'
+#     workflow_dispatch:
 on:
-  push:
-    branches: [main]
-  schedule:
-    - cron: '17 6 * * 1'
   workflow_dispatch:
 
 permissions:
