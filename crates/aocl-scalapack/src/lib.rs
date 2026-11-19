@@ -105,7 +105,7 @@ impl Grid {
         }
         let mut ctxt: c_int = 0;
         unsafe { sys::Cblacs_get(-1, 0, &mut ctxt) };
-        let order = b"R\0".as_ptr() as *const c_char;
+        let order = c"R".as_ptr();
         unsafe { sys::Cblacs_gridinit(&mut ctxt, order, nprow as c_int, npcol as c_int) };
 
         let mut g_nprow = 0;
