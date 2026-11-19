@@ -1,0 +1,85 @@
+# Runs the aocl-scalapack tests on a self-hosted Windows runner that has AMD AOCL and Intel MPI installed. Hosted
+# runners have neither, so hosted CI (ci.yml) only stub-builds the *-sys crates (CLAUDE.md "tests that cannot run
+# on GitHub"; same conditions as ThinkersJournal/cpufish .github/workflows/aocl.yml at 54d02f8, which was dispatch only).
+#
+# Triggers: push to main, weekly schedule, dispatch. No pull_request: a PR would run unreviewed code on the maintainer's
+# machine. (Same-repo PRs behind an environment gate are a repo setting that does not exist yet: create the environment
+# with required reviewers BEFORE adding a pull_request trigger.) No secrets, no third-party actions, no fork code.
+# Until the runner is registered (CireSnave board 467) the job waits for one and runs nothing.
+name: selfhosted
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '17 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  scalapack:
+    name: aocl-scalapack tests (self-hosted, AOCL + Intel MPI)
+    runs-on: [self-hosted, Windows, X64, aocl]
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Find AOCL, Intel MPI runtime and libclang (fails loudly; nothing is installed or assumed)
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $aocl = Join-Path $env:ProgramFiles 'AMD\AOCL-Windows'
+          # scalapack.dll imports BLIS, libFLAME and libaoclutils (dumpbin /dependents, AOCL 5.3.2).
+          $dirs = @(
+            @{ Dir = Join-Path $aocl 'amd-scalapack\lib\LP64\shared'; File = 'scalapack.dll' },
+            @{ Dir = Join-Path $aocl 'amd-blis\lib\LP64';              File = 'AOCL-LibBlis-Win-MT-dll.dll' },
+            @{ Dir = Join-Path $aocl 'amd-libflame\lib\LP64';          File = 'AOCL-LibFlame-Win-MT-dll.dll' },
+            @{ Dir = Join-Path $aocl 'amd-utils\lib';                  File = 'libaoclutils.dll' }
+          )
+          foreach ($d in $dirs) {
+            if (-not (Test-Path -LiteralPath (Join-Path $d.Dir $d.File))) { throw "AOCL: $($d.File) not found in $($d.Dir) (is AOCL installed for this account?)" }
+            [IO.File]::AppendAllText($env:GITHUB_PATH, "$($d.Dir)`n")
+            "AOCL           : $(Join-Path $d.Dir $d.File)"
+          }
+
+          # scalapack.dll also imports impi.dll, libifcoremd.dll, libmmd.dll, svml_dispmd.dll and (through BLIS) libiomp5md.dll: oneAPI ships them.
+          $oneapi = Join-Path ${env:ProgramFiles(x86)} 'Intel\oneAPI'
+          $bin = Join-Path $oneapi '2026.1\bin'
+          foreach ($f in 'impi.dll', 'libifcoremd.dll', 'libmmd.dll', 'svml_dispmd.dll', 'libiomp5md.dll') {
+            if (-not (Test-Path -LiteralPath (Join-Path $bin $f))) { throw "oneAPI: $f not found in $bin" }
+          }
+          [IO.File]::AppendAllText($env:GITHUB_PATH, "$bin`n")
+          "oneAPI runtime : $bin"
+
+          # bindgen (build.rs of the *-sys crates) needs libclang.dll. Visual Studio's LLVM component ships it.
+          $clang = $env:LIBCLANG_PATH
+          if (-not ($clang -and (Test-Path -LiteralPath (Join-Path $clang 'libclang.dll')))) {
+            $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
+            if (-not (Test-Path -LiteralPath $vswhere)) { throw "libclang: LIBCLANG_PATH unset and vswhere.exe not found at $vswhere" }
+            $vs = & $vswhere -latest -products '*' -property installationPath | Select-Object -First 1
+            $clang = if ($vs) { Join-Path $vs 'VC\Tools\Llvm\x64\bin' } else { $null }
+          }
+          if (-not ($clang -and (Test-Path -LiteralPath (Join-Path $clang 'libclang.dll')))) { throw "libclang.dll not found (LIBCLANG_PATH unset; Visual Studio LLVM component missing)" }
+          [IO.File]::AppendAllText($env:GITHUB_ENV, "LIBCLANG_PATH=$clang`n")
+          "libclang       : $clang"
+
+          foreach ($t in 'cargo', 'rustc') {
+            $c = Get-Command $t -ErrorAction SilentlyContinue
+            if (-not $c) { throw "$t is not on PATH for this account" }
+            "$t : $($c.Source)"
+          }
+
+      - name: aocl-scalapack tests
+        shell: powershell
+        run: |
+          cargo test --locked -p aocl-scalapack --no-fail-fast -- --nocapture
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      # Multi-rank step (mpiexec -n 4 over the test binary) lands with the first test of Grid / pdgesv. Such tests are
+      # never #[ignore]d: they run here, or they are not written.
