@@ -1054,8 +1054,11 @@ mod tests {
     /// `numroc` is a pure tool routine (no BLACS grid, no MPI), so it runs
     /// anywhere the library links. Expected values follow from the
     /// block-cyclic definition: 10 rows in blocks of 2 over 3 process rows
-    /// deal blocks 0,3 / 1,4 / 2 to rows 0 / 1 / 2 (worked by hand, not
-    /// copied from ScaLAPACK's sources or docs).
+    /// deal blocks 0,3 / 1,4 / 2 to rows 0 / 1 / 2. The values are worked
+    /// by hand from the definition, cross-checked against nothing external
+    /// except this test passing against AOCL 5.3.2's `scalapack.dll` in a
+    /// single process (2026-11-19, no `mpiexec`); a multi-rank run has not
+    /// been done.
     #[test]
     fn numroc_block_cyclic_split() {
         let got: Vec<usize> = (0..3).map(|p| numroc(10, 2, p, 0, 3)).collect();
