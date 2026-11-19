@@ -15,7 +15,8 @@
 //!   by `descinit_`.
 //!
 //! At runtime the host program must be launched under an MPI runtime
-//! (MS-MPI / MPICH / OpenMPI). MPI is **not** declared as a Cargo
+//! (Windows: the AOCL 5.3.2 `scalapack.dll` imports Intel MPI `impi.dll`, checked with
+//! `dumpbin /dependents`; Linux: MPICH / OpenMPI). MPI is **not** declared as a Cargo
 //! dependency — link with the MPI library on your platform via your own
 //! build script if you need additional MPI symbols.
 //!

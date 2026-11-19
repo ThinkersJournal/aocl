@@ -8,11 +8,13 @@
 //!
 //! # Runtime
 //!
-//! Any program calling these functions must be launched under an MPI
-//! runtime (on Windows the AOCL 5.3.2 `scalapack.dll` imports Intel MPI
+//! Any program calling the distributed routines or building a [`Grid`] must
+//! be launched under an MPI runtime (on Windows the AOCL 5.3.2 `scalapack.dll` imports Intel MPI
 //! `impi.dll`, checked with `dumpbin /dependents`; MPICH / OpenMPI on Linux). MPI is **not**
 //! a Cargo dependency of this crate — link against your platform's MPI
 //! library at the binary level if you need additional MPI symbols.
+//! [`numroc`] needs no MPI launcher or BLACS grid, but the library's DLLs
+//! (including `impi.dll` on Windows) must still be loadable.
 //!
 //! The tests here are the ones that need no MPI (`numroc`). Tests of the
 //! distributed routines need a multi-rank MPI host and are not written
