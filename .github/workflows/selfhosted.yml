@@ -1,0 +1,91 @@
+# Runs the aocl-scalapack tests on a self-hosted Windows runner that has AMD AOCL and Intel MPI installed. Hosted
+# runners have neither, so hosted CI (ci.yml) only stub-builds the *-sys crates (CLAUDE.md "tests that cannot run
+# on GitHub"; same conditions as ThinkersJournal/cpufish .github/workflows/aocl.yml at 54d02f8, which was dispatch only).
+#
+# Triggers: dispatch only for now (see `on:` below). No pull_request: a PR would run unreviewed code on the maintainer's
+# machine. (Same-repo PRs behind an environment gate are a repo setting that does not exist yet: create the environment
+# with required reviewers BEFORE adding a pull_request trigger.) No secrets, no third-party actions, no fork code.
+# Until the runner is registered (CireSnave board 467) the job waits for one and runs nothing.
+name: selfhosted
+
+# Dispatch only until the runner is registered (PM ruling 2026-11-19: a push or cron job with no runner queues until
+# timeout and leaves noise on a public repo). When the runner exists, widen to:
+#   on:
+#     push:
+#       branches: [main]
+#     schedule:
+#       - cron: '17 6 * * 1'
+#     workflow_dispatch:
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  scalapack:
+    name: aocl-scalapack tests (self-hosted, AOCL + Intel MPI)
+    # Only the reviewed default branch runs on the runner: a dispatch that selects any other ref (an unmerged same-repo
+    # branch) is skipped, so unreviewed code never builds on the maintainer's machine.
+    if: github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, Windows, X64, aocl]
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Find AOCL and the Intel MPI runtime (fails loudly; nothing is installed or assumed)
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          # Same resolution as aocl-build's locate_aocl_root: AOCL_ROOT if set, else the default install.
+          $aocl = if ($env:AOCL_ROOT) { $env:AOCL_ROOT } else { Join-Path $env:ProgramFiles 'AMD\AOCL-Windows' }
+          # scalapack.dll imports BLIS, libFLAME and libaoclutils (dumpbin /dependents, AOCL 5.3.2).
+          $dirs = @(
+            @{ Dir = Join-Path $aocl 'amd-scalapack\lib\LP64\shared'; File = 'scalapack.dll' },
+            @{ Dir = Join-Path $aocl 'amd-blis\lib\LP64';              File = 'AOCL-LibBlis-Win-MT-dll.dll' },
+            @{ Dir = Join-Path $aocl 'amd-libflame\lib\LP64';          File = 'AOCL-LibFlame-Win-MT-dll.dll' },
+            @{ Dir = Join-Path $aocl 'amd-utils\lib';                  File = 'libaoclutils.dll' }
+          )
+          foreach ($d in $dirs) {
+            if (-not (Test-Path -LiteralPath (Join-Path $d.Dir $d.File))) { throw "AOCL: $($d.File) not found in $($d.Dir) (is AOCL installed for this account?)" }
+            [IO.File]::AppendAllText($env:GITHUB_PATH, "$($d.Dir)`n")
+            "AOCL           : $(Join-Path $d.Dir $d.File)"
+          }
+
+          # scalapack.dll also imports impi.dll, libifcoremd.dll, libmmd.dll, svml_dispmd.dll and (through BLIS) libiomp5md.dll: oneAPI ships them.
+          $oneapi = Join-Path ${env:ProgramFiles(x86)} 'Intel\oneAPI'
+          # oneAPI keeps these in different component directories depending on the install, so look for each one.
+          if (-not (Test-Path -LiteralPath $oneapi)) { throw "oneAPI not found at $oneapi" }
+          $seen = @{}
+          foreach ($f in 'impi.dll', 'libifcoremd.dll', 'libmmd.dll', 'svml_dispmd.dll', 'libiomp5md.dll') {
+            $hit = Get-ChildItem -LiteralPath $oneapi -Filter $f -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+            if (-not $hit) { throw "oneAPI: $f not found under $oneapi" }
+            "oneAPI runtime : $($hit.FullName)"
+            if (-not $seen.ContainsKey($hit.DirectoryName)) {
+              $seen[$hit.DirectoryName] = $true
+              [IO.File]::AppendAllText($env:GITHUB_PATH, "$($hit.DirectoryName)`n")
+            }
+          }
+
+          # No libclang check: aocl-scalapack-sys declares no wrapper header, so its build script never runs bindgen
+          # (checked 2026-11-21: the test builds and passes with LIBCLANG_PATH pointing at a nonexistent directory,
+          # while aocl-blas-sys fails with that same path).
+
+          foreach ($t in 'cargo', 'rustc') {
+            $c = Get-Command $t -ErrorAction SilentlyContinue
+            if (-not $c) { throw "$t is not on PATH for this account" }
+            "$t : $($c.Source)"
+          }
+
+      - name: aocl-scalapack tests
+        shell: powershell
+        run: |
+          cargo test --locked -p aocl-scalapack --no-fail-fast -- --nocapture
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      # Multi-rank step (mpiexec -n 4 over the test binary) lands with the first test of Grid / pdgesv. Such tests are
+      # never #[ignore]d: they run here, or they are not written.
