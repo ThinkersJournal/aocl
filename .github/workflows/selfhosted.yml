@@ -28,6 +28,9 @@ env:
 jobs:
   scalapack:
     name: aocl-scalapack tests (self-hosted, AOCL + Intel MPI)
+    # Only the reviewed default branch runs on the runner: a dispatch that selects any other ref (an unmerged same-repo
+    # branch) is skipped, so unreviewed code never builds on the maintainer's machine.
+    if: github.ref == 'refs/heads/main'
     runs-on: [self-hosted, Windows, X64, aocl]
     timeout-minutes: 60
     steps:
@@ -35,11 +38,12 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Find AOCL, Intel MPI runtime and libclang (fails loudly; nothing is installed or assumed)
+      - name: Find AOCL and the Intel MPI runtime (fails loudly; nothing is installed or assumed)
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
-          $aocl = Join-Path $env:ProgramFiles 'AMD\AOCL-Windows'
+          # Same resolution as aocl-build's locate_aocl_root: AOCL_ROOT if set, else the default install.
+          $aocl = if ($env:AOCL_ROOT) { $env:AOCL_ROOT } else { Join-Path $env:ProgramFiles 'AMD\AOCL-Windows' }
           # scalapack.dll imports BLIS, libFLAME and libaoclutils (dumpbin /dependents, AOCL 5.3.2).
           $dirs = @(
             @{ Dir = Join-Path $aocl 'amd-scalapack\lib\LP64\shared'; File = 'scalapack.dll' },
@@ -55,24 +59,22 @@ jobs:
 
           # scalapack.dll also imports impi.dll, libifcoremd.dll, libmmd.dll, svml_dispmd.dll and (through BLIS) libiomp5md.dll: oneAPI ships them.
           $oneapi = Join-Path ${env:ProgramFiles(x86)} 'Intel\oneAPI'
-          $bin = Join-Path $oneapi '2026.1\bin'
+          # oneAPI keeps these in different component directories depending on the install, so look for each one.
+          if (-not (Test-Path -LiteralPath $oneapi)) { throw "oneAPI not found at $oneapi" }
+          $seen = @{}
           foreach ($f in 'impi.dll', 'libifcoremd.dll', 'libmmd.dll', 'svml_dispmd.dll', 'libiomp5md.dll') {
-            if (-not (Test-Path -LiteralPath (Join-Path $bin $f))) { throw "oneAPI: $f not found in $bin" }
+            $hit = Get-ChildItem -LiteralPath $oneapi -Filter $f -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+            if (-not $hit) { throw "oneAPI: $f not found under $oneapi" }
+            "oneAPI runtime : $($hit.FullName)"
+            if (-not $seen.ContainsKey($hit.DirectoryName)) {
+              $seen[$hit.DirectoryName] = $true
+              [IO.File]::AppendAllText($env:GITHUB_PATH, "$($hit.DirectoryName)`n")
+            }
           }
-          [IO.File]::AppendAllText($env:GITHUB_PATH, "$bin`n")
-          "oneAPI runtime : $bin"
 
-          # bindgen (build.rs of the *-sys crates) needs libclang.dll. Visual Studio's LLVM component ships it.
-          $clang = $env:LIBCLANG_PATH
-          if (-not ($clang -and (Test-Path -LiteralPath (Join-Path $clang 'libclang.dll')))) {
-            $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
-            if (-not (Test-Path -LiteralPath $vswhere)) { throw "libclang: LIBCLANG_PATH unset and vswhere.exe not found at $vswhere" }
-            $vs = & $vswhere -latest -products '*' -property installationPath | Select-Object -First 1
-            $clang = if ($vs) { Join-Path $vs 'VC\Tools\Llvm\x64\bin' } else { $null }
-          }
-          if (-not ($clang -and (Test-Path -LiteralPath (Join-Path $clang 'libclang.dll')))) { throw "libclang.dll not found (LIBCLANG_PATH unset; Visual Studio LLVM component missing)" }
-          [IO.File]::AppendAllText($env:GITHUB_ENV, "LIBCLANG_PATH=$clang`n")
-          "libclang       : $clang"
+          # No libclang check: aocl-scalapack-sys declares no wrapper header, so its build script never runs bindgen
+          # (checked 2026-11-21: the test builds and passes with LIBCLANG_PATH pointing at a nonexistent directory,
+          # while aocl-blas-sys fails with that same path).
 
           foreach ($t in 'cargo', 'rustc') {
             $c = Get-Command $t -ErrorAction SilentlyContinue
