@@ -28,10 +28,10 @@ The headers those files were generated from carry these notices (read from the i
 | | `snappy-c.h` | BSD-style, Copyright Martin Gieseking | Snappy C binding |
 | | `bzlib.h` | copyright line only, Julian Seward | bzip2 |
 | | `lz4frame.h` | not installed on the test box (see below) | LZ4 |
-| `aocl-fft-sys` | `fftw3.h` | BSD-style, Copyright 2003, 2007-14 Matteo Frigo | FFTW (AOCL-FFTW; the library itself is GPL, see 3) |
-| `aocl-lapack-sys` | `lapack.h` | NO notice in the header | AOCL-libFLAME |
+| `aocl-fft-sys` | `fftw3.h` | BSD-2-Clause, Copyright 2003, 2007-14 Matteo Frigo and MIT, 2020-21 AMD; the header says the licence "applies *only* to this header file, and *not* to the other files distributed with FFTW" | FFTW (AOCL-FFTW NOTICE: `fftw v3.3.10 (BSD-2-clause)` is the header; `fftw-fftw3 v3.3.8 (GPL-2.0)` is the library) |
+| `aocl-lapack-sys` | `lapack.h` | NO notice in the header; AOCL-libFLAME `NOTICE.txt` lists `flame-libflame` (BSD-3-Clause) and `reference-lapack-lapack` (BSD-3-Clause) | AOCL-libFLAME |
 | | `lapacke.h` | BSD-style, Copyright 2014 Intel Corp. | LAPACKE |
-| `aocl-blas-sys` | `blis.h`, `cblas.h` | NO notice in the header | AOCL-BLAS (BLIS) |
+| `aocl-blas-sys` | `blis.h`, `cblas.h` | NO notice in the header; AOCL-BLAS `NOTICE.txt` lists `flame-blis` (BSD-3-Clause), Copyright 2017/2018 AMD and 2014 The University of Texas at Austin, full licence text in that NOTICE | AOCL-BLAS (BLIS) |
 | `aocl-rng-sys` | `rng.h` | `Copyright AMD,NAG 2003-2023` only, no licence grant | AOCL-RNG |
 | `aocl-math-sys` | `amdlibm.h` | AMD "Software License Agreement" (object-code licence, see 2) | AOCL-LibM |
 
@@ -59,15 +59,36 @@ by assumption.
    by its own licence. The repo distributes none of the Software (no DLL, header or document), so this governs the
    user who installs AOCL, not this repository's crates; whether header-derived interface text falls under it for
    headers that carry their own BSD/MIT notice is answered by section 7 only for those headers.
-4. **`aocl-blas-sys`, `aocl-lapack-sys` (`blis.h`, `cblas.h`, `lapack.h`).** No notice in the headers. The AOCL-BLAS
-   `NOTICE.txt` lists `flame-blis` as BSD-3-Clause, Copyright 2017 AMD and 2014 The University of Texas at Austin, which
-   is the likely origin of the BLIS headers; this is an inference from the NOTICE, not from the headers. For
-   AOCL-libFLAME the head of its `NOTICE.txt` lists third-party components (e.g. CMake, BSD-3-Clause) and not
-   libFLAME's own licence, so `lapack.h` is unresolved.
-5. **FFTW.** `fftw3.h` carries a BSD-style notice but the AOCL-FFTW `LICENSE.txt` says the distribution "does not include
-   AMD-owned licensable code" and points to a 97 KB `NOTICE.txt` of third-party licences (FFTW is GPL-2.0-or-later).
-   `aocl-fft-sys` links the FFTW library dynamically on the user's machine; it does not ship it. Whether a GPL library
-   linked by an `MIT OR Apache-2.0` crate needs a note beyond this one is a policy question.
+4. **`aocl-blas-sys`, `aocl-lapack-sys` (`blis.h`, `cblas.h`, `lapack.h`).** No notice in the headers themselves. The
+   component `NOTICE.txt` files name the licence of the project the headers belong to (BLIS: `flame-blis`
+   BSD-3-Clause; libFLAME: `flame-libflame` BSD-3-Clause), so the licence exists, but the link from these header files
+   to those NOTICE entries is an inference (same project, same install), not something the header states.
+5. **FFTW.** The header is BSD-2-Clause and says so for itself only; the library is GPL-2.0 (AOCL-FFTW NOTICE entry
+   `fftw-fftw3 v3.3.8 (GPL-2.0)`). `aocl-fft-sys` ships header-derived bindings and no library. See
+   `docs/PROVENANCE-QUESTIONS.md` question 2 for the GPL question and what is guessed.
+
+## 2b. Per-crate copies
+
+Each published crate must carry its own notice text. Done on this branch: `LICENSE-MIT` and `LICENSE-APACHE` in all 29
+crate directories (the published 0.1.0 packages carry neither), and a `NOTICE` file in `aocl-sparse-sys`,
+`aocl-securerng-sys`, `aocl-utils-sys`, `aocl-crypto-sys`, `aocl-data-analytics-sys`, `aocl-compression-sys` and
+`aocl-fft-sys` holding the verbatim leading notice blocks of every header in the include closure of that crate's
+`wrapper/*.h` (plus, for compression, the bzip2 and LZ4 texts from the AOCL-Compression NOTICE). `aocl-blas-sys` and
+`aocl-lapack-sys` carry a `NOTICE` with the BLIS and libFLAME/LAPACK entries from the component NOTICE files.
+`aocl-math-sys` and `aocl-rng-sys` have no `NOTICE` because their publication is held (below).
+Checked with `cargo package --list` (`aocl-sparse-sys` lists `NOTICE`, `LICENSE-MIT`, `LICENSE-APACHE`; control:
+`aocl-math-sys` lists the two licences and no `NOTICE`).
+
+## 2a. Publication status (CireSnave's cluster PM, 2026-11-22)
+
+Publish is **held** for every crate whose bindings derive from a header with no licence grant: `aocl-math-sys`
+(`amdlibm.h`), `aocl-rng-sys` (`rng.h`), and `aocl-blas-sys` / `aocl-lapack-sys` until the NOTICE terms above are
+accepted as covering the headers; and for `aocl-fft-sys` until the GPL question is answered. Crates whose headers state
+a BSD/MIT notice (`sparse`, `securerng`, `utils`, `crypto`, `data-analytics`, `compression` AMD/lz4/snappy parts) may
+publish once each published crate contains its own copy of the notice text.
+Already published: crates.io holds 0.1.0 of the `*-sys` crates with their `bindings/bindings.rs` and **no licence or
+notice file at all** (checked by downloading `aocl-math-sys`, `-rng-sys`, `-blas-sys`, `-lapack-sys`, `-fft-sys`
+0.1.0; `aocl-math-sys` 0.1.0 contains `bindings/bindings.rs`, 377 lines from `amdlibm.h`, and no `LICENSE*`).
 
 ## 3. `lz4frame.h` guard (`crates/aocl-compression-sys/wrapper/compression.h`)
 
