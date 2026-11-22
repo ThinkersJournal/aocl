@@ -5,6 +5,9 @@
 //! header, and emit the `cargo:rustc-link-*` directives needed to link the
 //! corresponding native library.
 
+#[cfg(windows)]
+pub mod loaded_dll;
+
 use std::env;
 use std::path::{Path, PathBuf};
 
