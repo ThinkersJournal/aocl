@@ -16,9 +16,11 @@
 //! [`numroc`] needs no MPI launcher or BLACS grid, but the library's DLLs
 //! (including `impi.dll` on Windows) must still be loadable.
 //!
-//! The tests here are the ones that need no MPI (`numroc`). Tests of the
-//! distributed routines need a multi-rank MPI host and are not written
-//! yet; there are no `#[ignore]`d placeholders.
+//! Tests: `numroc` needs no MPI. `tests/pdgesv_mpi.rs` (its own `main`, `harness = false`) builds a [`Grid`] and
+//! [`BlockCyclic`] descriptors and solves an asymmetric 6x6 system with [`pdgesv`] on however many ranks launched it:
+//! one rank under `cargo test`, 1, 2 and 3 under `mpiexec` on the self-hosted runner. The other distributed routines
+//! (`pdgemm`, the factorisations, `pdsyev`, `pdgels`, `pdgeqrf`, the single-precision and complex ones) have no test
+//! yet. There are no `#[ignore]`d placeholders.
 
 #![allow(
     clippy::too_many_arguments,
@@ -1059,7 +1061,7 @@ mod tests {
     /// deal blocks 0,3 / 1,4 / 2 to rows 0 / 1 / 2. The values are worked
     /// by hand from the definition, cross-checked against nothing external
     /// except this test passing against AOCL 5.3.2's `scalapack.dll` in a
-    /// single process (2026-11-19, no `mpiexec`); a multi-rank run has not
+    /// single process (2026-11-19, no `mpiexec`); the multi-rank run is `tests/pdgesv_mpi.rs`.
     /// been done.
     #[test]
     fn numroc_block_cyclic_split() {

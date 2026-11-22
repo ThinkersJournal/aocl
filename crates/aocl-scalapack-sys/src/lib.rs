@@ -186,6 +186,7 @@ extern "C" {
 // Distributed `C := α · op(A) · op(B) + β · C`. `transa`, `transb` are
 // 1-byte chars (`b'N'`, `b'T'`, `b'C'`).
 extern "C" {
+    #[cfg_attr(windows, link_name = "psgemm")]
     pub fn psgemm_(
         transa: *const c_char,
         transb: *const c_char,
@@ -208,6 +209,7 @@ extern "C" {
         descc: *const c_int,
     );
 
+    #[cfg_attr(windows, link_name = "pdgemm")]
     pub fn pdgemm_(
         transa: *const c_char,
         transb: *const c_char,
