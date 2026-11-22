@@ -29,3 +29,11 @@ rustdoc-args = ["--cfg", "docsrs"]
 [[test]]
 name = "pdgesv_mpi"
 harness = false
+
+[[test]]
+name = "psgesv_mpi"
+harness = false
+
+[[test]]
+name = "complex_mpi"
+harness = false
