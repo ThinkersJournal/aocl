@@ -233,6 +233,7 @@ impl Rsa {
                 message.as_ptr(),
                 message.len() as u64,
                 signature.as_ptr(),
+                signature.len() as u64,
             )
         })
     }
@@ -258,6 +259,7 @@ impl Rsa {
                 message.as_ptr(),
                 message.len() as u64,
                 signature.as_ptr(),
+                signature.len() as u64,
             )
         })
     }
@@ -289,6 +291,7 @@ impl Rsa {
             sys::alcp_rsa_privatekey_decrypt_pkcs1v15(
                 &mut self.handle,
                 ciphertext.as_ptr(),
+                ciphertext.len() as u64,
                 plaintext.as_mut_ptr(),
                 &mut text_len,
             )
@@ -318,6 +321,7 @@ impl Rsa {
                 hash.as_ptr(),
                 hash.len() as u64,
                 signature.as_ptr(),
+                signature.len() as u64,
             )
         })
     }
@@ -342,6 +346,7 @@ impl Rsa {
                 hash.as_ptr(),
                 hash.len() as u64,
                 signature.as_ptr(),
+                signature.len() as u64,
             )
         })
     }

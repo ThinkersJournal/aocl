@@ -575,7 +575,8 @@ macro_rules! impl_scalar {
                         n_cols as sys::da_int,
                         x.as_ptr(),
                         ldx as sys::da_int,
-                        q,
+                        &q,
+                        1,
                         quantile_out.as_mut_ptr(),
                         qtype.raw(),
                     )

@@ -100,7 +100,11 @@ impl EcDh {
                 private_key.len()
             )));
         }
-        check(unsafe { sys::alcp_ec_set_privatekey(&mut self.handle, private_key.as_ptr()) })
+        check(unsafe { sys::alcp_ec_set_privatekey(
+                &mut self.handle,
+                private_key.as_ptr(),
+                private_key.len() as u64,
+            ) })
     }
 
     /// Derive the local public key from the given private key, writing
@@ -121,7 +125,9 @@ impl EcDh {
             sys::alcp_ec_get_publickey(
                 &mut self.handle,
                 public_key.as_mut_ptr(),
+                public_key.len() as u64,
                 private_key.as_ptr(),
+                private_key.len() as u64,
             )
         })
     }
@@ -146,7 +152,9 @@ impl EcDh {
             sys::alcp_ec_get_secretkey(
                 &mut self.handle,
                 secret.as_mut_ptr(),
+                secret.len() as u64,
                 peer_public_key.as_ptr(),
+                peer_public_key.len() as u64,
                 &mut key_len,
             )
         })?;
