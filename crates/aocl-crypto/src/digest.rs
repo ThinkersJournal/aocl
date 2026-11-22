@@ -24,18 +24,18 @@ pub enum Mode {
 impl Mode {
     pub(crate) fn raw(self) -> sys::alc_digest_mode_t {
         match self {
-            Mode::Md5 => sys::_alc_digest_mode_ALC_MD5,
-            Mode::Sha1 => sys::_alc_digest_mode_ALC_SHA1,
-            Mode::Sha2_224 => sys::_alc_digest_mode_ALC_SHA2_224,
-            Mode::Sha2_256 => sys::_alc_digest_mode_ALC_SHA2_256,
-            Mode::Sha2_384 => sys::_alc_digest_mode_ALC_SHA2_384,
-            Mode::Sha2_512 => sys::_alc_digest_mode_ALC_SHA2_512,
-            Mode::Sha2_512_224 => sys::_alc_digest_mode_ALC_SHA2_512_224,
-            Mode::Sha2_512_256 => sys::_alc_digest_mode_ALC_SHA2_512_256,
-            Mode::Sha3_224 => sys::_alc_digest_mode_ALC_SHA3_224,
-            Mode::Sha3_256 => sys::_alc_digest_mode_ALC_SHA3_256,
-            Mode::Sha3_384 => sys::_alc_digest_mode_ALC_SHA3_384,
-            Mode::Sha3_512 => sys::_alc_digest_mode_ALC_SHA3_512,
+            Mode::Md5 => sys::alc_digest_mode_ALC_MD5,
+            Mode::Sha1 => sys::alc_digest_mode_ALC_SHA1,
+            Mode::Sha2_224 => sys::alc_digest_mode_ALC_SHA2_224,
+            Mode::Sha2_256 => sys::alc_digest_mode_ALC_SHA2_256,
+            Mode::Sha2_384 => sys::alc_digest_mode_ALC_SHA2_384,
+            Mode::Sha2_512 => sys::alc_digest_mode_ALC_SHA2_512,
+            Mode::Sha2_512_224 => sys::alc_digest_mode_ALC_SHA2_512_224,
+            Mode::Sha2_512_256 => sys::alc_digest_mode_ALC_SHA2_512_256,
+            Mode::Sha3_224 => sys::alc_digest_mode_ALC_SHA3_224,
+            Mode::Sha3_256 => sys::alc_digest_mode_ALC_SHA3_256,
+            Mode::Sha3_384 => sys::alc_digest_mode_ALC_SHA3_384,
+            Mode::Sha3_512 => sys::alc_digest_mode_ALC_SHA3_512,
         }
     }
 

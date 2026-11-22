@@ -35,10 +35,10 @@ pub enum Mode {
 impl Mode {
     fn raw(self) -> sys::alc_cipher_mode_t {
         match self {
-            Mode::AesGcm => sys::_alc_cipher_mode_ALC_AES_MODE_GCM,
-            Mode::AesCcm => sys::_alc_cipher_mode_ALC_AES_MODE_CCM,
-            Mode::AesSiv => sys::_alc_cipher_mode_ALC_AES_MODE_SIV,
-            Mode::ChaCha20Poly1305 => sys::_alc_cipher_mode_ALC_CHACHA20_POLY1305,
+            Mode::AesGcm => sys::alc_cipher_mode_ALC_AES_MODE_GCM,
+            Mode::AesCcm => sys::alc_cipher_mode_ALC_AES_MODE_CCM,
+            Mode::AesSiv => sys::alc_cipher_mode_ALC_AES_MODE_SIV,
+            Mode::ChaCha20Poly1305 => sys::alc_cipher_mode_ALC_CHACHA20_POLY1305,
         }
     }
 
@@ -140,12 +140,15 @@ impl Aead {
                 ciphertext.len()
             )));
         }
+        // AOCL 5.3 reports the bytes written through `outlen`; the length check above makes it equal `len`.
+        let mut written: u64 = 0;
         check(unsafe {
             sys::alcp_cipher_aead_encrypt(
                 &mut self.handle,
                 plaintext.as_ptr(),
                 ciphertext.as_mut_ptr(),
                 plaintext.len() as u64,
+                &mut written,
             )
         })
     }
@@ -161,12 +164,15 @@ impl Aead {
                 plaintext.len()
             )));
         }
+        // AOCL 5.3 reports the bytes written through `outlen`; the length check above makes it equal `len`.
+        let mut written: u64 = 0;
         check(unsafe {
             sys::alcp_cipher_aead_decrypt(
                 &mut self.handle,
                 ciphertext.as_ptr(),
                 plaintext.as_mut_ptr(),
                 ciphertext.len() as u64,
+                &mut written,
             )
         })
     }
@@ -189,9 +195,19 @@ impl Aead {
         expected_tag: &[u8],
     ) -> Result<()> {
         self.decrypt(ciphertext, plaintext)?;
-        let mut computed = vec![0u8; expected_tag.len()];
-        self.get_tag(&mut computed)?;
-        if !constant_time_eq(&computed, expected_tag) {
+        // AOCL 5.3 compares the buffer passed to `alcp_cipher_aead_get_tag` with the tag it computed during decryption
+        // and returns ALC_ERROR_TAG_MISMATCH (14); older versions overwrite the buffer with the computed tag. So pass
+        // the expected tag in, treat 14 as a mismatch, and still compare afterwards (which covers the older behaviour).
+        let mut computed = expected_tag.to_vec();
+        let mismatch = match self.get_tag(&mut computed) {
+            Ok(()) => false,
+            Err(Error::Status {
+                code: ALC_ERROR_TAG_MISMATCH,
+                ..
+            }) => true,
+            Err(e) => return Err(e),
+        };
+        if mismatch || !constant_time_eq(&computed, expected_tag) {
             // Zero plaintext on tag mismatch so callers can't accidentally
             // trust leaked bytes.
             for b in plaintext.iter_mut() {
@@ -206,6 +222,9 @@ impl Aead {
         Ok(())
     }
 }
+
+/// `ALC_ERROR_TAG_MISMATCH` in AOCL-Cryptography's `alc_error_t` (position 14 in `error.h`, 5.3.2).
+const ALC_ERROR_TAG_MISMATCH: i64 = 14;
 
 impl Drop for Aead {
     fn drop(&mut self) {

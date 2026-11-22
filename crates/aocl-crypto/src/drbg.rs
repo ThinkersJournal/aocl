@@ -86,7 +86,7 @@ impl Drbg {
         info.di_type = sys::_alc_drbg_type_ALC_DRBG_CTR;
         info.di_algoinfo.ctr_drbg = sys::_alc_ctr_drbg_info {
             di_keysize: key_len.bits(),
-            use_derivation_function: 1,
+            use_derivation_function: true,
         };
         info.max_entropy_len = 16;
         info.max_nonce_len = 16;
@@ -102,11 +102,11 @@ impl Drbg {
         // sourced from the OS (CryptGenRandom on Windows, /dev/urandom
         // on Linux). Setting ri_type=SIMPLE / ri_distrib=UNKNOWN causes
         // alcp_drbg_initialize to fail on AOCL 5.1.
-        info.di_rng_sourceinfo.custom_rng = 0;
+        info.di_rng_sourceinfo.custom_rng = false;
         info.di_rng_sourceinfo.di_sourceinfo.rng_info = sys::alc_rng_info_t {
-            ri_type: sys::alc_rng_type_t_ALC_RNG_TYPE_DISCRETE,
-            ri_source: sys::alc_rng_source_t_ALC_RNG_SOURCE_OS,
-            ri_distrib: sys::alc_rng_distrib_t_ALC_RNG_DISTRIB_UNIFORM,
+            ri_type: sys::alc_rng_type_ALC_RNG_TYPE_DISCRETE,
+            ri_source: sys::alc_rng_source_ALC_RNG_SOURCE_OS,
+            ri_distrib: sys::alc_rng_distrib_ALC_RNG_DISTRIB_UNIFORM,
             ri_flags: 0,
         };
 

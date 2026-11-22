@@ -215,7 +215,7 @@ impl Rsa {
         check(unsafe {
             sys::alcp_rsa_privatekey_sign_pss(
                 &mut self.handle,
-                1, // check = TRUE per ALCP convention
+                true, // check = TRUE per ALCP convention
                 message.as_ptr(),
                 message.len() as u64,
                 salt.as_ptr(),
@@ -242,7 +242,7 @@ impl Rsa {
         check(unsafe {
             sys::alcp_rsa_privatekey_sign_pkcs1v15(
                 &mut self.handle,
-                1,
+                true,
                 message.as_ptr(),
                 message.len() as u64,
                 signature.as_mut_ptr(),

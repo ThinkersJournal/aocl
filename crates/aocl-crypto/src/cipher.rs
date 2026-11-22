@@ -33,12 +33,12 @@ pub enum Mode {
 impl Mode {
     fn raw(self) -> sys::alc_cipher_mode_t {
         match self {
-            Mode::AesEcb => sys::_alc_cipher_mode_ALC_AES_MODE_ECB,
-            Mode::AesCbc => sys::_alc_cipher_mode_ALC_AES_MODE_CBC,
-            Mode::AesOfb => sys::_alc_cipher_mode_ALC_AES_MODE_OFB,
-            Mode::AesCtr => sys::_alc_cipher_mode_ALC_AES_MODE_CTR,
-            Mode::AesCfb => sys::_alc_cipher_mode_ALC_AES_MODE_CFB,
-            Mode::ChaCha20 => sys::_alc_cipher_mode_ALC_CHACHA20,
+            Mode::AesEcb => sys::alc_cipher_mode_ALC_AES_MODE_ECB,
+            Mode::AesCbc => sys::alc_cipher_mode_ALC_AES_MODE_CBC,
+            Mode::AesOfb => sys::alc_cipher_mode_ALC_AES_MODE_OFB,
+            Mode::AesCtr => sys::alc_cipher_mode_ALC_AES_MODE_CTR,
+            Mode::AesCfb => sys::alc_cipher_mode_ALC_AES_MODE_CFB,
+            Mode::ChaCha20 => sys::alc_cipher_mode_ALC_CHACHA20,
         }
     }
 }
@@ -107,12 +107,15 @@ impl Cipher {
                 ciphertext.len()
             )));
         }
+        // AOCL 5.3 reports the bytes written through `outlen`; the length check above makes it equal `len`.
+        let mut written: u64 = 0;
         check(unsafe {
             sys::alcp_cipher_encrypt(
                 &mut self.handle,
                 plaintext.as_ptr(),
                 ciphertext.as_mut_ptr(),
                 plaintext.len() as u64,
+                &mut written,
             )
         })
     }
@@ -126,12 +129,15 @@ impl Cipher {
                 plaintext.len()
             )));
         }
+        // AOCL 5.3 reports the bytes written through `outlen`; the length check above makes it equal `len`.
+        let mut written: u64 = 0;
         check(unsafe {
             sys::alcp_cipher_decrypt(
                 &mut self.handle,
                 ciphertext.as_ptr(),
                 plaintext.as_mut_ptr(),
                 ciphertext.len() as u64,
+                &mut written,
             )
         })
     }
