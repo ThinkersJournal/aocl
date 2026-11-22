@@ -7,11 +7,6 @@
 #![warn(missing_debug_implementations)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
-#[cfg(feature = "ilp64")]
-compile_error!(
-    "aocl-data-analytics: the `ilp64` feature is not supported: the safe API passes `&[i32]` label, index and class slices to the library as `da_int` pointers, which are 64-bit under ILP64 (measured: access violation in the test suite). Build without it."
-);
-
 use aocl_data_analytics_sys as sys;
 pub use aocl_error::{Error, Result};
 use aocl_types::sealed::Sealed;
@@ -2019,6 +2014,7 @@ impl KMeans {
                 labels.len()
             )));
         }
+        let mut out = IntsOut::new(k_samples);
         let status = unsafe {
             sys::da_kmeans_predict_d(
                 self.handle.raw,
@@ -2026,10 +2022,11 @@ impl KMeans {
                 k_features as sys::da_int,
                 y.as_ptr(),
                 k_samples as sys::da_int,
-                labels.as_mut_ptr() as *mut sys::da_int,
+                out.as_mut_ptr(),
             )
         };
-        check_status("data-analytics", status)
+        check_status("data-analytics", status)?;
+        out.write_back(labels, k_samples)
     }
 }
 
@@ -2127,12 +2124,53 @@ impl std::fmt::Debug for Pca {
     }
 }
 
+// ---------------------------------------------------------------------------
+//   Width-correct integer buffers
+// ---------------------------------------------------------------------------
+//
+// The safe API takes and returns `i32` labels, indices and class ids, but the library's `da_int` is 32-bit under LP64
+// and 64-bit under ILP64. Handing it a pointer cast from an `i32` slice is only right for LP64 (under ILP64 it reads
+// and writes 8 bytes per element: measured, an access violation), so every integer array goes through a `da_int`
+// buffer and is narrowed back with a range check.
+
+/// Copy `i32` values into a `da_int` buffer.
+fn ints_in(x: &[i32]) -> Vec<sys::da_int> {
+    x.iter().map(|&v| v as sys::da_int).collect()
+}
+
+/// A `da_int` output buffer that is narrowed back into the caller's `&mut [i32]`.
+struct IntsOut {
+    buf: Vec<sys::da_int>,
+}
+
+impl IntsOut {
+    fn new(len: usize) -> Self {
+        Self {
+            buf: vec![0; len.max(1)],
+        }
+    }
+    fn as_mut_ptr(&mut self) -> *mut sys::da_int {
+        self.buf.as_mut_ptr()
+    }
+    /// Copy the first `n` results into `out`, failing if a value does not fit in `i32`.
+    fn write_back(&self, out: &mut [i32], n: usize) -> Result<()> {
+        for (o, &v) in out.iter_mut().zip(self.buf.iter()).take(n) {
+            *o = i32::try_from(v).map_err(|_| {
+                Error::InvalidArgument(format!(
+                    "the library returned {v}, which does not fit in i32"
+                ))
+            })?;
+        }
+        Ok(())
+    }
+}
+
 /// k-nearest-neighbours classifier.
 pub struct KNearestNeighbours {
     handle: Handle,
     // `da_nn_set_data_d` / `da_nn_set_labels_d` store pointers, not copies, so the training data is owned here.
     train_x: Vec<f64>,
-    train_y: Vec<i32>,
+    train_y: Vec<sys::da_int>,
 }
 
 impl KNearestNeighbours {
@@ -2178,7 +2216,7 @@ impl KNearestNeighbours {
             )));
         }
         self.train_x = x_train[..n_samples * n_features].to_vec();
-        self.train_y = y_train[..n_samples].to_vec();
+        self.train_y = ints_in(&y_train[..n_samples]);
         let status = unsafe {
             sys::da_nn_set_data_d(
                 self.handle.raw,
@@ -2193,7 +2231,7 @@ impl KNearestNeighbours {
             sys::da_nn_set_labels_d(
                 self.handle.raw,
                 n_samples as sys::da_int,
-                self.train_y.as_ptr() as *const sys::da_int,
+                self.train_y.as_ptr(),
             )
         };
         check_status("data-analytics", status)
@@ -2220,6 +2258,7 @@ impl KNearestNeighbours {
                 labels.len()
             )));
         }
+        let mut out = IntsOut::new(n_queries);
         let status = unsafe {
             sys::da_nn_classifier_predict_d(
                 self.handle.raw,
@@ -2227,11 +2266,12 @@ impl KNearestNeighbours {
                 n_features as sys::da_int,
                 x_test.as_ptr(),
                 n_queries as sys::da_int,
-                labels.as_mut_ptr() as *mut sys::da_int,
+                out.as_mut_ptr(),
                 sys::da_nn_search_mode__knn_search_mode,
             )
         };
-        check_status("data-analytics", status)
+        check_status("data-analytics", status)?;
+        out.write_back(labels, n_queries)
     }
 
     /// For each of `n_queries` test rows, write into `n_ind` (length
@@ -2248,6 +2288,7 @@ impl KNearestNeighbours {
         k: usize,
         return_distance: bool,
     ) -> Result<()> {
+        let mut out = IntsOut::new(n_ind.len());
         let status = unsafe {
             sys::da_nn_kneighbors_d(
                 self.handle.raw,
@@ -2255,27 +2296,26 @@ impl KNearestNeighbours {
                 n_features as sys::da_int,
                 x_test.as_ptr(),
                 n_queries as sys::da_int,
-                n_ind.as_mut_ptr() as *mut sys::da_int,
+                out.as_mut_ptr(),
                 n_dist.as_mut_ptr(),
                 k as sys::da_int,
                 if return_distance { 1 } else { 0 } as sys::da_int,
             )
         };
-        check_status("data-analytics", status)
+        check_status("data-analytics", status)?;
+        out.write_back(n_ind, n_queries * k)
     }
 
     /// Retrieve the unique class labels seen during training. `classes`
     /// must be sized at least `n_classes`. Returns `n_classes`.
     pub fn classes(&self, classes: &mut [i32]) -> Result<usize> {
         let mut n_classes: sys::da_int = classes.len() as sys::da_int;
-        let status = unsafe {
-            sys::da_nn_classes_d(
-                self.handle.raw,
-                &mut n_classes,
-                classes.as_mut_ptr() as *mut sys::da_int,
-            )
-        };
+        let mut out = IntsOut::new(classes.len());
+        let status =
+            unsafe { sys::da_nn_classes_d(self.handle.raw, &mut n_classes, out.as_mut_ptr()) };
         check_status("data-analytics", status)?;
+        let n = (n_classes as usize).min(classes.len());
+        out.write_back(classes, n)?;
         Ok(n_classes as usize)
     }
 
@@ -2798,6 +2838,7 @@ impl DecisionTree {
             )));
         }
         let lda = n_samples;
+        let y_da = ints_in(&y[..n_samples]);
         let status = unsafe {
             sys::da_tree_set_training_data_d(
                 self.handle.raw,
@@ -2806,7 +2847,7 @@ impl DecisionTree {
                 n_class as sys::da_int,
                 x.as_ptr(),
                 lda as sys::da_int,
-                y.as_ptr() as *const sys::da_int,
+                y_da.as_ptr(),
                 std::ptr::null(), // categorical_features: none (argument added in AOCL 5.3)
             )
         };
@@ -2851,6 +2892,7 @@ impl DecisionTree {
                 labels.len()
             )));
         }
+        let mut out = IntsOut::new(n_samples);
         let status = unsafe {
             sys::da_tree_predict_d(
                 self.handle.raw,
@@ -2858,10 +2900,11 @@ impl DecisionTree {
                 n_features as sys::da_int,
                 x_test.as_ptr(),
                 n_samples as sys::da_int,
-                labels.as_mut_ptr() as *mut sys::da_int,
+                out.as_mut_ptr(),
             )
         };
-        check_status("data-analytics", status)
+        check_status("data-analytics", status)?;
+        out.write_back(labels, n_samples)
     }
 
     /// Compute prediction accuracy on a labelled test set: returns the
@@ -2873,6 +2916,13 @@ impl DecisionTree {
         x_test: &[f64],
         y_test: &[i32],
     ) -> Result<f64> {
+        if y_test.len() < n_samples {
+            return Err(Error::InvalidArgument(format!(
+                "score: y_test length {} < n_samples = {n_samples}",
+                y_test.len()
+            )));
+        }
+        let y_da = ints_in(&y_test[..n_samples]);
         let mut acc = 0.0_f64;
         let status = unsafe {
             sys::da_tree_score_d(
@@ -2881,7 +2931,7 @@ impl DecisionTree {
                 n_features as sys::da_int,
                 x_test.as_ptr(),
                 n_samples as sys::da_int,
-                y_test.as_ptr() as *const sys::da_int,
+                y_da.as_ptr(),
                 &mut acc,
             )
         };
@@ -2993,6 +3043,7 @@ impl DecisionForest {
             )));
         }
         let lda = n_samples;
+        let y_da = ints_in(&y[..n_samples]);
         let status = unsafe {
             sys::da_forest_set_training_data_d(
                 self.handle.raw,
@@ -3001,7 +3052,7 @@ impl DecisionForest {
                 n_class as sys::da_int,
                 x.as_ptr(),
                 lda as sys::da_int,
-                y.as_ptr() as *const sys::da_int,
+                y_da.as_ptr(),
                 std::ptr::null(), // categorical_features: none (argument added in AOCL 5.3)
             )
         };
@@ -3046,6 +3097,7 @@ impl DecisionForest {
                 labels.len()
             )));
         }
+        let mut out = IntsOut::new(n_samples);
         let status = unsafe {
             sys::da_forest_predict_d(
                 self.handle.raw,
@@ -3053,10 +3105,11 @@ impl DecisionForest {
                 n_features as sys::da_int,
                 x_test.as_ptr(),
                 n_samples as sys::da_int,
-                labels.as_mut_ptr() as *mut sys::da_int,
+                out.as_mut_ptr(),
             )
         };
-        check_status("data-analytics", status)
+        check_status("data-analytics", status)?;
+        out.write_back(labels, n_samples)
     }
 
     /// Compute prediction accuracy on a labelled test set.
@@ -3067,6 +3120,13 @@ impl DecisionForest {
         x_test: &[f64],
         y_test: &[i32],
     ) -> Result<f64> {
+        if y_test.len() < n_samples {
+            return Err(Error::InvalidArgument(format!(
+                "score: y_test length {} < n_samples = {n_samples}",
+                y_test.len()
+            )));
+        }
+        let y_da = ints_in(&y_test[..n_samples]);
         let mut acc = 0.0_f64;
         let status = unsafe {
             sys::da_forest_score_d(
@@ -3075,7 +3135,7 @@ impl DecisionForest {
                 n_features as sys::da_int,
                 x_test.as_ptr(),
                 n_samples as sys::da_int,
-                y_test.as_ptr() as *const sys::da_int,
+                y_da.as_ptr(),
                 &mut acc,
             )
         };
