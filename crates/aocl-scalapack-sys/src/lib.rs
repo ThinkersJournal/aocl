@@ -31,6 +31,15 @@
     reason = "bindgen output mirrors the C headers: names, unused items and C-only types are not ours to change"
 )]
 
+// The `ilp64` feature links the ILP64 `scalapack.dll` (AOCL for Windows ships `amd-scalapack/lib/ILP64`), but every
+// declaration below, and the safe crate's `i32` descriptor and pivot APIs, use 32-bit integers. Measured: with the
+// feature on, `numroc` returns garbage and the multi-rank test indexes out of bounds, while the same test passes against
+// the LP64 library. A silent ABI mismatch is worse than no feature, so it is refused at compile time.
+#[cfg(feature = "ilp64")]
+compile_error!(
+    "aocl-scalapack-sys: the `ilp64` feature is not implemented (declarations use 32-bit integers, which does not match      the ILP64 library). Build without it."
+);
+
 use std::os::raw::{c_char, c_int};
 
 // =========================================================================

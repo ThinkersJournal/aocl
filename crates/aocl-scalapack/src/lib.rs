@@ -18,9 +18,10 @@
 //!
 //! Tests: `numroc` needs no MPI. `tests/pdgesv_mpi.rs` (its own `main`, `harness = false`) builds a [`Grid`] and
 //! [`BlockCyclic`] descriptors and solves an asymmetric 6x6 system with [`pdgesv`], checks [`pdgemm`] (`Trans::No` and `Trans::T`) against a serial product, and runs [`pdgetrf`] + [`pdgetrs`] (both `Trans`) and [`pdpotrf`] + [`pdpotrs`] (both `Uplo`), [`pdsyev`] (both `Uplo`) and [`pdgels`], on however many ranks launched it:
-//! one rank under `cargo test`, 1, 2 and 3 under `mpiexec` on the self-hosted runner. `tests/psgesv_mpi.rs` repeats it for the single-precision `ps*` routines and `tests/complex_mpi.rs` runs `pcgesv` and
-//! `pzgesv`. There are no `#[ignore]`d placeholders; routines or arguments not named in these tests (for example
-//! `nrhs > 1`, non-unit block sizes on the row axis, and process grids other than `1 x P`) were not exercised.
+//! one rank under `cargo test`, 1, 2 and 3 under `mpiexec` on the self-hosted runner. `tests/psgesv_mpi.rs` repeats it for the single-precision `ps*` routines, `tests/complex_mpi.rs` runs `pcgesv` and
+//! `pzgesv`, and `tests/grid2d_mpi.rs` uses true 2D grids (up to 2x3), three right-hand sides and a non-zero grid
+//! origin. There are no `#[ignore]`d placeholders. Not exercised: block sizes other than 2, matrix sizes other than 6 and
+//! 8, sub-matrix offsets (`ia`, `ja` other than 1) and ILP64, which is refused at compile time.
 
 #![allow(
     clippy::too_many_arguments,

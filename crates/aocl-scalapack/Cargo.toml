@@ -37,3 +37,7 @@ harness = false
 [[test]]
 name = "complex_mpi"
 harness = false
+
+[[test]]
+name = "grid2d_mpi"
+harness = false
