@@ -336,6 +336,44 @@ mod tests {
         assert!(recovered.iter().all(|&b| b == 0));
     }
 
+    /// Every single-bit flip of the 16-byte tag must be rejected (and the plaintext zeroed): checks that the AOCL 5.3
+    /// "tag compare inside `get_tag`" path cannot accept a wrong tag, not only that it accepts the right one.
+    #[test]
+    fn aes_gcm_every_tag_bit_flip_rejected() {
+        let key = [0x11_u8; 16];
+        let iv = [0x22_u8; 12];
+        let plaintext = b"tag bit flips".to_vec();
+        let mut ciphertext = vec![0u8; plaintext.len()];
+        let mut tag = [0u8; 16];
+        {
+            let mut enc = Aead::new(Mode::AesGcm, &key, &iv).unwrap();
+            enc.encrypt(&plaintext, &mut ciphertext).unwrap();
+            enc.get_tag(&mut tag).unwrap();
+        }
+        // Control: the unmodified tag is accepted.
+        let mut ok = vec![0u8; plaintext.len()];
+        Aead::new(Mode::AesGcm, &key, &iv)
+            .unwrap()
+            .verify_and_decrypt(&ciphertext, &mut ok, &tag)
+            .unwrap();
+        assert_eq!(ok, plaintext);
+        for bit in 0..128 {
+            let mut bad = tag;
+            bad[bit / 8] ^= 1 << (bit % 8);
+            let mut out = vec![0u8; plaintext.len()];
+            let mut dec = Aead::new(Mode::AesGcm, &key, &iv).unwrap();
+            let r = dec.verify_and_decrypt(&ciphertext, &mut out, &bad);
+            assert!(
+                matches!(r, Err(Error::Status { code: -1, .. })),
+                "bit {bit}: {r:?}"
+            );
+            assert!(
+                out.iter().all(|&b| b == 0),
+                "bit {bit}: plaintext not zeroed"
+            );
+        }
+    }
+
     #[test]
     fn aes_gcm_ciphertext_tamper_detected() {
         let key = [0u8; 32];

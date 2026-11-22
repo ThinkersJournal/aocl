@@ -172,10 +172,46 @@ pub fn version() -> Option<String> {
 mod tests {
     use super::*;
 
+    /// The support query and the instruction must agree: supported means the read succeeds, unsupported means it
+    /// fails with a status (not a value). A flipped query fails on either kind of CPU.
     #[test]
     fn cpu_support_query_is_consistent() {
-        let _ = is_rdrand_supported();
-        let _ = is_rdseed_supported();
+        let r = rdrand_u32(DEFAULT_RETRY_COUNT);
+        assert_eq!(is_rdrand_supported(), r.is_ok(), "rdrand: {r:?}");
+        let s = rdseed_u32(DEFAULT_RETRY_COUNT);
+        // RDSEED can fail transiently on a supported CPU, so only the unsupported direction is exact.
+        if !is_rdseed_supported() {
+            assert!(s.is_err(), "rdseed unsupported but returned {s:?}");
+        }
+    }
+
+    #[test]
+    fn rdrand_arrays_are_filled_to_the_end() {
+        if !is_rdrand_supported() {
+            return;
+        }
+        let mut a32 = [0u32; 64];
+        rdrand_u32_array(&mut a32, DEFAULT_RETRY_COUNT).unwrap();
+        assert!(
+            a32[32..].iter().any(|&v| v != 0),
+            "second half of the u32 array untouched"
+        );
+        assert!(
+            a32[..32].iter().any(|&v| v != 0),
+            "first half of the u32 array untouched"
+        );
+        let mut a64 = [0u64; 32];
+        rdrand_u64_array(&mut a64, DEFAULT_RETRY_COUNT).unwrap();
+        assert!(
+            a64[16..].iter().any(|&v| v != 0),
+            "second half of the u64 array untouched"
+        );
+        let mut bytes = [0u8; 64];
+        rdrand_bytes(&mut bytes, DEFAULT_RETRY_COUNT).unwrap();
+        assert!(
+            bytes[32..].iter().any(|&b| b != 0),
+            "second half of the byte buffer untouched"
+        );
     }
 
     #[test]
