@@ -44,7 +44,7 @@ jobs:
           $ErrorActionPreference = 'Stop'
           # Same resolution as aocl-build's locate_aocl_root: AOCL_ROOT if set, else the default install.
           $aocl = if ($env:AOCL_ROOT) { $env:AOCL_ROOT } else { Join-Path $env:ProgramFiles 'AMD\AOCL-Windows' }
-          # scalapack.dll imports BLIS, libFLAME and libaoclutils (dumpbin /dependents, AOCL 5.3.2).
+          # scalapack.dll imports BLIS, libFLAME and libaoclutils (dumpbin /dependents, AOCL 5.3.x).
           $dirs = @(
             @{ Dir = Join-Path $aocl 'amd-scalapack\lib\LP64\shared'; File = 'scalapack.dll' },
             @{ Dir = Join-Path $aocl 'amd-blis\lib\LP64';              File = 'AOCL-LibBlis-Win-MT-dll.dll' },

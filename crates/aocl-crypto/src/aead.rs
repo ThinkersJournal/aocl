@@ -223,7 +223,7 @@ impl Aead {
     }
 }
 
-/// `ALC_ERROR_TAG_MISMATCH` in AOCL-Cryptography's `alc_error_t` (position 14 in `error.h`, 5.3.2).
+/// `ALC_ERROR_TAG_MISMATCH` in AOCL-Cryptography's `alc_error_t` (position 14 in `error.h`, 5.3.x).
 const ALC_ERROR_TAG_MISMATCH: i64 = 14;
 
 impl Drop for Aead {

@@ -9,7 +9,7 @@
 //! # Runtime
 //!
 //! Any program calling the distributed routines or building a [`Grid`] must
-//! be launched under an MPI runtime (on Windows the AOCL 5.3.2 `scalapack.dll` imports Intel MPI
+//! be launched under an MPI runtime (on Windows the AOCL 5.3.x `scalapack.dll` imports Intel MPI
 //! `impi.dll`, checked with `dumpbin /dependents`; MPICH / OpenMPI on Linux). MPI is **not**
 //! a Cargo dependency of this crate — link against your platform's MPI
 //! library at the binary level if you need additional MPI symbols.
@@ -1060,7 +1060,7 @@ mod tests {
     /// block-cyclic definition: 10 rows in blocks of 2 over 3 process rows
     /// deal blocks 0,3 / 1,4 / 2 to rows 0 / 1 / 2. The values are worked
     /// by hand from the definition, cross-checked against nothing external
-    /// except this test passing against AOCL 5.3.2's `scalapack.dll` in a
+    /// except this test passing against AOCL 5.3.x's `scalapack.dll` in a
     /// single process (2026-11-19, no `mpiexec`); the multi-rank run is `tests/pdgesv_mpi.rs`.
     /// been done.
     #[test]
