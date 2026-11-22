@@ -30,7 +30,23 @@ integers); it is a breaking change for any build script that builds the struct l
 `-DAOCL_ILP64 -DBLIS_ENABLE_ILP64 -DLAPACK_ILP64` (lines 201-204 of its `src/lib.rs`), and published `aocl-scalapack-sys`
 0.1.0 declares `c_int`. So as shipped, the sparse, rng, data-analytics and scalapack `ilp64` features are the unsound
 combination measured above (32-bit declarations against the ILP64 DLL); the `aocl-lapack` wrapper's `ilp64` does not
-compile; `aocl-blas`'s works for the tested paths. This is inferred from identical code paths, not re-run on the
-published packages. Whether it warrants a yank is the owner's call (board 494).
+compile; `aocl-blas`'s works for the tested paths. That paragraph was first inferred from identical code paths; the
+cases below were then **re-run against the downloaded 0.1.0 packages** (2026-11-22).
+Method: a scratch cargo project outside the repo per case, depending on `=0.1.0` from the registry, `cargo build [--features ilp64]`
+with the ILP64 DLL directories first on `PATH` for ILP64 runs, one build at a time; each program mirrors the crate's own test.
+Before building I read each published `build.rs` (a plain template calling `aocl_build`) and `aocl-build` 0.1.0 (writes only a
+stub into `OUT_DIR`, sets `LIBCLANG_PATH`, runs bindgen).
+
+| published 0.1.0 | LP64 control | `--features ilp64` | status |
+|---|---|---|---|
+| `aocl-sparse-sys` (raw `aoclsparse_dcsrmv`, 2x2 identity) | `dcsrmv status = 0, y = [3.0, 4.0]`, exit 0 | `size_of::<aoclsparse_int>() = 4`, prints `create_mat_descr status = 0`, then the process dies (exit 139, access violation); no `dcsrmv` line | **measured failure** |
+| `aocl-rng` (`reproducible_with_same_seed`, `uniform_in_range`) | both pass (mean 0.4969) | `RngInt` = 4 bytes; `Rng::new` fails: `Status { code: -3, "drandinitialize returned info=-3" }` and `On entry to drandinitialize, parameter number 3 had an illegal value`; exit 101 | **measured failure** |
+| `aocl-scalapack-sys` (raw `numroc_(10,2,p,0,3)`, p = 0..2) | `[4, 4, 2]`, OK | `[0, 0, 0]`, exit 1 | **measured failure** |
+| `aocl-scalapack` (safe crate) | **does not link**: `pdgemm_` and `psgemm_` unresolved (LNK1120), the bug fixed in 0.1.10 | same link failure | ilp64 measured through the `-sys` row; the safe crate is unusable on Windows either way |
+| `aocl-data-analytics` | **does not build** on 5.3.x (7 errors, first: `cannot find value da_handle_type__da_handle_knn in crate sys`) | same | not measurable; the `&[i32]` pointer-cast access violation is measured on the branch wrapper only: **INFERRED** for the published code |
+| `aocl-lapack` | builds | rustc did not finish within 3601 s and was killed (exit 143): **no result**. The 428 type errors are measured on the branch wrapper only: **INFERRED** for the published code | inconclusive |
+
+So a yank as unsound has measured failures on the published `aocl-sparse-sys`, `aocl-rng` and `aocl-scalapack-sys` 0.1.0 under
+their `ilp64` feature. Whether it warrants a yank is the owner's call (board 494).
 
 — lane: aocl
