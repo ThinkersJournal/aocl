@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased (version: pm-assist to allocate)
+## 0.1.10 - 2026-11-22
 
 - `aocl-scalapack-sys`: **fix link failure on Windows.** AOCL 5.3.2's `scalapack.dll` exports the PBLAS gemm routines as `pdgemm` and `psgemm` (no trailing underscore; `dumpbin /exports`), but the crate declared `pdgemm_` and `psgemm_`, so any binary that linked the `pdgemm` / `psgemm` wrappers failed with LNK2019. Windows now links by the exported names via `link_name`; other platforms are unchanged. Checked: the other 27 declared symbols are all exported.
 - `aocl-scalapack`: add `tests/pdgesv_mpi.rs`, a multi-rank test of `Grid`, `BlockCyclic` and `pdgesv` (asymmetric data; a transposed-deal mutant fails it on 2 ranks). Run by hand on 1, 2 and 3 ranks, 2026-11-21.
