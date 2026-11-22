@@ -339,6 +339,41 @@ mod tests {
         assert_eq!(recovered, payload, "{codec:?} round-trip mismatch");
     }
 
+    /// A round trip uses one mapping in both directions, so a wrong codec id passes it. These check the format on the
+    /// wire instead: the magic bytes each format must start with, and a zlib stream made by Python's `zlib`
+    /// (`zlib.compress(b"hello hello hello hello", 6)`), which is independent of AOCL.
+    #[test]
+    fn codec_mapping_produces_the_named_format() {
+        let payload = b"the quick brown fox jumps over the lazy dog
+"
+        .repeat(64);
+        let zstd = compress(Codec::Zstd, &payload, 3).unwrap();
+        assert_eq!(&zstd[..4], &[0x28, 0xB5, 0x2F, 0xFD], "zstd magic");
+        let zlib = compress(Codec::Zlib, &payload, 6).unwrap();
+        assert_eq!(zlib[0] & 0x0F, 8, "zlib CMF: deflate");
+        assert_eq!(
+            ((u16::from(zlib[0]) << 8) | u16::from(zlib[1])) % 31,
+            0,
+            "zlib header check"
+        );
+        let bz = compress(Codec::Bzip2, &payload, 9).unwrap();
+        assert_eq!(&bz[..3], b"BZh", "bzip2 magic");
+        // Raw snappy starts with the uncompressed length as a little-endian varint (2816 = 0x80 0x16); LZ4 does not.
+        let snappy = compress(Codec::Snappy, &payload, 0).unwrap();
+        assert_eq!(&snappy[..2], &[0x80, 0x16], "snappy length preamble");
+        // Cross-codec: a zlib stream must not decode as zstd.
+        assert!(decompress(Codec::Zstd, &zlib, payload.len()).is_err());
+    }
+
+    #[test]
+    fn zlib_decodes_a_stream_made_by_another_implementation() {
+        let stream: [u8; 16] = [
+            120, 156, 203, 72, 205, 201, 201, 87, 200, 64, 39, 1, 104, 3, 8, 177,
+        ];
+        let got = decompress(Codec::Zlib, &stream, 23).unwrap();
+        assert_eq!(got, b"hello hello hello hello");
+    }
+
     #[test]
     fn lz4_round_trip() {
         let payload = b"the quick brown fox jumps over the lazy dog\n".repeat(64);
