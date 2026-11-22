@@ -20,6 +20,7 @@ fn main() {
         unix_static: &["aocl-da"],
         unix_dynamic: &["aocl-da"],
         extra_includes: &[],
+        ilp64_defines: &["AOCLDA_ILP64"],
     }
     .build(&root);
 }

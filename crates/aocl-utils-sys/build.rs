@@ -20,6 +20,7 @@ fn main() {
         unix_static: &["aoclutils", "au_cpuid"],
         unix_dynamic: &["aoclutils", "au_cpuid"],
         extra_includes: &[],
+        ilp64_defines: &[],
     }
     .build(&root);
 }

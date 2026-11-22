@@ -7,6 +7,11 @@
 #![warn(missing_debug_implementations)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
+#[cfg(feature = "ilp64")]
+compile_error!(
+    "aocl-data-analytics: the `ilp64` feature is not supported: the safe API passes `&[i32]` label, index and class slices to the library as `da_int` pointers, which are 64-bit under ILP64 (measured: access violation in the test suite). Build without it."
+);
+
 use aocl_data_analytics_sys as sys;
 pub use aocl_error::{Error, Result};
 use aocl_types::sealed::Sealed;

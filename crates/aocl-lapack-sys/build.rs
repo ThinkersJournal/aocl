@@ -20,6 +20,7 @@ fn main() {
         unix_static: &["flame"],
         unix_dynamic: &["flame"],
         extra_includes: &[],
+        ilp64_defines: &[],
     }
     .build(&root);
 }

@@ -20,6 +20,7 @@ fn main() {
         unix_static: &["aoclsparse"],
         unix_dynamic: &["aoclsparse"],
         extra_includes: &[],
+        ilp64_defines: &["aoclsparse_ILP64"],
     }
     .build(&root);
 }

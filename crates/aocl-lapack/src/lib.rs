@@ -20,6 +20,11 @@
 #![warn(missing_debug_implementations)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
+#[cfg(feature = "ilp64")]
+compile_error!(
+    "aocl-lapack: the `ilp64` feature is not supported: the safe API uses 32-bit integers (i32 pivots and info arguments) against 64-bit bindings, which does not compile (428 errors measured) and cannot be made sound without a breaking API change. Build without it."
+);
+
 pub use aocl_error::{Error, Result};
 use aocl_lapack_sys as sys;
 use aocl_types::sealed::Sealed;
