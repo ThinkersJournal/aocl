@@ -17,10 +17,9 @@
 //! (including `impi.dll` on Windows) must still be loadable.
 //!
 //! Tests: `numroc` needs no MPI. `tests/pdgesv_mpi.rs` (its own `main`, `harness = false`) builds a [`Grid`] and
-//! [`BlockCyclic`] descriptors and solves an asymmetric 6x6 system with [`pdgesv`] checks [`pdgemm`] (`Trans::No` and `Trans::T`) against a serial product, and runs [`pdgetrf`] + [`pdgetrs`] (both `Trans`) and [`pdpotrf`] + [`pdpotrs`] (both `Uplo`), on however many ranks launched it:
+//! [`BlockCyclic`] descriptors and solves an asymmetric 6x6 system with [`pdgesv`], checks [`pdgemm`] (`Trans::No` and `Trans::T`) against a serial product, and runs [`pdgetrf`] + [`pdgetrs`] (both `Trans`) and [`pdpotrf`] + [`pdpotrs`] (both `Uplo`), [`pdsyev`] (both `Uplo`) and [`pdgels`], on however many ranks launched it:
 //! one rank under `cargo test`, 1, 2 and 3 under `mpiexec` on the self-hosted runner. The other distributed routines
-//! (`pdsyev`, `pdgels`, `pdgeqrf`, the single-precision and complex ones) have no test
-//! yet. There are no `#[ignore]`d placeholders.
+//! (`pdgeqrf`, the single-precision and complex ones) have no test yet. There are no `#[ignore]`d placeholders.
 
 #![allow(
     clippy::too_many_arguments,

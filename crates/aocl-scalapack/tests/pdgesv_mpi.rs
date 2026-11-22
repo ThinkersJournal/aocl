@@ -6,11 +6,12 @@
 //! asymmetric (`A != A^T`, columns of different weight) so a transposed or mis-dealt matrix gives a wrong `x`.
 //! The same process then checks `pdgemm` (`C = 2 A B + 0.5 C0` and `C = A^T B`) against a serial product, `pdgetrf` +
 //! `pdgetrs` (`A x = b` and `A^T x = b`), and `pdpotrf` + `pdpotrs` for both triangles (the unused triangle holds 999,
-//! so reading the wrong one gives a wrong `x`).
+//! so reading the wrong one gives a wrong `x`), `pdsyev` (eigenvalues ascending, trace and Frobenius invariants, and
+//! unit norm, orthogonality and `A z = w z` for every eigenvector this process owns) and `pdgels` (a consistent 8 x 4 system with a known solution).
 
 use aocl_scalapack::{
-    blacs_exit, numroc, pdgemm, pdgesv, pdgetrf, pdgetrs, pdpotrf, pdpotrs, BlockCyclic, Grid,
-    Trans, Uplo,
+    blacs_exit, numroc, pdgels, pdgemm, pdgesv, pdgetrf, pdgetrs, pdpotrf, pdpotrs, pdsyev,
+    BlockCyclic, EigCompute, Grid, Trans, Uplo,
 };
 
 const N: usize = 6;
@@ -208,6 +209,182 @@ fn main() {
                     "rank {mypnum}/{nprocs}: pdpotrs {uplo:?} x[{i}] = {} want {}",
                     x[i],
                     x_true[i]
+                );
+            }
+        }
+    }
+
+    // ---- pdsyev: symmetric eigenproblem, each triangle (the unused one holds 999) ----
+    let trace: f64 = (0..N).map(|i| spd(i, i)).sum();
+    let frob2: f64 = (0..N)
+        .flat_map(|i| (0..N).map(move |j| (i, j)))
+        .map(|(i, j)| spd(i, j).powi(2))
+        .sum();
+    for uplo in [Uplo::Lower, Uplo::Upper] {
+        let mut m = local(&|i, j| {
+            let keep = match uplo {
+                Uplo::Lower => i >= j,
+                Uplo::Upper => i <= j,
+            };
+            if keep {
+                spd(i, j)
+            } else {
+                999.0
+            }
+        });
+        let mut w = vec![0.0_f64; N];
+        let mut z = vec![0.0_f64; N * loc_cols.max(1)];
+        let mut work = vec![0.0_f64; 1];
+        // Workspace query (lwork = -1), then the real call.
+        pdsyev(
+            EigCompute::ValuesAndVectors,
+            uplo,
+            N,
+            &mut m,
+            1,
+            1,
+            &desc,
+            &mut w,
+            &mut z,
+            1,
+            1,
+            &desc,
+            &mut work,
+            -1,
+        )
+        .expect("pdsyev workspace query");
+        let lwork = work[0] as usize + 16;
+        let mut work = vec![0.0_f64; lwork];
+        pdsyev(
+            EigCompute::ValuesAndVectors,
+            uplo,
+            N,
+            &mut m,
+            1,
+            1,
+            &desc,
+            &mut w,
+            &mut z,
+            1,
+            1,
+            &desc,
+            &mut work,
+            lwork as i32,
+        )
+        .expect("pdsyev");
+        assert!(
+            w.windows(2).all(|p| p[0] <= p[1]),
+            "{uplo:?}: eigenvalues not ascending: {w:?}"
+        );
+        let sum: f64 = w.iter().sum();
+        let sum2: f64 = w.iter().map(|v| v * v).sum();
+        assert!(
+            (sum - trace).abs() < 1e-9,
+            "{uplo:?}: sum of eigenvalues {sum} != trace {trace}"
+        );
+        assert!(
+            (sum2 - frob2).abs() < 1e-8,
+            "{uplo:?}: sum of squares {sum2} != Frobenius^2 {frob2}"
+        );
+        // A zero Z satisfies A z = w z trivially, so first require unit norm, and orthogonality between this
+        // process's eigenvectors (each is a whole local column, since the grid has one process row).
+        for lj in 0..loc_cols {
+            let norm2: f64 = (0..N).map(|k| z[lj * N + k].powi(2)).sum();
+            assert!(
+                (norm2 - 1.0).abs() < 1e-9,
+                "{uplo:?}: |z|^2 = {norm2} for local eigenvector {lj}"
+            );
+            for lk in 0..lj {
+                let dot: f64 = (0..N).map(|k| z[lj * N + k] * z[lk * N + k]).sum();
+                assert!(
+                    dot.abs() < 1e-9,
+                    "{uplo:?}: local eigenvectors {lk} and {lj} not orthogonal: {dot}"
+                );
+            }
+        }
+        // Each eigenvector (a whole local column, since the grid has one process row) satisfies A z = w z.
+        for lj in 0..loc_cols {
+            let gj = global_col(lj);
+            for i in 0..N {
+                let az: f64 = (0..N).map(|k| spd(i, k) * z[lj * N + k]).sum();
+                let wz = w[gj] * z[lj * N + i];
+                assert!(
+                    (az - wz).abs() < 1e-9,
+                    "rank {mypnum}/{nprocs}: pdsyev {uplo:?} (A z - w z)[{i}] for eigenvector {gj} = {}",
+                    az - wz
+                );
+            }
+        }
+    }
+
+    // ---- pdgels: min |A x - b| for a consistent 8 x 4 system, so x must equal x_true ----
+    {
+        const M: usize = 8;
+        const NG: usize = 4;
+        let ga = |i: usize, j: usize| {
+            (i as f64 + 1.0) * (j as f64 + 2.0).sqrt() + if i == j { 5.0 } else { -0.5 * j as f64 }
+        };
+        let loc_g = numroc(NG, NB, mycol, 0, p);
+        let mut ag = vec![0.0_f64; M * loc_g.max(1)];
+        for lj in 0..loc_g {
+            let gj = ((lj / NB) * p + mycol) * NB + lj % NB;
+            for i in 0..M {
+                ag[lj * M + i] = ga(i, gj);
+            }
+        }
+        let xg = [1.0_f64, -2.0, 0.5, 3.0];
+        let mut bg = vec![0.0_f64; M];
+        if mycol == 0 {
+            for i in 0..M {
+                bg[i] = (0..NG).map(|j| ga(i, j) * xg[j]).sum();
+            }
+        }
+        let da = BlockCyclic::new(&grid, M, NG, NB, NB, 0, 0, M).expect("gels desca");
+        let db = BlockCyclic::new(&grid, M, 1, NB, 1, 0, 0, M).expect("gels descb");
+        let mut work = vec![0.0_f64; 1];
+        pdgels(
+            Trans::No,
+            M,
+            NG,
+            1,
+            &mut ag,
+            1,
+            1,
+            &da,
+            &mut bg,
+            1,
+            1,
+            &db,
+            &mut work,
+            -1,
+        )
+        .expect("pdgels workspace query");
+        let lwork = work[0] as usize + 16;
+        let mut work = vec![0.0_f64; lwork];
+        pdgels(
+            Trans::No,
+            M,
+            NG,
+            1,
+            &mut ag,
+            1,
+            1,
+            &da,
+            &mut bg,
+            1,
+            1,
+            &db,
+            &mut work,
+            lwork as i32,
+        )
+        .expect("pdgels");
+        if mycol == 0 {
+            for j in 0..NG {
+                assert!(
+                    (bg[j] - xg[j]).abs() < 1e-9,
+                    "rank {mypnum}/{nprocs}: pdgels x[{j}] = {} want {}",
+                    bg[j],
+                    xg[j]
                 );
             }
         }
