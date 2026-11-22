@@ -24,3 +24,8 @@ static-link = ["aocl-scalapack-sys/static-link"]
 [package.metadata.docs.rs]
 default-target = "x86_64-unknown-linux-gnu"
 rustdoc-args = ["--cfg", "docsrs"]
+
+# Runs under `mpiexec`: a custom main so BLACS/MPI is initialised once per process, not once per test thread.
+[[test]]
+name = "pdgesv_mpi"
+harness = false

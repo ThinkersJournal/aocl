@@ -59,13 +59,28 @@ jobs:
 
           # scalapack.dll also imports impi.dll, libifcoremd.dll, libmmd.dll, svml_dispmd.dll and (through BLIS) libiomp5md.dll: oneAPI ships them.
           $oneapi = Join-Path ${env:ProgramFiles(x86)} 'Intel\oneAPI'
-          # oneAPI keeps these in different component directories depending on the install, so look for each one.
+          # oneAPI keeps these in different component directories, and the same name also exists as a 0-byte symlink
+          # (2026.1\bin\impi.dll), as a 32-bit copy (advisor\bin32) and as a debug build (mpi\...\bin\mpi\debug). Take only a
+          # real file: not a link, not empty, a 64-bit PE (machine 0x8664), not under a debug directory; newest path first.
+          function Test-X64Pe([string]$Path) {
+            $fs = [IO.File]::OpenRead($Path)
+            try { $b = New-Object byte[] 4096; $n = $fs.Read($b, 0, 4096) } finally { $fs.Dispose() }
+            if ($n -lt 64 -or $b[0] -ne 0x4D -or $b[1] -ne 0x5A) { return $false }
+            $off = [BitConverter]::ToInt32($b, 0x3C)
+            if ($off -lt 0 -or $off + 6 -gt $n) { return $false }
+            return [BitConverter]::ToUInt16($b, $off + 4) -eq 0x8664
+          }
+          function Find-Real([string]$Root, [string]$Name) {
+            Get-ChildItem -LiteralPath $Root -Filter $Name -Recurse -File -ErrorAction SilentlyContinue |
+              Where-Object { -not $_.LinkType -and $_.Length -gt 0 -and $_.FullName -notmatch '\\debug\\'-and (Test-X64Pe $_.FullName) } |
+              Sort-Object FullName -Descending | Select-Object -First 1
+          }
           if (-not (Test-Path -LiteralPath $oneapi)) { throw "oneAPI not found at $oneapi" }
           $seen = @{}
-          foreach ($f in 'impi.dll', 'libifcoremd.dll', 'libmmd.dll', 'svml_dispmd.dll', 'libiomp5md.dll') {
-            $hit = Get-ChildItem -LiteralPath $oneapi -Filter $f -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
-            if (-not $hit) { throw "oneAPI: $f not found under $oneapi" }
-            "oneAPI runtime : $($hit.FullName)"
+          foreach ($f in 'impi.dll', 'libifcoremd.dll', 'libmmd.dll', 'svml_dispmd.dll', 'libiomp5md.dll', 'mpiexec.exe') {
+            $hit = Find-Real $oneapi $f
+            if (-not $hit) { throw "oneAPI: no real x64 $f (non-link, non-empty, not debug) under $oneapi" }
+            "oneAPI runtime : $($hit.FullName) ($($hit.Length) bytes, x64)"
             if (-not $seen.ContainsKey($hit.DirectoryName)) {
               $seen[$hit.DirectoryName] = $true
               [IO.File]::AppendAllText($env:GITHUB_PATH, "$($hit.DirectoryName)`n")
@@ -87,5 +102,23 @@ jobs:
         run: |
           cargo test --locked -p aocl-scalapack --no-fail-fast -- --nocapture
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      # Multi-rank step (mpiexec -n 4 over the test binary) lands with the first test of Grid / pdgesv. Such tests are
-      # never #[ignore]d: they run here, or they are not written.
+
+      # The pdgesv_mpi test has its own main (harness = false): `cargo test` above ran it on one rank; here the same
+      # binary runs on 1, 2 and 3 ranks under mpiexec (asymmetric data, columns dealt cyclically, so a wrong answer shows).
+      - name: aocl-scalapack multi-rank (mpiexec)
+        shell: powershell
+        run: |
+          # Not 'Stop': Windows PowerShell 5.1 turns a native command's stderr (cargo's "Finished" line) into a terminating error.
+          $json = cargo test --locked -p aocl-scalapack --test pdgesv_mpi --no-run --message-format=json 2>$null
+          if ($LASTEXITCODE -ne 0) { throw "cargo test --no-run failed with exit code $LASTEXITCODE" }
+          $exe = $json |
+            ForEach-Object { try { $_ | ConvertFrom-Json } catch { $null } } |
+            Where-Object { $_.reason -eq 'compiler-artifact' -and $_.target.name -eq 'pdgesv_mpi' -and $_.executable } |
+            Select-Object -ExpandProperty executable -Last 1
+          if (-not $exe) { throw 'pdgesv_mpi test executable not found in cargo output' }
+          "test exe: $exe"
+          foreach ($n in 1, 2, 3) {
+            "== mpiexec -n $n"
+            mpiexec -n $n $exe
+            if ($LASTEXITCODE -ne 0) { throw "mpiexec -n $n failed with exit code $LASTEXITCODE" }
+          }
