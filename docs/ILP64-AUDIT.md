@@ -49,4 +49,12 @@ stub into `OUT_DIR`, sets `LIBCLANG_PATH`, runs bindgen).
 So a yank as unsound has measured failures on the published `aocl-sparse-sys`, `aocl-rng` and `aocl-scalapack-sys` 0.1.0 under
 their `ilp64` feature. Whether it warrants a yank is the owner's call (board 494).
 
+## AOCL 6.0.0 results (2026-11-22, installed AOCL-Windows 6.0.0, branch lane/real-aocl-wrappers)
+
+`cargo test -p <crate> --features ilp64` with every `amd-*\lib\ILP64` dir first on PATH: `aocl-blas` 53, `aocl-lapack` 20,
+`aocl-sparse` 21, `aocl-rng` 11 pass; `aocl-data-analytics` 24 pass only with `KMP_DUPLICATE_LIB_OK=TRUE` (the AMD two-OpenMP-runtime
+defect, https://github.com/amd/aocl-data-analytics/issues/2, on LP64 as well); `aocl-scalapack` pdgesv, psgesv, grid2d, complex under
+`mpiexec -n 1/4/6`: every rank prints ok, on both LP64 and ILP64. LP64 workspace `cargo test` passes apart from the same DA abort.
+The three repro cases of the table above (sparse csrmv on a 2x2 identity, rng uniform, scalapack numroc) are the branch's ILP64 tests and pass.
+
 — lane: aocl
