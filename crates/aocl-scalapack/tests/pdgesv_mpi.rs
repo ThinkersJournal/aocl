@@ -7,11 +7,11 @@
 //! The same process then checks `pdgemm` (`C = 2 A B + 0.5 C0` and `C = A^T B`) against a serial product, `pdgetrf` +
 //! `pdgetrs` (`A x = b` and `A^T x = b`), and `pdpotrf` + `pdpotrs` for both triangles (the unused triangle holds 999,
 //! so reading the wrong one gives a wrong `x`), `pdsyev` (eigenvalues ascending, trace and Frobenius invariants, and
-//! unit norm, orthogonality and `A z = w z` for every eigenvector this process owns) and `pdgels` (a consistent 8 x 4 system with a known solution).
+//! unit norm, orthogonality and `A z = w z` for every eigenvector this process owns) and `pdgels` (a consistent 8 x 4 system with a known solution), and `pdgeqrf` (|R| against a serial Householder QR).
 
 use aocl_scalapack::{
-    blacs_exit, numroc, pdgels, pdgemm, pdgesv, pdgetrf, pdgetrs, pdpotrf, pdpotrs, pdsyev,
-    BlockCyclic, EigCompute, Grid, Trans, Uplo,
+    blacs_exit, numroc, pdgels, pdgemm, pdgeqrf, pdgesv, pdgetrf, pdgetrs, pdpotrf, pdpotrs,
+    pdsyev, BlockCyclic, EigCompute, Grid, Trans, Uplo,
 };
 
 const N: usize = 6;
@@ -385,6 +385,59 @@ fn main() {
                     "rank {mypnum}/{nprocs}: pdgels x[{j}] = {} want {}",
                     bg[j],
                     xg[j]
+                );
+            }
+        }
+    }
+
+    // ---- pdgeqrf: |R| of an 8 x 4 matrix against a serial Householder QR (signs may differ) ----
+    {
+        const M: usize = 8;
+        const NG: usize = 4;
+        let ga = |i: usize, j: usize| {
+            (i as f64 + 1.0) * (j as f64 + 2.0).sqrt() + if i == j { 5.0 } else { -0.5 * j as f64 }
+        };
+        // Serial QR, column-major: r[j * M + i].
+        let mut r: Vec<f64> = (0..NG)
+            .flat_map(|j| (0..M).map(move |i| (i, j)))
+            .map(|(i, j)| ga(i, j))
+            .collect();
+        for k in 0..NG {
+            let norm = (k..M).map(|i| r[k * M + i].powi(2)).sum::<f64>().sqrt();
+            let alpha = if r[k * M + k] > 0.0 { -norm } else { norm };
+            let mut v: Vec<f64> = (k..M).map(|i| r[k * M + i]).collect();
+            v[0] -= alpha;
+            let vnorm2: f64 = v.iter().map(|x| x * x).sum();
+            for j in k..NG {
+                let dot: f64 = (k..M).map(|i| v[i - k] * r[j * M + i]).sum();
+                for i in k..M {
+                    r[j * M + i] -= 2.0 * dot / vnorm2 * v[i - k];
+                }
+            }
+        }
+        let loc_g = numroc(NG, NB, mycol, 0, p);
+        let mut ag = vec![0.0_f64; M * loc_g.max(1)];
+        for lj in 0..loc_g {
+            let gj = ((lj / NB) * p + mycol) * NB + lj % NB;
+            for i in 0..M {
+                ag[lj * M + i] = ga(i, gj);
+            }
+        }
+        let da = BlockCyclic::new(&grid, M, NG, NB, NB, 0, 0, M).expect("qr desca");
+        let mut tau = vec![0.0_f64; loc_g.max(1) + NB];
+        let mut work = vec![0.0_f64; 1];
+        pdgeqrf(M, NG, &mut ag, 1, 1, &da, &mut tau, &mut work, -1)
+            .expect("pdgeqrf workspace query");
+        let lwork = work[0] as usize + 16;
+        let mut work = vec![0.0_f64; lwork];
+        pdgeqrf(M, NG, &mut ag, 1, 1, &da, &mut tau, &mut work, lwork as i32).expect("pdgeqrf");
+        for lj in 0..loc_g {
+            let gj = ((lj / NB) * p + mycol) * NB + lj % NB;
+            for i in 0..=gj {
+                let (got, want) = (ag[lj * M + i].abs(), r[gj * M + i].abs());
+                assert!(
+                    (got - want).abs() < 1e-9,
+                    "rank {mypnum}/{nprocs}: pdgeqrf |R[{i},{gj}]| = {got}, serial QR says {want}"
                 );
             }
         }
