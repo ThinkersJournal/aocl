@@ -4,9 +4,14 @@
 //! the libtest thread-per-test harness cannot give. Run it as `cargo test -p aocl-scalapack --test pdgesv_mpi`
 //! (one rank) or `mpiexec -n 2 <path to the test exe>` (two ranks, columns dealt cyclically). The data is
 //! asymmetric (`A != A^T`, columns of different weight) so a transposed or mis-dealt matrix gives a wrong `x`.
-//! The same process then checks `pdgemm` (`C = 2 A B + 0.5 C0` and `C = A^T B`) against a serial product.
+//! The same process then checks `pdgemm` (`C = 2 A B + 0.5 C0` and `C = A^T B`) against a serial product, `pdgetrf` +
+//! `pdgetrs` (`A x = b` and `A^T x = b`), and `pdpotrf` + `pdpotrs` for both triangles (the unused triangle holds 999,
+//! so reading the wrong one gives a wrong `x`).
 
-use aocl_scalapack::{blacs_exit, numroc, pdgemm, pdgesv, BlockCyclic, Grid, Trans};
+use aocl_scalapack::{
+    blacs_exit, numroc, pdgemm, pdgesv, pdgetrf, pdgetrs, pdpotrf, pdpotrs, BlockCyclic, Grid,
+    Trans, Uplo,
+};
 
 const N: usize = 6;
 const NB: usize = 2;
@@ -126,6 +131,83 @@ fn main() {
                     (got - want).abs() < 1e-9,
                     "rank {mypnum}/{nprocs}: pdgemm {trans:?} C[{i},{}] = {got}, want {want}",
                     global_col(lj)
+                );
+            }
+        }
+    }
+
+    // ---- pdgetrf + pdgetrs: A x = b and A^T x = b ----
+    for trans in [Trans::No, Trans::T] {
+        let rhs: Vec<f64> = (0..N)
+            .map(|i| {
+                (0..N)
+                    .map(|j| {
+                        let a = if trans == Trans::T {
+                            a_global(j, i)
+                        } else {
+                            a_global(i, j)
+                        };
+                        a * x_true[j]
+                    })
+                    .sum()
+            })
+            .collect();
+        let mut lu = local(&a_global);
+        let mut piv = vec![0_i32; N + NB];
+        pdgetrf(N, N, &mut lu, 1, 1, &desca, &mut piv).expect("pdgetrf");
+        let mut x = vec![0.0_f64; N];
+        if mycol == 0 {
+            x.copy_from_slice(&rhs);
+        }
+        pdgetrs(trans, N, 1, &lu, 1, 1, &desca, &piv, &mut x, 1, 1, &descb).expect("pdgetrs");
+        if mycol == 0 {
+            for i in 0..N {
+                assert!(
+                    (x[i] - x_true[i]).abs() < 1e-9,
+                    "rank {mypnum}/{nprocs}: pdgetrs {trans:?} x[{i}] = {} want {}",
+                    x[i],
+                    x_true[i]
+                );
+            }
+        }
+    }
+
+    // ---- pdpotrf + pdpotrs on a symmetric positive definite matrix, each triangle ----
+    let spd = |i: usize, j: usize| {
+        if i == j {
+            8.0 + i as f64
+        } else {
+            1.0 / (1.0 + (i as f64 - j as f64).abs())
+        }
+    };
+    let spd_rhs: Vec<f64> = (0..N)
+        .map(|i| (0..N).map(|j| spd(i, j) * x_true[j]).sum())
+        .collect();
+    for uplo in [Uplo::Lower, Uplo::Upper] {
+        let mut f = local(&|i, j| {
+            let keep = match uplo {
+                Uplo::Lower => i >= j,
+                Uplo::Upper => i <= j,
+            };
+            if keep {
+                spd(i, j)
+            } else {
+                999.0
+            }
+        });
+        pdpotrf(uplo, N, &mut f, 1, 1, &desca).expect("pdpotrf");
+        let mut x = vec![0.0_f64; N];
+        if mycol == 0 {
+            x.copy_from_slice(&spd_rhs);
+        }
+        pdpotrs(uplo, N, 1, &f, 1, 1, &desca, &mut x, 1, 1, &descb).expect("pdpotrs");
+        if mycol == 0 {
+            for i in 0..N {
+                assert!(
+                    (x[i] - x_true[i]).abs() < 1e-9,
+                    "rank {mypnum}/{nprocs}: pdpotrs {uplo:?} x[{i}] = {} want {}",
+                    x[i],
+                    x_true[i]
                 );
             }
         }
