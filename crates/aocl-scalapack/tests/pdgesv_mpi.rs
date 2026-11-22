@@ -335,8 +335,8 @@ fn main() {
         let xg = [1.0_f64, -2.0, 0.5, 3.0];
         let mut bg = vec![0.0_f64; M];
         if mycol == 0 {
-            for i in 0..M {
-                bg[i] = (0..NG).map(|j| ga(i, j) * xg[j]).sum();
+            for (i, v) in bg.iter_mut().enumerate() {
+                *v = (0..NG).map(|j| ga(i, j) * xg[j]).sum();
             }
         }
         let da = BlockCyclic::new(&grid, M, NG, NB, NB, 0, 0, M).expect("gels desca");
