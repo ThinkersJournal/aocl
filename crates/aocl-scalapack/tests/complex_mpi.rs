@@ -3,7 +3,7 @@
 //! `x` has distinct real and imaginary parts, and `b = A x` is formed with a serial complex product, so a conjugated,
 //! transposed or mis-dealt matrix, or real and imaginary parts swapped, gives a wrong `x`.
 
-use aocl_scalapack::{blacs_exit, numroc, pcgesv, pzgesv, BlockCyclic, Grid};
+use aocl_scalapack::{blacs_exit, numroc, pcgesv, pzgesv, BlockCyclic, Grid, Int};
 
 const N: usize = 6;
 const NB: usize = 2;
@@ -52,7 +52,7 @@ macro_rules! check {
         }
         let desca = BlockCyclic::new(grid, N, N, NB, NB, 0, 0, N).expect("desca");
         let descb = BlockCyclic::new(grid, N, 1, NB, 1, 0, 0, N).expect("descb");
-        let mut ipiv = vec![0_i32; N + NB];
+        let mut ipiv = vec![0 as Int; N + NB];
         $solve(N, 1, &mut a, 1, 1, &desca, &mut ipiv, &mut b, 1, 1, &descb).expect($name);
         if mycol == 0 {
             for i in 0..N {

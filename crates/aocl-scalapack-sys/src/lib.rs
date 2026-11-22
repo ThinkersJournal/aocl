@@ -31,16 +31,15 @@
     reason = "bindgen output mirrors the C headers: names, unused items and C-only types are not ours to change"
 )]
 
-// The `ilp64` feature links the ILP64 `scalapack.dll` (AOCL for Windows ships `amd-scalapack/lib/ILP64`), but every
-// declaration below, and the safe crate's `i32` descriptor and pivot APIs, use 32-bit integers. Measured: with the
-// feature on, `numroc` returns garbage and the multi-rank test indexes out of bounds, while the same test passes against
-// the LP64 library. A silent ABI mismatch is worse than no feature, so it is refused at compile time.
-#[cfg(feature = "ilp64")]
-compile_error!(
-    "aocl-scalapack-sys: the `ilp64` feature is not implemented (declarations use 32-bit integers, which does not match      the ILP64 library). Build without it."
-);
+use std::os::raw::c_char;
 
-use std::os::raw::{c_char, c_int};
+/// ScaLAPACK's integer: 32-bit under LP64, 64-bit with the `ilp64` feature (every integer argument, descriptor entry
+/// and pivot). Under LP64 it is `i32`, so nothing changes there.
+#[cfg(not(feature = "ilp64"))]
+pub type Int = i32;
+/// ScaLAPACK's integer: 32-bit under LP64, 64-bit with the `ilp64` feature.
+#[cfg(feature = "ilp64")]
+pub type Int = i64;
 
 // =========================================================================
 //   BLACS lifecycle (C-API: prefixed `Cblacs_`, no trailing underscore)
@@ -51,35 +50,35 @@ extern "C" {
     /// Output: `*mypnum` and `*nprocs` are filled. If BLACS hasn't been
     /// initialised, on entry `*mypnum` should be -1; BLACS will
     /// initialise as a side effect.
-    pub fn Cblacs_pinfo(mypnum: *mut c_int, nprocs: *mut c_int);
+    pub fn Cblacs_pinfo(mypnum: *mut Int, nprocs: *mut Int);
 
     /// Get a context value for the default system. `what = 0` returns
     /// the default system context in `*val`.
-    pub fn Cblacs_get(icontxt: c_int, what: c_int, val: *mut c_int);
+    pub fn Cblacs_get(icontxt: Int, what: Int, val: *mut Int);
 
     /// Initialise an `nprow × npcol` BLACS process grid in `*context`.
     /// `order` is `b'R'` (row-major) or `b'C'` (column-major) for how
     /// MPI ranks are laid out across the grid.
-    pub fn Cblacs_gridinit(context: *mut c_int, order: *const c_char, nprow: c_int, npcol: c_int);
+    pub fn Cblacs_gridinit(context: *mut Int, order: *const c_char, nprow: Int, npcol: Int);
 
     /// Read back the grid shape and this process's coordinates.
     pub fn Cblacs_gridinfo(
-        context: c_int,
-        nprow: *mut c_int,
-        npcol: *mut c_int,
-        myprow: *mut c_int,
-        mypcol: *mut c_int,
+        context: Int,
+        nprow: *mut Int,
+        npcol: *mut Int,
+        myprow: *mut Int,
+        mypcol: *mut Int,
     );
 
     /// Release the grid context.
-    pub fn Cblacs_gridexit(context: c_int);
+    pub fn Cblacs_gridexit(context: Int);
 
     /// Tear down BLACS. Pass `continue_after = 0` for a normal shutdown.
-    pub fn Cblacs_exit(continue_after: c_int);
+    pub fn Cblacs_exit(continue_after: Int);
 
     /// Synchronization barrier across the grid. `scope` is `b'A'` (all),
     /// `b'R'` (row), or `b'C'` (column).
-    pub fn Cblacs_barrier(context: c_int, scope: *const c_char);
+    pub fn Cblacs_barrier(context: Int, scope: *const c_char);
 }
 
 // =========================================================================
@@ -93,16 +92,16 @@ extern "C" {
 // is non-zero on error.
 extern "C" {
     pub fn descinit_(
-        desc: *mut c_int,
-        m: *const c_int,
-        n: *const c_int,
-        mb: *const c_int,
-        nb: *const c_int,
-        rsrc: *const c_int,
-        csrc: *const c_int,
-        ictxt: *const c_int,
-        lld: *const c_int,
-        info: *mut c_int,
+        desc: *mut Int,
+        m: *const Int,
+        n: *const Int,
+        mb: *const Int,
+        nb: *const Int,
+        rsrc: *const Int,
+        csrc: *const Int,
+        ictxt: *const Int,
+        lld: *const Int,
+        info: *mut Int,
     );
 }
 
@@ -112,12 +111,12 @@ extern "C" {
 // `isrcproc`.
 extern "C" {
     pub fn numroc_(
-        n: *const c_int,
-        nb: *const c_int,
-        iproc: *const c_int,
-        isrcproc: *const c_int,
-        nprocs: *const c_int,
-    ) -> c_int;
+        n: *const Int,
+        nb: *const Int,
+        iproc: *const Int,
+        isrcproc: *const Int,
+        nprocs: *const Int,
+    ) -> Int;
 }
 
 // =========================================================================
@@ -130,65 +129,65 @@ extern "C" {
 // pivots. On exit `info = 0` on success.
 extern "C" {
     pub fn psgesv_(
-        n: *const c_int,
-        nrhs: *const c_int,
+        n: *const Int,
+        nrhs: *const Int,
         a: *mut f32,
-        ia: *const c_int,
-        ja: *const c_int,
-        desca: *const c_int,
-        ipiv: *mut c_int,
+        ia: *const Int,
+        ja: *const Int,
+        desca: *const Int,
+        ipiv: *mut Int,
         b: *mut f32,
-        ib: *const c_int,
-        jb: *const c_int,
-        descb: *const c_int,
-        info: *mut c_int,
+        ib: *const Int,
+        jb: *const Int,
+        descb: *const Int,
+        info: *mut Int,
     );
 
     pub fn pdgesv_(
-        n: *const c_int,
-        nrhs: *const c_int,
+        n: *const Int,
+        nrhs: *const Int,
         a: *mut f64,
-        ia: *const c_int,
-        ja: *const c_int,
-        desca: *const c_int,
-        ipiv: *mut c_int,
+        ia: *const Int,
+        ja: *const Int,
+        desca: *const Int,
+        ipiv: *mut Int,
         b: *mut f64,
-        ib: *const c_int,
-        jb: *const c_int,
-        descb: *const c_int,
-        info: *mut c_int,
+        ib: *const Int,
+        jb: *const Int,
+        descb: *const Int,
+        info: *mut Int,
     );
 
     /// Complex (single) variant. `a` and `b` are pointers to `[f32; 2]`
     /// pairs of `(re, im)`.
     pub fn pcgesv_(
-        n: *const c_int,
-        nrhs: *const c_int,
+        n: *const Int,
+        nrhs: *const Int,
         a: *mut [f32; 2],
-        ia: *const c_int,
-        ja: *const c_int,
-        desca: *const c_int,
-        ipiv: *mut c_int,
+        ia: *const Int,
+        ja: *const Int,
+        desca: *const Int,
+        ipiv: *mut Int,
         b: *mut [f32; 2],
-        ib: *const c_int,
-        jb: *const c_int,
-        descb: *const c_int,
-        info: *mut c_int,
+        ib: *const Int,
+        jb: *const Int,
+        descb: *const Int,
+        info: *mut Int,
     );
 
     pub fn pzgesv_(
-        n: *const c_int,
-        nrhs: *const c_int,
+        n: *const Int,
+        nrhs: *const Int,
         a: *mut [f64; 2],
-        ia: *const c_int,
-        ja: *const c_int,
-        desca: *const c_int,
-        ipiv: *mut c_int,
+        ia: *const Int,
+        ja: *const Int,
+        desca: *const Int,
+        ipiv: *mut Int,
         b: *mut [f64; 2],
-        ib: *const c_int,
-        jb: *const c_int,
-        descb: *const c_int,
-        info: *mut c_int,
+        ib: *const Int,
+        jb: *const Int,
+        descb: *const Int,
+        info: *mut Int,
     );
 }
 
@@ -199,46 +198,46 @@ extern "C" {
     pub fn psgemm_(
         transa: *const c_char,
         transb: *const c_char,
-        m: *const c_int,
-        n: *const c_int,
-        k: *const c_int,
+        m: *const Int,
+        n: *const Int,
+        k: *const Int,
         alpha: *const f32,
         a: *const f32,
-        ia: *const c_int,
-        ja: *const c_int,
-        desca: *const c_int,
+        ia: *const Int,
+        ja: *const Int,
+        desca: *const Int,
         b: *const f32,
-        ib: *const c_int,
-        jb: *const c_int,
-        descb: *const c_int,
+        ib: *const Int,
+        jb: *const Int,
+        descb: *const Int,
         beta: *const f32,
         c: *mut f32,
-        ic: *const c_int,
-        jc: *const c_int,
-        descc: *const c_int,
+        ic: *const Int,
+        jc: *const Int,
+        descc: *const Int,
     );
 
     #[cfg_attr(windows, link_name = "pdgemm")]
     pub fn pdgemm_(
         transa: *const c_char,
         transb: *const c_char,
-        m: *const c_int,
-        n: *const c_int,
-        k: *const c_int,
+        m: *const Int,
+        n: *const Int,
+        k: *const Int,
         alpha: *const f64,
         a: *const f64,
-        ia: *const c_int,
-        ja: *const c_int,
-        desca: *const c_int,
+        ia: *const Int,
+        ja: *const Int,
+        desca: *const Int,
         b: *const f64,
-        ib: *const c_int,
-        jb: *const c_int,
-        descb: *const c_int,
+        ib: *const Int,
+        jb: *const Int,
+        descb: *const Int,
         beta: *const f64,
         c: *mut f64,
-        ic: *const c_int,
-        jc: *const c_int,
-        descc: *const c_int,
+        ic: *const Int,
+        jc: *const Int,
+        descc: *const Int,
     );
 }
 
@@ -246,47 +245,47 @@ extern "C" {
 extern "C" {
     pub fn pspotrf_(
         uplo: *const c_char,
-        n: *const c_int,
+        n: *const Int,
         a: *mut f32,
-        ia: *const c_int,
-        ja: *const c_int,
-        desca: *const c_int,
-        info: *mut c_int,
+        ia: *const Int,
+        ja: *const Int,
+        desca: *const Int,
+        info: *mut Int,
     );
 
     pub fn pdpotrf_(
         uplo: *const c_char,
-        n: *const c_int,
+        n: *const Int,
         a: *mut f64,
-        ia: *const c_int,
-        ja: *const c_int,
-        desca: *const c_int,
-        info: *mut c_int,
+        ia: *const Int,
+        ja: *const Int,
+        desca: *const Int,
+        info: *mut Int,
     );
 }
 
 // Distributed LU factorization with partial pivoting.
 extern "C" {
     pub fn psgetrf_(
-        m: *const c_int,
-        n: *const c_int,
+        m: *const Int,
+        n: *const Int,
         a: *mut f32,
-        ia: *const c_int,
-        ja: *const c_int,
-        desca: *const c_int,
-        ipiv: *mut c_int,
-        info: *mut c_int,
+        ia: *const Int,
+        ja: *const Int,
+        desca: *const Int,
+        ipiv: *mut Int,
+        info: *mut Int,
     );
 
     pub fn pdgetrf_(
-        m: *const c_int,
-        n: *const c_int,
+        m: *const Int,
+        n: *const Int,
         a: *mut f64,
-        ia: *const c_int,
-        ja: *const c_int,
-        desca: *const c_int,
-        ipiv: *mut c_int,
-        info: *mut c_int,
+        ia: *const Int,
+        ja: *const Int,
+        desca: *const Int,
+        ipiv: *mut Int,
+        info: *mut Int,
     );
 }
 
@@ -300,37 +299,37 @@ extern "C" {
     pub fn pssyev_(
         jobz: *const c_char,
         uplo: *const c_char,
-        n: *const c_int,
+        n: *const Int,
         a: *mut f32,
-        ia: *const c_int,
-        ja: *const c_int,
-        desca: *const c_int,
+        ia: *const Int,
+        ja: *const Int,
+        desca: *const Int,
         w: *mut f32,
         z: *mut f32,
-        iz: *const c_int,
-        jz: *const c_int,
-        descz: *const c_int,
+        iz: *const Int,
+        jz: *const Int,
+        descz: *const Int,
         work: *mut f32,
-        lwork: *const c_int,
-        info: *mut c_int,
+        lwork: *const Int,
+        info: *mut Int,
     );
 
     pub fn pdsyev_(
         jobz: *const c_char,
         uplo: *const c_char,
-        n: *const c_int,
+        n: *const Int,
         a: *mut f64,
-        ia: *const c_int,
-        ja: *const c_int,
-        desca: *const c_int,
+        ia: *const Int,
+        ja: *const Int,
+        desca: *const Int,
         w: *mut f64,
         z: *mut f64,
-        iz: *const c_int,
-        jz: *const c_int,
-        descz: *const c_int,
+        iz: *const Int,
+        jz: *const Int,
+        descz: *const Int,
         work: *mut f64,
-        lwork: *const c_int,
-        info: *mut c_int,
+        lwork: *const Int,
+        info: *mut Int,
     );
 }
 
@@ -341,38 +340,38 @@ extern "C" {
 extern "C" {
     pub fn psgels_(
         trans: *const c_char,
-        m: *const c_int,
-        n: *const c_int,
-        nrhs: *const c_int,
+        m: *const Int,
+        n: *const Int,
+        nrhs: *const Int,
         a: *mut f32,
-        ia: *const c_int,
-        ja: *const c_int,
-        desca: *const c_int,
+        ia: *const Int,
+        ja: *const Int,
+        desca: *const Int,
         b: *mut f32,
-        ib: *const c_int,
-        jb: *const c_int,
-        descb: *const c_int,
+        ib: *const Int,
+        jb: *const Int,
+        descb: *const Int,
         work: *mut f32,
-        lwork: *const c_int,
-        info: *mut c_int,
+        lwork: *const Int,
+        info: *mut Int,
     );
 
     pub fn pdgels_(
         trans: *const c_char,
-        m: *const c_int,
-        n: *const c_int,
-        nrhs: *const c_int,
+        m: *const Int,
+        n: *const Int,
+        nrhs: *const Int,
         a: *mut f64,
-        ia: *const c_int,
-        ja: *const c_int,
-        desca: *const c_int,
+        ia: *const Int,
+        ja: *const Int,
+        desca: *const Int,
         b: *mut f64,
-        ib: *const c_int,
-        jb: *const c_int,
-        descb: *const c_int,
+        ib: *const Int,
+        jb: *const Int,
+        descb: *const Int,
         work: *mut f64,
-        lwork: *const c_int,
-        info: *mut c_int,
+        lwork: *const Int,
+        info: *mut Int,
     );
 }
 
@@ -380,34 +379,34 @@ extern "C" {
 extern "C" {
     pub fn psgetrs_(
         trans: *const c_char,
-        n: *const c_int,
-        nrhs: *const c_int,
+        n: *const Int,
+        nrhs: *const Int,
         a: *const f32,
-        ia: *const c_int,
-        ja: *const c_int,
-        desca: *const c_int,
-        ipiv: *const c_int,
+        ia: *const Int,
+        ja: *const Int,
+        desca: *const Int,
+        ipiv: *const Int,
         b: *mut f32,
-        ib: *const c_int,
-        jb: *const c_int,
-        descb: *const c_int,
-        info: *mut c_int,
+        ib: *const Int,
+        jb: *const Int,
+        descb: *const Int,
+        info: *mut Int,
     );
 
     pub fn pdgetrs_(
         trans: *const c_char,
-        n: *const c_int,
-        nrhs: *const c_int,
+        n: *const Int,
+        nrhs: *const Int,
         a: *const f64,
-        ia: *const c_int,
-        ja: *const c_int,
-        desca: *const c_int,
-        ipiv: *const c_int,
+        ia: *const Int,
+        ja: *const Int,
+        desca: *const Int,
+        ipiv: *const Int,
         b: *mut f64,
-        ib: *const c_int,
-        jb: *const c_int,
-        descb: *const c_int,
-        info: *mut c_int,
+        ib: *const Int,
+        jb: *const Int,
+        descb: *const Int,
+        info: *mut Int,
     );
 }
 
@@ -415,60 +414,60 @@ extern "C" {
 extern "C" {
     pub fn pspotrs_(
         uplo: *const c_char,
-        n: *const c_int,
-        nrhs: *const c_int,
+        n: *const Int,
+        nrhs: *const Int,
         a: *const f32,
-        ia: *const c_int,
-        ja: *const c_int,
-        desca: *const c_int,
+        ia: *const Int,
+        ja: *const Int,
+        desca: *const Int,
         b: *mut f32,
-        ib: *const c_int,
-        jb: *const c_int,
-        descb: *const c_int,
-        info: *mut c_int,
+        ib: *const Int,
+        jb: *const Int,
+        descb: *const Int,
+        info: *mut Int,
     );
 
     pub fn pdpotrs_(
         uplo: *const c_char,
-        n: *const c_int,
-        nrhs: *const c_int,
+        n: *const Int,
+        nrhs: *const Int,
         a: *const f64,
-        ia: *const c_int,
-        ja: *const c_int,
-        desca: *const c_int,
+        ia: *const Int,
+        ja: *const Int,
+        desca: *const Int,
         b: *mut f64,
-        ib: *const c_int,
-        jb: *const c_int,
-        descb: *const c_int,
-        info: *mut c_int,
+        ib: *const Int,
+        jb: *const Int,
+        descb: *const Int,
+        info: *mut Int,
     );
 }
 
 // Distributed QR factorization. `tau` is local; `work` workspace.
 extern "C" {
     pub fn psgeqrf_(
-        m: *const c_int,
-        n: *const c_int,
+        m: *const Int,
+        n: *const Int,
         a: *mut f32,
-        ia: *const c_int,
-        ja: *const c_int,
-        desca: *const c_int,
+        ia: *const Int,
+        ja: *const Int,
+        desca: *const Int,
         tau: *mut f32,
         work: *mut f32,
-        lwork: *const c_int,
-        info: *mut c_int,
+        lwork: *const Int,
+        info: *mut Int,
     );
 
     pub fn pdgeqrf_(
-        m: *const c_int,
-        n: *const c_int,
+        m: *const Int,
+        n: *const Int,
         a: *mut f64,
-        ia: *const c_int,
-        ja: *const c_int,
-        desca: *const c_int,
+        ia: *const Int,
+        ja: *const Int,
+        desca: *const Int,
         tau: *mut f64,
         work: *mut f64,
-        lwork: *const c_int,
-        info: *mut c_int,
+        lwork: *const Int,
+        info: *mut Int,
     );
 }

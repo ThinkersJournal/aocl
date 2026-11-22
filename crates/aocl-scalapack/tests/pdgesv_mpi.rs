@@ -11,7 +11,7 @@
 
 use aocl_scalapack::{
     blacs_exit, numroc, pdgels, pdgemm, pdgeqrf, pdgesv, pdgetrf, pdgetrs, pdpotrf, pdpotrs,
-    pdsyev, BlockCyclic, EigCompute, Grid, Trans, Uplo,
+    pdsyev, BlockCyclic, EigCompute, Grid, Int, Trans, Uplo,
 };
 
 const N: usize = 6;
@@ -58,7 +58,7 @@ fn main() {
     }
     let desca = BlockCyclic::new(&grid, N, N, NB, NB, 0, 0, N).expect("desca");
     let descb = BlockCyclic::new(&grid, N, 1, NB, 1, 0, 0, N).expect("descb");
-    let mut ipiv = vec![0_i32; N + NB];
+    let mut ipiv = vec![0 as Int; N + NB];
     pdgesv(N, 1, &mut a, 1, 1, &desca, &mut ipiv, &mut b, 1, 1, &descb).expect("pdgesv");
 
     if mycol == 0 {
@@ -154,7 +154,7 @@ fn main() {
             })
             .collect();
         let mut lu = local(&a_global);
-        let mut piv = vec![0_i32; N + NB];
+        let mut piv = vec![0 as Int; N + NB];
         pdgetrf(N, N, &mut lu, 1, 1, &desca, &mut piv).expect("pdgetrf");
         let mut x = vec![0.0_f64; N];
         if mycol == 0 {
@@ -269,7 +269,7 @@ fn main() {
             1,
             &desc,
             &mut work,
-            lwork as i32,
+            lwork as Int,
         )
         .expect("pdsyev");
         assert!(
@@ -375,7 +375,7 @@ fn main() {
             1,
             &db,
             &mut work,
-            lwork as i32,
+            lwork as Int,
         )
         .expect("pdgels");
         if mycol == 0 {
@@ -430,7 +430,7 @@ fn main() {
             .expect("pdgeqrf workspace query");
         let lwork = work[0] as usize + 16;
         let mut work = vec![0.0_f64; lwork];
-        pdgeqrf(M, NG, &mut ag, 1, 1, &da, &mut tau, &mut work, lwork as i32).expect("pdgeqrf");
+        pdgeqrf(M, NG, &mut ag, 1, 1, &da, &mut tau, &mut work, lwork as Int).expect("pdgeqrf");
         for lj in 0..loc_g {
             let gj = ((lj / NB) * p + mycol) * NB + lj % NB;
             for i in 0..=gj {

@@ -5,7 +5,7 @@
 
 use aocl_scalapack::{
     blacs_exit, numroc, pcgesv, pdgemm, pdgesv, pdgetrf, pdgetrs, pdpotrf, pdpotrs, pzgesv,
-    BlockCyclic, Grid, Trans, Uplo,
+    BlockCyclic, Grid, Int, Trans, Uplo,
 };
 
 const N: usize = 6;
@@ -128,7 +128,7 @@ fn main() {
         let rhs = |i: usize, r: usize| (0..N).map(|k| a_re(i, k) * x_re(k, r)).sum::<f64>();
         let (mut b, lld_b) = lay.local(N, NRHS, &rhs);
         let (da, db) = (desc(N, N, lld_a), desc(N, NRHS, lld_b));
-        let mut ipiv = vec![0_i32; lay.local_dims(N, N).0 + NB];
+        let mut ipiv = vec![0 as Int; lay.local_dims(N, N).0 + NB];
         pdgesv(N, NRHS, &mut a, 1, 1, &da, &mut ipiv, &mut b, 1, 1, &db).expect("pdgesv");
         let (lr, lc) = lay.local_dims(N, NRHS);
         for lj in 0..lc {
@@ -154,7 +154,7 @@ fn main() {
                 .expect("shifted descriptor")
         };
         let (da, db) = (mk(N, N, lld_a), mk(N, NRHS, lld_b));
-        let mut ipiv = vec![0_i32; lay.local_dims(N, N).0 + NB];
+        let mut ipiv = vec![0 as Int; lay.local_dims(N, N).0 + NB];
         pdgesv(N, NRHS, &mut a, 1, 1, &da, &mut ipiv, &mut b, 1, 1, &db).expect("pdgesv shifted");
         let (lr, lc) = lay.local_dims(N, NRHS);
         for lj in 0..lc {
@@ -238,7 +238,7 @@ fn main() {
         let (mut a, lld_a) = lay.local(N, N, &a_re);
         let (mut b, lld_b) = lay.local(N, NRHS, &rhs);
         let (da, db) = (desc(N, N, lld_a), desc(N, NRHS, lld_b));
-        let mut ipiv = vec![0_i32; lay.local_dims(N, N).0 + NB];
+        let mut ipiv = vec![0 as Int; lay.local_dims(N, N).0 + NB];
         pdgetrf(N, N, &mut a, 1, 1, &da, &mut ipiv).expect("pdgetrf");
         pdgetrs(trans, N, NRHS, &a, 1, 1, &da, &ipiv, &mut b, 1, 1, &db).expect("pdgetrs");
         let (lr, lc) = lay.local_dims(N, NRHS);
@@ -293,7 +293,7 @@ fn main() {
             };
             let (mut b, lld_b) = lay.local(N, NRHS, &rhs);
             let (da, db) = (desc(N, N, lld_a), desc(N, NRHS, lld_b));
-            let mut ipiv = vec![0_i32; lay.local_dims(N, N).0 + NB];
+            let mut ipiv = vec![0 as Int; lay.local_dims(N, N).0 + NB];
             $solve(N, NRHS, &mut a, 1, 1, &da, &mut ipiv, &mut b, 1, 1, &db).expect($name);
             let (lr, lc) = lay.local_dims(N, NRHS);
             for lj in 0..lc {
