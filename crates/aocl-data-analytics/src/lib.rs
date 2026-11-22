@@ -666,6 +666,7 @@ macro_rules! impl_scalar {
                         dof as sys::da_int,
                         cov.as_mut_ptr(),
                         ldcov as sys::da_int,
+                        0, // assume_centered = false: subtract the column means, as before AOCL 5.3 added the argument
                     )
                 };
                 check_status("data-analytics", status)
@@ -1829,7 +1830,8 @@ impl HandleKind {
             HandleKind::Dbscan => sys::da_handle_type__da_handle_dbscan,
             HandleKind::DecisionTree => sys::da_handle_type__da_handle_decision_tree,
             HandleKind::DecisionForest => sys::da_handle_type__da_handle_decision_forest,
-            HandleKind::Knn => sys::da_handle_type__da_handle_knn,
+            // AOCL 5.3 renamed k-NN to nearest neighbours (`da_handle_nn`, `da_nn_*`).
+            HandleKind::Knn => sys::da_handle_type__da_handle_nn,
             HandleKind::Svm => sys::da_handle_type__da_handle_svm,
             HandleKind::Nlls => sys::da_handle_type__da_handle_nlls,
         }
@@ -2123,6 +2125,9 @@ impl std::fmt::Debug for Pca {
 /// k-nearest-neighbours classifier.
 pub struct KNearestNeighbours {
     handle: Handle,
+    // `da_nn_set_data_d` / `da_nn_set_labels_d` store pointers, not copies, so the training data is owned here.
+    train_x: Vec<f64>,
+    train_y: Vec<i32>,
 }
 
 impl KNearestNeighbours {
@@ -2133,7 +2138,11 @@ impl KNearestNeighbours {
     /// specific — try `"number of neighbours"`).
     pub fn new() -> Result<Self> {
         let handle = Handle::new_double(HandleKind::Knn)?;
-        Ok(Self { handle })
+        Ok(Self {
+            handle,
+            train_x: Vec::new(),
+            train_y: Vec::new(),
+        })
     }
 
     /// Borrow the underlying handle to set algorithm-specific options.
@@ -2163,14 +2172,23 @@ impl KNearestNeighbours {
                 y_train.len()
             )));
         }
+        self.train_x = x_train[..n_samples * n_features].to_vec();
+        self.train_y = y_train[..n_samples].to_vec();
         let status = unsafe {
-            sys::da_knn_set_training_data_d(
+            sys::da_nn_set_data_d(
                 self.handle.raw,
                 n_samples as sys::da_int,
                 n_features as sys::da_int,
-                x_train.as_ptr(),
+                self.train_x.as_ptr(),
                 n_samples as sys::da_int,
-                y_train.as_ptr() as *const sys::da_int,
+            )
+        };
+        check_status("data-analytics", status)?;
+        let status = unsafe {
+            sys::da_nn_set_labels_d(
+                self.handle.raw,
+                n_samples as sys::da_int,
+                self.train_y.as_ptr() as *const sys::da_int,
             )
         };
         check_status("data-analytics", status)
@@ -2198,13 +2216,14 @@ impl KNearestNeighbours {
             )));
         }
         let status = unsafe {
-            sys::da_knn_predict_d(
+            sys::da_nn_classifier_predict_d(
                 self.handle.raw,
                 n_queries as sys::da_int,
                 n_features as sys::da_int,
                 x_test.as_ptr(),
                 n_queries as sys::da_int,
                 labels.as_mut_ptr() as *mut sys::da_int,
+                sys::da_nn_search_mode__knn_search_mode,
             )
         };
         check_status("data-analytics", status)
@@ -2225,7 +2244,7 @@ impl KNearestNeighbours {
         return_distance: bool,
     ) -> Result<()> {
         let status = unsafe {
-            sys::da_knn_kneighbors_d(
+            sys::da_nn_kneighbors_d(
                 self.handle.raw,
                 n_queries as sys::da_int,
                 n_features as sys::da_int,
@@ -2245,7 +2264,7 @@ impl KNearestNeighbours {
     pub fn classes(&self, classes: &mut [i32]) -> Result<usize> {
         let mut n_classes: sys::da_int = classes.len() as sys::da_int;
         let status = unsafe {
-            sys::da_knn_classes_d(
+            sys::da_nn_classes_d(
                 self.handle.raw,
                 &mut n_classes,
                 classes.as_mut_ptr() as *mut sys::da_int,
@@ -2266,13 +2285,14 @@ impl KNearestNeighbours {
         proba: &mut [f64],
     ) -> Result<()> {
         let status = unsafe {
-            sys::da_knn_predict_proba_d(
+            sys::da_nn_classifier_predict_proba_d(
                 self.handle.raw,
                 n_queries as sys::da_int,
                 n_features as sys::da_int,
                 x_test.as_ptr(),
                 n_queries as sys::da_int,
                 proba.as_mut_ptr(),
+                sys::da_nn_search_mode__knn_search_mode,
             )
         };
         check_status("data-analytics", status)
@@ -2380,6 +2400,7 @@ impl Linmod {
                 n_samples as sys::da_int,
                 n_features as sys::da_int,
                 x.as_ptr(),
+                n_samples as sys::da_int, // ldx: column-major, the default storage order
                 y.as_ptr(),
             )
         };
@@ -2498,6 +2519,7 @@ impl Linmod {
                 n_samples as sys::da_int,
                 n_features as sys::da_int,
                 x.as_ptr(),
+                n_samples as sys::da_int, // ldx: column-major, the default storage order
                 predictions.as_mut_ptr(),
                 std::ptr::null_mut(),
                 std::ptr::null_mut(),
@@ -2545,6 +2567,7 @@ impl Linmod {
                 n_samples as sys::da_int,
                 n_features as sys::da_int,
                 x.as_ptr(),
+                n_samples as sys::da_int, // ldx: column-major, the default storage order
                 predictions.as_mut_ptr(),
                 y_buf.as_mut_ptr(),
                 &mut loss,
@@ -2779,6 +2802,7 @@ impl DecisionTree {
                 x.as_ptr(),
                 lda as sys::da_int,
                 y.as_ptr() as *const sys::da_int,
+                std::ptr::null(), // categorical_features: none (argument added in AOCL 5.3)
             )
         };
         if status != sys::da_status__da_status_success {
@@ -2973,6 +2997,7 @@ impl DecisionForest {
                 x.as_ptr(),
                 lda as sys::da_int,
                 y.as_ptr() as *const sys::da_int,
+                std::ptr::null(), // categorical_features: none (argument added in AOCL 5.3)
             )
         };
         if status != sys::da_status__da_status_success {
@@ -3674,6 +3699,20 @@ mod tests {
         // Hinges should sit between min and median, median and max.
         assert!(lower[0] >= min[0] && lower[0] <= med[0]);
         assert!(upper[0] >= med[0] && upper[0] <= max[0]);
+    }
+
+    /// Rows (1,2), (2,1), (3,4), (4,3): both column means are 2.5, so with the (n-1) divisor (`dof = 0`) both variances
+    /// are 5/3 and the covariance is 1. If the data were wrongly treated as already centred (AOCL 5.3's
+    /// `assume_centered = 1`) the diagonal would be 10 and the off-diagonal 11/3 instead.
+    #[test]
+    fn covariance_matrix_subtracts_column_means() {
+        let x = [1.0_f64, 2.0, 2.0, 1.0, 3.0, 4.0, 4.0, 3.0];
+        let mut cov = [0.0_f64; 4];
+        covariance_matrix(4, 2, &x, 0, &mut cov).unwrap();
+        let want = [5.0 / 3.0, 1.0, 1.0, 5.0 / 3.0];
+        for (g, w) in cov.iter().zip(want) {
+            assert!((g - w).abs() < 1e-12, "cov = {cov:?}, want {want:?}");
+        }
     }
 
     #[test]
