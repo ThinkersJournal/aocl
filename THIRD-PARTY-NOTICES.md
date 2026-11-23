@@ -9,6 +9,11 @@ headers of the installed AOCL for Windows 6.0 (installer `DisplayVersion` 6.0.68
 files that name a version say 6.0.0), which is what the committed bindings are generated from, and refreshed to the
 6.0 text. The other facts in this file (blas, lapack, fft, math, rng headers and NOTICE entries) are still from 5.3
 and have not been re-read against 6.0; those crates are held.
+Reproduce the header comparison with `python tools/check-notices.py` (exit 0 = all match; `--ref <rev>` reads the
+NOTICE files from an older revision, the control). The `NOTICE.txt` files of AOCL-SecureRNG, -Utils, -Crypto and -DA list
+third-party code of those libraries (documentation tooling, test frameworks, internal libraries), none of it in the
+headers these crates derive from, so none is copied; AOCL-Sparse ships no `NOTICE.txt`. The bzip2 and LZ4 blocks of
+`aocl-compression-sys` were compared with the 6.0.68 AOCL-Compression `NOTICE.txt` and are verbatim identical.
 
 ## 1. Generated FFI bindings (`crates/*-sys/bindings/bindings.rs`, 11 files)
 
