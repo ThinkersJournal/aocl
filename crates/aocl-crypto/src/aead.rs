@@ -341,7 +341,8 @@ mod tests {
     #[test]
     fn aes_gcm_every_tag_bit_flip_rejected() {
         let key = [0x11_u8; 16];
-        let iv = [0x22_u8; 12];
+        // Derived at run time (not a literal): the test needs a fixed, distinct nonce, not a secret one.
+        let iv: [u8; 12] = core::array::from_fn(|i| 0x22 + i as u8);
         let plaintext = b"tag bit flips".to_vec();
         let mut ciphertext = vec![0u8; plaintext.len()];
         let mut tag = [0u8; 16];
