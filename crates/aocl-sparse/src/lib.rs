@@ -2346,10 +2346,14 @@ pub fn csr2bsr_nnz(
 }
 
 /// Convert CSR → BSR. Run [`csr2bsr_nnz`] first to size the output. (`f64`)
+///
+/// `block_order` is the storage order of the values inside each block. It is a required argument of AOCL-sparse 5.3
+/// (`aoclsparse_dcsr2bsr`); the 5.1 header the docs.rs bindings came from did not have it.
 pub fn csr2bsr_f64(
     m: usize,
     n: usize,
     descr: &MatDescr,
+    block_order: Order,
     csr_val: &[f64],
     csr_row_ptr: &[sys::aoclsparse_int],
     csr_col_ind: &[sys::aoclsparse_int],
@@ -2363,6 +2367,7 @@ pub fn csr2bsr_f64(
             m as sys::aoclsparse_int,
             n as sys::aoclsparse_int,
             descr.as_raw(),
+            block_order.raw(),
             csr_val.as_ptr(),
             csr_row_ptr.as_ptr(),
             csr_col_ind.as_ptr(),
@@ -2380,6 +2385,7 @@ pub fn csr2bsr_f32(
     m: usize,
     n: usize,
     descr: &MatDescr,
+    block_order: Order,
     csr_val: &[f32],
     csr_row_ptr: &[sys::aoclsparse_int],
     csr_col_ind: &[sys::aoclsparse_int],
@@ -2393,6 +2399,7 @@ pub fn csr2bsr_f32(
             m as sys::aoclsparse_int,
             n as sys::aoclsparse_int,
             descr.as_raw(),
+            block_order.raw(),
             csr_val.as_ptr(),
             csr_row_ptr.as_ptr(),
             csr_col_ind.as_ptr(),
@@ -3457,6 +3464,45 @@ mod tests {
         assert!((x[0] - 2.0).abs() < 1e-6, "x[0] = {}", x[0]);
         assert!((x[1] - 3.0).abs() < 1e-6, "x[1] = {}", x[1]);
         assert!((x[2] - 5.0).abs() < 1e-6, "x[2] = {}", x[2]);
+    }
+
+    /// 4x4 CSR with two diagonal 2x2 blocks, `[[1,2],[3,4]]` and `[[5,6],[7,8]]`: asymmetric inside each block, so
+    /// the in-block storage order shows in `bsr_val` (row-major 1,2,3,4 / column-major 1,3,2,4).
+    #[test]
+    fn csr2bsr_block_order_f64_and_f32() {
+        let col: [sys::aoclsparse_int; 8] = [0, 1, 0, 1, 2, 3, 2, 3];
+        let rowptr: [sys::aoclsparse_int; 5] = [0, 2, 4, 6, 8];
+        let descr = MatDescr::new().unwrap();
+        let mut bsr_rowptr = [0 as sys::aoclsparse_int; 3];
+        let nnzb = csr2bsr_nnz(4, 4, &descr, &rowptr, &col, 2, &mut bsr_rowptr).unwrap();
+        assert_eq!(nnzb, 2);
+        assert_eq!(bsr_rowptr, [0, 1, 2]);
+
+        let val64: Vec<f64> = (1..=8).map(f64::from).collect();
+        let val32: Vec<f32> = (1..=8).map(|v| v as f32).collect();
+        let row_major = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0];
+        let col_major = [1.0, 3.0, 2.0, 4.0, 5.0, 7.0, 6.0, 8.0];
+        for (order, want) in [(Order::RowMajor, row_major), (Order::ColMajor, col_major)] {
+            let mut rp = bsr_rowptr; // `bsr_row_ptr` comes from the `csr2bsr_nnz` step
+            let mut ci = [0 as sys::aoclsparse_int; 2];
+            let mut bv = [0.0_f64; 8];
+            csr2bsr_f64(
+                4, 4, &descr, order, &val64, &rowptr, &col, 2, &mut bv, &mut rp, &mut ci,
+            )
+            .unwrap();
+            assert_eq!((rp, ci), ([0, 1, 2], [0, 1]), "{order:?}");
+            assert_eq!(bv, want, "f64 {order:?}");
+
+            let mut rp = bsr_rowptr; // `bsr_row_ptr` comes from the `csr2bsr_nnz` step
+            let mut ci = [0 as sys::aoclsparse_int; 2];
+            let mut bv = [0.0_f32; 8];
+            csr2bsr_f32(
+                4, 4, &descr, order, &val32, &rowptr, &col, 2, &mut bv, &mut rp, &mut ci,
+            )
+            .unwrap();
+            let want32: Vec<f32> = want.iter().map(|&v| v as f32).collect();
+            assert_eq!(bv.to_vec(), want32, "f32 {order:?}");
+        }
     }
 
     #[test]

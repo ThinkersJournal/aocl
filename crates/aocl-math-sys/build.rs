@@ -20,6 +20,7 @@ fn main() {
         unix_static: &["alm"],
         unix_dynamic: &["alm"],
         extra_includes: &[],
+        ilp64_defines: &[],
     }
     .build(&root);
 }

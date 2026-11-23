@@ -20,6 +20,7 @@ fn main() {
         unix_static: &["alcp"],
         unix_dynamic: &["alcp"],
         extra_includes: &[],
+        ilp64_defines: &[],
     }
     .build(&root);
 }

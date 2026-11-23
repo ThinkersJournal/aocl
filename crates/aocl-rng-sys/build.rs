@@ -20,6 +20,11 @@ fn main() {
         unix_static: &["amdrng"],
         unix_dynamic: &["amdrng"],
         extra_includes: &[],
+        ilp64_defines: if std::env::var("CARGO_CFG_TARGET_OS").as_deref() == Ok("windows") {
+            &["INTEGER64", "WIN64"]
+        } else {
+            &["INTEGER64"]
+        },
     }
     .build(&root);
 }

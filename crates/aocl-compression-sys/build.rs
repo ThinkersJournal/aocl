@@ -20,6 +20,7 @@ fn main() {
         unix_static: &["aocl_compression"],
         unix_dynamic: &["aocl_compression"],
         extra_includes: &[],
+        ilp64_defines: &[],
     }
     .build(&root);
 }

@@ -12,9 +12,9 @@ categories = ["api-bindings", "mathematics", "science"]
 keywords = ["aocl", "amd", "scalapack", "mpi", "blacs"]
 
 [dependencies]
-aocl-scalapack-sys = { version = "0.1", path = "../aocl-scalapack-sys" }
-aocl-error = { version = "0.1", path = "../aocl-error" }
-aocl-types = { version = "0.1", path = "../aocl-types" }
+aocl-scalapack-sys = { version = "0.2", path = "../aocl-scalapack-sys" }
+aocl-error = { version = "0.2", path = "../aocl-error" }
+aocl-types = { version = "0.2", path = "../aocl-types" }
 
 [features]
 default = []
@@ -28,4 +28,16 @@ rustdoc-args = ["--cfg", "docsrs"]
 # Runs under `mpiexec`: a custom main so BLACS/MPI is initialised once per process, not once per test thread.
 [[test]]
 name = "pdgesv_mpi"
+harness = false
+
+[[test]]
+name = "psgesv_mpi"
+harness = false
+
+[[test]]
+name = "complex_mpi"
+harness = false
+
+[[test]]
+name = "grid2d_mpi"
 harness = false

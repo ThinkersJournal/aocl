@@ -35,10 +35,10 @@ pub enum Mode {
 impl Mode {
     fn raw(self) -> sys::alc_cipher_mode_t {
         match self {
-            Mode::AesGcm => sys::_alc_cipher_mode_ALC_AES_MODE_GCM,
-            Mode::AesCcm => sys::_alc_cipher_mode_ALC_AES_MODE_CCM,
-            Mode::AesSiv => sys::_alc_cipher_mode_ALC_AES_MODE_SIV,
-            Mode::ChaCha20Poly1305 => sys::_alc_cipher_mode_ALC_CHACHA20_POLY1305,
+            Mode::AesGcm => sys::alc_cipher_mode_ALC_AES_MODE_GCM,
+            Mode::AesCcm => sys::alc_cipher_mode_ALC_AES_MODE_CCM,
+            Mode::AesSiv => sys::alc_cipher_mode_ALC_AES_MODE_SIV,
+            Mode::ChaCha20Poly1305 => sys::alc_cipher_mode_ALC_CHACHA20_POLY1305,
         }
     }
 
@@ -140,12 +140,15 @@ impl Aead {
                 ciphertext.len()
             )));
         }
+        // AOCL 5.3 reports the bytes written through `outlen`; the length check above makes it equal `len`.
+        let mut written: u64 = 0;
         check(unsafe {
             sys::alcp_cipher_aead_encrypt(
                 &mut self.handle,
                 plaintext.as_ptr(),
                 ciphertext.as_mut_ptr(),
                 plaintext.len() as u64,
+                &mut written,
             )
         })
     }
@@ -161,12 +164,15 @@ impl Aead {
                 plaintext.len()
             )));
         }
+        // AOCL 5.3 reports the bytes written through `outlen`; the length check above makes it equal `len`.
+        let mut written: u64 = 0;
         check(unsafe {
             sys::alcp_cipher_aead_decrypt(
                 &mut self.handle,
                 ciphertext.as_ptr(),
                 plaintext.as_mut_ptr(),
                 ciphertext.len() as u64,
+                &mut written,
             )
         })
     }
@@ -189,9 +195,19 @@ impl Aead {
         expected_tag: &[u8],
     ) -> Result<()> {
         self.decrypt(ciphertext, plaintext)?;
-        let mut computed = vec![0u8; expected_tag.len()];
-        self.get_tag(&mut computed)?;
-        if !constant_time_eq(&computed, expected_tag) {
+        // AOCL 5.3 compares the buffer passed to `alcp_cipher_aead_get_tag` with the tag it computed during decryption
+        // and returns ALC_ERROR_TAG_MISMATCH (14); older versions overwrite the buffer with the computed tag. So pass
+        // the expected tag in, treat 14 as a mismatch, and still compare afterwards (which covers the older behaviour).
+        let mut computed = expected_tag.to_vec();
+        let mismatch = match self.get_tag(&mut computed) {
+            Ok(()) => false,
+            Err(Error::Status {
+                code: ALC_ERROR_TAG_MISMATCH,
+                ..
+            }) => true,
+            Err(e) => return Err(e),
+        };
+        if mismatch || !constant_time_eq(&computed, expected_tag) {
             // Zero plaintext on tag mismatch so callers can't accidentally
             // trust leaked bytes.
             for b in plaintext.iter_mut() {
@@ -206,6 +222,9 @@ impl Aead {
         Ok(())
     }
 }
+
+/// `ALC_ERROR_TAG_MISMATCH` in AOCL-Cryptography's `alc_error_t` (position 14 in `error.h`, 5.3.x).
+const ALC_ERROR_TAG_MISMATCH: i64 = 14;
 
 impl Drop for Aead {
     fn drop(&mut self) {
@@ -315,6 +334,45 @@ mod tests {
         }
         // Plaintext buffer must have been zeroed.
         assert!(recovered.iter().all(|&b| b == 0));
+    }
+
+    /// Every single-bit flip of the 16-byte tag must be rejected (and the plaintext zeroed): checks that the AOCL 5.3
+    /// "tag compare inside `get_tag`" path cannot accept a wrong tag, not only that it accepts the right one.
+    #[test]
+    fn aes_gcm_every_tag_bit_flip_rejected() {
+        let key = [0x11_u8; 16];
+        // Derived at run time (not a literal): the test needs a fixed, distinct nonce, not a secret one.
+        let iv: [u8; 12] = core::array::from_fn(|i| 0x22 + i as u8);
+        let plaintext = b"tag bit flips".to_vec();
+        let mut ciphertext = vec![0u8; plaintext.len()];
+        let mut tag = [0u8; 16];
+        {
+            let mut enc = Aead::new(Mode::AesGcm, &key, &iv).unwrap();
+            enc.encrypt(&plaintext, &mut ciphertext).unwrap();
+            enc.get_tag(&mut tag).unwrap();
+        }
+        // Control: the unmodified tag is accepted.
+        let mut ok = vec![0u8; plaintext.len()];
+        Aead::new(Mode::AesGcm, &key, &iv)
+            .unwrap()
+            .verify_and_decrypt(&ciphertext, &mut ok, &tag)
+            .unwrap();
+        assert_eq!(ok, plaintext);
+        for bit in 0..128 {
+            let mut bad = tag;
+            bad[bit / 8] ^= 1 << (bit % 8);
+            let mut out = vec![0u8; plaintext.len()];
+            let mut dec = Aead::new(Mode::AesGcm, &key, &iv).unwrap();
+            let r = dec.verify_and_decrypt(&ciphertext, &mut out, &bad);
+            assert!(
+                matches!(r, Err(Error::Status { code: -1, .. })),
+                "bit {bit}: {r:?}"
+            );
+            assert!(
+                out.iter().all(|&b| b == 0),
+                "bit {bit}: plaintext not zeroed"
+            );
+        }
     }
 
     #[test]

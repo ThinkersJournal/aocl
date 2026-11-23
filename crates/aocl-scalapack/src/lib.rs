@@ -9,7 +9,7 @@
 //! # Runtime
 //!
 //! Any program calling the distributed routines or building a [`Grid`] must
-//! be launched under an MPI runtime (on Windows the AOCL 5.3.2 `scalapack.dll` imports Intel MPI
+//! be launched under an MPI runtime (on Windows the AOCL 5.3.x `scalapack.dll` imports Intel MPI
 //! `impi.dll`, checked with `dumpbin /dependents`; MPICH / OpenMPI on Linux). MPI is **not**
 //! a Cargo dependency of this crate — link against your platform's MPI
 //! library at the binary level if you need additional MPI symbols.
@@ -17,10 +17,12 @@
 //! (including `impi.dll` on Windows) must still be loadable.
 //!
 //! Tests: `numroc` needs no MPI. `tests/pdgesv_mpi.rs` (its own `main`, `harness = false`) builds a [`Grid`] and
-//! [`BlockCyclic`] descriptors and solves an asymmetric 6x6 system with [`pdgesv`] on however many ranks launched it:
-//! one rank under `cargo test`, 1, 2 and 3 under `mpiexec` on the self-hosted runner. The other distributed routines
-//! (`pdgemm`, the factorisations, `pdsyev`, `pdgels`, `pdgeqrf`, the single-precision and complex ones) have no test
-//! yet. There are no `#[ignore]`d placeholders.
+//! [`BlockCyclic`] descriptors and solves an asymmetric 6x6 system with [`pdgesv`], checks [`pdgemm`] (`Trans::No` and `Trans::T`) against a serial product, and runs [`pdgetrf`] + [`pdgetrs`] (both `Trans`) and [`pdpotrf`] + [`pdpotrs`] (both `Uplo`), [`pdsyev`] (both `Uplo`) and [`pdgels`], on however many ranks launched it:
+//! one rank under `cargo test`, 1, 2 and 3 under `mpiexec` on the self-hosted runner. `tests/psgesv_mpi.rs` repeats it for the single-precision `ps*` routines, `tests/complex_mpi.rs` runs `pcgesv` and
+//! `pzgesv`, and `tests/grid2d_mpi.rs` uses true 2D grids (up to 2x3), three right-hand sides and a non-zero grid
+//! origin. There are no `#[ignore]`d placeholders. Not exercised: block sizes other than 2, matrix sizes other than 6 and
+//! 8 and sub-matrix offsets (`ia`, `ja` other than 1). All integers are [`Int`] (`i32`, or `i64` with the `ilp64` feature); the tests
+//! above pass with both.
 
 #![allow(
     clippy::too_many_arguments,
@@ -33,9 +35,11 @@ pub use aocl_error::{Error, Result};
 use aocl_scalapack_sys as sys;
 pub use aocl_types::{Layout, Trans, Uplo};
 
-use std::os::raw::{c_char, c_int};
+use std::os::raw::c_char;
 
-fn map_info(component: &'static str, info: c_int) -> Result<()> {
+pub use sys::Int;
+
+fn map_info(component: &'static str, info: Int) -> Result<()> {
     use std::cmp::Ordering;
     match info.cmp(&0) {
         Ordering::Equal => Ok(()),
@@ -73,11 +77,11 @@ fn uplo_char(u: Uplo) -> c_char {
 
 /// RAII wrapper around a BLACS process grid context.
 pub struct Grid {
-    context: c_int,
-    nprow: c_int,
-    npcol: c_int,
-    myprow: c_int,
-    mypcol: c_int,
+    context: Int,
+    nprow: Int,
+    npcol: Int,
+    myprow: Int,
+    mypcol: Int,
     /// True after `Drop` (or `exit`) has been called; suppresses double-free.
     released: bool,
 }
@@ -91,8 +95,8 @@ impl Grid {
     /// Must be called from inside an MPI program (typically launched
     /// via `mpiexec`).
     pub fn new(nprow: usize, npcol: usize) -> Result<Self> {
-        let mut mypnum: c_int = -1;
-        let mut nprocs: c_int = 0;
+        let mut mypnum: Int = -1;
+        let mut nprocs: Int = 0;
         unsafe { sys::Cblacs_pinfo(&mut mypnum, &mut nprocs) };
         if nprocs <= 0 {
             return Err(Error::Status {
@@ -107,10 +111,10 @@ impl Grid {
                 "Grid::new: nprow*npcol = {needed} > MPI world size {nprocs}"
             )));
         }
-        let mut ctxt: c_int = 0;
+        let mut ctxt: Int = 0;
         unsafe { sys::Cblacs_get(-1, 0, &mut ctxt) };
         let order = c"R".as_ptr();
-        unsafe { sys::Cblacs_gridinit(&mut ctxt, order, nprow as c_int, npcol as c_int) };
+        unsafe { sys::Cblacs_gridinit(&mut ctxt, order, nprow as Int, npcol as Int) };
 
         let mut g_nprow = 0;
         let mut g_npcol = 0;
@@ -136,12 +140,12 @@ impl Grid {
     /// processes that aren't part of the grid (per BLACS convention,
     /// out-of-grid coords are `-1`).
     pub fn coords(&self) -> (usize, usize) {
-        let to_usize = |c: c_int| if c < 0 { usize::MAX } else { c as usize };
+        let to_usize = |c: Int| if c < 0 { usize::MAX } else { c as usize };
         (to_usize(self.myprow), to_usize(self.mypcol))
     }
 
     /// Raw BLACS context value, for routines this crate doesn't yet wrap.
-    pub fn context(&self) -> c_int {
+    pub fn context(&self) -> Int {
         self.context
     }
 
@@ -187,7 +191,7 @@ pub fn blacs_exit(continue_after_mpi: bool) {
 /// matrix.
 #[derive(Debug, Clone)]
 pub struct BlockCyclic {
-    desc: [c_int; 9],
+    desc: [Int; 9],
 }
 
 impl BlockCyclic {
@@ -204,16 +208,16 @@ impl BlockCyclic {
         csrc: usize,
         lld: usize,
     ) -> Result<Self> {
-        let mut desc = [0_i32; 9];
-        let mut info: c_int = 0;
-        let m_i = m as c_int;
-        let n_i = n as c_int;
-        let mb_i = mb as c_int;
-        let nb_i = nb as c_int;
-        let rsrc_i = rsrc as c_int;
-        let csrc_i = csrc as c_int;
+        let mut desc = [0 as Int; 9];
+        let mut info: Int = 0;
+        let m_i = m as Int;
+        let n_i = n as Int;
+        let mb_i = mb as Int;
+        let nb_i = nb as Int;
+        let rsrc_i = rsrc as Int;
+        let csrc_i = csrc as Int;
         let ctxt = grid.context;
-        let lld_i = lld as c_int;
+        let lld_i = lld as Int;
         unsafe {
             sys::descinit_(
                 desc.as_mut_ptr(),
@@ -239,7 +243,7 @@ impl BlockCyclic {
     }
 
     /// Borrow the raw 9-element descriptor.
-    pub fn as_raw(&self) -> &[c_int; 9] {
+    pub fn as_raw(&self) -> &[Int; 9] {
         &self.desc
     }
 }
@@ -248,11 +252,11 @@ impl BlockCyclic {
 /// into `nb`-row blocks across `nprocs` grid rows, with this process at
 /// row coordinate `iproc` and root at `isrcproc`.
 pub fn numroc(n: usize, nb: usize, iproc: usize, isrcproc: usize, nprocs: usize) -> usize {
-    let n_i = n as c_int;
-    let nb_i = nb as c_int;
-    let iproc_i = iproc as c_int;
-    let isrcproc_i = isrcproc as c_int;
-    let nprocs_i = nprocs as c_int;
+    let n_i = n as Int;
+    let nb_i = nb as Int;
+    let iproc_i = iproc as Int;
+    let isrcproc_i = isrcproc as Int;
+    let nprocs_i = nprocs as Int;
     let r = unsafe { sys::numroc_(&n_i, &nb_i, &iproc_i, &isrcproc_i, &nprocs_i) };
     if r < 0 {
         0
@@ -272,18 +276,18 @@ pub fn pdgesv(
     n: usize,
     nrhs: usize,
     a: &mut [f64],
-    ia: i32,
-    ja: i32,
+    ia: Int,
+    ja: Int,
     desca: &BlockCyclic,
-    ipiv: &mut [i32],
+    ipiv: &mut [Int],
     b: &mut [f64],
-    ib: i32,
-    jb: i32,
+    ib: Int,
+    jb: Int,
     descb: &BlockCyclic,
 ) -> Result<()> {
-    let n_i = n as c_int;
-    let nrhs_i = nrhs as c_int;
-    let mut info: c_int = 0;
+    let n_i = n as Int;
+    let nrhs_i = nrhs as Int;
+    let mut info: Int = 0;
     unsafe {
         sys::pdgesv_(
             &n_i,
@@ -312,22 +316,22 @@ pub fn pdgemm(
     k: usize,
     alpha: f64,
     a: &[f64],
-    ia: i32,
-    ja: i32,
+    ia: Int,
+    ja: Int,
     desca: &BlockCyclic,
     b: &[f64],
-    ib: i32,
-    jb: i32,
+    ib: Int,
+    jb: Int,
     descb: &BlockCyclic,
     beta: f64,
     c: &mut [f64],
-    ic: i32,
-    jc: i32,
+    ic: Int,
+    jc: Int,
     descc: &BlockCyclic,
 ) {
-    let m_i = m as c_int;
-    let n_i = n as c_int;
-    let k_i = k as c_int;
+    let m_i = m as Int;
+    let n_i = n as Int;
+    let k_i = k as Int;
     let ta = trans_char(trans_a);
     let tb = trans_char(trans_b);
     unsafe {
@@ -360,13 +364,13 @@ pub fn pdpotrf(
     uplo: Uplo,
     n: usize,
     a: &mut [f64],
-    ia: i32,
-    ja: i32,
+    ia: Int,
+    ja: Int,
     desca: &BlockCyclic,
 ) -> Result<()> {
-    let n_i = n as c_int;
+    let n_i = n as Int;
     let u = uplo_char(uplo);
-    let mut info: c_int = 0;
+    let mut info: Int = 0;
     unsafe {
         sys::pdpotrf_(
             &u,
@@ -386,14 +390,14 @@ pub fn pdgetrf(
     m: usize,
     n: usize,
     a: &mut [f64],
-    ia: i32,
-    ja: i32,
+    ia: Int,
+    ja: Int,
     desca: &BlockCyclic,
-    ipiv: &mut [i32],
+    ipiv: &mut [Int],
 ) -> Result<()> {
-    let m_i = m as c_int;
-    let n_i = n as c_int;
-    let mut info: c_int = 0;
+    let m_i = m as Int;
+    let n_i = n as Int;
+    let mut info: Int = 0;
     unsafe {
         sys::pdgetrf_(
             &m_i,
@@ -415,19 +419,19 @@ pub fn pdgetrs(
     n: usize,
     nrhs: usize,
     a: &[f64],
-    ia: i32,
-    ja: i32,
+    ia: Int,
+    ja: Int,
     desca: &BlockCyclic,
-    ipiv: &[i32],
+    ipiv: &[Int],
     b: &mut [f64],
-    ib: i32,
-    jb: i32,
+    ib: Int,
+    jb: Int,
     descb: &BlockCyclic,
 ) -> Result<()> {
     let t = trans_char(trans);
-    let n_i = n as c_int;
-    let nrhs_i = nrhs as c_int;
-    let mut info: c_int = 0;
+    let n_i = n as Int;
+    let nrhs_i = nrhs as Int;
+    let mut info: Int = 0;
     unsafe {
         sys::pdgetrs_(
             &t,
@@ -454,18 +458,18 @@ pub fn pdpotrs(
     n: usize,
     nrhs: usize,
     a: &[f64],
-    ia: i32,
-    ja: i32,
+    ia: Int,
+    ja: Int,
     desca: &BlockCyclic,
     b: &mut [f64],
-    ib: i32,
-    jb: i32,
+    ib: Int,
+    jb: Int,
     descb: &BlockCyclic,
 ) -> Result<()> {
     let u = uplo_char(uplo);
-    let n_i = n as c_int;
-    let nrhs_i = nrhs as c_int;
-    let mut info: c_int = 0;
+    let n_i = n as Int;
+    let nrhs_i = nrhs as Int;
+    let mut info: Int = 0;
     unsafe {
         sys::pdpotrs_(
             &u,
@@ -509,21 +513,21 @@ pub fn pdsyev(
     uplo: Uplo,
     n: usize,
     a: &mut [f64],
-    ia: i32,
-    ja: i32,
+    ia: Int,
+    ja: Int,
     desca: &BlockCyclic,
     w: &mut [f64],
     z: &mut [f64],
-    iz: i32,
-    jz: i32,
+    iz: Int,
+    jz: Int,
     descz: &BlockCyclic,
     work: &mut [f64],
-    lwork: i32,
+    lwork: Int,
 ) -> Result<()> {
     let j = compute.job_char();
     let u = uplo_char(uplo);
-    let n_i = n as c_int;
-    let mut info: c_int = 0;
+    let n_i = n as Int;
+    let mut info: Int = 0;
     unsafe {
         sys::pdsyev_(
             &j,
@@ -554,21 +558,21 @@ pub fn pdgels(
     n: usize,
     nrhs: usize,
     a: &mut [f64],
-    ia: i32,
-    ja: i32,
+    ia: Int,
+    ja: Int,
     desca: &BlockCyclic,
     b: &mut [f64],
-    ib: i32,
-    jb: i32,
+    ib: Int,
+    jb: Int,
     descb: &BlockCyclic,
     work: &mut [f64],
-    lwork: i32,
+    lwork: Int,
 ) -> Result<()> {
     let t = trans_char(trans);
-    let m_i = m as c_int;
-    let n_i = n as c_int;
-    let nrhs_i = nrhs as c_int;
-    let mut info: c_int = 0;
+    let m_i = m as Int;
+    let n_i = n as Int;
+    let nrhs_i = nrhs as Int;
+    let mut info: Int = 0;
     unsafe {
         sys::pdgels_(
             &t,
@@ -596,16 +600,16 @@ pub fn pdgeqrf(
     m: usize,
     n: usize,
     a: &mut [f64],
-    ia: i32,
-    ja: i32,
+    ia: Int,
+    ja: Int,
     desca: &BlockCyclic,
     tau: &mut [f64],
     work: &mut [f64],
-    lwork: i32,
+    lwork: Int,
 ) -> Result<()> {
-    let m_i = m as c_int;
-    let n_i = n as c_int;
-    let mut info: c_int = 0;
+    let m_i = m as Int;
+    let n_i = n as Int;
+    let mut info: Int = 0;
     unsafe {
         sys::pdgeqrf_(
             &m_i,
@@ -632,18 +636,18 @@ pub fn psgesv(
     n: usize,
     nrhs: usize,
     a: &mut [f32],
-    ia: i32,
-    ja: i32,
+    ia: Int,
+    ja: Int,
     desca: &BlockCyclic,
-    ipiv: &mut [i32],
+    ipiv: &mut [Int],
     b: &mut [f32],
-    ib: i32,
-    jb: i32,
+    ib: Int,
+    jb: Int,
     descb: &BlockCyclic,
 ) -> Result<()> {
-    let n_i = n as c_int;
-    let nrhs_i = nrhs as c_int;
-    let mut info: c_int = 0;
+    let n_i = n as Int;
+    let nrhs_i = nrhs as Int;
+    let mut info: Int = 0;
     unsafe {
         sys::psgesv_(
             &n_i,
@@ -672,22 +676,22 @@ pub fn psgemm(
     k: usize,
     alpha: f32,
     a: &[f32],
-    ia: i32,
-    ja: i32,
+    ia: Int,
+    ja: Int,
     desca: &BlockCyclic,
     b: &[f32],
-    ib: i32,
-    jb: i32,
+    ib: Int,
+    jb: Int,
     descb: &BlockCyclic,
     beta: f32,
     c: &mut [f32],
-    ic: i32,
-    jc: i32,
+    ic: Int,
+    jc: Int,
     descc: &BlockCyclic,
 ) {
-    let m_i = m as c_int;
-    let n_i = n as c_int;
-    let k_i = k as c_int;
+    let m_i = m as Int;
+    let n_i = n as Int;
+    let k_i = k as Int;
     let ta = trans_char(trans_a);
     let tb = trans_char(trans_b);
     unsafe {
@@ -720,13 +724,13 @@ pub fn pspotrf(
     uplo: Uplo,
     n: usize,
     a: &mut [f32],
-    ia: i32,
-    ja: i32,
+    ia: Int,
+    ja: Int,
     desca: &BlockCyclic,
 ) -> Result<()> {
-    let n_i = n as c_int;
+    let n_i = n as Int;
     let u = uplo_char(uplo);
-    let mut info: c_int = 0;
+    let mut info: Int = 0;
     unsafe {
         sys::pspotrf_(
             &u,
@@ -746,14 +750,14 @@ pub fn psgetrf(
     m: usize,
     n: usize,
     a: &mut [f32],
-    ia: i32,
-    ja: i32,
+    ia: Int,
+    ja: Int,
     desca: &BlockCyclic,
-    ipiv: &mut [i32],
+    ipiv: &mut [Int],
 ) -> Result<()> {
-    let m_i = m as c_int;
-    let n_i = n as c_int;
-    let mut info: c_int = 0;
+    let m_i = m as Int;
+    let n_i = n as Int;
+    let mut info: Int = 0;
     unsafe {
         sys::psgetrf_(
             &m_i,
@@ -776,19 +780,19 @@ pub fn psgetrs(
     n: usize,
     nrhs: usize,
     a: &[f32],
-    ia: i32,
-    ja: i32,
+    ia: Int,
+    ja: Int,
     desca: &BlockCyclic,
-    ipiv: &[i32],
+    ipiv: &[Int],
     b: &mut [f32],
-    ib: i32,
-    jb: i32,
+    ib: Int,
+    jb: Int,
     descb: &BlockCyclic,
 ) -> Result<()> {
-    let n_i = n as c_int;
-    let nrhs_i = nrhs as c_int;
+    let n_i = n as Int;
+    let nrhs_i = nrhs as Int;
     let t = trans_char(trans);
-    let mut info: c_int = 0;
+    let mut info: Int = 0;
     unsafe {
         sys::psgetrs_(
             &t,
@@ -815,18 +819,18 @@ pub fn pspotrs(
     n: usize,
     nrhs: usize,
     a: &[f32],
-    ia: i32,
-    ja: i32,
+    ia: Int,
+    ja: Int,
     desca: &BlockCyclic,
     b: &mut [f32],
-    ib: i32,
-    jb: i32,
+    ib: Int,
+    jb: Int,
     descb: &BlockCyclic,
 ) -> Result<()> {
-    let n_i = n as c_int;
-    let nrhs_i = nrhs as c_int;
+    let n_i = n as Int;
+    let nrhs_i = nrhs as Int;
     let u = uplo_char(uplo);
-    let mut info: c_int = 0;
+    let mut info: Int = 0;
     unsafe {
         sys::pspotrs_(
             &u,
@@ -852,25 +856,25 @@ pub fn pssyev(
     uplo: Uplo,
     n: usize,
     a: &mut [f32],
-    ia: i32,
-    ja: i32,
+    ia: Int,
+    ja: Int,
     desca: &BlockCyclic,
     w: &mut [f32],
     z: &mut [f32],
-    iz: i32,
-    jz: i32,
+    iz: Int,
+    jz: Int,
     descz: &BlockCyclic,
     work: &mut [f32],
-    lwork: i32,
+    lwork: Int,
 ) -> Result<()> {
-    let n_i = n as c_int;
+    let n_i = n as Int;
     let jobz = match compute {
         EigCompute::ValuesOnly => b'N' as c_char,
         EigCompute::ValuesAndVectors => b'V' as c_char,
     };
     let u = uplo_char(uplo);
-    let lwork = lwork as c_int;
-    let mut info: c_int = 0;
+    let lwork = lwork as Int;
+    let mut info: Int = 0;
     unsafe {
         sys::pssyev_(
             &jobz,
@@ -900,22 +904,22 @@ pub fn psgels(
     n: usize,
     nrhs: usize,
     a: &mut [f32],
-    ia: i32,
-    ja: i32,
+    ia: Int,
+    ja: Int,
     desca: &BlockCyclic,
     b: &mut [f32],
-    ib: i32,
-    jb: i32,
+    ib: Int,
+    jb: Int,
     descb: &BlockCyclic,
     work: &mut [f32],
-    lwork: i32,
+    lwork: Int,
 ) -> Result<()> {
-    let m_i = m as c_int;
-    let n_i = n as c_int;
-    let nrhs_i = nrhs as c_int;
+    let m_i = m as Int;
+    let n_i = n as Int;
+    let nrhs_i = nrhs as Int;
     let t = trans_char(trans);
-    let lwork = lwork as c_int;
-    let mut info: c_int = 0;
+    let lwork = lwork as Int;
+    let mut info: Int = 0;
     unsafe {
         sys::psgels_(
             &t,
@@ -943,17 +947,17 @@ pub fn psgeqrf(
     m: usize,
     n: usize,
     a: &mut [f32],
-    ia: i32,
-    ja: i32,
+    ia: Int,
+    ja: Int,
     desca: &BlockCyclic,
     tau: &mut [f32],
     work: &mut [f32],
-    lwork: i32,
+    lwork: Int,
 ) -> Result<()> {
-    let m_i = m as c_int;
-    let n_i = n as c_int;
-    let lwork = lwork as c_int;
-    let mut info: c_int = 0;
+    let m_i = m as Int;
+    let n_i = n as Int;
+    let lwork = lwork as Int;
+    let mut info: Int = 0;
     unsafe {
         sys::psgeqrf_(
             &m_i,
@@ -982,18 +986,18 @@ pub fn pcgesv(
     n: usize,
     nrhs: usize,
     a: &mut [[f32; 2]],
-    ia: i32,
-    ja: i32,
+    ia: Int,
+    ja: Int,
     desca: &BlockCyclic,
-    ipiv: &mut [i32],
+    ipiv: &mut [Int],
     b: &mut [[f32; 2]],
-    ib: i32,
-    jb: i32,
+    ib: Int,
+    jb: Int,
     descb: &BlockCyclic,
 ) -> Result<()> {
-    let n_i = n as c_int;
-    let nrhs_i = nrhs as c_int;
-    let mut info: c_int = 0;
+    let n_i = n as Int;
+    let nrhs_i = nrhs as Int;
+    let mut info: Int = 0;
     unsafe {
         sys::pcgesv_(
             &n_i,
@@ -1020,18 +1024,18 @@ pub fn pzgesv(
     n: usize,
     nrhs: usize,
     a: &mut [[f64; 2]],
-    ia: i32,
-    ja: i32,
+    ia: Int,
+    ja: Int,
     desca: &BlockCyclic,
-    ipiv: &mut [i32],
+    ipiv: &mut [Int],
     b: &mut [[f64; 2]],
-    ib: i32,
-    jb: i32,
+    ib: Int,
+    jb: Int,
     descb: &BlockCyclic,
 ) -> Result<()> {
-    let n_i = n as c_int;
-    let nrhs_i = nrhs as c_int;
-    let mut info: c_int = 0;
+    let n_i = n as Int;
+    let nrhs_i = nrhs as Int;
+    let mut info: Int = 0;
     unsafe {
         sys::pzgesv_(
             &n_i,
@@ -1060,7 +1064,7 @@ mod tests {
     /// block-cyclic definition: 10 rows in blocks of 2 over 3 process rows
     /// deal blocks 0,3 / 1,4 / 2 to rows 0 / 1 / 2. The values are worked
     /// by hand from the definition, cross-checked against nothing external
-    /// except this test passing against AOCL 5.3.2's `scalapack.dll` in a
+    /// except this test passing against AOCL 5.3.x's `scalapack.dll` in a
     /// single process (2026-11-19, no `mpiexec`); the multi-rank run is `tests/pdgesv_mpi.rs`.
     /// been done.
     #[test]

@@ -44,7 +44,7 @@ jobs:
           $ErrorActionPreference = 'Stop'
           # Same resolution as aocl-build's locate_aocl_root: AOCL_ROOT if set, else the default install.
           $aocl = if ($env:AOCL_ROOT) { $env:AOCL_ROOT } else { Join-Path $env:ProgramFiles 'AMD\AOCL-Windows' }
-          # scalapack.dll imports BLIS, libFLAME and libaoclutils (dumpbin /dependents, AOCL 5.3.2).
+          # scalapack.dll imports BLIS, libFLAME and libaoclutils (dumpbin /dependents, AOCL 5.3.x).
           $dirs = @(
             @{ Dir = Join-Path $aocl 'amd-scalapack\lib\LP64\shared'; File = 'scalapack.dll' },
             @{ Dir = Join-Path $aocl 'amd-blis\lib\LP64';              File = 'AOCL-LibBlis-Win-MT-dll.dll' },
@@ -103,22 +103,26 @@ jobs:
           cargo test --locked -p aocl-scalapack --no-fail-fast -- --nocapture
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-      # The pdgesv_mpi test has its own main (harness = false): `cargo test` above ran it on one rank; here the same
-      # binary runs on 1, 2 and 3 ranks under mpiexec (asymmetric data, columns dealt cyclically, so a wrong answer shows).
+      # The pdgesv_mpi, psgesv_mpi, complex_mpi and grid2d_mpi tests have their own main (harness = false): `cargo test` above ran them
+      # on one rank; here the same binaries run on 1, 2 and 3 ranks under mpiexec (asymmetric data, columns dealt cyclically, so a wrong answer shows).
       - name: aocl-scalapack multi-rank (mpiexec)
         shell: powershell
         run: |
           # Not 'Stop': Windows PowerShell 5.1 turns a native command's stderr (cargo's "Finished" line) into a terminating error.
-          $json = cargo test --locked -p aocl-scalapack --test pdgesv_mpi --no-run --message-format=json 2>$null
-          if ($LASTEXITCODE -ne 0) { throw "cargo test --no-run failed with exit code $LASTEXITCODE" }
-          $exe = $json |
-            ForEach-Object { try { $_ | ConvertFrom-Json } catch { $null } } |
-            Where-Object { $_.reason -eq 'compiler-artifact' -and $_.target.name -eq 'pdgesv_mpi' -and $_.executable } |
-            Select-Object -ExpandProperty executable -Last 1
-          if (-not $exe) { throw 'pdgesv_mpi test executable not found in cargo output' }
-          "test exe: $exe"
-          foreach ($n in 1, 2, 3) {
-            "== mpiexec -n $n"
-            mpiexec -n $n $exe
-            if ($LASTEXITCODE -ne 0) { throw "mpiexec -n $n failed with exit code $LASTEXITCODE" }
+          # grid2d_mpi needs 1, 2, 3, 4 or 6 ranks (grids 1x1, 2x1, 3x1, 2x2, 2x3); the others take any count.
+          foreach ($t in 'pdgesv_mpi', 'psgesv_mpi', 'complex_mpi', 'grid2d_mpi') {
+            $json = cargo test --locked -p aocl-scalapack --test $t --no-run --message-format=json 2>$null
+            if ($LASTEXITCODE -ne 0) { throw "cargo test --test $t --no-run failed with exit code $LASTEXITCODE" }
+            $exe = $json |
+              ForEach-Object { try { $_ | ConvertFrom-Json } catch { $null } } |
+              Where-Object { $_.reason -eq 'compiler-artifact' -and $_.target.name -eq $t -and $_.executable } |
+              Select-Object -ExpandProperty executable -Last 1
+            if (-not $exe) { throw "$t test executable not found in cargo output" }
+            "test exe: $exe"
+            $ranks = if ($t -eq 'grid2d_mpi') { 1, 2, 3, 4, 6 } else { 1, 2, 3 }
+            foreach ($n in $ranks) {
+              "== $t : mpiexec -n $n"
+              mpiexec -n $n $exe
+              if ($LASTEXITCODE -ne 0) { throw "$t : mpiexec -n $n failed with exit code $LASTEXITCODE" }
+            }
           }

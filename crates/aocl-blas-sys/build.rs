@@ -20,6 +20,7 @@ fn main() {
         unix_static: &["blis-mt"],
         unix_dynamic: &["blis-mt"],
         extra_includes: &[],
+        ilp64_defines: &[],
     }
     .build(&root);
 }

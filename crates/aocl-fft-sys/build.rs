@@ -23,6 +23,7 @@ fn main() {
         unix_static: &["fftw3", "fftw3f"],
         unix_dynamic: &["fftw3", "fftw3f"],
         extra_includes: &[],
+        ilp64_defines: &[],
     }
     .build(&root);
 }

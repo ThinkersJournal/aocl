@@ -21,6 +21,7 @@ fn main() {
         unix_static: &["scalapack"],
         unix_dynamic: &["scalapack"],
         extra_includes: &[],
+        ilp64_defines: &[],
     }
     .build(&root);
 }

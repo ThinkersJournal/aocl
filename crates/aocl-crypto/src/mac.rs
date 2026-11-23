@@ -29,9 +29,9 @@ pub enum AesKeyLen {
 impl MacKind {
     fn raw_type(self) -> sys::alc_mac_type_t {
         match self {
-            MacKind::Hmac(_) => sys::_alc_mac_type_ALC_MAC_HMAC,
-            MacKind::Cmac(_) => sys::_alc_mac_type_ALC_MAC_CMAC,
-            MacKind::Poly1305 => sys::_alc_mac_type_ALC_MAC_POLY1305,
+            MacKind::Hmac(_) => sys::alc_mac_type_ALC_MAC_HMAC,
+            MacKind::Cmac(_) => sys::alc_mac_type_ALC_MAC_CMAC,
+            MacKind::Poly1305 => sys::alc_mac_type_ALC_MAC_POLY1305,
         }
     }
 
@@ -49,7 +49,7 @@ fn cmac_mode(k: AesKeyLen) -> sys::alc_cipher_mode_t {
     // internally regardless of key length. ALCP only cares about it as
     // a placeholder to dispatch the AES variant.
     let _ = k;
-    sys::_alc_cipher_mode_ALC_AES_MODE_ECB
+    sys::alc_cipher_mode_ALC_AES_MODE_ECB
 }
 
 fn check(err: sys::alc_error_t) -> Result<()> {

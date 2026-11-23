@@ -5,6 +5,9 @@
 //! header, and emit the `cargo:rustc-link-*` directives needed to link the
 //! corresponding native library.
 
+#[cfg(windows)]
+pub mod loaded_dll;
+
 use std::env;
 use std::path::{Path, PathBuf};
 
@@ -35,6 +38,10 @@ pub struct Component<'a> {
     pub unix_dynamic: &'a [&'a str],
     /// Additional `-I` includes to pass to bindgen's clang.
     pub extra_includes: &'a [&'a str],
+    /// Macros (names or `NAME=value`, no `-D`) this component's own headers need to select 64-bit integers when the
+    /// `ilp64` feature is on. They differ per component (`aoclsparse_ILP64`, `AOCLDA_ILP64`, `INTEGER64`, ...); without
+    /// the right one the generated bindings stay 32-bit while the ILP64 library is linked.
+    pub ilp64_defines: &'a [&'a str],
 }
 
 impl Component<'_> {
@@ -202,6 +209,9 @@ impl Component<'_> {
                 .clang_arg("-DAOCL_ILP64")
                 .clang_arg("-DBLIS_ENABLE_ILP64")
                 .clang_arg("-DLAPACK_ILP64");
+            for d in self.ilp64_defines {
+                builder = builder.clang_arg(format!("-D{d}"));
+            }
         }
 
         let bindings = builder.generate().unwrap_or_else(|e| {

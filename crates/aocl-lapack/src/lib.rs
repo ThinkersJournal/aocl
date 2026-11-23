@@ -21,12 +21,21 @@
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
 pub use aocl_error::{Error, Result};
+
+/// The library's integer type: 32-bit under LP64, 64-bit with the `ilp64` feature (pivots, ranks, `info` and every
+/// dimension argument are this type). Under LP64 it is `i32`, so the public API is unchanged there.
+#[cfg(not(feature = "ilp64"))]
+pub type Int = i32;
+/// The library's integer type: 32-bit under LP64, 64-bit with the `ilp64` feature.
+#[cfg(feature = "ilp64")]
+pub type Int = i64;
 use aocl_lapack_sys as sys;
 use aocl_types::sealed::Sealed;
 pub use aocl_types::{Complex32, Complex64, Layout, Trans, Uplo};
 
 use std::os::raw::c_char;
 
+// LAPACKE's `matrix_layout` argument is a C `int` even in ILP64 builds (only `lapack_int` widens), so it stays `i32`.
 const ROW_MAJOR: i32 = 101;
 const COL_MAJOR: i32 = 102;
 
@@ -52,7 +61,7 @@ fn trans_char(t: Trans) -> c_char {
     }
 }
 
-fn map_info(component: &'static str, info: i32) -> Result<()> {
+fn map_info(component: &'static str, info: Int) -> Result<()> {
     use std::cmp::Ordering;
     match info.cmp(&0) {
         Ordering::Equal => Ok(()),
@@ -117,7 +126,7 @@ pub trait Scalar: Copy + Sized + Sealed {
         nrhs: usize,
         a: &mut [Self],
         lda: usize,
-        ipiv: &mut [i32],
+        ipiv: &mut [Int],
         b: &mut [Self],
         ldb: usize,
     ) -> Result<()>;
@@ -129,7 +138,7 @@ pub trait Scalar: Copy + Sized + Sealed {
         n: usize,
         a: &mut [Self],
         lda: usize,
-        ipiv: &mut [i32],
+        ipiv: &mut [Int],
     ) -> Result<()>;
 
     /// Back-substitute using a prior LU factorization.
@@ -140,13 +149,13 @@ pub trait Scalar: Copy + Sized + Sealed {
         nrhs: usize,
         a: &[Self],
         lda: usize,
-        ipiv: &[i32],
+        ipiv: &[Int],
         b: &mut [Self],
         ldb: usize,
     ) -> Result<()>;
 
     /// Inverse from a prior LU factorization.
-    fn getri(layout: Layout, n: usize, a: &mut [Self], lda: usize, ipiv: &[i32]) -> Result<()>;
+    fn getri(layout: Layout, n: usize, a: &mut [Self], lda: usize, ipiv: &[Int]) -> Result<()>;
 
     // --- Cholesky --------------------------------------------------------
 
@@ -192,7 +201,7 @@ pub trait Scalar: Copy + Sized + Sealed {
         nrhs: usize,
         a: &mut [Self],
         lda: usize,
-        ipiv: &mut [i32],
+        ipiv: &mut [Int],
         b: &mut [Self],
         ldb: usize,
     ) -> Result<()>;
@@ -204,7 +213,7 @@ pub trait Scalar: Copy + Sized + Sealed {
         n: usize,
         a: &mut [Self],
         lda: usize,
-        ipiv: &mut [i32],
+        ipiv: &mut [Int],
     ) -> Result<()>;
 
     /// Back-substitute using a prior Bunch-Kaufman factorization.
@@ -215,7 +224,7 @@ pub trait Scalar: Copy + Sized + Sealed {
         nrhs: usize,
         a: &[Self],
         lda: usize,
-        ipiv: &[i32],
+        ipiv: &[Int],
         b: &mut [Self],
         ldb: usize,
     ) -> Result<()>;
@@ -231,7 +240,7 @@ pub trait Scalar: Copy + Sized + Sealed {
         nrhs: usize,
         ab: &mut [Self],
         ldab: usize,
-        ipiv: &mut [i32],
+        ipiv: &mut [Int],
         b: &mut [Self],
         ldb: usize,
     ) -> Result<()>;
@@ -245,7 +254,7 @@ pub trait Scalar: Copy + Sized + Sealed {
         ku: usize,
         ab: &mut [Self],
         ldab: usize,
-        ipiv: &mut [i32],
+        ipiv: &mut [Int],
     ) -> Result<()>;
 
     /// Back-substitute using a prior banded LU factorization.
@@ -258,7 +267,7 @@ pub trait Scalar: Copy + Sized + Sealed {
         nrhs: usize,
         ab: &[Self],
         ldab: usize,
-        ipiv: &[i32],
+        ipiv: &[Int],
         b: &mut [Self],
         ldb: usize,
     ) -> Result<()>;
@@ -379,7 +388,7 @@ pub trait Scalar: Copy + Sized + Sealed {
         ldb: usize,
         s: &mut [Self::Real],
         rcond: Self::Real,
-        rank: &mut i32,
+        rank: &mut Int,
     ) -> Result<()>;
 
     /// Least squares using QR with column pivoting.
@@ -392,9 +401,9 @@ pub trait Scalar: Copy + Sized + Sealed {
         lda: usize,
         b: &mut [Self],
         ldb: usize,
-        jpvt: &mut [i32],
+        jpvt: &mut [Int],
         rcond: Self::Real,
-        rank: &mut i32,
+        rank: &mut Int,
     ) -> Result<()>;
 }
 
@@ -489,7 +498,7 @@ pub trait ComplexScalar: Scalar {
         nrhs: usize,
         a: &mut [Self],
         lda: usize,
-        ipiv: &mut [i32],
+        ipiv: &mut [Int],
         b: &mut [Self],
         ldb: usize,
     ) -> Result<()>;
@@ -501,7 +510,7 @@ pub trait ComplexScalar: Scalar {
         n: usize,
         a: &mut [Self],
         lda: usize,
-        ipiv: &mut [i32],
+        ipiv: &mut [Int],
     ) -> Result<()>;
 
     /// Back-substitute using a Hermitian Bunch-Kaufman factorization.
@@ -512,7 +521,7 @@ pub trait ComplexScalar: Scalar {
         nrhs: usize,
         a: &[Self],
         lda: usize,
-        ipiv: &[i32],
+        ipiv: &[Int],
         b: &mut [Self],
         ldb: usize,
     ) -> Result<()>;
@@ -572,7 +581,7 @@ macro_rules! impl_real {
                 nrhs: usize,
                 a: &mut [Self],
                 lda: usize,
-                ipiv: &mut [i32],
+                ipiv: &mut [Int],
                 b: &mut [Self],
                 ldb: usize,
             ) -> Result<()> {
@@ -587,13 +596,13 @@ macro_rules! impl_real {
                 let info = unsafe {
                     sys::$gesv(
                         layout_raw(layout),
-                        n as i32,
-                        nrhs as i32,
+                        n as Int,
+                        nrhs as Int,
                         a.as_mut_ptr(),
-                        lda as i32,
+                        lda as Int,
                         ipiv.as_mut_ptr(),
                         b.as_mut_ptr(),
-                        ldb as i32,
+                        ldb as Int,
                     )
                 };
                 map_info("lapack", info)
@@ -605,7 +614,7 @@ macro_rules! impl_real {
                 n: usize,
                 a: &mut [Self],
                 lda: usize,
-                ipiv: &mut [i32],
+                ipiv: &mut [Int],
             ) -> Result<()> {
                 check_matrix("getrf: A", layout, m, n, lda, a.len())?;
                 if ipiv.len() < m.min(n) {
@@ -618,10 +627,10 @@ macro_rules! impl_real {
                 let info = unsafe {
                     sys::$getrf(
                         layout_raw(layout),
-                        m as i32,
-                        n as i32,
+                        m as Int,
+                        n as Int,
                         a.as_mut_ptr(),
-                        lda as i32,
+                        lda as Int,
                         ipiv.as_mut_ptr(),
                     )
                 };
@@ -635,7 +644,7 @@ macro_rules! impl_real {
                 nrhs: usize,
                 a: &[Self],
                 lda: usize,
-                ipiv: &[i32],
+                ipiv: &[Int],
                 b: &mut [Self],
                 ldb: usize,
             ) -> Result<()> {
@@ -645,13 +654,13 @@ macro_rules! impl_real {
                     sys::$getrs(
                         layout_raw(layout),
                         trans_char(trans),
-                        n as i32,
-                        nrhs as i32,
+                        n as Int,
+                        nrhs as Int,
                         a.as_ptr(),
-                        lda as i32,
+                        lda as Int,
                         ipiv.as_ptr(),
                         b.as_mut_ptr(),
-                        ldb as i32,
+                        ldb as Int,
                     )
                 };
                 map_info("lapack", info)
@@ -662,15 +671,15 @@ macro_rules! impl_real {
                 n: usize,
                 a: &mut [Self],
                 lda: usize,
-                ipiv: &[i32],
+                ipiv: &[Int],
             ) -> Result<()> {
                 check_matrix("getri: A", layout, n, n, lda, a.len())?;
                 let info = unsafe {
                     sys::$getri(
                         layout_raw(layout),
-                        n as i32,
+                        n as Int,
                         a.as_mut_ptr(),
-                        lda as i32,
+                        lda as Int,
                         ipiv.as_ptr(),
                     )
                 };
@@ -693,12 +702,12 @@ macro_rules! impl_real {
                     sys::$posv(
                         layout_raw(layout),
                         uplo_char(uplo),
-                        n as i32,
-                        nrhs as i32,
+                        n as Int,
+                        nrhs as Int,
                         a.as_mut_ptr(),
-                        lda as i32,
+                        lda as Int,
                         b.as_mut_ptr(),
-                        ldb as i32,
+                        ldb as Int,
                     )
                 };
                 map_info("lapack", info)
@@ -716,9 +725,9 @@ macro_rules! impl_real {
                     sys::$potrf(
                         layout_raw(layout),
                         uplo_char(uplo),
-                        n as i32,
+                        n as Int,
                         a.as_mut_ptr(),
-                        lda as i32,
+                        lda as Int,
                     )
                 };
                 map_info("lapack", info)
@@ -740,12 +749,12 @@ macro_rules! impl_real {
                     sys::$potrs(
                         layout_raw(layout),
                         uplo_char(uplo),
-                        n as i32,
-                        nrhs as i32,
+                        n as Int,
+                        nrhs as Int,
                         a.as_ptr(),
-                        lda as i32,
+                        lda as Int,
                         b.as_mut_ptr(),
-                        ldb as i32,
+                        ldb as Int,
                     )
                 };
                 map_info("lapack", info)
@@ -763,9 +772,9 @@ macro_rules! impl_real {
                     sys::$potri(
                         layout_raw(layout),
                         uplo_char(uplo),
-                        n as i32,
+                        n as Int,
                         a.as_mut_ptr(),
-                        lda as i32,
+                        lda as Int,
                     )
                 };
                 map_info("lapack", info)
@@ -778,7 +787,7 @@ macro_rules! impl_real {
                 nrhs: usize,
                 a: &mut [Self],
                 lda: usize,
-                ipiv: &mut [i32],
+                ipiv: &mut [Int],
                 b: &mut [Self],
                 ldb: usize,
             ) -> Result<()> {
@@ -788,13 +797,13 @@ macro_rules! impl_real {
                     sys::$sysv(
                         layout_raw(layout),
                         uplo_char(uplo),
-                        n as i32,
-                        nrhs as i32,
+                        n as Int,
+                        nrhs as Int,
                         a.as_mut_ptr(),
-                        lda as i32,
+                        lda as Int,
                         ipiv.as_mut_ptr(),
                         b.as_mut_ptr(),
-                        ldb as i32,
+                        ldb as Int,
                     )
                 };
                 map_info("lapack", info)
@@ -806,15 +815,15 @@ macro_rules! impl_real {
                 n: usize,
                 a: &mut [Self],
                 lda: usize,
-                ipiv: &mut [i32],
+                ipiv: &mut [Int],
             ) -> Result<()> {
                 let info = unsafe {
                     sys::$sytrf(
                         layout_raw(layout),
                         uplo_char(uplo),
-                        n as i32,
+                        n as Int,
                         a.as_mut_ptr(),
-                        lda as i32,
+                        lda as Int,
                         ipiv.as_mut_ptr(),
                     )
                 };
@@ -828,7 +837,7 @@ macro_rules! impl_real {
                 nrhs: usize,
                 a: &[Self],
                 lda: usize,
-                ipiv: &[i32],
+                ipiv: &[Int],
                 b: &mut [Self],
                 ldb: usize,
             ) -> Result<()> {
@@ -836,13 +845,13 @@ macro_rules! impl_real {
                     sys::$sytrs(
                         layout_raw(layout),
                         uplo_char(uplo),
-                        n as i32,
-                        nrhs as i32,
+                        n as Int,
+                        nrhs as Int,
                         a.as_ptr(),
-                        lda as i32,
+                        lda as Int,
                         ipiv.as_ptr(),
                         b.as_mut_ptr(),
-                        ldb as i32,
+                        ldb as Int,
                     )
                 };
                 map_info("lapack", info)
@@ -856,22 +865,22 @@ macro_rules! impl_real {
                 nrhs: usize,
                 ab: &mut [Self],
                 ldab: usize,
-                ipiv: &mut [i32],
+                ipiv: &mut [Int],
                 b: &mut [Self],
                 ldb: usize,
             ) -> Result<()> {
                 let info = unsafe {
                     sys::$gbsv(
                         layout_raw(layout),
-                        n as i32,
-                        kl as i32,
-                        ku as i32,
-                        nrhs as i32,
+                        n as Int,
+                        kl as Int,
+                        ku as Int,
+                        nrhs as Int,
                         ab.as_mut_ptr(),
-                        ldab as i32,
+                        ldab as Int,
                         ipiv.as_mut_ptr(),
                         b.as_mut_ptr(),
-                        ldb as i32,
+                        ldb as Int,
                     )
                 };
                 map_info("lapack", info)
@@ -885,17 +894,17 @@ macro_rules! impl_real {
                 ku: usize,
                 ab: &mut [Self],
                 ldab: usize,
-                ipiv: &mut [i32],
+                ipiv: &mut [Int],
             ) -> Result<()> {
                 let info = unsafe {
                     sys::$gbtrf(
                         layout_raw(layout),
-                        m as i32,
-                        n as i32,
-                        kl as i32,
-                        ku as i32,
+                        m as Int,
+                        n as Int,
+                        kl as Int,
+                        ku as Int,
                         ab.as_mut_ptr(),
-                        ldab as i32,
+                        ldab as Int,
                         ipiv.as_mut_ptr(),
                     )
                 };
@@ -911,7 +920,7 @@ macro_rules! impl_real {
                 nrhs: usize,
                 ab: &[Self],
                 ldab: usize,
-                ipiv: &[i32],
+                ipiv: &[Int],
                 b: &mut [Self],
                 ldb: usize,
             ) -> Result<()> {
@@ -919,15 +928,15 @@ macro_rules! impl_real {
                     sys::$gbtrs(
                         layout_raw(layout),
                         trans_char(trans),
-                        n as i32,
-                        kl as i32,
-                        ku as i32,
-                        nrhs as i32,
+                        n as Int,
+                        kl as Int,
+                        ku as Int,
+                        nrhs as Int,
                         ab.as_ptr(),
-                        ldab as i32,
+                        ldab as Int,
                         ipiv.as_ptr(),
                         b.as_mut_ptr(),
-                        ldb as i32,
+                        ldb as Int,
                     )
                 };
                 map_info("lapack", info)
@@ -960,13 +969,13 @@ macro_rules! impl_real {
                 let info = unsafe {
                     sys::$gtsv(
                         layout_raw(layout),
-                        n as i32,
-                        nrhs as i32,
+                        n as Int,
+                        nrhs as Int,
                         dl.as_mut_ptr(),
                         d.as_mut_ptr(),
                         du.as_mut_ptr(),
                         b.as_mut_ptr(),
-                        ldb as i32,
+                        ldb as Int,
                     )
                 };
                 map_info("lapack", info)
@@ -984,12 +993,12 @@ macro_rules! impl_real {
                 let info = unsafe {
                     sys::$ptsv(
                         layout_raw(layout),
-                        n as i32,
-                        nrhs as i32,
+                        n as Int,
+                        nrhs as Int,
                         d.as_mut_ptr(),
                         e.as_mut_ptr(),
                         b.as_mut_ptr(),
-                        ldb as i32,
+                        ldb as Int,
                     )
                 };
                 map_info("lapack", info)
@@ -1010,13 +1019,13 @@ macro_rules! impl_real {
                     sys::$gels(
                         layout_raw(layout),
                         trans_char(trans),
-                        m as i32,
-                        n as i32,
-                        nrhs as i32,
+                        m as Int,
+                        n as Int,
+                        nrhs as Int,
                         a.as_mut_ptr(),
-                        lda as i32,
+                        lda as Int,
                         b.as_mut_ptr(),
-                        ldb as i32,
+                        ldb as Int,
                     )
                 };
                 map_info("lapack", info)
@@ -1041,10 +1050,10 @@ macro_rules! impl_real {
                 let info = unsafe {
                     sys::$geqrf(
                         layout_raw(layout),
-                        m as i32,
-                        n as i32,
+                        m as Int,
+                        n as Int,
                         a.as_mut_ptr(),
-                        lda as i32,
+                        lda as Int,
                         tau.as_mut_ptr(),
                     )
                 };
@@ -1070,10 +1079,10 @@ macro_rules! impl_real {
                 let info = unsafe {
                     sys::$gelqf(
                         layout_raw(layout),
-                        m as i32,
-                        n as i32,
+                        m as Int,
+                        n as Int,
                         a.as_mut_ptr(),
-                        lda as i32,
+                        lda as Int,
                         tau.as_mut_ptr(),
                     )
                 };
@@ -1100,15 +1109,15 @@ macro_rules! impl_real {
                         layout_raw(layout),
                         jobu.job_char(),
                         jobvt.job_char(),
-                        m as i32,
-                        n as i32,
+                        m as Int,
+                        n as Int,
                         a.as_mut_ptr(),
-                        lda as i32,
+                        lda as Int,
                         s.as_mut_ptr(),
                         u.as_mut_ptr(),
-                        ldu as i32,
+                        ldu as Int,
                         vt.as_mut_ptr(),
-                        ldvt as i32,
+                        ldvt as Int,
                         superb.as_mut_ptr(),
                     )
                 };
@@ -1132,15 +1141,15 @@ macro_rules! impl_real {
                     sys::$gesdd(
                         layout_raw(layout),
                         jobz.job_char(),
-                        m as i32,
-                        n as i32,
+                        m as Int,
+                        n as Int,
                         a.as_mut_ptr(),
-                        lda as i32,
+                        lda as Int,
                         s.as_mut_ptr(),
                         u.as_mut_ptr(),
-                        ldu as i32,
+                        ldu as Int,
                         vt.as_mut_ptr(),
-                        ldvt as i32,
+                        ldvt as Int,
                     )
                 };
                 map_info("lapack", info)
@@ -1157,18 +1166,18 @@ macro_rules! impl_real {
                 ldb: usize,
                 s: &mut [Self::Real],
                 rcond: Self::Real,
-                rank: &mut i32,
+                rank: &mut Int,
             ) -> Result<()> {
                 let info = unsafe {
                     sys::$gelsd(
                         layout_raw(layout),
-                        m as i32,
-                        n as i32,
-                        nrhs as i32,
+                        m as Int,
+                        n as Int,
+                        nrhs as Int,
                         a.as_mut_ptr(),
-                        lda as i32,
+                        lda as Int,
                         b.as_mut_ptr(),
-                        ldb as i32,
+                        ldb as Int,
                         s.as_mut_ptr(),
                         rcond,
                         rank,
@@ -1186,20 +1195,20 @@ macro_rules! impl_real {
                 lda: usize,
                 b: &mut [Self],
                 ldb: usize,
-                jpvt: &mut [i32],
+                jpvt: &mut [Int],
                 rcond: Self::Real,
-                rank: &mut i32,
+                rank: &mut Int,
             ) -> Result<()> {
                 let info = unsafe {
                     sys::$gelsy(
                         layout_raw(layout),
-                        m as i32,
-                        n as i32,
-                        nrhs as i32,
+                        m as Int,
+                        n as Int,
+                        nrhs as Int,
                         a.as_mut_ptr(),
-                        lda as i32,
+                        lda as Int,
                         b.as_mut_ptr(),
-                        ldb as i32,
+                        ldb as Int,
                         jpvt.as_mut_ptr(),
                         rcond,
                         rank,
@@ -1224,9 +1233,9 @@ macro_rules! impl_real {
                         layout_raw(layout),
                         compute.job_char(),
                         uplo_char(uplo),
-                        n as i32,
+                        n as Int,
                         a.as_mut_ptr(),
-                        lda as i32,
+                        lda as Int,
                         w.as_mut_ptr(),
                     )
                 };
@@ -1252,15 +1261,15 @@ macro_rules! impl_real {
                         layout_raw(layout),
                         compute_left.job_char(),
                         compute_right.job_char(),
-                        n as i32,
+                        n as Int,
                         a.as_mut_ptr(),
-                        lda as i32,
+                        lda as Int,
                         wr.as_mut_ptr(),
                         wi.as_mut_ptr(),
                         vl.as_mut_ptr(),
-                        ldvl as i32,
+                        ldvl as Int,
                         vr.as_mut_ptr(),
-                        ldvr as i32,
+                        ldvr as Int,
                     )
                 };
                 map_info("lapack", info)
@@ -1357,7 +1366,7 @@ macro_rules! impl_complex {
                 nrhs: usize,
                 a: &mut [Self],
                 lda: usize,
-                ipiv: &mut [i32],
+                ipiv: &mut [Int],
                 b: &mut [Self],
                 ldb: usize,
             ) -> Result<()> {
@@ -1372,13 +1381,13 @@ macro_rules! impl_complex {
                 let info = unsafe {
                     sys::$gesv(
                         layout_raw(layout),
-                        n as i32,
-                        nrhs as i32,
+                        n as Int,
+                        nrhs as Int,
                         a.as_mut_ptr() as *mut $cc,
-                        lda as i32,
+                        lda as Int,
                         ipiv.as_mut_ptr(),
                         b.as_mut_ptr() as *mut $cc,
-                        ldb as i32,
+                        ldb as Int,
                     )
                 };
                 map_info("lapack", info)
@@ -1390,16 +1399,16 @@ macro_rules! impl_complex {
                 n: usize,
                 a: &mut [Self],
                 lda: usize,
-                ipiv: &mut [i32],
+                ipiv: &mut [Int],
             ) -> Result<()> {
                 check_matrix("getrf: A", layout, m, n, lda, a.len())?;
                 let info = unsafe {
                     sys::$getrf(
                         layout_raw(layout),
-                        m as i32,
-                        n as i32,
+                        m as Int,
+                        n as Int,
                         a.as_mut_ptr() as *mut $cc,
-                        lda as i32,
+                        lda as Int,
                         ipiv.as_mut_ptr(),
                     )
                 };
@@ -1413,7 +1422,7 @@ macro_rules! impl_complex {
                 nrhs: usize,
                 a: &[Self],
                 lda: usize,
-                ipiv: &[i32],
+                ipiv: &[Int],
                 b: &mut [Self],
                 ldb: usize,
             ) -> Result<()> {
@@ -1421,13 +1430,13 @@ macro_rules! impl_complex {
                     sys::$getrs(
                         layout_raw(layout),
                         trans_char(trans),
-                        n as i32,
-                        nrhs as i32,
+                        n as Int,
+                        nrhs as Int,
                         a.as_ptr() as *const $cc,
-                        lda as i32,
+                        lda as Int,
                         ipiv.as_ptr(),
                         b.as_mut_ptr() as *mut $cc,
-                        ldb as i32,
+                        ldb as Int,
                     )
                 };
                 map_info("lapack", info)
@@ -1438,14 +1447,14 @@ macro_rules! impl_complex {
                 n: usize,
                 a: &mut [Self],
                 lda: usize,
-                ipiv: &[i32],
+                ipiv: &[Int],
             ) -> Result<()> {
                 let info = unsafe {
                     sys::$getri(
                         layout_raw(layout),
-                        n as i32,
+                        n as Int,
                         a.as_mut_ptr() as *mut $cc,
-                        lda as i32,
+                        lda as Int,
                         ipiv.as_ptr(),
                     )
                 };
@@ -1466,12 +1475,12 @@ macro_rules! impl_complex {
                     sys::$posv(
                         layout_raw(layout),
                         uplo_char(uplo),
-                        n as i32,
-                        nrhs as i32,
+                        n as Int,
+                        nrhs as Int,
                         a.as_mut_ptr() as *mut $cc,
-                        lda as i32,
+                        lda as Int,
                         b.as_mut_ptr() as *mut $cc,
-                        ldb as i32,
+                        ldb as Int,
                     )
                 };
                 map_info("lapack", info)
@@ -1488,9 +1497,9 @@ macro_rules! impl_complex {
                     sys::$potrf(
                         layout_raw(layout),
                         uplo_char(uplo),
-                        n as i32,
+                        n as Int,
                         a.as_mut_ptr() as *mut $cc,
-                        lda as i32,
+                        lda as Int,
                     )
                 };
                 map_info("lapack", info)
@@ -1510,12 +1519,12 @@ macro_rules! impl_complex {
                     sys::$potrs(
                         layout_raw(layout),
                         uplo_char(uplo),
-                        n as i32,
-                        nrhs as i32,
+                        n as Int,
+                        nrhs as Int,
                         a.as_ptr() as *const $cc,
-                        lda as i32,
+                        lda as Int,
                         b.as_mut_ptr() as *mut $cc,
-                        ldb as i32,
+                        ldb as Int,
                     )
                 };
                 map_info("lapack", info)
@@ -1532,9 +1541,9 @@ macro_rules! impl_complex {
                     sys::$potri(
                         layout_raw(layout),
                         uplo_char(uplo),
-                        n as i32,
+                        n as Int,
                         a.as_mut_ptr() as *mut $cc,
-                        lda as i32,
+                        lda as Int,
                     )
                 };
                 map_info("lapack", info)
@@ -1547,7 +1556,7 @@ macro_rules! impl_complex {
                 nrhs: usize,
                 a: &mut [Self],
                 lda: usize,
-                ipiv: &mut [i32],
+                ipiv: &mut [Int],
                 b: &mut [Self],
                 ldb: usize,
             ) -> Result<()> {
@@ -1555,13 +1564,13 @@ macro_rules! impl_complex {
                     sys::$sysv(
                         layout_raw(layout),
                         uplo_char(uplo),
-                        n as i32,
-                        nrhs as i32,
+                        n as Int,
+                        nrhs as Int,
                         a.as_mut_ptr() as *mut $cc,
-                        lda as i32,
+                        lda as Int,
                         ipiv.as_mut_ptr(),
                         b.as_mut_ptr() as *mut $cc,
-                        ldb as i32,
+                        ldb as Int,
                     )
                 };
                 map_info("lapack", info)
@@ -1573,15 +1582,15 @@ macro_rules! impl_complex {
                 n: usize,
                 a: &mut [Self],
                 lda: usize,
-                ipiv: &mut [i32],
+                ipiv: &mut [Int],
             ) -> Result<()> {
                 let info = unsafe {
                     sys::$sytrf(
                         layout_raw(layout),
                         uplo_char(uplo),
-                        n as i32,
+                        n as Int,
                         a.as_mut_ptr() as *mut $cc,
-                        lda as i32,
+                        lda as Int,
                         ipiv.as_mut_ptr(),
                     )
                 };
@@ -1595,7 +1604,7 @@ macro_rules! impl_complex {
                 nrhs: usize,
                 a: &[Self],
                 lda: usize,
-                ipiv: &[i32],
+                ipiv: &[Int],
                 b: &mut [Self],
                 ldb: usize,
             ) -> Result<()> {
@@ -1603,13 +1612,13 @@ macro_rules! impl_complex {
                     sys::$sytrs(
                         layout_raw(layout),
                         uplo_char(uplo),
-                        n as i32,
-                        nrhs as i32,
+                        n as Int,
+                        nrhs as Int,
                         a.as_ptr() as *const $cc,
-                        lda as i32,
+                        lda as Int,
                         ipiv.as_ptr(),
                         b.as_mut_ptr() as *mut $cc,
-                        ldb as i32,
+                        ldb as Int,
                     )
                 };
                 map_info("lapack", info)
@@ -1623,22 +1632,22 @@ macro_rules! impl_complex {
                 nrhs: usize,
                 ab: &mut [Self],
                 ldab: usize,
-                ipiv: &mut [i32],
+                ipiv: &mut [Int],
                 b: &mut [Self],
                 ldb: usize,
             ) -> Result<()> {
                 let info = unsafe {
                     sys::$gbsv(
                         layout_raw(layout),
-                        n as i32,
-                        kl as i32,
-                        ku as i32,
-                        nrhs as i32,
+                        n as Int,
+                        kl as Int,
+                        ku as Int,
+                        nrhs as Int,
                         ab.as_mut_ptr() as *mut $cc,
-                        ldab as i32,
+                        ldab as Int,
                         ipiv.as_mut_ptr(),
                         b.as_mut_ptr() as *mut $cc,
-                        ldb as i32,
+                        ldb as Int,
                     )
                 };
                 map_info("lapack", info)
@@ -1652,17 +1661,17 @@ macro_rules! impl_complex {
                 ku: usize,
                 ab: &mut [Self],
                 ldab: usize,
-                ipiv: &mut [i32],
+                ipiv: &mut [Int],
             ) -> Result<()> {
                 let info = unsafe {
                     sys::$gbtrf(
                         layout_raw(layout),
-                        m as i32,
-                        n as i32,
-                        kl as i32,
-                        ku as i32,
+                        m as Int,
+                        n as Int,
+                        kl as Int,
+                        ku as Int,
                         ab.as_mut_ptr() as *mut $cc,
-                        ldab as i32,
+                        ldab as Int,
                         ipiv.as_mut_ptr(),
                     )
                 };
@@ -1678,7 +1687,7 @@ macro_rules! impl_complex {
                 nrhs: usize,
                 ab: &[Self],
                 ldab: usize,
-                ipiv: &[i32],
+                ipiv: &[Int],
                 b: &mut [Self],
                 ldb: usize,
             ) -> Result<()> {
@@ -1686,15 +1695,15 @@ macro_rules! impl_complex {
                     sys::$gbtrs(
                         layout_raw(layout),
                         trans_char(trans),
-                        n as i32,
-                        kl as i32,
-                        ku as i32,
-                        nrhs as i32,
+                        n as Int,
+                        kl as Int,
+                        ku as Int,
+                        nrhs as Int,
                         ab.as_ptr() as *const $cc,
-                        ldab as i32,
+                        ldab as Int,
                         ipiv.as_ptr(),
                         b.as_mut_ptr() as *mut $cc,
-                        ldb as i32,
+                        ldb as Int,
                     )
                 };
                 map_info("lapack", info)
@@ -1713,13 +1722,13 @@ macro_rules! impl_complex {
                 let info = unsafe {
                     sys::$gtsv(
                         layout_raw(layout),
-                        n as i32,
-                        nrhs as i32,
+                        n as Int,
+                        nrhs as Int,
                         dl.as_mut_ptr() as *mut $cc,
                         d.as_mut_ptr() as *mut $cc,
                         du.as_mut_ptr() as *mut $cc,
                         b.as_mut_ptr() as *mut $cc,
-                        ldb as i32,
+                        ldb as Int,
                     )
                 };
                 map_info("lapack", info)
@@ -1737,12 +1746,12 @@ macro_rules! impl_complex {
                 let info = unsafe {
                     sys::$ptsv(
                         layout_raw(layout),
-                        n as i32,
-                        nrhs as i32,
+                        n as Int,
+                        nrhs as Int,
                         d.as_mut_ptr(),
                         e.as_mut_ptr() as *mut $cc,
                         b.as_mut_ptr() as *mut $cc,
-                        ldb as i32,
+                        ldb as Int,
                     )
                 };
                 map_info("lapack", info)
@@ -1763,13 +1772,13 @@ macro_rules! impl_complex {
                     sys::$gels(
                         layout_raw(layout),
                         trans_char(trans),
-                        m as i32,
-                        n as i32,
-                        nrhs as i32,
+                        m as Int,
+                        n as Int,
+                        nrhs as Int,
                         a.as_mut_ptr() as *mut $cc,
-                        lda as i32,
+                        lda as Int,
                         b.as_mut_ptr() as *mut $cc,
-                        ldb as i32,
+                        ldb as Int,
                     )
                 };
                 map_info("lapack", info)
@@ -1786,10 +1795,10 @@ macro_rules! impl_complex {
                 let info = unsafe {
                     sys::$geqrf(
                         layout_raw(layout),
-                        m as i32,
-                        n as i32,
+                        m as Int,
+                        n as Int,
                         a.as_mut_ptr() as *mut $cc,
-                        lda as i32,
+                        lda as Int,
                         tau.as_mut_ptr() as *mut $cc,
                     )
                 };
@@ -1807,10 +1816,10 @@ macro_rules! impl_complex {
                 let info = unsafe {
                     sys::$gelqf(
                         layout_raw(layout),
-                        m as i32,
-                        n as i32,
+                        m as Int,
+                        n as Int,
                         a.as_mut_ptr() as *mut $cc,
-                        lda as i32,
+                        lda as Int,
                         tau.as_mut_ptr() as *mut $cc,
                     )
                 };
@@ -1837,15 +1846,15 @@ macro_rules! impl_complex {
                         layout_raw(layout),
                         jobu.job_char(),
                         jobvt.job_char(),
-                        m as i32,
-                        n as i32,
+                        m as Int,
+                        n as Int,
                         a.as_mut_ptr() as *mut $cc,
-                        lda as i32,
+                        lda as Int,
                         s.as_mut_ptr(),
                         u.as_mut_ptr() as *mut $cc,
-                        ldu as i32,
+                        ldu as Int,
                         vt.as_mut_ptr() as *mut $cc,
-                        ldvt as i32,
+                        ldvt as Int,
                         superb.as_mut_ptr(),
                     )
                 };
@@ -1869,15 +1878,15 @@ macro_rules! impl_complex {
                     sys::$gesdd(
                         layout_raw(layout),
                         jobz.job_char(),
-                        m as i32,
-                        n as i32,
+                        m as Int,
+                        n as Int,
                         a.as_mut_ptr() as *mut $cc,
-                        lda as i32,
+                        lda as Int,
                         s.as_mut_ptr(),
                         u.as_mut_ptr() as *mut $cc,
-                        ldu as i32,
+                        ldu as Int,
                         vt.as_mut_ptr() as *mut $cc,
-                        ldvt as i32,
+                        ldvt as Int,
                     )
                 };
                 map_info("lapack", info)
@@ -1894,18 +1903,18 @@ macro_rules! impl_complex {
                 ldb: usize,
                 s: &mut [Self::Real],
                 rcond: Self::Real,
-                rank: &mut i32,
+                rank: &mut Int,
             ) -> Result<()> {
                 let info = unsafe {
                     sys::$gelsd(
                         layout_raw(layout),
-                        m as i32,
-                        n as i32,
-                        nrhs as i32,
+                        m as Int,
+                        n as Int,
+                        nrhs as Int,
                         a.as_mut_ptr() as *mut $cc,
-                        lda as i32,
+                        lda as Int,
                         b.as_mut_ptr() as *mut $cc,
-                        ldb as i32,
+                        ldb as Int,
                         s.as_mut_ptr(),
                         rcond,
                         rank,
@@ -1923,20 +1932,20 @@ macro_rules! impl_complex {
                 lda: usize,
                 b: &mut [Self],
                 ldb: usize,
-                jpvt: &mut [i32],
+                jpvt: &mut [Int],
                 rcond: Self::Real,
-                rank: &mut i32,
+                rank: &mut Int,
             ) -> Result<()> {
                 let info = unsafe {
                     sys::$gelsy(
                         layout_raw(layout),
-                        m as i32,
-                        n as i32,
-                        nrhs as i32,
+                        m as Int,
+                        n as Int,
+                        nrhs as Int,
                         a.as_mut_ptr() as *mut $cc,
-                        lda as i32,
+                        lda as Int,
                         b.as_mut_ptr() as *mut $cc,
-                        ldb as i32,
+                        ldb as Int,
                         jpvt.as_mut_ptr(),
                         rcond,
                         rank,
@@ -1954,7 +1963,7 @@ macro_rules! impl_complex {
                 nrhs: usize,
                 a: &mut [Self],
                 lda: usize,
-                ipiv: &mut [i32],
+                ipiv: &mut [Int],
                 b: &mut [Self],
                 ldb: usize,
             ) -> Result<()> {
@@ -1962,13 +1971,13 @@ macro_rules! impl_complex {
                     sys::$hesv(
                         layout_raw(layout),
                         uplo_char(uplo),
-                        n as i32,
-                        nrhs as i32,
+                        n as Int,
+                        nrhs as Int,
                         a.as_mut_ptr() as *mut $cc,
-                        lda as i32,
+                        lda as Int,
                         ipiv.as_mut_ptr(),
                         b.as_mut_ptr() as *mut $cc,
-                        ldb as i32,
+                        ldb as Int,
                     )
                 };
                 map_info("lapack", info)
@@ -1980,15 +1989,15 @@ macro_rules! impl_complex {
                 n: usize,
                 a: &mut [Self],
                 lda: usize,
-                ipiv: &mut [i32],
+                ipiv: &mut [Int],
             ) -> Result<()> {
                 let info = unsafe {
                     sys::$hetrf(
                         layout_raw(layout),
                         uplo_char(uplo),
-                        n as i32,
+                        n as Int,
                         a.as_mut_ptr() as *mut $cc,
-                        lda as i32,
+                        lda as Int,
                         ipiv.as_mut_ptr(),
                     )
                 };
@@ -2002,7 +2011,7 @@ macro_rules! impl_complex {
                 nrhs: usize,
                 a: &[Self],
                 lda: usize,
-                ipiv: &[i32],
+                ipiv: &[Int],
                 b: &mut [Self],
                 ldb: usize,
             ) -> Result<()> {
@@ -2010,13 +2019,13 @@ macro_rules! impl_complex {
                     sys::$hetrs(
                         layout_raw(layout),
                         uplo_char(uplo),
-                        n as i32,
-                        nrhs as i32,
+                        n as Int,
+                        nrhs as Int,
                         a.as_ptr() as *const $cc,
-                        lda as i32,
+                        lda as Int,
                         ipiv.as_ptr(),
                         b.as_mut_ptr() as *mut $cc,
-                        ldb as i32,
+                        ldb as Int,
                     )
                 };
                 map_info("lapack", info)
@@ -2036,9 +2045,9 @@ macro_rules! impl_complex {
                         layout_raw(layout),
                         compute.job_char(),
                         uplo_char(uplo),
-                        n as i32,
+                        n as Int,
                         a.as_mut_ptr() as *mut $cc,
-                        lda as i32,
+                        lda as Int,
                         w.as_mut_ptr(),
                     )
                 };
@@ -2063,14 +2072,14 @@ macro_rules! impl_complex {
                         layout_raw(layout),
                         compute_left.job_char(),
                         compute_right.job_char(),
-                        n as i32,
+                        n as Int,
                         a.as_mut_ptr() as *mut $cc,
-                        lda as i32,
+                        lda as Int,
                         w.as_mut_ptr() as *mut $cc,
                         vl.as_mut_ptr() as *mut $cc,
-                        ldvl as i32,
+                        ldvl as Int,
                         vr.as_mut_ptr() as *mut $cc,
-                        ldvr as i32,
+                        ldvr as Int,
                     )
                 };
                 map_info("lapack", info)
@@ -2150,7 +2159,7 @@ impl_complex!(
 //   Free-function convenience entry points (tightly-packed row-major)
 // =========================================================================
 
-pub fn gesv<T: Scalar>(n: usize, a: &mut [T], ipiv: &mut [i32], b: &mut [T]) -> Result<()> {
+pub fn gesv<T: Scalar>(n: usize, a: &mut [T], ipiv: &mut [Int], b: &mut [T]) -> Result<()> {
     if n == 0 {
         return Ok(());
     }
@@ -2158,11 +2167,11 @@ pub fn gesv<T: Scalar>(n: usize, a: &mut [T], ipiv: &mut [i32], b: &mut [T]) -> 
     T::gesv(Layout::RowMajor, n, nrhs, a, n, ipiv, b, nrhs.max(1))
 }
 
-pub fn getrf<T: Scalar>(m: usize, n: usize, a: &mut [T], ipiv: &mut [i32]) -> Result<()> {
+pub fn getrf<T: Scalar>(m: usize, n: usize, a: &mut [T], ipiv: &mut [Int]) -> Result<()> {
     T::getrf(Layout::RowMajor, m, n, a, n, ipiv)
 }
 
-pub fn getrs<T: Scalar>(trans: Trans, n: usize, a: &[T], ipiv: &[i32], b: &mut [T]) -> Result<()> {
+pub fn getrs<T: Scalar>(trans: Trans, n: usize, a: &[T], ipiv: &[Int], b: &mut [T]) -> Result<()> {
     if n == 0 {
         return Ok(());
     }
@@ -2170,7 +2179,7 @@ pub fn getrs<T: Scalar>(trans: Trans, n: usize, a: &[T], ipiv: &[i32], b: &mut [
     T::getrs(Layout::RowMajor, trans, n, nrhs, a, n, ipiv, b, nrhs.max(1))
 }
 
-pub fn getri<T: Scalar>(n: usize, a: &mut [T], ipiv: &[i32]) -> Result<()> {
+pub fn getri<T: Scalar>(n: usize, a: &mut [T], ipiv: &[Int]) -> Result<()> {
     T::getri(Layout::RowMajor, n, a, n, ipiv)
 }
 
@@ -2198,7 +2207,7 @@ pub fn sysv<T: Scalar>(
     uplo: Uplo,
     n: usize,
     a: &mut [T],
-    ipiv: &mut [i32],
+    ipiv: &mut [Int],
     b: &mut [T],
 ) -> Result<()> {
     if n == 0 {
@@ -2212,7 +2221,7 @@ pub fn hesv<T: ComplexScalar>(
     uplo: Uplo,
     n: usize,
     a: &mut [T],
-    ipiv: &mut [i32],
+    ipiv: &mut [Int],
     b: &mut [T],
 ) -> Result<()> {
     if n == 0 {
@@ -2337,10 +2346,10 @@ pub fn gelsd<T: Scalar>(
     b: &mut [T],
     s: &mut [T::Real],
     rcond: T::Real,
-) -> Result<i32> {
+) -> Result<Int> {
     let max_mn = m.max(n);
     let nrhs = if max_mn == 0 { 0 } else { b.len() / max_mn };
-    let mut rank: i32 = 0;
+    let mut rank: Int = 0;
     T::gelsd(
         Layout::RowMajor,
         m,
@@ -2363,12 +2372,12 @@ pub fn gelsy<T: Scalar>(
     n: usize,
     a: &mut [T],
     b: &mut [T],
-    jpvt: &mut [i32],
+    jpvt: &mut [Int],
     rcond: T::Real,
-) -> Result<i32> {
+) -> Result<Int> {
     let max_mn = m.max(n);
     let nrhs = if max_mn == 0 { 0 } else { b.len() / max_mn };
-    let mut rank: i32 = 0;
+    let mut rank: Int = 0;
     T::gelsy(
         Layout::RowMajor,
         m,
@@ -2442,12 +2451,12 @@ pub fn dtrtrs(
             uplo_char(uplo),
             trans_char(trans),
             diag_char(diag),
-            n as i32,
-            nrhs as i32,
+            n as Int,
+            nrhs as Int,
             a.as_ptr(),
-            lda as i32,
+            lda as Int,
             b.as_mut_ptr(),
-            ldb as i32,
+            ldb as Int,
         )
     };
     map_info("lapack", info)
@@ -2471,12 +2480,12 @@ pub fn strtrs(
             uplo_char(uplo),
             trans_char(trans),
             diag_char(diag),
-            n as i32,
-            nrhs as i32,
+            n as Int,
+            nrhs as Int,
             a.as_ptr(),
-            lda as i32,
+            lda as Int,
             b.as_mut_ptr(),
-            ldb as i32,
+            ldb as Int,
         )
     };
     map_info("lapack", info)
@@ -2495,9 +2504,9 @@ pub fn dtrtri(
             ROW_MAJOR,
             uplo_char(uplo),
             diag_char(diag),
-            n as i32,
+            n as Int,
             a.as_mut_ptr(),
-            lda as i32,
+            lda as Int,
         )
     };
     map_info("lapack", info)
@@ -2516,9 +2525,9 @@ pub fn strtri(
             ROW_MAJOR,
             uplo_char(uplo),
             diag_char(diag),
-            n as i32,
+            n as Int,
             a.as_mut_ptr(),
-            lda as i32,
+            lda as Int,
         )
     };
     map_info("lapack", info)
@@ -2531,9 +2540,9 @@ pub fn dpotri(uplo: Uplo, n: usize, a: &mut [f64], lda: usize) -> Result<()> {
         sys::LAPACKE_dpotri(
             ROW_MAJOR,
             uplo_char(uplo),
-            n as i32,
+            n as Int,
             a.as_mut_ptr(),
-            lda as i32,
+            lda as Int,
         )
     };
     map_info("lapack", info)
@@ -2545,9 +2554,9 @@ pub fn spotri(uplo: Uplo, n: usize, a: &mut [f32], lda: usize) -> Result<()> {
         sys::LAPACKE_spotri(
             ROW_MAJOR,
             uplo_char(uplo),
-            n as i32,
+            n as Int,
             a.as_mut_ptr(),
-            lda as i32,
+            lda as Int,
         )
     };
     map_info("lapack", info)
@@ -2561,11 +2570,11 @@ pub fn dorgqr(m: usize, n: usize, k: usize, a: &mut [f64], lda: usize, tau: &[f6
     let info = unsafe {
         sys::LAPACKE_dorgqr(
             ROW_MAJOR,
-            m as i32,
-            n as i32,
-            k as i32,
+            m as Int,
+            n as Int,
+            k as Int,
             a.as_mut_ptr(),
-            lda as i32,
+            lda as Int,
             tau.as_ptr(),
         )
     };
@@ -2577,11 +2586,11 @@ pub fn sorgqr(m: usize, n: usize, k: usize, a: &mut [f32], lda: usize, tau: &[f3
     let info = unsafe {
         sys::LAPACKE_sorgqr(
             ROW_MAJOR,
-            m as i32,
-            n as i32,
-            k as i32,
+            m as Int,
+            n as Int,
+            k as Int,
             a.as_mut_ptr(),
-            lda as i32,
+            lda as Int,
             tau.as_ptr(),
         )
     };
@@ -2600,11 +2609,11 @@ pub fn zungqr(
     let info = unsafe {
         sys::LAPACKE_zungqr(
             ROW_MAJOR,
-            m as i32,
-            n as i32,
-            k as i32,
+            m as Int,
+            n as Int,
+            k as Int,
             a.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
-            lda as i32,
+            lda as Int,
             tau.as_ptr() as *const sys::__BindgenComplex<f64>,
         )
     };
@@ -2623,11 +2632,11 @@ pub fn cungqr(
     let info = unsafe {
         sys::LAPACKE_cungqr(
             ROW_MAJOR,
-            m as i32,
-            n as i32,
-            k as i32,
+            m as Int,
+            n as Int,
+            k as Int,
             a.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
-            lda as i32,
+            lda as Int,
             tau.as_ptr() as *const sys::__BindgenComplex<f32>,
         )
     };
@@ -2658,15 +2667,15 @@ pub fn dgeev(
             ROW_MAJOR,
             jobvl,
             jobvr,
-            n as i32,
+            n as Int,
             a.as_mut_ptr(),
-            lda as i32,
+            lda as Int,
             wr.as_mut_ptr(),
             wi.as_mut_ptr(),
             vl.as_mut_ptr(),
-            ldvl as i32,
+            ldvl as Int,
             vr.as_mut_ptr(),
-            ldvr as i32,
+            ldvr as Int,
         )
     };
     map_info("lapack", info)
@@ -2693,15 +2702,15 @@ pub fn sgeev(
             ROW_MAJOR,
             jobvl,
             jobvr,
-            n as i32,
+            n as Int,
             a.as_mut_ptr(),
-            lda as i32,
+            lda as Int,
             wr.as_mut_ptr(),
             wi.as_mut_ptr(),
             vl.as_mut_ptr(),
-            ldvl as i32,
+            ldvl as Int,
             vr.as_mut_ptr(),
-            ldvr as i32,
+            ldvr as Int,
         )
     };
     map_info("lapack", info)
@@ -2727,14 +2736,14 @@ pub fn zgeev(
             ROW_MAJOR,
             jobvl,
             jobvr,
-            n as i32,
+            n as Int,
             a.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
-            lda as i32,
+            lda as Int,
             w.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
             vl.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
-            ldvl as i32,
+            ldvl as Int,
             vr.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
-            ldvr as i32,
+            ldvr as Int,
         )
     };
     map_info("lapack", info)
@@ -2760,14 +2769,14 @@ pub fn cgeev(
             ROW_MAJOR,
             jobvl,
             jobvr,
-            n as i32,
+            n as Int,
             a.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
-            lda as i32,
+            lda as Int,
             w.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
             vl.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
-            ldvl as i32,
+            ldvl as Int,
             vr.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
-            ldvr as i32,
+            ldvr as Int,
         )
     };
     map_info("lapack", info)
@@ -2779,7 +2788,7 @@ pub fn cgeev(
 /// `itype`). `compute_vectors = true` requests eigenvectors in `a`.
 /// `B` must be positive definite. (`f64`)
 pub fn dsygv(
-    itype: i32,
+    itype: Int,
     compute_vectors: bool,
     uplo: Uplo,
     n: usize,
@@ -2796,11 +2805,11 @@ pub fn dsygv(
             itype,
             jobz,
             uplo_char(uplo),
-            n as i32,
+            n as Int,
             a.as_mut_ptr(),
-            lda as i32,
+            lda as Int,
             b.as_mut_ptr(),
-            ldb as i32,
+            ldb as Int,
             w.as_mut_ptr(),
         )
     };
@@ -2809,7 +2818,7 @@ pub fn dsygv(
 
 /// `f32` generalised symmetric eig. See [`dsygv`].
 pub fn ssygv(
-    itype: i32,
+    itype: Int,
     compute_vectors: bool,
     uplo: Uplo,
     n: usize,
@@ -2826,11 +2835,11 @@ pub fn ssygv(
             itype,
             jobz,
             uplo_char(uplo),
-            n as i32,
+            n as Int,
             a.as_mut_ptr(),
-            lda as i32,
+            lda as Int,
             b.as_mut_ptr(),
-            ldb as i32,
+            ldb as Int,
             w.as_mut_ptr(),
         )
     };
@@ -2839,7 +2848,7 @@ pub fn ssygv(
 
 /// Generalised hermitian eigenproblem. (`Complex64`)
 pub fn zhegv(
-    itype: i32,
+    itype: Int,
     compute_vectors: bool,
     uplo: Uplo,
     n: usize,
@@ -2856,11 +2865,11 @@ pub fn zhegv(
             itype,
             jobz,
             uplo_char(uplo),
-            n as i32,
+            n as Int,
             a.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
-            lda as i32,
+            lda as Int,
             b.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
-            ldb as i32,
+            ldb as Int,
             w.as_mut_ptr(),
         )
     };
@@ -2869,7 +2878,7 @@ pub fn zhegv(
 
 /// `Complex32` generalised hermitian eig. See [`zhegv`].
 pub fn chegv(
-    itype: i32,
+    itype: Int,
     compute_vectors: bool,
     uplo: Uplo,
     n: usize,
@@ -2886,11 +2895,11 @@ pub fn chegv(
             itype,
             jobz,
             uplo_char(uplo),
-            n as i32,
+            n as Int,
             a.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
-            lda as i32,
+            lda as Int,
             b.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
-            ldb as i32,
+            ldb as Int,
             w.as_mut_ptr(),
         )
     };
@@ -2907,16 +2916,16 @@ pub fn dgeqp3(
     n: usize,
     a: &mut [f64],
     lda: usize,
-    jpvt: &mut [i32],
+    jpvt: &mut [Int],
     tau: &mut [f64],
 ) -> Result<()> {
     let info = unsafe {
         sys::LAPACKE_dgeqp3(
             ROW_MAJOR,
-            m as i32,
-            n as i32,
+            m as Int,
+            n as Int,
             a.as_mut_ptr(),
-            lda as i32,
+            lda as Int,
             jpvt.as_mut_ptr(),
             tau.as_mut_ptr(),
         )
@@ -2930,16 +2939,16 @@ pub fn sgeqp3(
     n: usize,
     a: &mut [f32],
     lda: usize,
-    jpvt: &mut [i32],
+    jpvt: &mut [Int],
     tau: &mut [f32],
 ) -> Result<()> {
     let info = unsafe {
         sys::LAPACKE_sgeqp3(
             ROW_MAJOR,
-            m as i32,
-            n as i32,
+            m as Int,
+            n as Int,
             a.as_mut_ptr(),
-            lda as i32,
+            lda as Int,
             jpvt.as_mut_ptr(),
             tau.as_mut_ptr(),
         )
@@ -2953,16 +2962,16 @@ pub fn zgeqp3(
     n: usize,
     a: &mut [Complex64],
     lda: usize,
-    jpvt: &mut [i32],
+    jpvt: &mut [Int],
     tau: &mut [Complex64],
 ) -> Result<()> {
     let info = unsafe {
         sys::LAPACKE_zgeqp3(
             ROW_MAJOR,
-            m as i32,
-            n as i32,
+            m as Int,
+            n as Int,
             a.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
-            lda as i32,
+            lda as Int,
             jpvt.as_mut_ptr(),
             tau.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
         )
@@ -2976,16 +2985,16 @@ pub fn cgeqp3(
     n: usize,
     a: &mut [Complex32],
     lda: usize,
-    jpvt: &mut [i32],
+    jpvt: &mut [Int],
     tau: &mut [Complex32],
 ) -> Result<()> {
     let info = unsafe {
         sys::LAPACKE_cgeqp3(
             ROW_MAJOR,
-            m as i32,
-            n as i32,
+            m as Int,
+            n as Int,
             a.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
-            lda as i32,
+            lda as Int,
             jpvt.as_mut_ptr(),
             tau.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
         )
@@ -3005,12 +3014,12 @@ pub fn dlacpy(uplo: Uplo, m: usize, n: usize, a: &[f64], lda: usize, b: &mut [f6
         sys::LAPACKE_dlacpy(
             ROW_MAJOR,
             uplo_char(uplo),
-            m as i32,
-            n as i32,
+            m as Int,
+            n as Int,
             a.as_ptr(),
-            lda as i32,
+            lda as Int,
             b.as_mut_ptr(),
-            ldb as i32,
+            ldb as Int,
         );
     }
 }
@@ -3021,12 +3030,12 @@ pub fn slacpy(uplo: Uplo, m: usize, n: usize, a: &[f32], lda: usize, b: &mut [f3
         sys::LAPACKE_slacpy(
             ROW_MAJOR,
             uplo_char(uplo),
-            m as i32,
-            n as i32,
+            m as Int,
+            n as Int,
             a.as_ptr(),
-            lda as i32,
+            lda as Int,
             b.as_mut_ptr(),
-            ldb as i32,
+            ldb as Int,
         );
     }
 }
@@ -3045,12 +3054,12 @@ pub fn zlacpy(
         sys::LAPACKE_zlacpy(
             ROW_MAJOR,
             uplo_char(uplo),
-            m as i32,
-            n as i32,
+            m as Int,
+            n as Int,
             a.as_ptr() as *const sys::__BindgenComplex<f64>,
-            lda as i32,
+            lda as Int,
             b.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
-            ldb as i32,
+            ldb as Int,
         );
     }
 }
@@ -3069,12 +3078,12 @@ pub fn clacpy(
         sys::LAPACKE_clacpy(
             ROW_MAJOR,
             uplo_char(uplo),
-            m as i32,
-            n as i32,
+            m as Int,
+            n as Int,
             a.as_ptr() as *const sys::__BindgenComplex<f32>,
-            lda as i32,
+            lda as Int,
             b.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
-            ldb as i32,
+            ldb as Int,
         );
     }
 }
@@ -3085,10 +3094,10 @@ pub fn dlange(norm: Norm, m: usize, n: usize, a: &[f64], lda: usize) -> f64 {
         sys::LAPACKE_dlange(
             ROW_MAJOR,
             norm.raw(),
-            m as i32,
-            n as i32,
+            m as Int,
+            n as Int,
             a.as_ptr(),
-            lda as i32,
+            lda as Int,
         )
     }
 }
@@ -3099,10 +3108,10 @@ pub fn slange(norm: Norm, m: usize, n: usize, a: &[f32], lda: usize) -> f32 {
         sys::LAPACKE_slange(
             ROW_MAJOR,
             norm.raw(),
-            m as i32,
-            n as i32,
+            m as Int,
+            n as Int,
             a.as_ptr(),
-            lda as i32,
+            lda as Int,
         )
     }
 }
@@ -3113,10 +3122,10 @@ pub fn zlange(norm: Norm, m: usize, n: usize, a: &[Complex64], lda: usize) -> f6
         sys::LAPACKE_zlange(
             ROW_MAJOR,
             norm.raw(),
-            m as i32,
-            n as i32,
+            m as Int,
+            n as Int,
             a.as_ptr() as *const sys::__BindgenComplex<f64>,
-            lda as i32,
+            lda as Int,
         )
     }
 }
@@ -3127,10 +3136,10 @@ pub fn clange(norm: Norm, m: usize, n: usize, a: &[Complex32], lda: usize) -> f3
         sys::LAPACKE_clange(
             ROW_MAJOR,
             norm.raw(),
-            m as i32,
-            n as i32,
+            m as Int,
+            n as Int,
             a.as_ptr() as *const sys::__BindgenComplex<f32>,
-            lda as i32,
+            lda as Int,
         )
     }
 }
@@ -3187,9 +3196,9 @@ pub fn dsyevd(
         ROW_MAJOR,
         jobz,
         uplo_char(uplo),
-        n as i32,
+        n as Int,
         a.as_mut_ptr(),
-        lda as i32,
+        lda as Int,
         w.as_mut_ptr()
     )
 }
@@ -3209,9 +3218,9 @@ pub fn ssyevd(
         ROW_MAJOR,
         jobz,
         uplo_char(uplo),
-        n as i32,
+        n as Int,
         a.as_mut_ptr(),
-        lda as i32,
+        lda as Int,
         w.as_mut_ptr()
     )
 }
@@ -3231,9 +3240,9 @@ pub fn zheevd(
         ROW_MAJOR,
         jobz,
         uplo_char(uplo),
-        n as i32,
+        n as Int,
         a.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
-        lda as i32,
+        lda as Int,
         w.as_mut_ptr()
     )
 }
@@ -3253,9 +3262,9 @@ pub fn cheevd(
         ROW_MAJOR,
         jobz,
         uplo_char(uplo),
-        n as i32,
+        n as Int,
         a.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
-        lda as i32,
+        lda as Int,
         w.as_mut_ptr()
     )
 }
@@ -3274,25 +3283,25 @@ pub fn dsyevr(
     lda: usize,
     vl: f64,
     vu: f64,
-    il: i32,
-    iu: i32,
+    il: Int,
+    iu: Int,
     abstol: f64,
     w: &mut [f64],
     z: &mut [f64],
     ldz: usize,
-    isuppz: &mut [i32],
+    isuppz: &mut [Int],
 ) -> Result<usize> {
     let jobz = if jobz_v { b'V' } else { b'N' } as c_char;
-    let mut m: i32 = 0;
+    let mut m: Int = 0;
     let info = unsafe {
         sys::LAPACKE_dsyevr(
             ROW_MAJOR,
             jobz,
             range.raw(),
             uplo_char(uplo),
-            n as i32,
+            n as Int,
             a.as_mut_ptr(),
-            lda as i32,
+            lda as Int,
             vl,
             vu,
             il,
@@ -3301,7 +3310,7 @@ pub fn dsyevr(
             &mut m,
             w.as_mut_ptr(),
             z.as_mut_ptr(),
-            ldz as i32,
+            ldz as Int,
             isuppz.as_mut_ptr(),
         )
     };
@@ -3319,25 +3328,25 @@ pub fn ssyevr(
     lda: usize,
     vl: f32,
     vu: f32,
-    il: i32,
-    iu: i32,
+    il: Int,
+    iu: Int,
     abstol: f32,
     w: &mut [f32],
     z: &mut [f32],
     ldz: usize,
-    isuppz: &mut [i32],
+    isuppz: &mut [Int],
 ) -> Result<usize> {
     let jobz = if jobz_v { b'V' } else { b'N' } as c_char;
-    let mut m: i32 = 0;
+    let mut m: Int = 0;
     let info = unsafe {
         sys::LAPACKE_ssyevr(
             ROW_MAJOR,
             jobz,
             range.raw(),
             uplo_char(uplo),
-            n as i32,
+            n as Int,
             a.as_mut_ptr(),
-            lda as i32,
+            lda as Int,
             vl,
             vu,
             il,
@@ -3346,7 +3355,7 @@ pub fn ssyevr(
             &mut m,
             w.as_mut_ptr(),
             z.as_mut_ptr(),
-            ldz as i32,
+            ldz as Int,
             isuppz.as_mut_ptr(),
         )
     };
@@ -3364,25 +3373,25 @@ pub fn zheevr(
     lda: usize,
     vl: f64,
     vu: f64,
-    il: i32,
-    iu: i32,
+    il: Int,
+    iu: Int,
     abstol: f64,
     w: &mut [f64],
     z: &mut [Complex64],
     ldz: usize,
-    isuppz: &mut [i32],
+    isuppz: &mut [Int],
 ) -> Result<usize> {
     let jobz = if jobz_v { b'V' } else { b'N' } as c_char;
-    let mut m: i32 = 0;
+    let mut m: Int = 0;
     let info = unsafe {
         sys::LAPACKE_zheevr(
             ROW_MAJOR,
             jobz,
             range.raw(),
             uplo_char(uplo),
-            n as i32,
+            n as Int,
             a.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
-            lda as i32,
+            lda as Int,
             vl,
             vu,
             il,
@@ -3391,7 +3400,7 @@ pub fn zheevr(
             &mut m,
             w.as_mut_ptr(),
             z.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
-            ldz as i32,
+            ldz as Int,
             isuppz.as_mut_ptr(),
         )
     };
@@ -3409,25 +3418,25 @@ pub fn cheevr(
     lda: usize,
     vl: f32,
     vu: f32,
-    il: i32,
-    iu: i32,
+    il: Int,
+    iu: Int,
     abstol: f32,
     w: &mut [f32],
     z: &mut [Complex32],
     ldz: usize,
-    isuppz: &mut [i32],
+    isuppz: &mut [Int],
 ) -> Result<usize> {
     let jobz = if jobz_v { b'V' } else { b'N' } as c_char;
-    let mut m: i32 = 0;
+    let mut m: Int = 0;
     let info = unsafe {
         sys::LAPACKE_cheevr(
             ROW_MAJOR,
             jobz,
             range.raw(),
             uplo_char(uplo),
-            n as i32,
+            n as Int,
             a.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
-            lda as i32,
+            lda as Int,
             vl,
             vu,
             il,
@@ -3436,7 +3445,7 @@ pub fn cheevr(
             &mut m,
             w.as_mut_ptr(),
             z.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
-            ldz as i32,
+            ldz as Int,
             isuppz.as_mut_ptr(),
         )
     };
@@ -3458,28 +3467,28 @@ pub fn dgesvdx(
     lda: usize,
     vl: f64,
     vu: f64,
-    il: i32,
-    iu: i32,
+    il: Int,
+    iu: Int,
     s: &mut [f64],
     u: &mut [f64],
     ldu: usize,
     vt: &mut [f64],
     ldvt: usize,
-    superb: &mut [i32],
+    superb: &mut [Int],
 ) -> Result<usize> {
     let jobu = if jobu_v { b'V' } else { b'N' } as c_char;
     let jobvt = if jobvt_v { b'V' } else { b'N' } as c_char;
-    let mut ns: i32 = 0;
+    let mut ns: Int = 0;
     let info = unsafe {
         sys::LAPACKE_dgesvdx(
             ROW_MAJOR,
             jobu,
             jobvt,
             range.raw(),
-            m as i32,
-            n as i32,
+            m as Int,
+            n as Int,
             a.as_mut_ptr(),
-            lda as i32,
+            lda as Int,
             vl,
             vu,
             il,
@@ -3487,9 +3496,9 @@ pub fn dgesvdx(
             &mut ns,
             s.as_mut_ptr(),
             u.as_mut_ptr(),
-            ldu as i32,
+            ldu as Int,
             vt.as_mut_ptr(),
-            ldvt as i32,
+            ldvt as Int,
             superb.as_mut_ptr(),
         )
     };
@@ -3508,28 +3517,28 @@ pub fn sgesvdx(
     lda: usize,
     vl: f32,
     vu: f32,
-    il: i32,
-    iu: i32,
+    il: Int,
+    iu: Int,
     s: &mut [f32],
     u: &mut [f32],
     ldu: usize,
     vt: &mut [f32],
     ldvt: usize,
-    superb: &mut [i32],
+    superb: &mut [Int],
 ) -> Result<usize> {
     let jobu = if jobu_v { b'V' } else { b'N' } as c_char;
     let jobvt = if jobvt_v { b'V' } else { b'N' } as c_char;
-    let mut ns: i32 = 0;
+    let mut ns: Int = 0;
     let info = unsafe {
         sys::LAPACKE_sgesvdx(
             ROW_MAJOR,
             jobu,
             jobvt,
             range.raw(),
-            m as i32,
-            n as i32,
+            m as Int,
+            n as Int,
             a.as_mut_ptr(),
-            lda as i32,
+            lda as Int,
             vl,
             vu,
             il,
@@ -3537,9 +3546,9 @@ pub fn sgesvdx(
             &mut ns,
             s.as_mut_ptr(),
             u.as_mut_ptr(),
-            ldu as i32,
+            ldu as Int,
             vt.as_mut_ptr(),
-            ldvt as i32,
+            ldvt as Int,
             superb.as_mut_ptr(),
         )
     };
@@ -3558,28 +3567,28 @@ pub fn zgesvdx(
     lda: usize,
     vl: f64,
     vu: f64,
-    il: i32,
-    iu: i32,
+    il: Int,
+    iu: Int,
     s: &mut [f64],
     u: &mut [Complex64],
     ldu: usize,
     vt: &mut [Complex64],
     ldvt: usize,
-    superb: &mut [i32],
+    superb: &mut [Int],
 ) -> Result<usize> {
     let jobu = if jobu_v { b'V' } else { b'N' } as c_char;
     let jobvt = if jobvt_v { b'V' } else { b'N' } as c_char;
-    let mut ns: i32 = 0;
+    let mut ns: Int = 0;
     let info = unsafe {
         sys::LAPACKE_zgesvdx(
             ROW_MAJOR,
             jobu,
             jobvt,
             range.raw(),
-            m as i32,
-            n as i32,
+            m as Int,
+            n as Int,
             a.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
-            lda as i32,
+            lda as Int,
             vl,
             vu,
             il,
@@ -3587,9 +3596,9 @@ pub fn zgesvdx(
             &mut ns,
             s.as_mut_ptr(),
             u.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
-            ldu as i32,
+            ldu as Int,
             vt.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
-            ldvt as i32,
+            ldvt as Int,
             superb.as_mut_ptr(),
         )
     };
@@ -3608,28 +3617,28 @@ pub fn cgesvdx(
     lda: usize,
     vl: f32,
     vu: f32,
-    il: i32,
-    iu: i32,
+    il: Int,
+    iu: Int,
     s: &mut [f32],
     u: &mut [Complex32],
     ldu: usize,
     vt: &mut [Complex32],
     ldvt: usize,
-    superb: &mut [i32],
+    superb: &mut [Int],
 ) -> Result<usize> {
     let jobu = if jobu_v { b'V' } else { b'N' } as c_char;
     let jobvt = if jobvt_v { b'V' } else { b'N' } as c_char;
-    let mut ns: i32 = 0;
+    let mut ns: Int = 0;
     let info = unsafe {
         sys::LAPACKE_cgesvdx(
             ROW_MAJOR,
             jobu,
             jobvt,
             range.raw(),
-            m as i32,
-            n as i32,
+            m as Int,
+            n as Int,
             a.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
-            lda as i32,
+            lda as Int,
             vl,
             vu,
             il,
@@ -3637,9 +3646,9 @@ pub fn cgesvdx(
             &mut ns,
             s.as_mut_ptr(),
             u.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
-            ldu as i32,
+            ldu as Int,
             vt.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
-            ldvt as i32,
+            ldvt as Int,
             superb.as_mut_ptr(),
         )
     };
@@ -3675,18 +3684,18 @@ pub fn dggev(
         ROW_MAJOR,
         jobvl,
         jobvr,
-        n as i32,
+        n as Int,
         a.as_mut_ptr(),
-        lda as i32,
+        lda as Int,
         b.as_mut_ptr(),
-        ldb as i32,
+        ldb as Int,
         alphar.as_mut_ptr(),
         alphai.as_mut_ptr(),
         beta.as_mut_ptr(),
         vl.as_mut_ptr(),
-        ldvl as i32,
+        ldvl as Int,
         vr.as_mut_ptr(),
-        ldvr as i32
+        ldvr as Int
     )
 }
 
@@ -3715,18 +3724,18 @@ pub fn sggev(
         ROW_MAJOR,
         jobvl,
         jobvr,
-        n as i32,
+        n as Int,
         a.as_mut_ptr(),
-        lda as i32,
+        lda as Int,
         b.as_mut_ptr(),
-        ldb as i32,
+        ldb as Int,
         alphar.as_mut_ptr(),
         alphai.as_mut_ptr(),
         beta.as_mut_ptr(),
         vl.as_mut_ptr(),
-        ldvl as i32,
+        ldvl as Int,
         vr.as_mut_ptr(),
-        ldvr as i32
+        ldvr as Int
     )
 }
 
@@ -3755,17 +3764,17 @@ pub fn zggev(
         ROW_MAJOR,
         jobvl,
         jobvr,
-        n as i32,
+        n as Int,
         a.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
-        lda as i32,
+        lda as Int,
         b.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
-        ldb as i32,
+        ldb as Int,
         alpha.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
         beta.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
         vl.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
-        ldvl as i32,
+        ldvl as Int,
         vr.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
-        ldvr as i32
+        ldvr as Int
     )
 }
 
@@ -3793,17 +3802,17 @@ pub fn cggev(
         ROW_MAJOR,
         jobvl,
         jobvr,
-        n as i32,
+        n as Int,
         a.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
-        lda as i32,
+        lda as Int,
         b.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
-        ldb as i32,
+        ldb as Int,
         alpha.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
         beta.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
         vl.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
-        ldvl as i32,
+        ldvl as Int,
         vr.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
-        ldvr as i32
+        ldvr as Int
     )
 }
 
@@ -3824,21 +3833,21 @@ pub fn dgees(
     ldvs: usize,
 ) -> Result<usize> {
     let jobvs = if compute_vs { b'V' } else { b'N' } as c_char;
-    let mut sdim: i32 = 0;
+    let mut sdim: Int = 0;
     let info = unsafe {
         sys::LAPACKE_dgees(
             ROW_MAJOR,
             jobvs,
             b'N' as c_char,
             None,
-            n as i32,
+            n as Int,
             a.as_mut_ptr(),
-            lda as i32,
+            lda as Int,
             &mut sdim,
             wr.as_mut_ptr(),
             wi.as_mut_ptr(),
             vs.as_mut_ptr(),
-            ldvs as i32,
+            ldvs as Int,
         )
     };
     map_info("lapack", info)?;
@@ -3857,21 +3866,21 @@ pub fn sgees(
     ldvs: usize,
 ) -> Result<usize> {
     let jobvs = if compute_vs { b'V' } else { b'N' } as c_char;
-    let mut sdim: i32 = 0;
+    let mut sdim: Int = 0;
     let info = unsafe {
         sys::LAPACKE_sgees(
             ROW_MAJOR,
             jobvs,
             b'N' as c_char,
             None,
-            n as i32,
+            n as Int,
             a.as_mut_ptr(),
-            lda as i32,
+            lda as Int,
             &mut sdim,
             wr.as_mut_ptr(),
             wi.as_mut_ptr(),
             vs.as_mut_ptr(),
-            ldvs as i32,
+            ldvs as Int,
         )
     };
     map_info("lapack", info)?;
@@ -3881,28 +3890,28 @@ pub fn sgees(
 // ----- sytrf / sytrs / sytri: Bunch-Kaufman family for symmetric -----
 
 /// Bunch-Kaufman factorisation `A = L·D·Lᵀ` for symmetric indefinite. (`f64`)
-pub fn dsytrf(uplo: Uplo, n: usize, a: &mut [f64], lda: usize, ipiv: &mut [i32]) -> Result<()> {
+pub fn dsytrf(uplo: Uplo, n: usize, a: &mut [f64], lda: usize, ipiv: &mut [Int]) -> Result<()> {
     lapack_call!(
         "lapack",
         LAPACKE_dsytrf,
         ROW_MAJOR,
         uplo_char(uplo),
-        n as i32,
+        n as Int,
         a.as_mut_ptr(),
-        lda as i32,
+        lda as Int,
         ipiv.as_mut_ptr()
     )
 }
 /// `f32` Bunch-Kaufman factorisation. See [`dsytrf`].
-pub fn ssytrf(uplo: Uplo, n: usize, a: &mut [f32], lda: usize, ipiv: &mut [i32]) -> Result<()> {
+pub fn ssytrf(uplo: Uplo, n: usize, a: &mut [f32], lda: usize, ipiv: &mut [Int]) -> Result<()> {
     lapack_call!(
         "lapack",
         LAPACKE_ssytrf,
         ROW_MAJOR,
         uplo_char(uplo),
-        n as i32,
+        n as Int,
         a.as_mut_ptr(),
-        lda as i32,
+        lda as Int,
         ipiv.as_mut_ptr()
     )
 }
@@ -3912,16 +3921,16 @@ pub fn zsytrf(
     n: usize,
     a: &mut [Complex64],
     lda: usize,
-    ipiv: &mut [i32],
+    ipiv: &mut [Int],
 ) -> Result<()> {
     lapack_call!(
         "lapack",
         LAPACKE_zsytrf,
         ROW_MAJOR,
         uplo_char(uplo),
-        n as i32,
+        n as Int,
         a.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
-        lda as i32,
+        lda as Int,
         ipiv.as_mut_ptr()
     )
 }
@@ -3931,16 +3940,16 @@ pub fn csytrf(
     n: usize,
     a: &mut [Complex32],
     lda: usize,
-    ipiv: &mut [i32],
+    ipiv: &mut [Int],
 ) -> Result<()> {
     lapack_call!(
         "lapack",
         LAPACKE_csytrf,
         ROW_MAJOR,
         uplo_char(uplo),
-        n as i32,
+        n as Int,
         a.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
-        lda as i32,
+        lda as Int,
         ipiv.as_mut_ptr()
     )
 }
@@ -3952,7 +3961,7 @@ pub fn dsytrs(
     nrhs: usize,
     a: &[f64],
     lda: usize,
-    ipiv: &[i32],
+    ipiv: &[Int],
     b: &mut [f64],
     ldb: usize,
 ) -> Result<()> {
@@ -3961,13 +3970,13 @@ pub fn dsytrs(
         LAPACKE_dsytrs,
         ROW_MAJOR,
         uplo_char(uplo),
-        n as i32,
-        nrhs as i32,
+        n as Int,
+        nrhs as Int,
         a.as_ptr(),
-        lda as i32,
+        lda as Int,
         ipiv.as_ptr(),
         b.as_mut_ptr(),
-        ldb as i32
+        ldb as Int
     )
 }
 /// `f32` solve after [`ssytrf`].
@@ -3977,7 +3986,7 @@ pub fn ssytrs(
     nrhs: usize,
     a: &[f32],
     lda: usize,
-    ipiv: &[i32],
+    ipiv: &[Int],
     b: &mut [f32],
     ldb: usize,
 ) -> Result<()> {
@@ -3986,13 +3995,13 @@ pub fn ssytrs(
         LAPACKE_ssytrs,
         ROW_MAJOR,
         uplo_char(uplo),
-        n as i32,
-        nrhs as i32,
+        n as Int,
+        nrhs as Int,
         a.as_ptr(),
-        lda as i32,
+        lda as Int,
         ipiv.as_ptr(),
         b.as_mut_ptr(),
-        ldb as i32
+        ldb as Int
     )
 }
 /// `Complex64` solve after [`zsytrf`].
@@ -4002,7 +4011,7 @@ pub fn zsytrs(
     nrhs: usize,
     a: &[Complex64],
     lda: usize,
-    ipiv: &[i32],
+    ipiv: &[Int],
     b: &mut [Complex64],
     ldb: usize,
 ) -> Result<()> {
@@ -4011,13 +4020,13 @@ pub fn zsytrs(
         LAPACKE_zsytrs,
         ROW_MAJOR,
         uplo_char(uplo),
-        n as i32,
-        nrhs as i32,
+        n as Int,
+        nrhs as Int,
         a.as_ptr() as *const sys::__BindgenComplex<f64>,
-        lda as i32,
+        lda as Int,
         ipiv.as_ptr(),
         b.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
-        ldb as i32
+        ldb as Int
     )
 }
 /// `Complex32` solve after [`csytrf`].
@@ -4027,7 +4036,7 @@ pub fn csytrs(
     nrhs: usize,
     a: &[Complex32],
     lda: usize,
-    ipiv: &[i32],
+    ipiv: &[Int],
     b: &mut [Complex32],
     ldb: usize,
 ) -> Result<()> {
@@ -4036,65 +4045,65 @@ pub fn csytrs(
         LAPACKE_csytrs,
         ROW_MAJOR,
         uplo_char(uplo),
-        n as i32,
-        nrhs as i32,
+        n as Int,
+        nrhs as Int,
         a.as_ptr() as *const sys::__BindgenComplex<f32>,
-        lda as i32,
+        lda as Int,
         ipiv.as_ptr(),
         b.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
-        ldb as i32
+        ldb as Int
     )
 }
 
 /// Inverse from [`dsytrf`].
-pub fn dsytri(uplo: Uplo, n: usize, a: &mut [f64], lda: usize, ipiv: &[i32]) -> Result<()> {
+pub fn dsytri(uplo: Uplo, n: usize, a: &mut [f64], lda: usize, ipiv: &[Int]) -> Result<()> {
     lapack_call!(
         "lapack",
         LAPACKE_dsytri,
         ROW_MAJOR,
         uplo_char(uplo),
-        n as i32,
+        n as Int,
         a.as_mut_ptr(),
-        lda as i32,
+        lda as Int,
         ipiv.as_ptr()
     )
 }
 /// `f32` inverse from [`ssytrf`].
-pub fn ssytri(uplo: Uplo, n: usize, a: &mut [f32], lda: usize, ipiv: &[i32]) -> Result<()> {
+pub fn ssytri(uplo: Uplo, n: usize, a: &mut [f32], lda: usize, ipiv: &[Int]) -> Result<()> {
     lapack_call!(
         "lapack",
         LAPACKE_ssytri,
         ROW_MAJOR,
         uplo_char(uplo),
-        n as i32,
+        n as Int,
         a.as_mut_ptr(),
-        lda as i32,
+        lda as Int,
         ipiv.as_ptr()
     )
 }
 /// `Complex64` inverse from [`zsytrf`].
-pub fn zsytri(uplo: Uplo, n: usize, a: &mut [Complex64], lda: usize, ipiv: &[i32]) -> Result<()> {
+pub fn zsytri(uplo: Uplo, n: usize, a: &mut [Complex64], lda: usize, ipiv: &[Int]) -> Result<()> {
     lapack_call!(
         "lapack",
         LAPACKE_zsytri,
         ROW_MAJOR,
         uplo_char(uplo),
-        n as i32,
+        n as Int,
         a.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
-        lda as i32,
+        lda as Int,
         ipiv.as_ptr()
     )
 }
 /// `Complex32` inverse from [`csytrf`].
-pub fn csytri(uplo: Uplo, n: usize, a: &mut [Complex32], lda: usize, ipiv: &[i32]) -> Result<()> {
+pub fn csytri(uplo: Uplo, n: usize, a: &mut [Complex32], lda: usize, ipiv: &[Int]) -> Result<()> {
     lapack_call!(
         "lapack",
         LAPACKE_csytri,
         ROW_MAJOR,
         uplo_char(uplo),
-        n as i32,
+        n as Int,
         a.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
-        lda as i32,
+        lda as Int,
         ipiv.as_ptr()
     )
 }
@@ -4107,16 +4116,16 @@ pub fn zhetrf(
     n: usize,
     a: &mut [Complex64],
     lda: usize,
-    ipiv: &mut [i32],
+    ipiv: &mut [Int],
 ) -> Result<()> {
     lapack_call!(
         "lapack",
         LAPACKE_zhetrf,
         ROW_MAJOR,
         uplo_char(uplo),
-        n as i32,
+        n as Int,
         a.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
-        lda as i32,
+        lda as Int,
         ipiv.as_mut_ptr()
     )
 }
@@ -4126,16 +4135,16 @@ pub fn chetrf(
     n: usize,
     a: &mut [Complex32],
     lda: usize,
-    ipiv: &mut [i32],
+    ipiv: &mut [Int],
 ) -> Result<()> {
     lapack_call!(
         "lapack",
         LAPACKE_chetrf,
         ROW_MAJOR,
         uplo_char(uplo),
-        n as i32,
+        n as Int,
         a.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
-        lda as i32,
+        lda as Int,
         ipiv.as_mut_ptr()
     )
 }
@@ -4146,7 +4155,7 @@ pub fn zhetrs(
     nrhs: usize,
     a: &[Complex64],
     lda: usize,
-    ipiv: &[i32],
+    ipiv: &[Int],
     b: &mut [Complex64],
     ldb: usize,
 ) -> Result<()> {
@@ -4155,13 +4164,13 @@ pub fn zhetrs(
         LAPACKE_zhetrs,
         ROW_MAJOR,
         uplo_char(uplo),
-        n as i32,
-        nrhs as i32,
+        n as Int,
+        nrhs as Int,
         a.as_ptr() as *const sys::__BindgenComplex<f64>,
-        lda as i32,
+        lda as Int,
         ipiv.as_ptr(),
         b.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
-        ldb as i32
+        ldb as Int
     )
 }
 /// `Complex32` solve after [`chetrf`].
@@ -4171,7 +4180,7 @@ pub fn chetrs(
     nrhs: usize,
     a: &[Complex32],
     lda: usize,
-    ipiv: &[i32],
+    ipiv: &[Int],
     b: &mut [Complex32],
     ldb: usize,
 ) -> Result<()> {
@@ -4180,38 +4189,38 @@ pub fn chetrs(
         LAPACKE_chetrs,
         ROW_MAJOR,
         uplo_char(uplo),
-        n as i32,
-        nrhs as i32,
+        n as Int,
+        nrhs as Int,
         a.as_ptr() as *const sys::__BindgenComplex<f32>,
-        lda as i32,
+        lda as Int,
         ipiv.as_ptr(),
         b.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
-        ldb as i32
+        ldb as Int
     )
 }
 /// `Complex64` inverse from [`zhetrf`].
-pub fn zhetri(uplo: Uplo, n: usize, a: &mut [Complex64], lda: usize, ipiv: &[i32]) -> Result<()> {
+pub fn zhetri(uplo: Uplo, n: usize, a: &mut [Complex64], lda: usize, ipiv: &[Int]) -> Result<()> {
     lapack_call!(
         "lapack",
         LAPACKE_zhetri,
         ROW_MAJOR,
         uplo_char(uplo),
-        n as i32,
+        n as Int,
         a.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
-        lda as i32,
+        lda as Int,
         ipiv.as_ptr()
     )
 }
 /// `Complex32` inverse from [`chetrf`].
-pub fn chetri(uplo: Uplo, n: usize, a: &mut [Complex32], lda: usize, ipiv: &[i32]) -> Result<()> {
+pub fn chetri(uplo: Uplo, n: usize, a: &mut [Complex32], lda: usize, ipiv: &[Int]) -> Result<()> {
     lapack_call!(
         "lapack",
         LAPACKE_chetri,
         ROW_MAJOR,
         uplo_char(uplo),
-        n as i32,
+        n as Int,
         a.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
-        lda as i32,
+        lda as Int,
         ipiv.as_ptr()
     )
 }
@@ -4230,17 +4239,17 @@ pub fn dgelss(
     s: &mut [f64],
     rcond: f64,
 ) -> Result<usize> {
-    let mut rank: i32 = 0;
+    let mut rank: Int = 0;
     let info = unsafe {
         sys::LAPACKE_dgelss(
             ROW_MAJOR,
-            m as i32,
-            n as i32,
-            nrhs as i32,
+            m as Int,
+            n as Int,
+            nrhs as Int,
             a.as_mut_ptr(),
-            lda as i32,
+            lda as Int,
             b.as_mut_ptr(),
-            ldb as i32,
+            ldb as Int,
             s.as_mut_ptr(),
             rcond,
             &mut rank,
@@ -4261,17 +4270,17 @@ pub fn sgelss(
     s: &mut [f32],
     rcond: f32,
 ) -> Result<usize> {
-    let mut rank: i32 = 0;
+    let mut rank: Int = 0;
     let info = unsafe {
         sys::LAPACKE_sgelss(
             ROW_MAJOR,
-            m as i32,
-            n as i32,
-            nrhs as i32,
+            m as Int,
+            n as Int,
+            nrhs as Int,
             a.as_mut_ptr(),
-            lda as i32,
+            lda as Int,
             b.as_mut_ptr(),
-            ldb as i32,
+            ldb as Int,
             s.as_mut_ptr(),
             rcond,
             &mut rank,
@@ -4292,17 +4301,17 @@ pub fn zgelss(
     s: &mut [f64],
     rcond: f64,
 ) -> Result<usize> {
-    let mut rank: i32 = 0;
+    let mut rank: Int = 0;
     let info = unsafe {
         sys::LAPACKE_zgelss(
             ROW_MAJOR,
-            m as i32,
-            n as i32,
-            nrhs as i32,
+            m as Int,
+            n as Int,
+            nrhs as Int,
             a.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
-            lda as i32,
+            lda as Int,
             b.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
-            ldb as i32,
+            ldb as Int,
             s.as_mut_ptr(),
             rcond,
             &mut rank,
@@ -4323,17 +4332,17 @@ pub fn cgelss(
     s: &mut [f32],
     rcond: f32,
 ) -> Result<usize> {
-    let mut rank: i32 = 0;
+    let mut rank: Int = 0;
     let info = unsafe {
         sys::LAPACKE_cgelss(
             ROW_MAJOR,
-            m as i32,
-            n as i32,
-            nrhs as i32,
+            m as Int,
+            n as Int,
+            nrhs as Int,
             a.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
-            lda as i32,
+            lda as Int,
             b.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
-            ldb as i32,
+            ldb as Int,
             s.as_mut_ptr(),
             rcond,
             &mut rank,
@@ -4366,14 +4375,14 @@ pub fn dormqr(
         ROW_MAJOR,
         side,
         trans_char(trans),
-        m as i32,
-        n as i32,
-        k as i32,
+        m as Int,
+        n as Int,
+        k as Int,
         a.as_ptr(),
-        lda as i32,
+        lda as Int,
         tau.as_ptr(),
         c.as_mut_ptr(),
-        ldc as i32
+        ldc as Int
     )
 }
 /// `f32` apply Q from QR. See [`dormqr`].
@@ -4396,14 +4405,14 @@ pub fn sormqr(
         ROW_MAJOR,
         side,
         trans_char(trans),
-        m as i32,
-        n as i32,
-        k as i32,
+        m as Int,
+        n as Int,
+        k as Int,
         a.as_ptr(),
-        lda as i32,
+        lda as Int,
         tau.as_ptr(),
         c.as_mut_ptr(),
-        ldc as i32
+        ldc as Int
     )
 }
 /// `Complex64` apply Q from QR. `trans = b'N'` or `b'C'` (conj-transpose).
@@ -4426,14 +4435,14 @@ pub fn zunmqr(
         ROW_MAJOR,
         side,
         trans_char(trans),
-        m as i32,
-        n as i32,
-        k as i32,
+        m as Int,
+        n as Int,
+        k as Int,
         a.as_ptr() as *const sys::__BindgenComplex<f64>,
-        lda as i32,
+        lda as Int,
         tau.as_ptr() as *const sys::__BindgenComplex<f64>,
         c.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
-        ldc as i32
+        ldc as Int
     )
 }
 /// `Complex32` apply Q from QR. See [`zunmqr`].
@@ -4456,14 +4465,14 @@ pub fn cunmqr(
         ROW_MAJOR,
         side,
         trans_char(trans),
-        m as i32,
-        n as i32,
-        k as i32,
+        m as Int,
+        n as Int,
+        k as Int,
         a.as_ptr() as *const sys::__BindgenComplex<f32>,
-        lda as i32,
+        lda as Int,
         tau.as_ptr() as *const sys::__BindgenComplex<f32>,
         c.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
-        ldc as i32
+        ldc as Int
     )
 }
 
@@ -4475,11 +4484,11 @@ pub fn dorglq(m: usize, n: usize, k: usize, a: &mut [f64], lda: usize, tau: &[f6
         "lapack",
         LAPACKE_dorglq,
         ROW_MAJOR,
-        m as i32,
-        n as i32,
-        k as i32,
+        m as Int,
+        n as Int,
+        k as Int,
         a.as_mut_ptr(),
-        lda as i32,
+        lda as Int,
         tau.as_ptr()
     )
 }
@@ -4489,11 +4498,11 @@ pub fn sorglq(m: usize, n: usize, k: usize, a: &mut [f32], lda: usize, tau: &[f3
         "lapack",
         LAPACKE_sorglq,
         ROW_MAJOR,
-        m as i32,
-        n as i32,
-        k as i32,
+        m as Int,
+        n as Int,
+        k as Int,
         a.as_mut_ptr(),
-        lda as i32,
+        lda as Int,
         tau.as_ptr()
     )
 }
@@ -4510,11 +4519,11 @@ pub fn zunglq(
         "lapack",
         LAPACKE_zunglq,
         ROW_MAJOR,
-        m as i32,
-        n as i32,
-        k as i32,
+        m as Int,
+        n as Int,
+        k as Int,
         a.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
-        lda as i32,
+        lda as Int,
         tau.as_ptr() as *const sys::__BindgenComplex<f64>
     )
 }
@@ -4531,11 +4540,11 @@ pub fn cunglq(
         "lapack",
         LAPACKE_cunglq,
         ROW_MAJOR,
-        m as i32,
-        n as i32,
-        k as i32,
+        m as Int,
+        n as Int,
+        k as Int,
         a.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
-        lda as i32,
+        lda as Int,
         tau.as_ptr() as *const sys::__BindgenComplex<f32>
     )
 }
@@ -4560,14 +4569,14 @@ pub fn dormlq(
         ROW_MAJOR,
         side,
         trans_char(trans),
-        m as i32,
-        n as i32,
-        k as i32,
+        m as Int,
+        n as Int,
+        k as Int,
         a.as_ptr(),
-        lda as i32,
+        lda as Int,
         tau.as_ptr(),
         c.as_mut_ptr(),
-        ldc as i32
+        ldc as Int
     )
 }
 /// `f32` apply Q from LQ. See [`dormlq`].
@@ -4590,14 +4599,14 @@ pub fn sormlq(
         ROW_MAJOR,
         side,
         trans_char(trans),
-        m as i32,
-        n as i32,
-        k as i32,
+        m as Int,
+        n as Int,
+        k as Int,
         a.as_ptr(),
-        lda as i32,
+        lda as Int,
         tau.as_ptr(),
         c.as_mut_ptr(),
-        ldc as i32
+        ldc as Int
     )
 }
 /// `Complex64` apply Q from LQ. See [`dormlq`].
@@ -4620,14 +4629,14 @@ pub fn zunmlq(
         ROW_MAJOR,
         side,
         trans_char(trans),
-        m as i32,
-        n as i32,
-        k as i32,
+        m as Int,
+        n as Int,
+        k as Int,
         a.as_ptr() as *const sys::__BindgenComplex<f64>,
-        lda as i32,
+        lda as Int,
         tau.as_ptr() as *const sys::__BindgenComplex<f64>,
         c.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
-        ldc as i32
+        ldc as Int
     )
 }
 /// `Complex32` apply Q from LQ. See [`dormlq`].
@@ -4650,14 +4659,14 @@ pub fn cunmlq(
         ROW_MAJOR,
         side,
         trans_char(trans),
-        m as i32,
-        n as i32,
-        k as i32,
+        m as Int,
+        n as Int,
+        k as Int,
         a.as_ptr() as *const sys::__BindgenComplex<f32>,
-        lda as i32,
+        lda as Int,
         tau.as_ptr() as *const sys::__BindgenComplex<f32>,
         c.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
-        ldc as i32
+        ldc as Int
     )
 }
 
@@ -4666,8 +4675,8 @@ pub fn cunmlq(
 /// Reduce general matrix to upper Hessenberg form. (`f64`)
 pub fn dgehrd(
     n: usize,
-    ilo: i32,
-    ihi: i32,
+    ilo: Int,
+    ihi: Int,
     a: &mut [f64],
     lda: usize,
     tau: &mut [f64],
@@ -4676,19 +4685,19 @@ pub fn dgehrd(
         "lapack",
         LAPACKE_dgehrd,
         ROW_MAJOR,
-        n as i32,
+        n as Int,
         ilo,
         ihi,
         a.as_mut_ptr(),
-        lda as i32,
+        lda as Int,
         tau.as_mut_ptr()
     )
 }
 /// `f32` Hessenberg reduction. See [`dgehrd`].
 pub fn sgehrd(
     n: usize,
-    ilo: i32,
-    ihi: i32,
+    ilo: Int,
+    ihi: Int,
     a: &mut [f32],
     lda: usize,
     tau: &mut [f32],
@@ -4697,19 +4706,19 @@ pub fn sgehrd(
         "lapack",
         LAPACKE_sgehrd,
         ROW_MAJOR,
-        n as i32,
+        n as Int,
         ilo,
         ihi,
         a.as_mut_ptr(),
-        lda as i32,
+        lda as Int,
         tau.as_mut_ptr()
     )
 }
 /// `Complex64` Hessenberg reduction. See [`dgehrd`].
 pub fn zgehrd(
     n: usize,
-    ilo: i32,
-    ihi: i32,
+    ilo: Int,
+    ihi: Int,
     a: &mut [Complex64],
     lda: usize,
     tau: &mut [Complex64],
@@ -4718,19 +4727,19 @@ pub fn zgehrd(
         "lapack",
         LAPACKE_zgehrd,
         ROW_MAJOR,
-        n as i32,
+        n as Int,
         ilo,
         ihi,
         a.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
-        lda as i32,
+        lda as Int,
         tau.as_mut_ptr() as *mut sys::__BindgenComplex<f64>
     )
 }
 /// `Complex32` Hessenberg reduction. See [`dgehrd`].
 pub fn cgehrd(
     n: usize,
-    ilo: i32,
-    ihi: i32,
+    ilo: Int,
+    ihi: Int,
     a: &mut [Complex32],
     lda: usize,
     tau: &mut [Complex32],
@@ -4739,11 +4748,11 @@ pub fn cgehrd(
         "lapack",
         LAPACKE_cgehrd,
         ROW_MAJOR,
-        n as i32,
+        n as Int,
         ilo,
         ihi,
         a.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
-        lda as i32,
+        lda as Int,
         tau.as_mut_ptr() as *mut sys::__BindgenComplex<f32>
     )
 }
@@ -4763,10 +4772,10 @@ pub fn dgebrd(
         "lapack",
         LAPACKE_dgebrd,
         ROW_MAJOR,
-        m as i32,
-        n as i32,
+        m as Int,
+        n as Int,
         a.as_mut_ptr(),
-        lda as i32,
+        lda as Int,
         d.as_mut_ptr(),
         e.as_mut_ptr(),
         tauq.as_mut_ptr(),
@@ -4788,10 +4797,10 @@ pub fn sgebrd(
         "lapack",
         LAPACKE_sgebrd,
         ROW_MAJOR,
-        m as i32,
-        n as i32,
+        m as Int,
+        n as Int,
         a.as_mut_ptr(),
-        lda as i32,
+        lda as Int,
         d.as_mut_ptr(),
         e.as_mut_ptr(),
         tauq.as_mut_ptr(),
@@ -4813,10 +4822,10 @@ pub fn zgebrd(
         "lapack",
         LAPACKE_zgebrd,
         ROW_MAJOR,
-        m as i32,
-        n as i32,
+        m as Int,
+        n as Int,
         a.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
-        lda as i32,
+        lda as Int,
         d.as_mut_ptr(),
         e.as_mut_ptr(),
         tauq.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
@@ -4838,10 +4847,10 @@ pub fn cgebrd(
         "lapack",
         LAPACKE_cgebrd,
         ROW_MAJOR,
-        m as i32,
-        n as i32,
+        m as Int,
+        n as Int,
         a.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
-        lda as i32,
+        lda as Int,
         d.as_mut_ptr(),
         e.as_mut_ptr(),
         tauq.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
@@ -4858,9 +4867,9 @@ pub fn dorgtr(uplo: Uplo, n: usize, a: &mut [f64], lda: usize, tau: &[f64]) -> R
         LAPACKE_dorgtr,
         ROW_MAJOR,
         uplo_char(uplo),
-        n as i32,
+        n as Int,
         a.as_mut_ptr(),
-        lda as i32,
+        lda as Int,
         tau.as_ptr()
     )
 }
@@ -4871,9 +4880,9 @@ pub fn sorgtr(uplo: Uplo, n: usize, a: &mut [f32], lda: usize, tau: &[f32]) -> R
         LAPACKE_sorgtr,
         ROW_MAJOR,
         uplo_char(uplo),
-        n as i32,
+        n as Int,
         a.as_mut_ptr(),
-        lda as i32,
+        lda as Int,
         tau.as_ptr()
     )
 }
@@ -4890,9 +4899,9 @@ pub fn zungtr(
         LAPACKE_zungtr,
         ROW_MAJOR,
         uplo_char(uplo),
-        n as i32,
+        n as Int,
         a.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
-        lda as i32,
+        lda as Int,
         tau.as_ptr() as *const sys::__BindgenComplex<f64>
     )
 }
@@ -4909,9 +4918,9 @@ pub fn cungtr(
         LAPACKE_cungtr,
         ROW_MAJOR,
         uplo_char(uplo),
-        n as i32,
+        n as Int,
         a.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
-        lda as i32,
+        lda as Int,
         tau.as_ptr() as *const sys::__BindgenComplex<f32>
     )
 }
@@ -4948,11 +4957,11 @@ pub fn dorgbr(
         LAPACKE_dorgbr,
         ROW_MAJOR,
         vect.raw(),
-        m as i32,
-        n as i32,
-        k as i32,
+        m as Int,
+        n as Int,
+        k as Int,
         a.as_mut_ptr(),
-        lda as i32,
+        lda as Int,
         tau.as_ptr()
     )
 }
@@ -4971,11 +4980,11 @@ pub fn sorgbr(
         LAPACKE_sorgbr,
         ROW_MAJOR,
         vect.raw(),
-        m as i32,
-        n as i32,
-        k as i32,
+        m as Int,
+        n as Int,
+        k as Int,
         a.as_mut_ptr(),
-        lda as i32,
+        lda as Int,
         tau.as_ptr()
     )
 }
@@ -4994,11 +5003,11 @@ pub fn zungbr(
         LAPACKE_zungbr,
         ROW_MAJOR,
         vect.raw(),
-        m as i32,
-        n as i32,
-        k as i32,
+        m as Int,
+        n as Int,
+        k as Int,
         a.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
-        lda as i32,
+        lda as Int,
         tau.as_ptr() as *const sys::__BindgenComplex<f64>
     )
 }
@@ -5017,11 +5026,11 @@ pub fn cungbr(
         LAPACKE_cungbr,
         ROW_MAJOR,
         vect.raw(),
-        m as i32,
-        n as i32,
-        k as i32,
+        m as Int,
+        n as Int,
+        k as Int,
         a.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
-        lda as i32,
+        lda as Int,
         tau.as_ptr() as *const sys::__BindgenComplex<f32>
     )
 }
@@ -5037,9 +5046,9 @@ pub fn dgecon(norm: Norm, n: usize, a: &[f64], lda: usize, anorm: f64) -> Result
         sys::LAPACKE_dgecon(
             ROW_MAJOR,
             norm.raw(),
-            n as i32,
+            n as Int,
             a.as_ptr(),
-            lda as i32,
+            lda as Int,
             anorm,
             &mut rcond,
         )
@@ -5054,9 +5063,9 @@ pub fn sgecon(norm: Norm, n: usize, a: &[f32], lda: usize, anorm: f32) -> Result
         sys::LAPACKE_sgecon(
             ROW_MAJOR,
             norm.raw(),
-            n as i32,
+            n as Int,
             a.as_ptr(),
-            lda as i32,
+            lda as Int,
             anorm,
             &mut rcond,
         )
@@ -5071,9 +5080,9 @@ pub fn zgecon(norm: Norm, n: usize, a: &[Complex64], lda: usize, anorm: f64) -> 
         sys::LAPACKE_zgecon(
             ROW_MAJOR,
             norm.raw(),
-            n as i32,
+            n as Int,
             a.as_ptr() as *const sys::__BindgenComplex<f64>,
-            lda as i32,
+            lda as Int,
             anorm,
             &mut rcond,
         )
@@ -5088,9 +5097,9 @@ pub fn cgecon(norm: Norm, n: usize, a: &[Complex32], lda: usize, anorm: f32) -> 
         sys::LAPACKE_cgecon(
             ROW_MAJOR,
             norm.raw(),
-            n as i32,
+            n as Int,
             a.as_ptr() as *const sys::__BindgenComplex<f32>,
-            lda as i32,
+            lda as Int,
             anorm,
             &mut rcond,
         )
@@ -5106,9 +5115,9 @@ pub fn dpocon(uplo: Uplo, n: usize, a: &[f64], lda: usize, anorm: f64) -> Result
         sys::LAPACKE_dpocon(
             ROW_MAJOR,
             uplo_char(uplo),
-            n as i32,
+            n as Int,
             a.as_ptr(),
-            lda as i32,
+            lda as Int,
             anorm,
             &mut rcond,
         )
@@ -5123,9 +5132,9 @@ pub fn spocon(uplo: Uplo, n: usize, a: &[f32], lda: usize, anorm: f32) -> Result
         sys::LAPACKE_spocon(
             ROW_MAJOR,
             uplo_char(uplo),
-            n as i32,
+            n as Int,
             a.as_ptr(),
-            lda as i32,
+            lda as Int,
             anorm,
             &mut rcond,
         )
@@ -5140,9 +5149,9 @@ pub fn zpocon(uplo: Uplo, n: usize, a: &[Complex64], lda: usize, anorm: f64) -> 
         sys::LAPACKE_zpocon(
             ROW_MAJOR,
             uplo_char(uplo),
-            n as i32,
+            n as Int,
             a.as_ptr() as *const sys::__BindgenComplex<f64>,
-            lda as i32,
+            lda as Int,
             anorm,
             &mut rcond,
         )
@@ -5157,9 +5166,9 @@ pub fn cpocon(uplo: Uplo, n: usize, a: &[Complex32], lda: usize, anorm: f32) -> 
         sys::LAPACKE_cpocon(
             ROW_MAJOR,
             uplo_char(uplo),
-            n as i32,
+            n as Int,
             a.as_ptr() as *const sys::__BindgenComplex<f32>,
-            lda as i32,
+            lda as Int,
             anorm,
             &mut rcond,
         )
@@ -5173,16 +5182,16 @@ pub fn cpocon(uplo: Uplo, n: usize, a: &[Complex32], lda: usize, anorm: f32) -> 
 /// Generate an elementary Householder reflector `H = I − τ·v·vᵀ` such
 /// that `H · (α, x)ᵀ = (β, 0…0)ᵀ`. On exit `*alpha = β` and `tau` is
 /// returned. (`f64`)
-pub fn dlarfg(n: usize, alpha: &mut f64, x: &mut [f64], incx: i32) -> Result<f64> {
+pub fn dlarfg(n: usize, alpha: &mut f64, x: &mut [f64], incx: Int) -> Result<f64> {
     let mut tau: f64 = 0.0;
-    let info = unsafe { sys::LAPACKE_dlarfg(n as i32, alpha, x.as_mut_ptr(), incx, &mut tau) };
+    let info = unsafe { sys::LAPACKE_dlarfg(n as Int, alpha, x.as_mut_ptr(), incx, &mut tau) };
     map_info("lapack", info)?;
     Ok(tau)
 }
 /// `f32` Householder generator. See [`dlarfg`].
-pub fn slarfg(n: usize, alpha: &mut f32, x: &mut [f32], incx: i32) -> Result<f32> {
+pub fn slarfg(n: usize, alpha: &mut f32, x: &mut [f32], incx: Int) -> Result<f32> {
     let mut tau: f32 = 0.0;
-    let info = unsafe { sys::LAPACKE_slarfg(n as i32, alpha, x.as_mut_ptr(), incx, &mut tau) };
+    let info = unsafe { sys::LAPACKE_slarfg(n as Int, alpha, x.as_mut_ptr(), incx, &mut tau) };
     map_info("lapack", info)?;
     Ok(tau)
 }
@@ -5191,12 +5200,12 @@ pub fn zlarfg(
     n: usize,
     alpha: &mut Complex64,
     x: &mut [Complex64],
-    incx: i32,
+    incx: Int,
 ) -> Result<Complex64> {
     let mut tau = Complex64::ZERO;
     let info = unsafe {
         sys::LAPACKE_zlarfg(
-            n as i32,
+            n as Int,
             alpha as *mut _ as *mut sys::__BindgenComplex<f64>,
             x.as_mut_ptr() as *mut sys::__BindgenComplex<f64>,
             incx,
@@ -5211,12 +5220,12 @@ pub fn clarfg(
     n: usize,
     alpha: &mut Complex32,
     x: &mut [Complex32],
-    incx: i32,
+    incx: Int,
 ) -> Result<Complex32> {
     let mut tau = Complex32::ZERO;
     let info = unsafe {
         sys::LAPACKE_clarfg(
-            n as i32,
+            n as Int,
             alpha as *mut _ as *mut sys::__BindgenComplex<f32>,
             x.as_mut_ptr() as *mut sys::__BindgenComplex<f32>,
             incx,
@@ -5236,7 +5245,7 @@ pub fn dlasrt(id: u8, d: &mut [f64]) -> Result<()> {
         "lapack",
         LAPACKE_dlasrt,
         id as c_char,
-        d.len() as i32,
+        d.len() as Int,
         d.as_mut_ptr()
     )
 }
@@ -5246,7 +5255,7 @@ pub fn slasrt(id: u8, d: &mut [f32]) -> Result<()> {
         "lapack",
         LAPACKE_slasrt,
         id as c_char,
-        d.len() as i32,
+        d.len() as Int,
         d.as_mut_ptr()
     )
 }
@@ -5267,7 +5276,7 @@ mod tests {
     fn gesv_2x2_f64() {
         let mut a = [2.0_f64, 1.0, 1.0, 3.0];
         let mut b = [1.0_f64, 2.0];
-        let mut ipiv = [0_i32; 2];
+        let mut ipiv = [0 as Int; 2];
         gesv(2, &mut a, &mut ipiv, &mut b).unwrap();
         approx(b[0], 0.2, 1e-12);
         approx(b[1], 0.6, 1e-12);
@@ -5277,7 +5286,7 @@ mod tests {
     fn gesv_singular_returns_error() {
         let mut a = [1.0_f64, 2.0, 2.0, 4.0];
         let mut b = [3.0_f64, 6.0];
-        let mut ipiv = [0_i32; 2];
+        let mut ipiv = [0 as Int; 2];
         let err = gesv(2, &mut a, &mut ipiv, &mut b).unwrap_err();
         match err {
             Error::Status { code, .. } => assert!(code > 0),
@@ -5289,7 +5298,7 @@ mod tests {
     fn getrf_then_getrs() {
         // A = [[4,3],[6,3]], x_true = [1,1], so b = A·x_true = [7, 9]
         let mut a = [4.0_f64, 3.0, 6.0, 3.0];
-        let mut ipiv = [0_i32; 2];
+        let mut ipiv = [0 as Int; 2];
         getrf(2, 2, &mut a, &mut ipiv).unwrap();
         let mut b = [7.0_f64, 9.0];
         getrs::<f64>(Trans::No, 2, &a, &ipiv, &mut b).unwrap();
@@ -5300,7 +5309,7 @@ mod tests {
     #[test]
     fn getri_inverse() {
         let mut a = [2.0_f64, 0.0, 0.0, 4.0];
-        let mut ipiv = [0_i32; 2];
+        let mut ipiv = [0 as Int; 2];
         getrf(2, 2, &mut a, &mut ipiv).unwrap();
         getri::<f64>(2, &mut a, &ipiv).unwrap();
         approx(a[0], 0.5, 1e-12);
@@ -5332,7 +5341,7 @@ mod tests {
         // A symmetric = [[1,2],[2,3]] (upper triangle), b = [3, 5] → x = [1, 1]
         let mut a = [1.0_f64, 2.0, 0.0, 3.0];
         let mut b = [3.0_f64, 5.0];
-        let mut ipiv = [0_i32; 2];
+        let mut ipiv = [0 as Int; 2];
         sysv(Uplo::Upper, 2, &mut a, &mut ipiv, &mut b).unwrap();
         approx(b[0], 1.0, 1e-12);
         approx(b[1], 1.0, 1e-12);
@@ -5387,7 +5396,7 @@ mod tests {
             Complex64::ONE,
         ];
         let mut b = [Complex64::new(3.0, 1.0), Complex64::new(4.0, -1.0)];
-        let mut ipiv = [0_i32; 2];
+        let mut ipiv = [0 as Int; 2];
         gesv(2, &mut a, &mut ipiv, &mut b).unwrap();
         assert_eq!(b[0], Complex64::new(3.0, 1.0));
         assert_eq!(b[1], Complex64::new(4.0, -1.0));
@@ -5409,7 +5418,7 @@ mod tests {
     #[test]
     fn dim_mismatch_is_error() {
         let mut a = [1.0_f64; 3];
-        let mut ipiv = [0_i32; 2];
+        let mut ipiv = [0 as Int; 2];
         let mut b = [1.0_f64, 2.0];
         let err = gesv(2, &mut a, &mut ipiv, &mut b).unwrap_err();
         assert!(matches!(err, Error::InvalidArgument(_)));
@@ -5497,7 +5506,7 @@ mod tests {
     fn gelsy_full_rank() {
         let mut a = [1.0_f64, 0.0, 0.0, 1.0, 0.0, 0.0];
         let mut b = [1.0_f64, 2.0, 3.0];
-        let mut jpvt = [0_i32; 2];
+        let mut jpvt = [0 as Int; 2];
         let rank = gelsy::<f64>(3, 2, &mut a, &mut b, &mut jpvt, -1.0).unwrap();
         assert_eq!(rank, 2);
         approx(b[0], 1.0, 1e-10);

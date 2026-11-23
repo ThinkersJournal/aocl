@@ -20,6 +20,7 @@ fn main() {
         unix_static: &["secrng"],
         unix_dynamic: &["secrng"],
         extra_includes: &[],
+        ilp64_defines: &[],
     }
     .build(&root);
 }

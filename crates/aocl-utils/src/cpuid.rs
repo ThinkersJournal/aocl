@@ -208,10 +208,16 @@ mod tests {
     fn current_cpu_does_not_panic() {
         let info = vendor_info(Cpu::Current);
         assert!(!info.vendor_id.is_empty(), "vendor_id should be populated");
-        let _ = is_amd(Cpu::Current);
-        let _ = is_zen_family(Cpu::Current);
-        let _ = zen_arch(Cpu::Current);
-        let _ = x86_64_level(Cpu::Current);
+        // `vendor_id` is the numeric EVendor code, not a name: measured "1" on this AMD host (family 25, model 97,
+        // Zen 4); the Intel code was not measured. `is_amd` must agree with it, and the Zen answers with each other.
+        assert_eq!(is_amd(Cpu::Current), info.vendor_id == "1", "{info:?}");
+        assert_eq!(
+            is_zen_family(Cpu::Current),
+            zen_arch(Cpu::Current).is_some()
+        );
+        if is_zen_family(Cpu::Current) {
+            assert!(is_amd(Cpu::Current));
+        }
     }
 
     #[test]
@@ -220,9 +226,15 @@ mod tests {
         // abort the process under Rust's panic-from-foreign-exception
         // handling — so use only flag names AOCL recognises.
         // SSE2 is universal on x86-64 since 2003.
-        let _ = has_flag(Cpu::Current, "sse2");
-        let _ = has_flags_all(Cpu::Current, &["sse2", "sse4_2"]);
-        let _ = has_flags_any(Cpu::Current, &["avx2", "avx512f"]);
+        // SSE2 is in the x86-64 baseline, so every host this runs on has it.
+        assert!(has_flag(Cpu::Current, "sse2"));
+        assert!(has_flags_all(Cpu::Current, &["sse", "sse2"]));
+        assert!(has_flags_any(Cpu::Current, &["sse2", "avx512f"]));
+        // The same two queries must differ when one flag is absent: `any` is true, `all` follows the weaker flag.
+        assert_eq!(
+            has_flags_all(Cpu::Current, &["sse2", "avx512f"]),
+            has_flag(Cpu::Current, "avx512f")
+        );
         // Empty list of flags
         assert!(has_flags_all(Cpu::Current, &[]));
         assert!(!has_flags_any(Cpu::Current, &[]));
