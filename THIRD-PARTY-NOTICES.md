@@ -2,9 +2,13 @@
 
 This repository's own code is `MIT OR Apache-2.0` (see `LICENSE-MIT`, `LICENSE-APACHE`). It contains no AMD or other
 third-party binary, no copied header, and no copied licence or documentation text. What it does contain that derives
-from third parties is listed here, with each origin and what was checked. Facts below were read from an AOCL for
-Windows install on 2026-11-22 (release notes of the 11 components that name a version: 5.3.0; installer registry
-`DisplayVersion` 5.3.514) and from this repository at the time of writing.
+from third parties is listed here, with each origin and what was checked. Facts below were first read from an AOCL
+for Windows 5.3 install on 2026-11-22 (installer `DisplayVersion` 5.3.514). The `NOTICE` files of the six BSD/MIT
+`*-sys` crates (sparse, securerng, utils, crypto, data-analytics, compression) were re-diffed on 2026-11-23 against the
+headers of the installed AOCL for Windows 6.0 (installer `DisplayVersion` 6.0.68; the component `ReleaseNotes.txt`
+files that name a version say 6.0.0), which is what the committed bindings are generated from, and refreshed to the
+6.0 text. The other facts in this file (blas, lapack, fft, math, rng headers and NOTICE entries) are still from 5.3
+and have not been re-read against 6.0; those crates are held.
 
 ## 1. Generated FFI bindings (`crates/*-sys/bindings/bindings.rs`, 11 files)
 

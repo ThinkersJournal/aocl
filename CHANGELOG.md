@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Docs/notices only: the `NOTICE` files of `aocl-sparse-sys`, `-securerng-sys`, `-utils-sys`, `-crypto-sys`, `-data-analytics-sys` and `-compression-sys` were copied from AOCL 5.3 headers while the bindings are generated from 6.0; each header's notice block was re-diffed against the installed AOCL 6.0.68 headers and refreshed verbatim (copyright years changed in most; headers added or dropped from the include closure are added or dropped). `THIRD-PARTY-NOTICES.md` says which facts are 6.0 and which are still 5.3.
+
 ## 0.2.0 - 2026-11-23 (BREAKING for `aocl-sparse`, allocated by pm-assist)
 
 - Stale-DLL-on-PATH guard (pm-kernels notice 2026-11-22): new Windows-only `aocl_build::loaded_dll` (`resolve_loaded_dll`, `assert_loaded_under`; additive) and `crates/aocl-build/tests/loaded_dll.rs`: one test per component family (blas, lapack, compression, crypto, data-analytics, fft, math, rng, scalapack, securerng, sparse, utils) loads each linked DLL by name through the loader's own search, prints the `GetModuleFileNameW` path, and fails by name if it is not under `AOCL_ROOT`; control `control_wrong_dir_first_on_path_fails_by_name` (a copy in a temp dir first on PATH) is rejected. 13/13 pass with the HANDOFF PATH. Measured: `amdsecrng.dll` resolves to `amd-rng/lib/LP64` (both dirs ship it), still under the root. Not covered: the Intel runtime DLLs (libiomp5md etc.) live outside `AOCL_ROOT`; no expected dir is named for them yet. The test resolves by name with LoadLibraryW, it does not inspect the modules of a linked test binary.
