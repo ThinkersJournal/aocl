@@ -102,9 +102,10 @@ notice file at all** (checked by downloading `aocl-math-sys`, `-rng-sys`, `-blas
 ## 3. `lz4frame.h` guard (`crates/aocl-compression-sys/wrapper/compression.h`)
 
 The wrapper includes `<lz4frame.h>` only if `__has_include` finds it, because the Windows AOCL install ships `lz4.h`
-and `lz4hc.h` but not `lz4frame.h` (listed: `ls amd-compression/include`). The `LZ4F_*` declarations in the committed
-`aocl-compression-sys` bindings come from an earlier install that had that header; their origin is the LZ4 project
-(BSD-2-Clause, Yann Collet), and it was not verified which install produced them.
+and `lz4hc.h` but not `lz4frame.h` (listed: `ls amd-compression/include`). The committed `aocl-compression-sys` bindings
+contain no `LZ4F_*` declarations (checked at e22fdaf: `git grep LZ4F -- crates/aocl-compression-sys/bindings` finds nothing, while
+the same grep for `LZ4_compress` finds 29 lines from `lz4.h`/`lz4hc.h`). Bindings generated on an install that ships
+`lz4frame.h` would add them; their origin is the LZ4 project (BSD-2-Clause, Yann Collet).
 
 ## 4. Test data
 
