@@ -336,7 +336,7 @@ THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED WAR
 Julian Seward, jseward@bzip.org bzip2/libbzip2 version 1.0.6 of 6 September 2010
 
 ====================================================================================================
-LZ4 (BSD-2-Clause), from the AOCL-Compression NOTICE.txt; the committed bindings also contain LZ4F_* declarations from lz4frame.h of the same project
+LZ4 (BSD-2-Clause), from the AOCL-Compression NOTICE.txt; the committed bindings' LZ4 declarations come from lz4.h and lz4hc.h (they contain no LZ4F_* declarations: the wrapper includes lz4frame.h only if the install ships it)
 ====================================================================================================
 
 lz4  v-u (BSD-2-Clause)
