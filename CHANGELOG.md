@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.1 - 2026-11-24 (allocated by pm-assist; docs and notices only)
 
 - Docs/notices only: the `NOTICE` files of `aocl-sparse-sys`, `-securerng-sys`, `-utils-sys`, `-crypto-sys`, `-data-analytics-sys` and `-compression-sys` were copied from AOCL 5.3 headers while the bindings are generated from 6.0; each header's notice block was re-diffed against the installed AOCL 6.0.68 headers and refreshed verbatim (copyright years changed in most; headers added or dropped from the include closure are added or dropped). `THIRD-PARTY-NOTICES.md` says which facts are 6.0 and which are still 5.3.
 
