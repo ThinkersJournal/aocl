@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased (pm-assist to allocate 0.2.2)
+## 0.2.2 - 2026-11-24 (allocated by pm-assist; docs and notices only)
 
 - Docs/notices only: **0.2.1 (the NOTICE refresh merged in #13) was NOT released or tagged; the 0.2.2 release carries both that refresh and this correction.** The crate `NOTICE` of `aocl-compression-sys` (line 339, shipped in the crate) and `THIRD-PARTY-NOTICES.md` section 3 said the committed bindings contain `LZ4F_*` declarations from an earlier install; they contain none (`git grep LZ4F` over the bindings finds nothing; the same grep for `LZ4_compress` finds 29 lines). Both now say so. BSD-2 licence text untouched.
 
