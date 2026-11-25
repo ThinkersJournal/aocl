@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.3 - 2026-11-25 (allocated by pm-assist; the -sys crates drop the unused libc dependency)
+
+- The `-sys` crates no longer depend on `libc` (aocl#15, the lane's real-bindgen check over the workspace with all features passes). ROADMAP updated.
+
 ## 0.2.2 - 2026-11-24 (allocated by pm-assist; docs and notices only)
 
 - Docs/notices only: **0.2.1 (the NOTICE refresh merged in #13) was NOT released or tagged; the 0.2.2 release carries both that refresh and this correction.** The crate `NOTICE` of `aocl-compression-sys` (line 339, shipped in the crate) and `THIRD-PARTY-NOTICES.md` section 3 said the committed bindings contain `LZ4F_*` declarations from an earlier install; they contain none (`git grep LZ4F` over the bindings finds nothing; the same grep for `LZ4_compress` finds 29 lines). Both now say so. BSD-2 licence text untouched.
