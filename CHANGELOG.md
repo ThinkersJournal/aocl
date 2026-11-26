@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.4 - 2026-11-26 (allocated by pm-assist; docs only: ROADMAP pin row)
+
+- ROADMAP: CodeRipper pin row added (aocl#16). Docs only; not breaking.
+
 ## 0.2.3 - 2026-11-25 (allocated by pm-assist; the -sys crates drop the unused libc dependency)
 
 - The `-sys` crates no longer depend on `libc` (aocl#15, the lane's real-bindgen check over the workspace with all features passes). ROADMAP updated.
