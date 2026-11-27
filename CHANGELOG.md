@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.10 - 2026-11-27 (PM-allocated; patch on 0.2.x, the 0.2.x family number: aocl-rng-sys clean-room declarations complete, aocl-securerng-sys tests only; the PM released it after reading the provenance changes)
+
+- **`aocl-rng-sys`:** 78 UPPERCASE `S/DRAND*` forms are declared clean-room from AOCL API Guide 6.0 ch. 9.3 (`GET_RNGVERSION` is guide-stated but not exported by AOCL 6.0.68: not declared); the S callback typedefs are MEASURED; `srandinitializeuser`/`SRANDINITIALIZEUSER` and the D forms are declared but UNSAFE with an undocumented protocol (the UINI callback must set `state[0]=n` and `lstate>=n+3`; the guide does not state this), link-checked only, never called by a test. A link-all test checks every declaration. The provenance tables are `docs/cleanroom/README.md` and the per-set CSVs; the raw evidence is one archive under `docs/cleanroom/evidence/`.
+- **`aocl-securerng-sys`:** tests only (`tests/securerng.rs`: link-all 15, width, constants against measured codes); the bindgen route, header-grant NOTICE, wrapper, bindings and the five `SECRNG_*` constants are as in published 0.2.5.
+- Nothing here changes a published API of a crate released at 0.2.x; the RNG crates have no real release before this one.
+
 ## 0.2.9 - 2026-11-27 (PM-allocated; patch on 0.2.x, the 0.2.x family number: aocl-math-sys nightly-only simd_ffi feature and Windows-only measured types, additive)
 
 - **`aocl-math-sys` nightly-only feature `simd_ffi`:** declares the 154 by-value SIMD functions (`__m128`..`__m512d`; needs rustc `feature(simd_ffi)`; never default; 2 more `amd_vrd8_fabs`/`amd_vrs16_fabsf` are behind `guide-only-fast` + `simd_ffi`: not exported by 6.0.68 Windows). 6 are called by tests, all 154 link-checked.
