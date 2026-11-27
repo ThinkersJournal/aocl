@@ -1,8 +1,20 @@
 # Changelog
 
-## Unreleased (tools and docs only, patch on 0.2.x; pm-assist allocates; no crate is published for it)
+## 0.2.23 - 2026-11-27 (PM-allocated; tools/wrapper-coverage.py and docs: exposed versus tested per wrapper; patch on 0.2.x, tools and docs only)
 
 - **tools:** `tools/wrapper-coverage.py` compares each safe wrapper's exposed public functions with the names its tests mention; `docs/WRAPPER-COVERAGE-20261127.md`: 638 exposed, 257 mentioned, 381 without any test (the gaps are listed per wrapper). Tests for the gaps follow, smallest crates first.
+
+## 0.2.22 - 2026-11-27 (PM-allocated; CI: adopt the advisory portfolio job, pinned reusable workflow; patch on 0.2.x, tools and CI only)
+
+- **CI:** the advisory `portfolio` job (reusable workflow `ciresnave/coderipper/.github/workflows/portfolio.yml` pinned to `467fd259d6d062cba4c5683d310f1a6f2b66e763`, `permissions: contents: read`, same syntax as cpufish) in `ci.yml`: not a required check, not in branch protection (CireSnave 2026-10-23). ROADMAP row 12.
+
+## 0.2.21 - 2026-11-27 (PM-allocated; ROADMAP row 19 decided: RNG user-generator entry points document-only, patch on 0.2.x)
+
+- **ROADMAP row 19 decided: the RNG user-generator entry points stay `unsafe extern` declarations with NO safe wrapper in `aocl-rng`** (protocol measured but undocumented by AMD; callbacks have no user-data pointer; the library does not validate `n` against `lstate`): reasons in the row. No code change.
+
+## 0.2.20 - 2026-11-27 (PM-allocated; tools and docs only, patch on 0.2.x: the 12 safe wrappers' tests on the real AOCL 6.0.68; no crate behaviour changes)
+
+- **tools:** `tools/wrapper-tests.py` runs every safe wrapper's tests on the real installed AOCL (PATH built per width) and prints a table; `--control-no-aocl` must FAIL every wrapper (they really call into the DLLs). `docs/WRAPPER-TESTS-20261127.md`: 12 wrappers, 192 tests, all pass on AOCL 6.0.68 Windows with two runtime requirements found: `aocl-crypto` needs OpenSSL 3 `libcrypto-3-x64.dll` on PATH (AOCL does not ship it), `aocl-data-analytics` needs `KMP_DUPLICATE_LIB_OK=TRUE` (AMD issue 2). `selfhosted.yml` gets a `wrappers` job (untested on a runner).
 
 ## 0.2.19 - 2026-11-27 (PM-allocated; docs only, patch on 0.2.x: the measured static-link link-line requirements in the sparse, blas, lapack, crypto and data-analytics -sys READMEs)
 
