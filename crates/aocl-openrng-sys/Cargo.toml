@@ -1,0 +1,24 @@
+[package]
+name = "aocl-openrng-sys"
+description = "Unsafe FFI declarations for AOCL-OpenRNG (AMD's fork of Arm's OpenRNG; VSL-compatible RNG API)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license = "MIT OR Apache-2.0 WITH LLVM-exception"
+repository.workspace = true
+authors.workspace = true
+build = "build.rs"
+# UNMEASURED skeleton: nothing has been linked or measured (width, known answer). `cargo publish` must refuse until a build measures it.
+publish = false
+categories = ["external-ffi-bindings", "science"]
+keywords = ["aocl", "amd", "openrng", "rng", "ffi"]
+
+[features]
+default = []
+# openrng_int_t / openrng_uint_t are 64-bit (the header's OPENRNG_ILP64 / INTEGER64 branch). UNMEASURED: needs the ILP64 build.
+ilp64 = []
+static-link = []
+
+[package.metadata.docs.rs]
+default-target = "x86_64-unknown-linux-gnu"
+rustdoc-args = ["--cfg", "docsrs"]

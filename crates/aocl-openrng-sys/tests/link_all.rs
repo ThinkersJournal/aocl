@@ -1,0 +1,73 @@
+//! NEEDS THE BUILD (not run yet): compiled only when OPENRNG_LIB_DIR points at a built AOCL-OpenRNG (cfg `openrng_linked`).
+//! Taking the address of every declared function forces each symbol to resolve.
+#![cfg(openrng_linked)]
+#![allow(warnings)]
+use aocl_openrng_sys::*;
+
+#[test]
+fn all_openrng_symbols_link() {
+    let addrs: Vec<usize> = vec![
+        vdRngBeta as usize,
+        vdRngCauchy as usize,
+        vdRngChiSquare as usize,
+        vdRngExponential as usize,
+        vdRngGamma as usize,
+        vdRngGaussian as usize,
+        vdRngGaussianMV as usize,
+        vdRngGumbel as usize,
+        vdRngLaplace as usize,
+        vdRngLognormal as usize,
+        vdRngRayleigh as usize,
+        vdRngUniform as usize,
+        vdRngWeibull as usize,
+        viRngBernoulli as usize,
+        viRngBinomial as usize,
+        viRngGeometric as usize,
+        viRngHypergeometric as usize,
+        viRngMultinomial as usize,
+        viRngNegBinomial as usize,
+        viRngNegbinomial as usize,
+        viRngPoisson as usize,
+        viRngPoissonV as usize,
+        viRngUniform as usize,
+        viRngUniformBits as usize,
+        viRngUniformBits32 as usize,
+        viRngUniformBits64 as usize,
+        vsRngBeta as usize,
+        vsRngCauchy as usize,
+        vsRngChiSquare as usize,
+        vsRngExponential as usize,
+        vsRngGamma as usize,
+        vsRngGaussian as usize,
+        vsRngGaussianMV as usize,
+        vsRngGumbel as usize,
+        vsRngLaplace as usize,
+        vsRngLognormal as usize,
+        vsRngRayleigh as usize,
+        vsRngUniform as usize,
+        vsRngWeibull as usize,
+        vslCopyStream as usize,
+        vslCopyStreamState as usize,
+        vslDeleteStream as usize,
+        vslGetBrngProperties as usize,
+        vslGetNumRegBrngs as usize,
+        vslGetStreamSize as usize,
+        vslGetStreamStateBrng as usize,
+        vslLeapfrogStream as usize,
+        vslLoadStreamF as usize,
+        vslLoadStreamM as usize,
+        vslNewStream as usize,
+        vslNewStreamEx as usize,
+        vslRegisterBrng as usize,
+        vslSaveStreamF as usize,
+        vslSaveStreamM as usize,
+        vslSkipAheadStream as usize,
+        vslSkipAheadStreamEx as usize,
+        vsldNewAbstractStream as usize,
+        vsliNewAbstractStream as usize,
+        vslsNewAbstractStream as usize,
+        openRngGetVersion as usize,
+    ];
+    assert_eq!(addrs.len(), 60);
+    assert!(addrs.iter().all(|a| *a != 0));
+}
