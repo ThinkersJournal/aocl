@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased (patch on 0.2.x; pm-assist allocates)
+## 0.2.14 - 2026-11-27 (PM-allocated; patch on 0.2.x, as 0.2.8: unlinkable declarations behind a default-OFF feature; the PM ruled patch with no yank for the same shape)
 
 - **FIX `aocl-utils-sys` and `aocl-compression-sys` (Windows, measured on AOCL 6.0.68; Linux unmeasured): declarations that did not link.** New feature `header-only-unexported` (default OFF) in both crates: `aocl-utils-sys` no longer declares `au_get_version_{major,minor,patch,str}` and `au_is_error` by default (declared in the headers, exported by no installed library; they are `extern "C"`, not inline); `aocl-compression-sys` no longer declares by default ten LZMA-SDK stream helpers (`LookInStream_*`, `SeqInStream_*`, `SecToLook_/SecToRead_CreateVTable`, `LookToRead2_CreateVTable`: declared in `7zTypes.h`, exported by no installed library), and declares `BZ2_bzCompressBound` / `Lzma_compressBound` only with `static-link` (they exist only in the static library). Enabling `header-only-unexported` restores the declarations (they still do not link on Windows). `aocl-build` gains `Component::build_with_blocklist` (additive). The safe wrappers use none of these names. New `tests/link_all.rs` per crate (utils 29, compression 150 (+2 with `static-link`) resolve).
 
