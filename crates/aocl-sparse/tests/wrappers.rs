@@ -918,3 +918,403 @@ fn dotmv_returns_the_updated_product_and_its_dot() {
     t_dotmv::<Complex64>(cxm::dotmv_c64);
     t_dotmv::<Complex32>(cxm::dotmv_c32);
 }
+
+// ---------------------------------------------------------------- smoothers: symgs, symgs_mv, sorv, ilu
+
+fn spd<T: Lib>() -> D {
+    herm::<T>(&[
+        &[8., 1., 0., 2.],
+        &[1., 9., 3., 0.],
+        &[0., 3., 10., 1.],
+        &[2., 0., 1., 7.],
+    ])
+}
+/// One symmetric Gauss-Seidel sweep from `x0 = 0` (header: `(L+D) x1 = alpha b - U x0`, `(U+D) x = alpha b - L x1`).
+fn symgs_ref(a: &D, alpha: Cx, b: &[Cx]) -> Vec<Cx> {
+    let n = a.len();
+    let mut x1 = vec![ZERO; n];
+    for i in 0..n {
+        let s = (0..i).fold(alpha * b[i], |acc, j| acc - a[i][j] * x1[j]);
+        x1[i] = s / a[i][i];
+    }
+    let mut x = vec![ZERO; n];
+    for i in (0..n).rev() {
+        let s = (i + 1..n).fold(alpha * b[i], |acc, j| acc - a[i][j] * x[j]);
+        let s = (0..i).fold(s, |acc, j| acc - a[i][j] * x1[j]);
+        x[i] = s / a[i][i];
+    }
+    x
+}
+fn t_symgs<T: Lib>(
+    alphas: [Cx; 1],
+    f: fn(Trans, &T::M, &MatDescr, T, &[T], &mut [T]) -> Result<()>,
+) {
+    let a = spd::<T>();
+    let h = T::build(IndexBase::Zero, &csr(&a));
+    let d = descr(
+        sym_ty::<T>(),
+        FillMode::Lower,
+        DiagType::NonUnit,
+        IndexBase::Zero,
+    );
+    for alpha in alphas {
+        let b = vecg::<T>(4, 3);
+        let mut x = vec![T::mk(ZERO); 4];
+        f(Trans::No, &h, &d, T::mk(alpha), &lv::<T>(&b), &mut x).unwrap();
+        check(
+            &format!("symgs alpha {alpha:?}"),
+            &x,
+            &symgs_ref(&a, alpha, &b),
+        );
+    }
+}
+#[test]
+fn symgs_matches_the_two_triangular_sweeps() {
+    t_symgs::<f64>([ONE], s::symgs_f64);
+    t_symgs::<f32>([ONE], s::symgs_f32);
+    t_symgs::<Complex64>([ONE], cxm::symgs_c64);
+    t_symgs::<Complex32>([ONE], cxm::symgs_c32);
+}
+/// FINDING (run with `--ignored`): the header says `op(A) x = alpha b`, so `alpha = 2` doubles the solution of the sweep
+/// from `x0 = 0`; the library returns the `alpha = 1` result (alpha scales nothing when the initial guess is zero).
+#[test]
+#[ignore = "FINDING: aoclsparse_?symgs ignores alpha for x0 = 0 although the header says op(A) x = alpha b"]
+fn symgs_alpha_scales_the_right_hand_side_per_the_header() {
+    let two = [c(2.0, 0.0)];
+    t_symgs::<f64>(two, s::symgs_f64);
+    t_symgs::<Complex64>(two, cxm::symgs_c64);
+}
+fn t_symgs_mv<T: Lib>(f: fn(Trans, &T::M, &MatDescr, T, &[T], &mut [T], &mut [T]) -> Result<()>) {
+    let a = spd::<T>();
+    let h = T::build(IndexBase::Zero, &csr(&a));
+    let d = descr(
+        sym_ty::<T>(),
+        FillMode::Lower,
+        DiagType::NonUnit,
+        IndexBase::Zero,
+    );
+    let (alpha, b) = (v::<T>(1.0, 0.0), vecg::<T>(4, 3));
+    let (mut x, mut y) = (vec![T::mk(ZERO); 4], vec![T::mk(ZERO); 4]);
+    f(
+        Trans::No,
+        &h,
+        &d,
+        T::mk(alpha),
+        &lv::<T>(&b),
+        &mut x,
+        &mut y,
+    )
+    .unwrap();
+    let wx = symgs_ref(&a, alpha, &b);
+    check("symgs_mv x", &x, &wx);
+    check("symgs_mv y = A x", &y, &mv_d(&a, &wx)); // the product uses the full (symmetric / Hermitian) matrix
+}
+#[test]
+fn symgs_mv_returns_the_sweep_and_its_product() {
+    t_symgs_mv::<f64>(s::symgs_mv_f64);
+    t_symgs_mv::<f32>(s::symgs_mv_f32);
+    t_symgs_mv::<Complex64>(cxm::symgs_mv_c64);
+    t_symgs_mv::<Complex32>(cxm::symgs_mv_c32);
+}
+
+fn gen4<T: Lib>() -> D {
+    dm::<T>(&[
+        &[8., 1., 0., 2.],
+        &[2., 9., 3., 0.],
+        &[0., 1., 10., 1.],
+        &[2., 0., 3., 7.],
+    ])
+}
+/// Forward SOR of the header: `(D + w L) x1 = w b - (w U + (w-1) D) x0`, `x0 = alpha * x` (0 if alpha = 0).
+fn sor_ref(a: &D, w: Cx, alpha: Cx, x: &[Cx], b: &[Cx]) -> Vec<Cx> {
+    let n = a.len();
+    let x0: Vec<Cx> = x.iter().map(|&z| alpha * z).collect();
+    let mut x1 = vec![ZERO; n];
+    for i in 0..n {
+        let mut r = w * b[i] - (w - ONE) * a[i][i] * x0[i];
+        for j in 0..n {
+            if j > i {
+                r = r - w * a[i][j] * x0[j];
+            } else if j < i {
+                r = r - w * a[i][j] * x1[j];
+            }
+        }
+        x1[i] = r / a[i][i];
+    }
+    x1
+}
+fn t_sorv<T: Lib>(
+    checks_len: bool,
+    f: fn(SorType, &MatDescr, &T::M, T, T, &mut [T], &[T]) -> Result<()>,
+) {
+    let a = gen4::<T>();
+    let h = T::build(IndexBase::Zero, &csr(&a));
+    let d = gen_descr(IndexBase::Zero);
+    let b = vecg::<T>(4, 1);
+    for (w, alpha) in [(1.0, 1.0), (1.2, 0.5), (0.8, 0.0)] {
+        let (w, alpha) = (c(w, 0.0), c(alpha, 0.0));
+        let x0 = vecg::<T>(4, 5);
+        let mut x = lv::<T>(&x0);
+        f(
+            SorType::Forward,
+            &d,
+            &h,
+            T::mk(w),
+            T::mk(alpha),
+            &mut x,
+            &lv::<T>(&b),
+        )
+        .unwrap_or_else(|e| {
+            panic!(
+                "{} w={w:?} alpha={alpha:?}: {e:?}",
+                std::any::type_name::<T>()
+            )
+        });
+        check(
+            &format!("sorv w={w:?} alpha={alpha:?}"),
+            &x,
+            &sor_ref(&a, w, alpha, &x0, &b),
+        );
+    }
+    // a vector shorter than the matrix is rejected before the library is called (`sorv_f32` has no such check: FINDING)
+    if checks_len {
+        let mut short = vec![T::mk(ZERO); 3];
+        assert!(f(
+            SorType::Forward,
+            &d,
+            &h,
+            T::mk(ONE),
+            T::mk(ONE),
+            &mut short,
+            &lv::<T>(&b)
+        )
+        .is_err());
+    }
+    // only the forward sweep is implemented (header)
+    let mut x = lv::<T>(&vecg::<T>(4, 5));
+    assert!(f(
+        SorType::Backward,
+        &d,
+        &h,
+        T::mk(ONE),
+        T::mk(ONE),
+        &mut x,
+        &lv::<T>(&b)
+    )
+    .is_err());
+}
+#[test]
+fn sorv_forward_sweep_matches_the_reference() {
+    t_sorv::<f64>(true, s::sorv::<f64>);
+    t_sorv::<f32>(true, s::sorv::<f32>);
+    t_sorv::<f32>(false, s::sorv_f32);
+}
+/// Header: sorv "supports forward sweep on general matrix for single and double precision datatypes", and lists
+/// `not_implemented` otherwise. The complex wrappers (`complex::sorv`) therefore cannot succeed on this library: pinned as
+/// a documented error (FINDING: two exposed wrappers that always fail).
+#[test]
+fn sorv_complex_is_documented_not_implemented() {
+    fn run<T: Lib>(f: fn(SorType, &MatDescr, &T::M, T, T, &mut [T], &[T]) -> Result<()>) {
+        let h = T::build(IndexBase::Zero, &csr(&gen4::<T>()));
+        let mut x = vec![T::mk(ZERO); 4];
+        let err = f(
+            SorType::Forward,
+            &gen_descr(IndexBase::Zero),
+            &h,
+            T::mk(ONE),
+            T::mk(ONE),
+            &mut x,
+            &lv::<T>(&vecg::<T>(4, 1)),
+        )
+        .unwrap_err();
+        assert!(format!("{err:?}").contains("not implemented"), "{err:?}");
+    }
+    run::<Complex64>(cxm::sorv::<Complex64>);
+    run::<Complex32>(cxm::sorv::<Complex32>);
+}
+
+/// ILU(0) of a tridiagonal matrix has no fill-in, so `L U = A` exactly and the smoother solves `A x = b`.
+fn t_ilu<T: Lib>(f: fn(Trans, &T::M, &MatDescr, &mut [T], &[T]) -> Result<()>) {
+    let a = dm::<T>(&[
+        &[4., 1., 0., 0.],
+        &[2., 5., 1., 0.],
+        &[0., 1., 6., 2.],
+        &[0., 0., 3., 7.],
+    ]);
+    let h = T::build(IndexBase::Zero, &csr(&a));
+    let d = gen_descr(IndexBase::Zero);
+    let b = vecg::<T>(4, 2);
+    for call in 0..2 {
+        // the second call reuses the factors the first one stored
+        let mut x = vec![T::mk(ZERO); 4];
+        f(Trans::No, &h, &d, &mut x, &lv::<T>(&b)).unwrap();
+        checkc(
+            &format!("ilu A x = b (call {call})"),
+            &mv_d(&a, &cv(&x)),
+            &b,
+            T::TOL * 20.0,
+        );
+    }
+    let mut short = vec![T::mk(ZERO); 3];
+    assert!(f(Trans::No, &h, &d, &mut short, &lv::<T>(&b)).is_err());
+}
+#[test]
+fn ilu_smoother_solves_a_tridiagonal_system() {
+    t_ilu::<f64>(s::ilu_smoother::<f64>);
+    t_ilu::<f32>(s::ilu_smoother::<f32>);
+    t_ilu::<Complex64>(cxm::ilu_smoother::<Complex64>);
+    t_ilu::<Complex32>(cxm::ilu_smoother::<Complex32>);
+}
+
+// ---------------------------------------------------------------- hints, optimize, memory policy
+
+fn t_hints<T: Lib<M = s::SparseMatrix<T>> + s::Scalar>(
+    mv: fn(Trans, T, &T::M, &MatDescr, &[T], T, &mut [T]) -> Result<()>,
+) {
+    let a = dm::<T>(&[
+        &[3., 0., 0., 0.],
+        &[1., 4., 0., 0.],
+        &[0., 2., 5., 0.],
+        &[2., 0., 1., 6.],
+    ]);
+    let mut h = T::build(IndexBase::Zero, &csr(&a));
+    let d = descr(
+        MatType::Triangular,
+        FillMode::Lower,
+        DiagType::NonUnit,
+        IndexBase::Zero,
+    );
+    h.set_mv_hint(Trans::No, &d, 10).unwrap();
+    h.set_sv_hint(Trans::No, &d, 10).unwrap();
+    h.set_mm_hint(Trans::No, &d, 10).unwrap();
+    h.set_2m_hint(Trans::No, &d, 10).unwrap();
+    h.set_sm_hint(Trans::No, &d, Order::RowMajor, 10).unwrap();
+    h.set_lu_smoother_hint(Trans::No, &d, 10).unwrap();
+    h.set_symgs_hint(Trans::No, &d, 10).unwrap();
+    h.set_dotmv_hint(Trans::No, &d, 10).unwrap();
+    h.set_sorv_hint(SorType::Forward, &d, 10).unwrap();
+    s::set_memory_hint(&mut h, s::MemoryUsage::Minimal).unwrap();
+    s::set_memory_hint(&mut h, s::MemoryUsage::Unrestricted).unwrap();
+    s::optimize(&mut h).unwrap();
+    // after the analysis the kernels still produce the dense result
+    let x = vecg::<T>(4, 2);
+    let mut y = vec![T::mk(ZERO); 4];
+    mv(
+        Trans::No,
+        T::mk(ONE),
+        &h,
+        &gen_descr(IndexBase::Zero),
+        &lv::<T>(&x),
+        T::mk(ZERO),
+        &mut y,
+    )
+    .unwrap();
+    check("mv after optimize", &y, &mv_d(&a, &x));
+}
+#[test]
+fn hints_memory_policy_and_optimize_keep_results_correct() {
+    t_hints::<f64>(s::mv_f64);
+    t_hints::<f32>(s::mv_f32);
+}
+
+// ---------------------------------------------------------------- value mutators
+
+fn t_values<T: Lib>(
+    set_value: fn(&mut T::M, i32, i32, T) -> Result<()>,
+    update: fn(&mut T::M, &mut [T]) -> Result<()>,
+    mv: Option<fn(Trans, T, &T::M, &MatDescr, &[T], T, &mut [T]) -> Result<()>>,
+) {
+    let a = dm::<T>(&[&[1., 0., 2.], &[0., 3., 0.], &[4., 0., 5.]]);
+    for base in [IndexBase::Zero, IndexBase::One] {
+        let o = off(base) as i32;
+        let mut h = T::build(base, &csr(&a));
+        // set_value: coordinates are in the matrix's own base
+        let nv = v::<T>(-7.0, 2.0);
+        set_value(&mut h, 2 + o, o, T::mk(nv)).unwrap();
+        let mut want = a.clone();
+        want[2][0] = nv;
+        let (b, rp, ci, val) = T::export(&h);
+        assert_eq!(b, base);
+        dense_eq(
+            &format!("set_value {base:?}"),
+            &csr_dense(3, 3, b, &rp, &ci, &val),
+            &want,
+            T::TOL,
+        );
+        // a structural zero, and out-of-range coordinates, are errors
+        assert!(set_value(&mut h, 1 + o, o, T::mk(ONE)).is_err());
+        assert!(set_value(&mut h, 3 + o, o, T::mk(ONE)).is_err());
+        // update_values: all nonzeros at once, in storage order; the length must equal nnz
+        let newv: Vec<Cx> = (0..5)
+            .map(|k| v::<T>(10.0 + k as f64, -(k as f64)))
+            .collect();
+        update(&mut h, &mut lv::<T>(&newv)).unwrap();
+        let (b, rp, ci, val) = T::export(&h);
+        checkc("update_values vals", &val, &newv, T::TOL);
+        let mut want = a.clone();
+        let cs = csr(&a);
+        for i in 0..3 {
+            for k in cs.rp[i] as usize..cs.rp[i + 1] as usize {
+                want[i][cs.ci[k] as usize] = newv[k];
+            }
+        }
+        dense_eq(
+            &format!("update_values {base:?}"),
+            &csr_dense(3, 3, b, &rp, &ci, &val),
+            &want,
+            T::TOL,
+        );
+        assert!(update(&mut h, &mut lv::<T>(&newv[..4])).is_err());
+        if let Some(mv) = mv {
+            let x = vecg::<T>(3, 1);
+            let mut y = vec![T::mk(ZERO); 3];
+            mv(
+                Trans::No,
+                T::mk(ONE),
+                &h,
+                &gen_descr(base),
+                &lv::<T>(&x),
+                T::mk(ZERO),
+                &mut y,
+            )
+            .unwrap();
+            check("mv after update_values", &y, &mv_d(&want, &x));
+        }
+    }
+}
+#[test]
+fn set_value_and_update_values_change_the_stored_nonzeros() {
+    t_values::<f64>(s::set_value_f64, s::update_values_f64, Some(s::mv_f64));
+    t_values::<f32>(s::set_value_f32, s::update_values_f32, Some(s::mv_f32));
+    t_values::<Complex32>(
+        cxm::set_value_c32,
+        cxm::update_values_c32,
+        Some(cxm::mv::<Complex32>),
+    );
+    // `update_values_c64` alone is fine; `set_value_c64` is the FINDING below
+    let mut h = Complex64::build(
+        IndexBase::Zero,
+        &csr(&dm::<Complex64>(&[&[1., 0.], &[0., 2.]])),
+    );
+    let mut nv = [Complex64::new(5.0, 1.0), Complex64::new(6.0, -1.0)];
+    cxm::update_values_c64(&mut h, &mut nv).unwrap();
+    checkc(
+        "update_values_c64",
+        &Complex64::export(&h).3,
+        &[c(5.0, 1.0), c(6.0, -1.0)],
+        1e-12,
+    );
+    assert!(cxm::update_values_c64(&mut h, &mut nv[..1]).is_err());
+}
+/// FINDING (run with `--ignored`, alone): `set_value_c64` crashes the process with STATUS_ACCESS_VIOLATION. The C
+/// `aoclsparse_double_complex` is `alignas(16)`, the generated binding is not, so the by-value argument (passed by
+/// reference to an 8-aligned copy on Win64) faults in the library's aligned load. `set_value_c32` (8 bytes) is fine.
+#[test]
+#[ignore = "FINDING: set_value_c64 crashes (access violation): the -sys binding of aoclsparse_double_complex lacks align(16)"]
+fn set_value_c64_by_value_complex_argument() {
+    t_values::<Complex64>(
+        cxm::set_value_c64,
+        cxm::update_values_c64,
+        Some(cxm::mv::<Complex64>),
+    );
+}
