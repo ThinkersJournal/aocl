@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased (patch on 0.2.x; pm-assist allocates)
+## 0.2.18 - 2026-11-27 (PM-allocated; patch on 0.2.x: aocl-blas-sys default-OFF scalapack-fal feature, pm-kernels ruling: follow-up to 0.2.17)
 
 - **`aocl-blas-sys` (Windows, measured on AOCL 6.0.68; Linux unmeasured): new default-OFF feature `scalapack-fal`.** The 13 helpers `AOCL_FAL_{Close,Error,Open,Read,Write}`, `AOCL_FLIST_{AddFile,CloseAll,CloseFile,GetFile,IsEmpty}`, `AOCL_getTimestamp`, `AOCL_getpid`, `AOCL_gettid` are exported by `scalapack.dll` (not by the BLIS DLL): in a dynamic build they are declared, and `scalapack.dll` is linked, only with this feature (it needs the ScaLAPACK DLL and its MPI runtime on `PATH`). In 0.2.17 they were declared only with `static-link`; that stays (they also exist in the static library). Link-all: 3241 of 3241 declared functions resolve with `scalapack-fal`, 3242 with `libflame,scalapack-fal` (default 3228, `libflame` 3229).
 
