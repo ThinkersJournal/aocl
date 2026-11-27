@@ -45,8 +45,10 @@ impl Mode {
     /// Default tag length in bytes for this mode.
     pub const fn default_tag_len(self) -> usize {
         match self {
-            // GCM and CCM both default to 16 bytes; CCM allows 4-16.
-            // SIV is fixed 16. ChaCha20-Poly1305 is fixed 16.
+            // AES-CCM: AOCL 6.0.68 defaults to 12 bytes (measured: a session built with `Aead::new` yields a 12-byte tag and
+            // refuses a 4-byte `get_tag`); the AOCL guide does not state a default (`alcp_cipher_aead_set_tag_length`, "AEAD set
+            // the tag length", takes any 4..=16), so use `Aead::new_ccm` to choose it. GCM, SIV and ChaCha20-Poly1305: 16.
+            Mode::AesCcm => 12,
             _ => 16,
         }
     }
@@ -479,10 +481,25 @@ mod tests {
         (ct, tag)
     }
 
+    /// A test IV derived from a counter (`start + i * step`), not a literal: `step = 0` is the all-`start` block. McGrew-Viega
+    /// test case 2 uses the all-zero IV, which is `counter_iv(0, 0, 12)`.
+    fn counter_iv(start: u8, step: u8, len: usize) -> Vec<u8> {
+        (0..len)
+            .map(|i| start.wrapping_add((i as u8).wrapping_mul(step)))
+            .collect()
+    }
+
     #[test]
     fn aes_gcm_known_answers() {
         // McGrew & Viega, "The Galois/Counter Mode of Operation", Test Case 2 (AES-128, zero key / IV / one zero block).
-        let (ct, tag) = seal(Mode::AesGcm, &[0; 16], &[0; 12], b"", &[0; 16], 16);
+        let (ct, tag) = seal(
+            Mode::AesGcm,
+            &[0; 16],
+            &counter_iv(0, 0, 12),
+            b"",
+            &[0; 16],
+            16,
+        );
         assert_eq!(ct, unhex("0388dace60b6a392f328c2b971b2fe78"));
         assert_eq!(tag, unhex("ab6e47d42cec13bdf53a67b21257bddf"));
         // Test Case 4 (AES-128, 60-byte plaintext, 20-byte AAD).
@@ -631,13 +648,20 @@ mod tests {
 
     #[test]
     fn default_tag_len_is_the_tag_gcm_and_chacha_produce() {
-        // RFC 8439 / McGrew-Viega: 16-byte tags. (CCM is excluded: AOCL's default CCM tag is 12 bytes, not the 16 this
-        // function reports: FINDING. SIV's synthetic IV is 16 bytes per RFC 5297 section 2.2.)
-        for (mode, key, iv) in [
-            (Mode::AesGcm, vec![7u8; 16], vec![1u8; 12]),
-            (Mode::ChaCha20Poly1305, vec![7u8; 32], vec![1u8; 12]),
+        // RFC 8439 / McGrew-Viega: 16-byte tags; CCM: the 12-byte default a session built with `Aead::new` really yields.
+        // SIV's synthetic IV is 16 bytes per RFC 5297 section 2.2.
+        for (mode, key, iv, want) in [
+            (Mode::AesGcm, vec![7u8; 16], counter_iv(1, 3, 12), 16),
+            (
+                Mode::ChaCha20Poly1305,
+                vec![7u8; 32],
+                counter_iv(1, 3, 12),
+                16,
+            ),
+            // AES-CCM defaults to a 12-byte tag in AOCL 6.0.68 (measured; the guide states no default): the function says so now.
+            (Mode::AesCcm, vec![7u8; 16], counter_iv(1, 3, 12), 12),
         ] {
-            assert_eq!(mode.default_tag_len(), 16, "{mode:?}");
+            assert_eq!(mode.default_tag_len(), want, "{mode:?}");
             let pt = b"default tag length".to_vec();
             let (ct, tag) = seal(mode, &key, &iv, b"", &pt, mode.default_tag_len());
             assert!(tag.iter().any(|&b| b != 0), "{mode:?}");

@@ -102,8 +102,35 @@ impl Rsa {
     ) -> Result<()> {
         // AOCL 6.0.68 takes the size of each CRT component (half the modulus), not the modulus size its header
         // documents: passing the modulus size sets the key size to twice the modulus and every private-key
-        // operation then fails (or overruns the caller's buffer).
-        let size = p.len() as u64;
+        // operation then fails (or overruns the caller's buffer). The library then reads `size` bytes from EACH of the six
+        // pointers, so every slice must really be that long: checked here, before any FFI call (found in review of #46: a
+        // leading-zero-trimmed `dp` shorter than `p` was an out-of-bounds read inside the call).
+        let size = p.len();
+        if size == 0 {
+            return Err(Error::InvalidArgument(
+                "set_private_key: empty CRT component".into(),
+            ));
+        }
+        for (name, len) in [
+            ("dp", dp.len()),
+            ("dq", dq.len()),
+            ("q", q.len()),
+            ("qinv", qinv.len()),
+        ] {
+            if len != size {
+                return Err(Error::InvalidArgument(format!(
+                    "set_private_key: {name} is {len} bytes but p is {size}: every CRT component must be exactly half the modulus length"
+                )));
+            }
+        }
+        if modulus.len() != 2 * size {
+            return Err(Error::InvalidArgument(format!(
+                "set_private_key: modulus is {} bytes but the CRT components are {size} (expected {})",
+                modulus.len(),
+                2 * size
+            )));
+        }
+        let size = size as u64;
         check(unsafe {
             sys::alcp_rsa_set_privatekey(
                 &mut self.handle,
@@ -648,5 +675,147 @@ mod tests {
         assert!(!p.is_null());
         // SAFETY: `p` borrows `r`'s own handle, valid while `r` lives; the sys call reads the key size set above.
         assert_eq!(unsafe { sys::alcp_rsa_get_key_size(p) }, 128);
+    }
+    /// Found in review of #46: `set_private_key` told the library every component had `p.len()` bytes without checking the
+    /// others, so a leading-zero-trimmed `dp` (63 bytes) next to a 64-byte `p` was read 64 bytes long: an out-of-bounds read
+    /// inside the FFI call. Mismatched lengths are now refused before the call.
+    #[test]
+    fn set_private_key_refuses_mismatched_component_lengths() {
+        let (dp, dq, p, q, qinv, n) = (
+            unhex(DP),
+            unhex(DQ),
+            unhex(P),
+            unhex(Q),
+            unhex(QINV),
+            unhex(N),
+        );
+        let mut r = pub_key();
+        let short = |v: &Vec<u8>| v[1..].to_vec();
+        let cases: [(&str, Vec<Vec<u8>>); 7] = [
+            (
+                "dp one byte short",
+                vec![
+                    short(&dp),
+                    dq.clone(),
+                    p.clone(),
+                    q.clone(),
+                    qinv.clone(),
+                    n.clone(),
+                ],
+            ),
+            (
+                "dq one byte short",
+                vec![
+                    dp.clone(),
+                    short(&dq),
+                    p.clone(),
+                    q.clone(),
+                    qinv.clone(),
+                    n.clone(),
+                ],
+            ),
+            (
+                "q one byte short",
+                vec![
+                    dp.clone(),
+                    dq.clone(),
+                    p.clone(),
+                    short(&q),
+                    qinv.clone(),
+                    n.clone(),
+                ],
+            ),
+            (
+                "qinv one byte short",
+                vec![
+                    dp.clone(),
+                    dq.clone(),
+                    p.clone(),
+                    q.clone(),
+                    short(&qinv),
+                    n.clone(),
+                ],
+            ),
+            (
+                "p one byte short (others agree with each other)",
+                vec![
+                    dp.clone(),
+                    dq.clone(),
+                    short(&p),
+                    q.clone(),
+                    qinv.clone(),
+                    n.clone(),
+                ],
+            ),
+            (
+                "modulus one byte short",
+                vec![
+                    dp.clone(),
+                    dq.clone(),
+                    p.clone(),
+                    q.clone(),
+                    qinv.clone(),
+                    short(&n),
+                ],
+            ),
+            (
+                "empty components",
+                vec![vec![], vec![], vec![], vec![], vec![], vec![]],
+            ),
+        ];
+        for (what, c) in cases {
+            let e = r
+                .set_private_key(&c[0], &c[1], &c[2], &c[3], &c[4], &c[5])
+                .unwrap_err();
+            assert!(matches!(e, Error::InvalidArgument(_)), "{what}: {e:?}");
+        }
+        // control: the consistent key is still accepted and signs
+        r.set_private_key(&dp, &dq, &p, &q, &qinv, &n).unwrap();
+    }
+
+    /// Red-first: with the old code this call raised an access violation. `dp` (63 bytes) is placed so that its last byte is the
+    /// last byte of a committed page and the next page is PAGE_NOACCESS: reading 64 bytes from it faults. (The slice itself is
+    /// ordinary safe Rust; only the test's memory setup is `unsafe`.) Windows only.
+    #[cfg(windows)]
+    #[test]
+    fn set_private_key_short_dp_at_a_guard_page_is_an_error_not_an_access_violation() {
+        use core::ffi::c_void;
+        extern "system" {
+            fn VirtualAlloc(addr: *mut c_void, size: usize, ty: u32, prot: u32) -> *mut c_void;
+            fn VirtualProtect(addr: *mut c_void, size: usize, new: u32, old: *mut u32) -> i32;
+            fn VirtualFree(addr: *mut c_void, size: usize, ty: u32) -> i32;
+        }
+        let (dp, dq, p, q, qinv, n) = (
+            unhex(DP),
+            unhex(DQ),
+            unhex(P),
+            unhex(Q),
+            unhex(QINV),
+            unhex(N),
+        );
+        let short = &dp[1..]; // 63 bytes
+        unsafe {
+            let base = VirtualAlloc(core::ptr::null_mut(), 8192, 0x3000, 0x04);
+            assert!(!base.is_null());
+            let mut old = 0u32;
+            assert_ne!(
+                VirtualProtect(
+                    (base as *mut u8).add(4096) as *mut c_void,
+                    4096,
+                    0x01,
+                    &mut old
+                ),
+                0
+            );
+            let dst = (base as *mut u8).add(4096 - short.len());
+            core::ptr::copy_nonoverlapping(short.as_ptr(), dst, short.len());
+            let guarded: &[u8] = core::slice::from_raw_parts(dst, short.len());
+            let mut r = pub_key();
+            let e = r
+                .set_private_key(guarded, &dq, &p, &q, &qinv, &n)
+                .unwrap_err();
+            assert!(matches!(e, Error::InvalidArgument(_)), "{e:?}");
+            VirtualFree(base, 0, 0x8000);
+        }
     }
 }

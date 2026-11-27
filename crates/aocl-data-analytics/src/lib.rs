@@ -1147,6 +1147,7 @@ impl<'a> Nlls<'a> {
                 )));
             }
         }
+        let _guard = nlls_lib_lock();
         let status = unsafe { sys::da_nlls_define_bounds_d(self.handle.raw, n_coef, l_ptr, u_ptr) };
         check_status("data-analytics", status)
     }
@@ -1160,6 +1161,7 @@ impl<'a> Nlls<'a> {
                 self.callbacks.n_res
             )));
         }
+        let _guard = nlls_lib_lock();
         let status = unsafe {
             sys::da_nlls_define_weights_d(
                 self.handle.raw,
@@ -1174,8 +1176,9 @@ impl<'a> Nlls<'a> {
     /// success it holds the optimised coefficients.
     ///
     /// Concurrent solves are serialised: RALFit in `aocl-da.dll` is not thread-safe (AOCL 6.0.68, Windows: concurrent
-    /// solves from several threads crashed the process), so every NLLS library call in this crate takes one
-    /// process-wide lock. Two `Nlls` fits on different threads therefore run one after the other.
+    /// solves from several threads crashed the process), so `Nlls::new` (which defines the residuals), `set_bounds`,
+    /// `set_weights`, `fit` and `info` take one process-wide lock. Two `Nlls` fits on different threads therefore run one
+    /// after the other. Option setting through [`Nlls::handle_mut`] is NOT covered by the lock.
     pub fn fit(&mut self, coef: &mut [f64]) -> Result<()> {
         let _guard = nlls_lib_lock();
         if coef.len() < self.callbacks.n_coef {
@@ -1211,6 +1214,7 @@ impl<'a> Nlls<'a> {
     /// `info_objective` (0), `info_grad_norm` (1), `info_iter` (2),
     /// `info_time` (3), etc.
     pub fn info(&self) -> Result<Vec<f64>> {
+        let _guard = nlls_lib_lock();
         // rinfo is a fixed-size 100-element vector for NLLS.
         let mut dim: sys::da_int = 100;
         let mut out = vec![0.0_f64; 100];
