@@ -94,6 +94,10 @@ by assumption.
 5. **FFTW.** The header is BSD-2-Clause and says so for itself only; the library is GPL-2.0 (AOCL-FFTW NOTICE entry
    `fftw-fftw3 v3.3.8 (GPL-2.0)`). `aocl-fft-sys` ships header-derived bindings and no library. See
    `docs/PROVENANCE-QUESTIONS.md` question 2 for the GPL question and what is guessed.
+   **Conditions (pm-kernels ruling 2026-11-26):** `aocl-fft-sys` may be published under our licence (bindings only, no licence
+   text, `build.rs` links the user's libfftw3). The library is GPL; AOCL's `NOTICE.txt` says GPL-2.0 while the shipped
+   `COPYRIGHT` says version 2 or any later version (they disagree). A program that links it and is distributed must comply
+   with the library's licence. Whether a source-only extern crate is itself a combined work is UNKNOWN. Not legal advice.
 
 ## 2b. Per-crate copies
 
