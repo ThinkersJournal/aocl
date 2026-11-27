@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased (patch on 0.2.x; pm-assist allocates)
+
+- **FIX `aocl-fft-sys` (Windows, measured on AOCL 6.0.68):** 84 of the 216 declared functions were exported by DLLs the crate did not link, so using them was a link error. Three NEW features, all default OFF, add the missing links: `long-double` (links `libfftw3l`: the 66 `fftwl_*` functions), `threads-omp` (links `libfftw3_omp` / `libfftw3f_omp`, and `libfftw3l_omp` with `long-double`: the `*_threads` functions; needs the LLVM OpenMP runtime `libomp.dll` on `PATH`) and `mpi` (links `libfftw3_mpi` / `libfftw3f_mpi`, and `libfftw3l_mpi` with `long-double`). `tests/link_all.rs` checks every declared function per feature set (132 / 198 / 144 / 216 / 216 resolve). Default builds are unchanged. Linux is unmeasured.
+
 ## 0.2.11 - 2026-11-27 (PM-allocated; patch on 0.2.x, the 0.2.x family number: FIX for the published broken static-link feature of aocl-sparse-sys and aocl-compression-sys)
 
 - **FIX `aocl-sparse-sys` and `aocl-compression-sys`, feature `static-link` (Windows):** the feature asked the linker for libraries that do not exist in AOCL 6.0.68 (`aoclsparse-static` and `aocl_compression-static`; the install has `lib/LP64/static/aoclsparse.lib` and `lib/static/aocl_compression.lib`), so a `static-link` build failed with "could not find native static library". `static-link` now links `aoclsparse` / `aocl_compression` from the `static/` directory. Dynamic linking (the default) is unchanged. Measured with the lane's link-all tool, Windows 6.0.68: `aocl-compression-sys` static: 152 of 162 declared functions resolve (the 10 others are the LZMA-SDK helper names that no installed library exports); `aocl-sparse-sys` static: all 286 resolve, but the static library also needs the OpenMP runtime (`libiomp5md.lib`), which this crate does not link: add it to your link line (ROADMAP row 26). Linux static names are unmeasured.

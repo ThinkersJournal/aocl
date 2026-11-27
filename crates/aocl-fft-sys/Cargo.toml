@@ -15,6 +15,14 @@ keywords = ["aocl", "amd", "fft", "fftw", "ffi"]
 [features]
 default = []
 static-link = []
+# Extra DLLs the installed AOCL-FFTW ships. Declared names that live in them do not link without the feature (MEASURED by
+# tools/link-all-crates.py on AOCL 6.0.68 Windows; Linux unmeasured). All default OFF: each adds a dependency on another DLL.
+# `long-double`: links libfftw3l (the fftwl_* long-double API).
+long-double = []
+# `threads-omp`: links libfftw3_omp / libfftw3f_omp (and libfftw3l_omp with `long-double`): fftw*_init_threads, plan_with_nthreads, ...
+threads-omp = []
+# `mpi`: links libfftw3_mpi / libfftw3f_mpi (and libfftw3l_mpi with `long-double`); needs an MPI runtime at run time.
+mpi = []
 
 [dependencies]
 libc.workspace = true
