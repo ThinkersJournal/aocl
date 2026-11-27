@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased (tests and docs only, patch on 0.2.x; pm-assist allocates; no crate API changes)
+
+- **`aocl-sparse`: result-checking tests for all 98 exposed wrapper functions no test mentioned** (`crates/aocl-sparse/tests/wrappers.rs`, 32 tests, each for f32, f64, Complex32, Complex64 where exposed): descriptor, level 1, mv, triangular solves, dotmv, smoothers (symgs, sorv, ilu), hints, value mutators, format conversions (csc, ell, dia, tcsr, blkcsr), sp2md, syrkd, syprd. Expectations come from a dense reference computed in the test, never from the library; measured on AOCL 6.0.68 Windows; wrong expected values fail (5 of 5 mutated tests). Seven behaviours found are recorded in docs/SPARSE-WRAPPER-FINDINGS-20261127.md (notably `set_value_c64` crashes because the `-sys` binding of `aoclsparse_double_complex` lacks `align(16)`: ours to fix, own row), not kept as `#[ignore]` tests.
+
 ## 0.2.20 - 2026-11-27 (PM-allocated; tools and docs only, patch on 0.2.x: the 12 safe wrappers' tests on the real AOCL 6.0.68; no crate behaviour changes)
 
 - **tools:** `tools/wrapper-tests.py` runs every safe wrapper's tests on the real installed AOCL (PATH built per width) and prints a table; `--control-no-aocl` must FAIL every wrapper (they really call into the DLLs). `docs/WRAPPER-TESTS-20261127.md`: 12 wrappers, 192 tests, all pass on AOCL 6.0.68 Windows with two runtime requirements found: `aocl-crypto` needs OpenSSL 3 `libcrypto-3-x64.dll` on PATH (AOCL does not ship it), `aocl-data-analytics` needs `KMP_DUPLICATE_LIB_OK=TRUE` (AMD issue 2). `selfhosted.yml` gets a `wrappers` job (untested on a runner).

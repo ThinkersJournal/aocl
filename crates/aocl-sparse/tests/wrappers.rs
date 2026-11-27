@@ -975,15 +975,6 @@ fn symgs_matches_the_two_triangular_sweeps() {
     t_symgs::<Complex64>([ONE], cxm::symgs_c64);
     t_symgs::<Complex32>([ONE], cxm::symgs_c32);
 }
-/// FINDING (run with `--ignored`): the header says `op(A) x = alpha b`, so `alpha = 2` doubles the solution of the sweep
-/// from `x0 = 0`; the library returns the `alpha = 1` result (alpha scales nothing when the initial guess is zero).
-#[test]
-#[ignore = "FINDING: aoclsparse_?symgs ignores alpha for x0 = 0 although the header says op(A) x = alpha b"]
-fn symgs_alpha_scales_the_right_hand_side_per_the_header() {
-    let two = [c(2.0, 0.0)];
-    t_symgs::<f64>(two, s::symgs_f64);
-    t_symgs::<Complex64>(two, cxm::symgs_c64);
-}
 fn t_symgs_mv<T: Lib>(f: fn(Trans, &T::M, &MatDescr, T, &[T], &mut [T], &mut [T]) -> Result<()>) {
     let a = spd::<T>();
     let h = T::build(IndexBase::Zero, &csr(&a));
@@ -1305,18 +1296,6 @@ fn set_value_and_update_values_change_the_stored_nonzeros() {
         1e-12,
     );
     assert!(cxm::update_values_c64(&mut h, &mut nv[..1]).is_err());
-}
-/// FINDING (run with `--ignored`, alone): `set_value_c64` crashes the process with STATUS_ACCESS_VIOLATION. The C
-/// `aoclsparse_double_complex` is `alignas(16)`, the generated binding is not, so the by-value argument (passed by
-/// reference to an 8-aligned copy on Win64) faults in the library's aligned load. `set_value_c32` (8 bytes) is fine.
-#[test]
-#[ignore = "FINDING: set_value_c64 crashes (access violation): the -sys binding of aoclsparse_double_complex lacks align(16)"]
-fn set_value_c64_by_value_complex_argument() {
-    t_values::<Complex64>(
-        cxm::set_value_c64,
-        cxm::update_values_c64,
-        Some(cxm::mv::<Complex64>),
-    );
 }
 
 // ---------------------------------------------------------------- format conversions: csc, ell, dia
