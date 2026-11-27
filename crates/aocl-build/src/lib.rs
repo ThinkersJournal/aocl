@@ -59,6 +59,13 @@ impl Component<'_> {
     /// Panics on misconfiguration (missing component dir, missing wrapper,
     /// bindgen failure) so build-script breakage surfaces clearly.
     pub fn build(&self, root: &Path) {
+        self.build_with_blocklist(root, &[]);
+    }
+
+    /// Like [`Component::build`], but the named C functions are left out of the generated bindings (bindgen
+    /// `blocklist_function`). Used by the `-sys` crates to gate declarations that do not link on the measured install
+    /// behind a Cargo feature. Has no effect on the docs.rs short-circuit (which copies the vendored bindings).
+    pub fn build_with_blocklist(&self, root: &Path, blocklist: &[&str]) {
         let out_dir = PathBuf::from(env::var_os("OUT_DIR").expect("OUT_DIR"));
 
         // docs.rs short-circuit: copy the vendored bindings into OUT_DIR
@@ -194,6 +201,9 @@ impl Component<'_> {
 
         for inc in self.extra_includes {
             builder = builder.clang_arg(format!("-I{inc}"));
+        }
+        for name in blocklist {
+            builder = builder.blocklist_function(format!("^{name}$"));
         }
 
         // x86 SIMD intrinsic baseline.
