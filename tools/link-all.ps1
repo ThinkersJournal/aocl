@@ -14,6 +14,12 @@ $extra = if ($oneapi) { @(Join-Path $oneapi.FullName 'bin') } else { @() }
 $cargoDir = @((Get-Command cargo -ErrorAction SilentlyContinue | ForEach-Object { Split-Path $_.Source }), (Join-Path $env:CARGO_HOME 'bin'), (Join-Path $env:USERPROFILE '.cargo\bin'), 'C:\rust\.cargo\bin') | Where-Object { $_ -and (Test-Path (Join-Path $_ 'cargo.exe')) } | Select-Object -First 1
 if (-not $cargoDir) { throw 'cargo not found' }
 $tail = ';C:\Windows\System32;C:\Windows;' + $cargoDir + ';' + (Join-Path $env:ProgramFiles 'Git\cmd')
+# aocl-securerng-sys (bindgen route) needs libclang: LIBCLANG_PATH if set, else the Visual Studio LLVM x64 bin.
+if (-not $env:LIBCLANG_PATH) {
+  $llvm = Get-ChildItem (Join-Path $env:ProgramFiles 'Microsoft Visual Studio') -Directory -ErrorAction SilentlyContinue | ForEach-Object { Get-ChildItem $_.FullName -Directory } | ForEach-Object { Join-Path $_.FullName 'VC\Tools\Llvm\x64\bin' } | Where-Object { Test-Path (Join-Path $_ 'libclang.dll') } | Select-Object -First 1
+  if (-not $llvm) { throw 'libclang not found: set LIBCLANG_PATH' }
+  $env:LIBCLANG_PATH = $llvm
+}
 foreach ($w in 'LP64', 'ILP64') {
   $p = if ($w -eq 'ILP64') { $ilp + $non } else { $non }
   $env:PATH = (($p + $extra) -join ';') + $tail
