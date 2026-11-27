@@ -17,3 +17,4 @@ Cargo.lock.bak
 *.swp
 .DS_Store
 Thumbs.db
+link-all-report.json
