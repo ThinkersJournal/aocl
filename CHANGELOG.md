@@ -41,7 +41,7 @@
 
 - **ROADMAP row 19 decided: the RNG user-generator entry points stay `unsafe extern` declarations with NO safe wrapper in `aocl-rng`** (protocol measured but undocumented by AMD; callbacks have no user-data pointer; the library does not validate `n` against `lstate`): reasons in the row. No code change.
 
-## Unreleased (tests only, patch on 0.2.x; pm-assist allocates; no crate API changes)
+## 0.2.31 - 2026-11-27 (PM-allocated; wrapper tests for aocl-math: tests only on the real AOCL 6.0.68, wrong-value controls fail; patch on 0.2.x)
 
 - **`aocl-math`: result-checking tests for all 57 exposed wrapper functions no test mentioned** (the f32 variants, `exp10f`, `erff`, `sincosf`, `atan2f`/`powf`/`hypotf`/`fmodf`/`remainderf`/`remquof`/`copysignf`/`fdimf`/`fmaxf`/`fminf`/`nextafterf`, `modff`/`frexpf`/`ldexpf`/`scalbnf`/`scalblnf`/`scalbln`, `logbf`/`ilogbf`, `lrint`/`llrint`/`lround`/`llround`/`rint`/`nearbyint`, `nanf`). Expectations come from Rust std, closed forms and exact tie rules, never from the library's output; measured on AOCL 6.0.68 Windows (27 tests, 0 failed); wrong expected values fail (4 of 5 mutations independently reached). No library disagreements found.
 
