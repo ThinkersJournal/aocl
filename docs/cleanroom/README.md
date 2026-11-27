@@ -44,7 +44,7 @@ Math: `aocl-math-sys` and `aocl-math` are wired from the 218 scalar rows (`MATH-
 | Rows | What | Input | Provenance table | Measurement |
 |---|---|---|---|---|
 | 78 UPPERCASE `S/DRAND*` (77 declared + `SRANDINITIALIZEUSER` via the types probe; `GET_RNGVERSION` stated by the guide, not exported, not declared) | fresh Sonnet writer, guide chapter 9 text only | `guide-ch9` text | `rng_upper_provenance.csv` (79 rows), `rng_upper_decls.rs` | link-all + known answer: `crates/aocl-rng-sys/tests/upper_kat.rs` |
-| 15 SecureRNG | Sonnet, guide SecureRNG text + DLL exports only | `secrng-guide.txt` | `secrng/secrng_provenance.csv` | `secrng/SECRNG-MEASUREMENT.md` (vacuous controls listed) |
+| 15 SecureRNG (crate `aocl-securerng-sys`; was a feature of aocl-rng-sys, never published; the crate previously held bindgen output of `secrng.h`: 15 fns + 5 consts) | Sonnet, guide SecureRNG text + DLL exports only | `secrng-guide.txt` | `secrng/secrng_provenance.csv` | `secrng/SECRNG-MEASUREMENT.md` (vacuous controls listed) |
 | 8 LibM types + S/D user callbacks | Sonnet, guide excerpts + DLLs only, a different session from the writers | `types/` | `types/TYPES-MEASUREMENT.md`, `types/types_decls.rs` | `types/` (vacuous controls listed) |
 | 156 SIMD (154 + 2) | mechanical from `math_decls.rs` | n/a | `math_provenance.csv` | `crates/aocl-math-sys/tests/simd.rs` (nightly) |
 Link-all (every declared symbol resolves in the installed AOCL): `tools/link-all.ps1`; the 20 + 2 guide-stated functions 6.0.68 does not export: `math-guide-stated-not-linkable.txt`.

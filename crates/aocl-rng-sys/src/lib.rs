@@ -12,8 +12,7 @@
 //!
 //! `srandinitializeuser`/`SRANDINITIALIZEUSER` are declared with MEASURED callback typedefs but are unusable on 6.0.68 Windows as documented (see `decls_user_s.rs`).
 //!
-//! Not declared: the SecureRNG API unless the `securerng` feature is on, the SecureRNG API. With `securerng` the 15 guide-stated AOCL-SecureRNG
-//! functions are declared and `amdsecrng` is linked (Windows only; measured: `docs/cleanroom/secrng/SECRNG-MEASUREMENT.md`).
+//! Not declared: the SecureRNG API (separate library `amdsecrng`: see the `aocl-securerng-sys` crate).
 //!
 //! For a safe, idiomatic API see [`aocl-rng`](https://docs.rs/aocl-rng).
 
@@ -70,10 +69,6 @@ pub type RNG_SRANDINITIALIZEUSER_UGEN = Option<
 
 mod decls;
 pub use decls::*;
-#[cfg(feature = "securerng")]
-mod decls_secure;
-#[cfg(feature = "securerng")]
-pub use decls_secure::*;
 mod decls_user_s;
 pub use decls_user_s::*;
 mod decls_upper;

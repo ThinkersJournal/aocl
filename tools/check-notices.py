@@ -16,7 +16,8 @@ def opt(name, default=None):
     return args[args.index(name) + 1] if name in args else default
 AOCL = opt("--aocl", r"C:\Program Files\AMD\AOCL-Windows"); REF = opt("--ref"); APPLY = "--apply" in args
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-COMP = {"sparse": "amd-sparse", "securerng": "amd-securerng", "utils": "amd-utils", "crypto": "amd-crypto",
+# securerng-sys is clean-room since 2026-11-27 (no wrapper/, no header-derived bindings): not checked here.
+COMP = {"sparse": "amd-sparse", "utils": "amd-utils", "crypto": "amd-crypto",
         "data-analytics": "amd-da", "compression": "amd-compression"}
 WRAP = {"data-analytics": "data_analytics.h"}
 def norm(s): return re.sub(r"\s+", " ", s).strip()

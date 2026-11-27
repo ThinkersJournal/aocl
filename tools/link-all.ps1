@@ -18,8 +18,8 @@ foreach ($w in 'LP64', 'ILP64') {
   $p = if ($w -eq 'ILP64') { $ilp + $non } else { $non }
   $env:PATH = (($p + $extra) -join ';') + $tail
   $env:CARGO_BUILD_BUILD_DIR = "target-linkall-$w"
-  $f = if ($w -eq 'ILP64') { 'ilp64,securerng' } else { 'securerng' }
-  cargo test -p aocl-rng-sys --features $f --test link_all_lower --test upper_kat --test securerng
+  $f = if ($w -eq 'ILP64') { 'ilp64' } else { '' }
+  cargo test -p aocl-rng-sys --features $f --test link_all_lower --test upper_kat
   if ($LASTEXITCODE -ne 0) { throw "aocl-rng-sys link-all failed ($w)" }
 }
 # LibM has no integer-width split.
@@ -27,4 +27,8 @@ $env:PATH = (($non + $extra) -join ';') + $tail
 $env:CARGO_BUILD_BUILD_DIR = 'target-linkall-math'
 cargo test -p aocl-math-sys --test link_all
 if ($LASTEXITCODE -ne 0) { throw 'aocl-math-sys link-all failed' }
+# SecureRNG (separate library amdsecrng; LP64 build, the ILP64 DLL is byte-identical in its sections).
+$env:CARGO_BUILD_BUILD_DIR = 'target-linkall-sec'
+cargo test -p aocl-securerng-sys --test securerng
+if ($LASTEXITCODE -ne 0) { throw 'aocl-securerng-sys link-all failed' }
 'link-all: OK'

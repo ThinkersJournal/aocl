@@ -1,7 +1,6 @@
-//! AOCL-SecureRNG (feature `securerng`): output widths measured by sentinel bytes, plus the version string.
+//! AOCL-SecureRNG: output widths measured by sentinel bytes, the version string, and link-all.
 //! Measurement: docs/cleanroom/secrng/SECRNG-MEASUREMENT.md. Success code 2 / failure -2 are measured, not guide-stated.
-#![cfg(feature = "securerng")]
-use aocl_rng_sys::*;
+use aocl_securerng_sys::*;
 
 fn written(buf: &[u8; 16], sentinel: u8) -> usize {
     buf.iter().filter(|b| **b != sentinel).count()

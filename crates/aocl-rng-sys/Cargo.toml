@@ -16,8 +16,6 @@ keywords = ["aocl", "amd", "rng", "random", "ffi"]
 default = []
 ilp64 = []
 static-link = []
-# AOCL-SecureRNG (amdsecrng) declarations; links amdsecrng (Windows only; see src/decls_secure.rs)
-securerng = []
 
 [build-dependencies]
 aocl-build = { version = "0.2", path = "../aocl-build" }
