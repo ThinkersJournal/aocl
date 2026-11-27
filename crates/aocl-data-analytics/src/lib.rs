@@ -2307,21 +2307,31 @@ impl KNearestNeighbours {
         out.write_back(n_ind, n_queries * k)
     }
 
-    /// Retrieve the unique class labels seen during training. `classes`
-    /// must be sized at least `n_classes`. Returns `n_classes`.
+    /// Retrieve the unique class labels seen during training, ascending,
+    /// into `classes` (at most `classes.len()` of them). Returns the
+    /// number of classes, which may exceed `classes.len()`.
     pub fn classes(&self, classes: &mut [i32]) -> Result<usize> {
-        let mut n_classes: sys::da_int = classes.len() as sys::da_int;
-        let mut out = IntsOut::new(classes.len());
+        // `n_classes` is in/out: a value > 0 on entry is taken as the number of classes (the library then writes that
+        // many entries, past its own array when the caller's buffer is merely large), so ask for the count with 0 first.
+        let mut n_classes: sys::da_int = 0;
         let status =
-            unsafe { sys::da_nn_classes_d(self.handle.raw, &mut n_classes, out.as_mut_ptr()) };
+            unsafe { sys::da_nn_classes_d(self.handle.raw, &mut n_classes, std::ptr::null_mut()) };
         check_status("data-analytics", status)?;
-        let n = (n_classes as usize).min(classes.len());
-        out.write_back(classes, n)?;
-        Ok(n_classes as usize)
+        let total = n_classes.max(0) as usize;
+        if total == 0 {
+            return Ok(0);
+        }
+        let mut out = IntsOut::new(total);
+        let mut n_again: sys::da_int = total as sys::da_int;
+        let status =
+            unsafe { sys::da_nn_classes_d(self.handle.raw, &mut n_again, out.as_mut_ptr()) };
+        check_status("data-analytics", status)?;
+        out.write_back(classes, total.min(classes.len()))?;
+        Ok(total)
     }
 
-    /// Probability estimates: `n_queries × n_classes` row-major matrix
-    /// at `proba`. Use [`KNearestNeighbours::classes`] to discover
+    /// Probability estimates: `n_queries × n_classes` column-major matrix
+    /// at `proba` (element (query, class) at `class * n_queries + query`). Use [`KNearestNeighbours::classes`] to discover
     /// which class each column corresponds to.
     pub fn predict_proba(
         &mut self,
@@ -2941,8 +2951,9 @@ impl DecisionTree {
     }
 
     /// Predict class probabilities for `n_samples × n_features` test
-    /// data. `y_proba` is `n_samples × n_class` row-major; `ldy` ≥
-    /// `n_class`.
+    /// data. `y_proba` is `n_samples × n_class` in the handle's storage
+    /// order (column-major, as for the features): element (sample `i`,
+    /// class `c`) is at `c * ldy + i` with `ldy` ≥ `n_samples`.
     pub fn predict_proba(
         &mut self,
         n_samples: usize,

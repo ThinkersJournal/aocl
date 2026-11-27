@@ -100,7 +100,10 @@ impl Rsa {
         qinv: &[u8],
         modulus: &[u8],
     ) -> Result<()> {
-        let size = modulus.len() as u64;
+        // AOCL 6.0.68 takes the size of each CRT component (half the modulus), not the modulus size its header
+        // documents: passing the modulus size sets the key size to twice the modulus and every private-key
+        // operation then fails (or overruns the caller's buffer).
+        let size = p.len() as u64;
         check(unsafe {
             sys::alcp_rsa_set_privatekey(
                 &mut self.handle,
@@ -265,7 +268,8 @@ impl Rsa {
     }
 
     /// PKCS#1 v1.5 encrypt with public key. `random_pad` is a caller-
-    /// provided random pad of length (key size − text size − 11) bytes.
+    /// provided random non-zero pad of exactly (key size − text size − 3) bytes (the `00 02 PS 00` frame around the
+    /// message; AOCL reads that many bytes).
     pub fn encrypt_pkcs1v15(
         &mut self,
         plaintext: &[u8],
@@ -374,7 +378,8 @@ pub fn digest_info_index(digest: DigestMode) -> i32 {
     unsafe { sys::alcp_rsa_get_digest_info_index(digest.raw()) }
 }
 
-/// Output size in bytes of `digest` when used as the OAEP / PSS hash.
+/// Size in bytes of `digest`'s DER `DigestInfo` prefix (RFC 8017 section 9.2: 19 for SHA-224/256/384/512, 15 for
+/// SHA-1, 18 for MD5), not the digest's output size.
 pub fn digest_info_size(digest: DigestMode) -> i32 {
     unsafe { sys::alcp_rsa_get_digest_info_size(digest.raw()) }
 }
