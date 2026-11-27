@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """First-publish checklist: for every crate, list the files `cargo package` would ship and FAIL when a crate that carries a
-provenance statement lacks one. A crate needs NOTICE in its package when its directory has a NOTICE OR its sources point at the
-clean-room tables (`docs/cleanroom/`); every crate needs README.md and a LICENSE-* file. Run before EVERY first publish:
+provenance statement lacks one. A crate needs NOTICE in its package when its directory has a NOTICE, its sources point at the
+clean-room tables (`docs/cleanroom/`), OR its README mentions NOTICE or provenance (wrappers too); every crate needs README.md and a LICENSE-* file. Run before EVERY first publish:
     python tools/check-package-files.py [crate ...]      # exit 1 on any problem; prints each package's NOTICE/README/LICENSE
 Why: aocl-rng-sys 0.2.11 was published without its NOTICE (found on crates.io after publishing)."""
-import glob, os, subprocess, sys
+import glob, os, re, subprocess, sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 names = sys.argv[1:] or sorted(os.path.basename(d) for d in glob.glob(os.path.join(REPO, "crates", "aocl*")) if os.path.isdir(d))
@@ -20,7 +20,15 @@ for name in names:
     srcs = ""
     for f in glob.glob(os.path.join(d, "src", "**", "*.rs"), recursive=True) + glob.glob(os.path.join(d, "README.md")):
         srcs += open(f, encoding="utf8", errors="replace").read()
-    needs_notice = os.path.exists(os.path.join(d, "NOTICE")) or "docs/cleanroom/" in srcs
+    readme = open(os.path.join(d, "README.md"), encoding="utf8", errors="replace").read() if os.path.exists(os.path.join(d, "README.md")) else ""
+    # A crate needs NOTICE in its package when its directory has one, its sources/README point at the clean-room tables, or
+    # its README mentions NOTICE or provenance (wrappers too): a README that says "see NOTICE" must not dangle.
+    needs_notice = (
+        os.path.exists(os.path.join(d, "NOTICE"))
+        or "docs/cleanroom/" in srcs
+        or re.search(r"(?<![\w.-])NOTICE(?![\w.])", readme)  # our NOTICE, not AMD's NOTICE.txt
+        or re.search(r"(?im)(\*\*provenance\b|^provenance\b)", readme)  # a Provenance statement, not a link to PROVENANCE-QUESTIONS.md
+    )
     problems = []
     if "README.md" not in files:
         problems.append("README.md missing from the package")
