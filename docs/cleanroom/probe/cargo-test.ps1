@@ -11,7 +11,7 @@ $env:CARGO_BUILD_BUILD_DIR = "target-$build"
 $env:AOCL_ROOT = $root
 $f = if ($build -eq 'ILP64') { @('--features','ilp64,securerng') } else { @('--features','securerng') }
 # Build, then run the test exe directly with a per-process PATH (as run.ps1 does).
-cargo test -p aocl-rng-sys @f --test width_kat --test upper_kat --test securerng --no-run
+cargo test -p aocl-rng-sys @f --test width_kat --test upper_kat --test securerng --test link_all_lower --no-run
 $exe = Get-ChildItem "target-$build" -Recurse -Filter '*-*.exe' | Where-Object { $_.Extension -eq '.exe' }
 foreach ($e in $exe) { & $e.FullName --nocapture }
 "exit=$LASTEXITCODE"

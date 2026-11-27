@@ -1,0 +1,23 @@
+# 20 scalar functions the guide states (6.0, ch. 8) that the installed AOCL 6.0.68 Windows libalm does NOT provide: the linker reports them unresolved (dynamic libalm.lib and static-link libalm-static.lib alike). Found by crates/aocl-math-sys/tests/link_all.rs. They were declared in aocl-math-sys 0.2.7 (published) and are removed on lane/cleanroom-rng2. Positive control: the other 198 scalar/array symbols and 154 SIMD symbols resolve in the same test run.
+amd_fastacos
+amd_fastacosf
+amd_fastasin
+amd_fastasinf
+amd_fastatan
+amd_fastatanf
+amd_fastcos
+amd_fastcosf
+amd_fasterf
+amd_fasterff
+amd_fastexp
+amd_fastexpf
+amd_fastlog
+amd_fastlogf
+amd_fastpow
+amd_fastpowf
+amd_fastsin
+amd_fastsinf
+amd_fasttan
+amd_fasttanf
+amd_vrd8_fabs
+amd_vrs16_fabsf   # SIMD (nightly feature): also unresolved, removed

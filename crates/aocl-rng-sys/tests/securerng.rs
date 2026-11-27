@@ -38,3 +38,26 @@ fn width_by_sentinel() {
     }
     let _ = written;
 }
+
+#[test]
+fn all_15_secrng_symbols_link() {
+    let addrs: Vec<usize> = vec![
+        get_secrngversion as usize,
+        is_RDRAND_supported as usize,
+        get_rdrand16u as usize,
+        get_rdrand32u as usize,
+        get_rdrand64u as usize,
+        get_rdrand32u_arr as usize,
+        get_rdrand64u_arr as usize,
+        get_rdrand_bytes_arr as usize,
+        is_RDSEED_supported as usize,
+        get_rdseed16u as usize,
+        get_rdseed32u as usize,
+        get_rdseed64u as usize,
+        get_rdseed32u_arr as usize,
+        get_rdseed64u_arr as usize,
+        get_rdseed_bytes_arr as usize,
+    ];
+    assert_eq!(addrs.len(), 15);
+    assert!(addrs.iter().all(|a| *a != 0));
+}

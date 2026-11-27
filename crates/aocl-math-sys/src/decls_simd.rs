@@ -288,10 +288,6 @@ extern "C" {
     pub fn amd_vrs16_roundf(x: __m512) -> __m512;
     // L109734
     pub fn amd_vrd8_round(x: __m512d) -> __m512d;
-    // L109749
-    pub fn amd_vrs16_fabsf(x: __m512) -> __m512;
-    // L109760
-    pub fn amd_vrd8_fabs(x: __m512d) -> __m512d;
     // L111094
     pub fn amd_vrd2_cdfnorm(x: __m128d) -> __m128d;
     // L111106

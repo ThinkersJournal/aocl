@@ -15,7 +15,7 @@ pointers), exactly as the AOCL API Guide 6.0 states them.
   `simd_ffi` (needs `rustc` `feature(simd_ffi)`; never default, not enabled for docs.rs), IN ADDITION to the array forms.
   Tested on `rustc 1.101.0-nightly (1c3a65069 2026-11-02)`, Windows x86_64, AOCL 6.0.68: `docs/cleanroom/probe/cargo-test-simd.ps1`
   checks `amd_vrs4_sinf`/`cosf`, `amd_vrd2_sin`, `amd_vrs8_sinf`, `amd_vrd4_sin`, `amd_vrs16_sinf` lane by lane against the scalar
-  functions (a sample of 6 of the 156; the others are declared, not called).
+  functions. **Coverage: 154 SIMD declarations; 6 exercised by tests (called, lanes compared); the other 148 are declared from the guide and linked only (`all_154_simd_symbols_link` takes every address, so each resolves in the installed `libalm`).** The guide states 156; `amd_vrd8_fabs` and `amd_vrs16_fabsf` are NOT provided by the installed 6.0.68 `libalm` (unresolved), so they are not declared. Scalar/array: **198 declarations; 7 scalar and 1 array function called by tests; all 198 link-checked (`tests/link_all.rs`).** The guide also states 20 `amd_fast*` scalar functions that 6.0.68 does not provide (dynamic or static): removed, listed in `docs/cleanroom/math-guide-stated-not-linkable.txt` (they were declared in the published 0.2.7).
 - **8 functions with a type the guide never defines:** `amd_nexttoward`, `amd_nexttowardf` (`long double`) and `amd_cexp`,
   `amd_cexpf`, `amd_clog`, `amd_clogf`, `amd_cpow`, `amd_cpowf` (`fc32_t`, `fc64_t`): the ABI cannot be derived from the guide.
 - **1 unreadable:** `amd_vrd2_sincos`: its line in the guide text is garbled; it stays UNKNOWN rather than guessed.

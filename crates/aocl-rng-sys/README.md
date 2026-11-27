@@ -12,3 +12,8 @@ Raw FFI declarations for AOCL-RNG (the lowercase C forms), written clean-room fr
 - SecureRNG (`amdsecrng`): not probed; **no SecureRNG claim is made**.
 
 Dual-licensed under MIT or Apache-2.0. Not published; the RNG release waits on CireSnave's answer (board 523).
+
+## Coverage of the tests (what is exercised, what is only linked)
+
+- Lowercase (79) and UPPERCASE (77) declarations: **every symbol link-checked** (`tests/link_all_lower.rs`, `tests/upper_kat.rs`); called with a known answer: `drandinitialize`/`dranduniform` and the uppercase `DRANDINITIALIZE`/`DRANDUNIFORM` (the rest are declared from the guide and linked only).
+- Feature `securerng` (Windows link only; Linux library name not measured): **15 declarations, all 15 link-checked and all 15 probed** against the DLLs in LP64 and ILP64 (output widths by sentinel bytes, return codes, NULL and N=0 behaviour); see `docs/cleanroom/secrng/SECRNG-MEASUREMENT.md` for the controls that were vacuous.
