@@ -9,9 +9,9 @@
 //! NOT apply here). The declarations and constants are generated mechanically; provenance per item (header line, tag,
 //! commit, sha256) is `docs/cleanroom/openrng/provenance.csv`.
 //!
-//! **UNMEASURED (needs a build of the library):** the integer width (the header uses `int32_t`, or `long long` when
-//! `OPENRNG_ILP64`/`INTEGER64` is defined: the `ilp64` feature selects the latter), the library name and location, and
-//! every behaviour. Tests are written but not run.
+//! **MEASURED on Windows x64 (docs/cleanroom/openrng/MEASUREMENT.md; run by the PM session on CireSnave's 524: A, openrng built at 5c05f2ee, AOCL-LibM from AOCL 6.0.68)**: all 60 symbols link (LP64 and ILP64 builds), `openrng_int_t` is 4 bytes (LP64) / 8 bytes (ILP64),
+//! PHILOX4X32X10 outputs recorded. **The `ilp64` feature must match the library build** (a mismatch is silent; see
+//! `build.rs`). Not measured: Linux, other compilers, OpenRNG's own tests, bit-reproducibility vs oneMKL.
 
 #![allow(non_camel_case_types, non_snake_case, dead_code)]
 

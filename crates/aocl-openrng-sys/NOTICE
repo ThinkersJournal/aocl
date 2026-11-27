@@ -27,5 +27,5 @@ types in `src/lib.rs` are derived from the header and carry its SPDX lines. This
 same `MIT OR Apache-2.0 WITH LLVM-exception` terms (Cargo `license` field).
 
 AOCL-OpenRNG is not shipped: this crate contains no library. It links an OpenRNG library the user has built or installed
-(UNMEASURED: no library has been built or linked yet; see README). The AOCL-OpenRNG name and AMD marks are trademarks of Advanced
+(measured against the PM's Windows builds of 5c05f2ee: docs/cleanroom/openrng/MEASUREMENT.md). The AOCL-OpenRNG name and AMD marks are trademarks of Advanced
 Micro Devices, Inc.; their use here is for identification only. Not legal advice.

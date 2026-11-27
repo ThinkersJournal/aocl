@@ -1,4 +1,4 @@
-//! NEEDS THE BUILD (not run yet): compiled only when OPENRNG_LIB_DIR points at a built AOCL-OpenRNG (cfg `openrng_linked`).
+//! Run on both Windows builds (60/60 resolve, MEASUREMENT.md): compiled only when OPENRNG_LIB_DIR points at a built AOCL-OpenRNG (cfg `openrng_linked`).
 //! Taking the address of every declared function forces each symbol to resolve.
 #![cfg(openrng_linked)]
 #![allow(warnings)]

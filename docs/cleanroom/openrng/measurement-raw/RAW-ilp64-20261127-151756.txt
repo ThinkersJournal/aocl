@@ -1,0 +1,103 @@
+== OpenRNG measurement, build=ilp64, started 2026-11-27T15:17:56
+OPENRNG_LIB_DIR = C:\openrng-build\src\build\rel-llvm-ilp64\install\lib
+host: Windows-11-10.0.26300-SP0 machine=AMD64 python=3.15.2
+$ C:\rust\.cargo\bin\cargo.exe -V    (cwd C:\openrng-measure\harness)
+cargo 1.100.0 (3acc79c0c 2026-11-05)
+[exit 0]
+$ C:\rust\.cargo\bin\rustc.exe -vV    (cwd C:\openrng-measure\harness)
+rustc 1.100.0 (0ef1bc386 2026-11-09)
+binary: rustc
+commit-hash: 0ef1bc386059596dada8fb65b50425aab2ea637a
+commit-date: 2026-11-09
+host: x86_64-pc-windows-msvc
+release: 1.100.0
+LLVM version: 23.1.5
+[exit 0]
+
+-- hashes (build dir vs C:\openrng-build\build-sha256.txt)
+openrng.dll          sha256=1d3fd3a49fad0cf4b8ac62fd7583d5f77f5a9688d23ec30681bfc4fd3726b771 size=1276416 expected=1d3fd3a49fad0cf4b8ac62fd7583d5f77f5a9688d23ec30681bfc4fd3726b771 OK
+openrng.lib          sha256=1d534f3e2b7dd87032a0cbad9e0d17ec8ad82189cbbc8d5a50f6355c6a84ab56 size=133276 expected=1d534f3e2b7dd87032a0cbad9e0d17ec8ad82189cbbc8d5a50f6355c6a84ab56 OK
+openrng_static.lib   sha256=acd07fe6c9eb37207058f039ea992ce0c8bfa709eba7b613a6d4ef07a82ebfd9 size=1543194 expected=acd07fe6c9eb37207058f039ea992ce0c8bfa709eba7b613a6d4ef07a82ebfd9 OK
+libalm.dll           sha256=005377e627dbfe32eecc75287cc2bce4de1a1318142c24c63ee4444e27f378bc size=1732504 (AOCL amd-libm install; no expected value recorded)
+$ C:\rust\.cargo\bin\cargo.exe test --offline --no-run --features ilp64    (cwd C:\openrng-measure\harness)
+   Compiling aocl-openrng-sys v0.0.0 (C:\openrng-measure\sys)
+   Compiling openrng-measure-harness v0.0.0 (C:\openrng-measure\harness)
+warning: unused dependency `aocl-openrng-sys`
+  --> Cargo.toml:14:1
+   |
+14 | aocl-openrng-sys = { path = "../sys" }
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `cargo::unused_dependencies` is set to `warn` by default
+help: consider removing the dependency on `aocl-openrng-sys`
+help: to still use for development builds, move to `dev-dependencies`
+warning: `openrng-measure-harness` (manifest) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.70s
+  Executable unittests src\lib.rs (C:\openrng-measure\target-ilp64\debug\build\openrng-measure-harness/fe6eb5f193225077\out\openrng_measure_harness-fe6eb5f193225077.exe)
+  Executable tests\kat_record.rs (C:\openrng-measure\target-ilp64\debug\build\openrng-measure-harness/b8df4f48f90afe13\out\kat_record-b8df4f48f90afe13.exe)
+  Executable tests\link_all.rs (C:\openrng-measure\target-ilp64\debug\build\openrng-measure-harness/19157edc1449bb26\out\link_all-19157edc1449bb26.exe)
+  Executable tests\loaded_modules.rs (C:\openrng-measure\target-ilp64\debug\build\openrng-measure-harness/37ec979cfa913e1a\out\loaded_modules-37ec979cfa913e1a.exe)
+  Executable tests\width_probe.rs (C:\openrng-measure\target-ilp64\debug\build\openrng-measure-harness/ea2eeb350b42a93f\out\width_probe-ea2eeb350b42a93f.exe)
+[exit 0]
+$ C:\rust\.cargo\bin\cargo.exe test --offline --no-run --test link_all_control --features ilp64    (cwd C:\openrng-measure\harness)
+   Compiling openrng-measure-harness v0.0.0 (C:\openrng-measure\harness)
+error: linking with `link.exe` failed: exit code: 1120
+  |
+  = note: "C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.51.36231\\bin\\HostX64\\x64\\link.exe" "/NOLOGO" "C:\\openrng-measure\\target-ilp64\\debug\\build\\openrng-measure-harness/b6289cbb1f6fadd4\\out\\rustcb2vE98\\symbols.o" "<2 object files omitted>" "<sysroot>\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib/{libtest-*,libgetopts-*,librustc_std_workspace_std-*,libstd-*,libpanic_unwind-*,libcfg_if-*,libwindows_link-*,librustc_demangle-*,libstd_detect-*,libhashbrown-*,librustc_std_workspace_alloc-*,libunwind-*,librustc_std_workspace_core-*,liballoc-*,libcore-*,libcompiler_builtins-*}.rlib" "kernel32.lib" "kernel32.lib" "kernel32.lib" "ntdll.lib" "userenv.lib" "ws2_32.lib" "dbghelp.lib" "synchronization.lib" "/defaultlib:msvcrt" "/NXCOMPAT" "/LIBPATH:C:\\openrng-build\\src\\build\\rel-llvm-ilp64\\install\\lib" "/OUT:C:\\openrng-measure\\target-ilp64\\debug\\build\\openrng-measure-harness/b6289cbb1f6fadd4\\out\\link_all_control-b6289cbb1f6fadd4.exe" "/OPT:REF,NOICF" "/DEBUG" "/PDBALTPATH:%_PDB%" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\intrinsic.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\liballoc.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\libcore.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\libstd.natvis"
+  = note: some arguments are omitted. use `--verbose` to show all linker arguments
+  = note: link_all_control-b6289cbb1f6fadd4.link_all_control.2afa84f764708205-cgu.0.rcgu.o : error LNK2019: unresolved external symbol openrng_measure_control_does_not_exist referenced in function _RNvCs3GLZnRXVtVV_16link_all_controls_7control
+          C:\openrng-measure\target-ilp64\debug\build\openrng-measure-harness\b6289cbb1f6fadd4\out\link_all_control-b6289cbb1f6fadd4.exe : fatal error LNK1120: 1 unresolved externals
+          
+
+error: could not compile `openrng-measure-harness` (test "link_all_control") due to 1 previous error
+[exit 101]
+NEGATIVE CONTROL: link failed and named the made-up symbol = True
+$ C:\rust\.cargo\bin\cargo.exe test --offline --test link_all --test width_probe --test kat_record --test loaded_modules --features ilp64 -- --nocapture --test-threads=1    (cwd C:\openrng-measure\harness)
+
+running 1 test
+test record_philox_words ... KAT PHILOX4X32X10 seed=42  viRngUniformBits32 x8 = 9ceaf053 77f5493b 12bf50ad 5742b3d7 fcdb2127 53ba6cfd 838f5a6e 744e06fb
+KAT PHILOX4X32X10 seed=42  vdRngUniform[0,1) x4 bits = 3fbceaf053000000 3feefea927600000 3fe257ea15a00000 3feae8567ae00000 values = [0.11295988108031452, 0.9685865181963891, 0.5732317373622209, 0.8408615493681282]
+KAT seed=42 repeat identical: true
+KAT PHILOX4X32X10 seed=0   viRngUniformBits32 x8 = 6627e8d5 e169c58d bc57ac4c 9b00dbd8 f8e4cca4 5cb200db b1a574eb 097eff67
+KAT PHILOX4X32X10 seed=0   vdRngUniform[0,1) x4 bits = 3fecc4fd1aa00000 3fd85a7163400000 3fce2bd626000000 3fbb00dbd8000000 values = [0.8990464706439525, 0.380520197795704, 0.23571278434246778, 0.10548185370862484]
+KAT seed=0 repeat identical: true
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 1 test
+test all_openrng_symbols_link ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 1 test
+test record_loaded_modules ... MODULE openrng.dll = C:\openrng-build\src\build\rel-llvm-ilp64\install\lib\openrng.dll
+MODULE libalm.dll = C:\Program Files\AMD\AOCL-Windows\amd-libm\lib\libalm.dll
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 1 test
+test record_width_probe ... PROBE crate openrng_int_t = 8 bytes (the crate's own type for this build)
+PROBE n=4 (control: both widths accept)                          status=0      doubles_written=4
+PROBE n=-4 (control: both widths refuse)                         status=-2     doubles_written=0
+PROBE n=0xFFFFFFFF_00000004 (low half 4, high half all ones)     status=-2     doubles_written=0
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.48s
+     Running tests\kat_record.rs (C:\openrng-measure\target-ilp64\debug\build\openrng-measure-harness/b8df4f48f90afe13\out\kat_record-b8df4f48f90afe13.exe)
+     Running tests\link_all.rs (C:\openrng-measure\target-ilp64\debug\build\openrng-measure-harness/19157edc1449bb26\out\link_all-19157edc1449bb26.exe)
+     Running tests\loaded_modules.rs (C:\openrng-measure\target-ilp64\debug\build\openrng-measure-harness/37ec979cfa913e1a\out\loaded_modules-37ec979cfa913e1a.exe)
+     Running tests\width_probe.rs (C:\openrng-measure\target-ilp64\debug\build\openrng-measure-harness/ea2eeb350b42a93f\out\width_probe-ea2eeb350b42a93f.exe)
+[exit 0]
+TESTS: exit 0
+-- loaded modules (GetModuleFileNameA) and their hashes
+libalm.dll     C:\Program Files\AMD\AOCL-Windows\amd-libm\lib\libalm.dll sha256=005377e627dbfe32eecc75287cc2bce4de1a1318142c24c63ee4444e27f378bc (no expected value: AOCL install)
+FAIL: openrng.dll was not reported as loaded
+FAIL: openrng.dll was loaded from a different directory than OPENRNG_LIB_DIR
+== finished 2026-11-27T15:18:03; record: C:\openrng-measure\out\RAW-ilp64-20261127-151756.txt

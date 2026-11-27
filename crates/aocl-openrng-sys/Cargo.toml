@@ -8,14 +8,15 @@ license = "MIT OR Apache-2.0 WITH LLVM-exception"
 repository.workspace = true
 authors.workspace = true
 build = "build.rs"
-# UNMEASURED skeleton: nothing has been linked or measured (width, known answer). `cargo publish` must refuse until a build measures it.
+# MEASURED on Windows x64 (docs/cleanroom/openrng/MEASUREMENT.md; run by the PM session on CireSnave's 524: A, openrng built at 5c05f2ee, AOCL-LibM from AOCL 6.0.68): link-all 60/60, width 4/8, Philox known answers recorded. `publish = false` stays until the PM has read the PR: `cargo publish` must refuse.
 publish = false
 categories = ["external-ffi-bindings", "science"]
 keywords = ["aocl", "amd", "openrng", "rng", "ffi"]
 
 [features]
 default = []
-# openrng_int_t / openrng_uint_t are 64-bit (the header's OPENRNG_ILP64 / INTEGER64 branch). UNMEASURED: needs the ILP64 build.
+# openrng_int_t / openrng_uint_t are 64-bit (the header's OPENRNG_ILP64 / INTEGER64 branch). MUST be on exactly when the library is the
+# ILP64 build (measured: 8 bytes there, 4 in the LP64 build); a mismatch is silent at run time (see build.rs, MEASUREMENT.md).
 ilp64 = []
 static-link = []
 
