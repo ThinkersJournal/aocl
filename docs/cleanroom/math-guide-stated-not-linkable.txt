@@ -1,4 +1,4 @@
-# 20 scalar functions the guide states (6.0, ch. 8) that the installed AOCL 6.0.68 Windows libalm does NOT provide: the linker reports them unresolved (dynamic libalm.lib and static-link libalm-static.lib alike). Found by crates/aocl-math-sys/tests/link_all.rs. They were declared in aocl-math-sys 0.2.7 (published) and are removed on lane/cleanroom-rng2. Positive control: the other 198 scalar/array symbols and 154 SIMD symbols resolve in the same test run.
+# 20 scalar functions the guide states (6.0, ch. 8) that the installed AOCL 6.0.68 Windows libalm does NOT provide: the linker reports them unresolved (dynamic libalm.lib and static-link libalm-static.lib alike). Found by crates/aocl-math-sys/tests/link_all.rs. They were declared in aocl-math-sys 0.2.7 (published) and are behind the default-OFF feature guide-only-fast on lane/cleanroom-rng2. Detected by: cargo test -p aocl-math-sys --test link_all (Windows, AOCL 6.0.68, LP64). Linux not measured. Positive control: the other 198 scalar/array symbols and 154 SIMD symbols resolve in the same test run.
 amd_fastacos
 amd_fastacosf
 amd_fastasin

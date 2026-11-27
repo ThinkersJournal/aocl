@@ -4,6 +4,8 @@
 //! writer session that was given nothing but that text. No AOCL header is read, parsed or copied by this crate or its
 //! build. The per-function provenance (guide line numbers) is `docs/cleanroom/math_provenance.csv` in the repository.
 //!
+//! **Stated by the guide but not exported by AOCL 6.0.68 on Windows (Linux not measured): 20 `amd_fast*`/`amd_fasterf*` scalar functions and `amd_vrd8_fabs`/`amd_vrs16_fabsf`. They are behind the default-OFF feature `guide-only-fast`; using them fails to link on Windows.** (0.2.7 declared the 20 by default: a defect.)
+//!
 //! Not declared, because the guide names a type it never defines so the ABI cannot be derived: `amd_nexttoward`,
 //! `amd_nexttowardf` (`long double`) and the six complex functions (`fc32_t`/`fc64_t`). `amd_vrd2_sincos` is also
 //! absent: its guide line is too garbled to read with certainty.
@@ -32,3 +34,13 @@ pub use decls_scalar::*;
 mod decls_simd;
 #[cfg(feature = "simd_ffi")]
 pub use decls_simd::*;
+
+// Stated by the guide, NOT exported by AOCL 6.0.68 on Windows (Linux not measured); default OFF. See docs/cleanroom/math-guide-stated-not-linkable.txt.
+#[cfg(feature = "guide-only-fast")]
+mod decls_guide_only;
+#[cfg(feature = "guide-only-fast")]
+pub use decls_guide_only::*;
+#[cfg(all(feature = "guide-only-fast", feature = "simd_ffi"))]
+mod decls_guide_only_simd;
+#[cfg(all(feature = "guide-only-fast", feature = "simd_ffi"))]
+pub use decls_guide_only_simd::*;

@@ -126,3 +126,17 @@ jobs:
               if ($LASTEXITCODE -ne 0) { throw "$t : mpiexec -n $n failed with exit code $LASTEXITCODE" }
             }
           }
+
+  linkall:
+    name: link-all (every declared -sys symbol resolves in the installed AOCL; self-hosted Windows)
+    # Same gate as above: reviewed default branch only. Hosted Linux CI cannot run this (AOCL is not installable on a hosted runner).
+    if: github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, Windows, X64, aocl]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Link-all tests (aocl-math-sys, aocl-rng-sys, SecureRNG; LP64 and ILP64)
+        shell: powershell
+        run: ./tools/link-all.ps1
