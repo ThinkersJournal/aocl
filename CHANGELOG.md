@@ -1,8 +1,20 @@
 # Changelog
 
-## Unreleased (tests only, patch on 0.2.x; pm-assist allocates; no crate API changes)
+## 0.2.24 - 2026-11-27 (PM-allocated; wrapper-test group 1 (utils, securerng, scalapack gaps): tests only on the real AOCL 6.0.68; patch on 0.2.x)
 
 - **Tests for exposed wrapper functions that no test mentioned (pm-kernels: comprehensive coverage), group 1, run on the real AOCL 6.0.68 Windows:** `aocl-utils` (`x86_64_level`; `pin_threads` Core/Logical/Spread and `pin_threads_custom`, checked by reading the OS thread affinity mask back with `GetThreadGroupAffinity`, with an unpinned-thread control), `aocl-securerng` (`rdrand_u16`, `rdseed_u16`, `rdseed_u64`, `rdseed_bytes` with guard bytes), `aocl-scalapack` (`BlockCyclic::as_raw` against the BLACS descriptor layout, `Grid::context`, `Grid::barrier` in the existing `harness = false` MPI test). Each new test was shown to FAIL with a deliberately wrong expected value.
+
+## 0.2.23 - 2026-11-27 (PM-allocated; tools/wrapper-coverage.py and docs: exposed versus tested per wrapper; patch on 0.2.x, tools and docs only)
+
+- **tools:** `tools/wrapper-coverage.py` compares each safe wrapper's exposed public functions with the names its tests mention; `docs/WRAPPER-COVERAGE-20261127.md`: 638 exposed, 257 mentioned, 381 without any test (the gaps are listed per wrapper). Tests for the gaps follow, smallest crates first.
+
+## 0.2.22 - 2026-11-27 (PM-allocated; CI: adopt the advisory portfolio job, pinned reusable workflow; patch on 0.2.x, tools and CI only)
+
+- **CI:** the advisory `portfolio` job (reusable workflow `ciresnave/coderipper/.github/workflows/portfolio.yml` pinned to `467fd259d6d062cba4c5683d310f1a6f2b66e763`, `permissions: contents: read`, same syntax as cpufish) in `ci.yml`: not a required check, not in branch protection (CireSnave 2026-10-23). ROADMAP row 12.
+
+## 0.2.21 - 2026-11-27 (PM-allocated; ROADMAP row 19 decided: RNG user-generator entry points document-only, patch on 0.2.x)
+
+- **ROADMAP row 19 decided: the RNG user-generator entry points stay `unsafe extern` declarations with NO safe wrapper in `aocl-rng`** (protocol measured but undocumented by AMD; callbacks have no user-data pointer; the library does not validate `n` against `lstate`): reasons in the row. No code change.
 
 ## 0.2.20 - 2026-11-27 (PM-allocated; tools and docs only, patch on 0.2.x: the 12 safe wrappers' tests on the real AOCL 6.0.68; no crate behaviour changes)
 
