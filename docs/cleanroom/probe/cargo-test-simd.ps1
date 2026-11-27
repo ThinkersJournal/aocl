@@ -3,7 +3,7 @@
 $root = 'C:\Program Files\AMD\AOCL-Windows'
 $dirs = Get-ChildItem $root -Recurse -Filter *.dll | ForEach-Object { $_.DirectoryName } | Sort-Object -Unique | Where-Object { $_ -notmatch '[\\/]ILP64([\\/]|$)' }
 $oneapi = 'C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin'
-$env:PATH = (($dirs + $oneapi) -join ';') + ';C:\Windows\System32;C:\Windows;C:\rust\.cargo\bin;C:\Users\cires\.cargo\bin;C:\Program Files\Git\cmd'
+$env:PATH = (($dirs + $oneapi) -join ';') + ';C:\Windows\System32;C:\Windows;C:\rust\.cargo\bin;C:\Program Files\Git\cmd'
 $env:CARGO_BUILD_BUILD_DIR = 'target-simd'
 $env:AOCL_ROOT = $root
 rustc +nightly -V

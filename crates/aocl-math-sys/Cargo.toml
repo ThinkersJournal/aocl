@@ -15,7 +15,9 @@ keywords = ["aocl", "amd", "libm", "math", "ffi"]
 [features]
 default = []
 static-link = []
-# DEFAULT OFF: 20 scalar functions the guide states but AOCL 6.0.68 on Windows does not export (use fails to link; Linux not measured).
+# NIGHTLY ONLY: declares the 156 by-value SIMD functions (needs rustc `feature(simd_ffi)`). Never default; do not enable on stable or docs.rs.
+simd_ffi = []
+# DEFAULT OFF: 20 scalar (+2 SIMD with simd_ffi) functions the guide states but AOCL 6.0.68 on Windows does not export (use fails to link; Linux not measured).
 guide-only-fast = []
 
 [build-dependencies]
