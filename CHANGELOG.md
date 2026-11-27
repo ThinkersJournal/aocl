@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased (tests and docs only, patch on 0.2.x; pm-assist allocates; no crate API changes)
+
+- **`aocl-rng-sys`: link-and-call test for the user-generator entry points** (`tests/user_init.rs`, own test binary): `drandinitializeuser`/`srandinitializeuser` followed by `dranduniform`/`sranduniform` in the ONE measured-safe shape (UINI sets `state[0] = n`, `lstate >= n + 3`, a guard region asserted untouched), D and S, LP64 and ILP64 (measured on AOCL 6.0.68 Windows); the generator's values come through. A call that does not follow the protocol is never made in CI (the wrong-`n` control stays in the measurement document). The entry points stay `unsafe extern` with no safe wrapper (ROADMAP row 19).
+
 ## 0.2.20 - 2026-11-27 (PM-allocated; tools and docs only, patch on 0.2.x: the 12 safe wrappers' tests on the real AOCL 6.0.68; no crate behaviour changes)
 
 - **tools:** `tools/wrapper-tests.py` runs every safe wrapper's tests on the real installed AOCL (PATH built per width) and prints a table; `--control-no-aocl` must FAIL every wrapper (they really call into the DLLs). `docs/WRAPPER-TESTS-20261127.md`: 12 wrappers, 192 tests, all pass on AOCL 6.0.68 Windows with two runtime requirements found: `aocl-crypto` needs OpenSSL 3 `libcrypto-3-x64.dll` on PATH (AOCL does not ship it), `aocl-data-analytics` needs `KMP_DUPLICATE_LIB_OK=TRUE` (AMD issue 2). `selfhosted.yml` gets a `wrappers` job (untested on a runner).
