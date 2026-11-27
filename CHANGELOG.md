@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.27 - 2026-11-27 (PM-allocated; aocl-rng-sys link-and-call test for the user-generator entry points in the measured-safe shape (LP64 and ILP64, D and S pass, guard asserted, wrong-value control fails) with the NOTICE commit; patch on 0.2.x, tests and docs)
+
+- **`aocl-rng-sys`: link-and-call test for the user-generator entry points** (`tests/user_init.rs`, own test binary): `drandinitializeuser`/`srandinitializeuser` followed by `dranduniform`/`sranduniform` in the ONE measured-safe shape (UINI sets `state[0] = n`, `lstate >= n + 3`, a guard region asserted untouched), D and S, LP64 and ILP64 (measured on AOCL 6.0.68 Windows); the generator's values come through. A call that does not follow the protocol is never made in CI (the wrong-`n` control stays in the measurement document). The entry points stay `unsafe extern` with no safe wrapper (ROADMAP row 19).
+
 ## 0.2.24 - 2026-11-27 (PM-allocated; wrapper-test group 1 (utils, securerng, scalapack gaps): tests only on the real AOCL 6.0.68; patch on 0.2.x)
 
 - **Tests for exposed wrapper functions that no test mentioned (pm-kernels: comprehensive coverage), group 1, run on the real AOCL 6.0.68 Windows:** `aocl-utils` (`x86_64_level`; `pin_threads` Core/Logical/Spread and `pin_threads_custom`, checked by reading the OS thread affinity mask back with `GetThreadGroupAffinity`, with an unpinned-thread control), `aocl-securerng` (`rdrand_u16`, `rdseed_u16`, `rdseed_u64`, `rdseed_bytes` with guard bytes), `aocl-scalapack` (`BlockCyclic::as_raw` against the BLACS descriptor layout, `Grid::context`, `Grid::barrier` in the existing `harness = false` MPI test). Each new test was shown to FAIL with a deliberately wrong expected value.
