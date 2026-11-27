@@ -227,4 +227,42 @@ mod tests {
             "shared secret was all zeros"
         );
     }
+
+    fn unhex(s: &str) -> Vec<u8> {
+        let s: String = s.split_whitespace().collect();
+        (0..s.len() / 2)
+            .map(|i| u8::from_str_radix(&s[2 * i..2 * i + 2], 16).unwrap())
+            .collect()
+    }
+
+    #[test]
+    fn x25519_rfc7748_section_6_1_known_answers() {
+        // RFC 7748 section 6.1: Alice / Bob key pairs and the shared secret K.
+        assert_eq!(Curve::X25519.key_len(), 32);
+        let alice_priv = unhex("77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a");
+        let bob_priv = unhex("5dab087e624a8a4b79e17f8b83800ee66f3bb1292618b6fd1c2f8b27ff88e0eb");
+        let mut alice = EcDh::new(Curve::X25519).unwrap();
+        let mut bob = EcDh::new(Curve::X25519).unwrap();
+        alice.set_private_key(&alice_priv).unwrap();
+        bob.set_private_key(&bob_priv).unwrap();
+        let mut a_pub = vec![0u8; Curve::X25519.key_len()];
+        let mut b_pub = vec![0u8; Curve::X25519.key_len()];
+        alice.derive_public_key(&alice_priv, &mut a_pub).unwrap();
+        bob.derive_public_key(&bob_priv, &mut b_pub).unwrap();
+        assert_eq!(
+            a_pub,
+            unhex("8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a")
+        );
+        assert_eq!(
+            b_pub,
+            unhex("de9edb7d7b7dc1b4d35b61c2ece435373f8343c85b78674dadfc7e146f882b4f")
+        );
+        let k = unhex("4a5d9d5ba4ce2de1728e3bf480350f25e07e21c947d19e3376f09b3c1e161742");
+        let mut s1 = vec![0u8; 32];
+        let mut s2 = vec![0u8; 32];
+        alice.shared_secret(&b_pub, &mut s1).unwrap();
+        bob.shared_secret(&a_pub, &mut s2).unwrap();
+        assert_eq!(s1, k);
+        assert_eq!(s2, k);
+    }
 }
