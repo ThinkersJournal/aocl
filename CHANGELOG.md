@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased (docs only, patch on 0.2.x; pm-assist allocates; no crate is published for it)
+
+- **ROADMAP row 19 decided: the RNG user-generator entry points stay `unsafe extern` declarations with NO safe wrapper in `aocl-rng`** (protocol measured but undocumented by AMD; callbacks have no user-data pointer; the library does not validate `n` against `lstate`): reasons in the row. No code change.
+
 ## 0.2.19 - 2026-11-27 (PM-allocated; docs only, patch on 0.2.x: the measured static-link link-line requirements in the sparse, blas, lapack, crypto and data-analytics -sys READMEs)
 
 - **Docs: what each `static-link` build needs on the link line (Windows, measured on AOCL 6.0.68; Linux unmeasured)** in the READMEs of `aocl-sparse-sys`, `aocl-blas-sys`, `aocl-lapack-sys`, `aocl-crypto-sys`, `aocl-data-analytics-sys`: the OpenMP runtime `libiomp5md.lib` (sparse, blas, lapack, data-analytics), the static BLIS (lapack), `bcrypt.lib` and OpenSSL libcrypto (crypto), the Intel oneAPI Fortran runtime and BLAS/LAPACK (data-analytics). These crates do not link them; no code change. `aocl-fft-sys`, `aocl-utils-sys` and `aocl-compression-sys` static builds need nothing extra.
