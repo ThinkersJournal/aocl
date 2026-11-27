@@ -15,7 +15,7 @@ fn main() {
         module: "bindings",
         has_int_subdir: false,
         only_lp64: false,
-        win_static: &["aocl_compression-static"],
+        win_static: &["aocl_compression"],
         win_dynamic: &["aocl_compression"],
         unix_static: &["aocl_compression"],
         unix_dynamic: &["aocl_compression"],
