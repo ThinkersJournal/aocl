@@ -1,10 +1,10 @@
-# aocl-*-sys struct layout audit (2026-11-27)
+# aocl-*-sys struct layout audit (2026-11-27): Windows x64, AOCL 6.0.68 only
 
 **Defect class.** A header declares a struct with an alignment attribute, the header (or the compiler mode) hides the attribute from
 bindgen, so the generated Rust struct has the natural alignment while the library was built with the attribute. Structs passed BY
-VALUE, or as arrays, then fault or corrupt. Found in `aocl-sparse-sys` (`aoclsparse_double_complex`, `alignas(16)`, fixed in 5b6b0cb).
+VALUE, or as arrays, then fault or corrupt. Found in `aocl-sparse-sys` (`aoclsparse_double_complex`, `alignas(16)`, fixed in the alignment PR #44).
 
-**Scope and refs.** Branch `lane/sys-layout-audit` on top of `origin/lane/sparse-align16` (5b6b0cb). AOCL 6.0.68 Windows install,
+**Scope and refs.** Branch `lane/sys-layout-audit` on main (the sparse rows assume the alignment fix of PR #44). AOCL 6.0.68 Windows install,
 x86_64, MS x64 ABI, clang 22 from VS 18 (`clang++ -std=c++17`, `clang -std=gnu17`, `-msse4.2 -mavx2 -mfma`, same `-I` and ILP64
 `-D` as `aocl-build`). **Linux was not measured.** LP64 and ILP64 were both built and probed for every crate that has the
 `ilp64` feature (blas, lapack, sparse, data-analytics): every size and alignment below is identical in both.
@@ -36,14 +36,14 @@ clean-room crates (below).
 |---|---|---|---|---|---|
 | aocl-blas-sys | 61 | 61 | 0 | 0 | 0 |
 | aocl-lapack-sys | 2 (`__BindgenComplex<f32>`, `<f64>`) | 2 | 0 | 0 | 0 |
-| aocl-fft-sys | 6 | 3 | 0 | 3 | 0 |
-| aocl-sparse-sys | 5 | 0 | 2 (fixed 5b6b0cb) | 3 | 0 |
+| aocl-fft-sys | 6 | 3 | 0 | 3 (`fftw_plan_s` and two more: opaque (a handle type), NOT compared: only ever pointed to) | 0 |
+| aocl-sparse-sys | 5 | 0 | 2 (fixed by the alignment PR #44) | 3 (`_aoclsparse_*`: opaque (a handle type), NOT compared: only ever pointed to) | 0 |
 | aocl-utils-sys | 10 | 10 | 0 | 0 | 0 |
 | aocl-compression-sys | 26 | 26 | 0 | 0 | 0 |
 | aocl-crypto-sys | 14 | 14 | 0 | 0 | 0 |
-| aocl-data-analytics-sys | 2 | 0 | 0 | 2 | 0 |
+| aocl-data-analytics-sys | 2 | 0 | 0 | 2 (`_da_handle`-style handle types: opaque (a handle type), NOT compared: only ever pointed to) | 0 |
 | aocl-securerng-sys | 0 | 0 | 0 | 0 | 0 |
-| aocl-math-sys (hand-written) | 2 (`fc32_t`, `fc64_t`) + 156 vector fns | 0 | 0 | 0 | 2 + 156 |
+| aocl-math-sys (hand-written) | 2 (`fc32_t`, `fc64_t`) + 156 vector fns | 0 | 0 | 0 | 2 + 156 (UNKNOWN: clean-room, no header read; the 156 vector fns are behind the nightly `simd_ffi` feature, not run) |
 | aocl-rng-sys, aocl-scalapack-sys (hand-written) | 0 struct types | - | - | - | - |
 
 ## Where a header states an alignment (every one found, all `amd-*` headers of the wrappers' components)
