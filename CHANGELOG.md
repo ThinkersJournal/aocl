@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased (patch on 0.2.x; pm-assist allocates)
+
+- **`aocl-crypto` / `aocl-data-analytics`: result-checking tests for all 45 exposed wrapper functions no test mentioned** (crypto 24: NIST SP 800-38C CCM, McGrew-Viega GCM, RFC 8439 ChaCha20-Poly1305, RFC 7748 X25519, "abc" digests for all 12 modes, RSA OAEP/PSS/PKCS#1 v1.5/raw with tamper tests; data-analytics 21: reference computations and invariants), measured on AOCL 6.0.68 Windows (crypto 40 tests, data-analytics 44, 0 failed, 0 ignored).
+- **Fixed, found by those tests (safe API):** `aocl_crypto::rsa::Rsa::set_private_key` passed the modulus size where AOCL 6.0.68 wants the size of each CRT component (half): the key size became twice the modulus and every private-key operation failed or overran the caller's buffer (heap corruption observed once); it now passes `p.len()`. `aocl_data_analytics::KNearestNeighbours::classes` passed the buffer length as the in/out count and returned it (garbage for an oversized buffer, access violation on an unfitted handle); it now returns the library's class count. Both existed in every published version (aocl-crypto 0.1.0 to 0.2.5; aocl-data-analytics 0.1.0 to 0.2.5). Four doc comments corrected (probability layouts are column-major, `digest_info_size` is the DigestInfo prefix length, the PKCS#1 v1.5 `random_pad` length, `sign_hash_pkcs1v15` takes DigestInfo || H). Not fixed, recorded: `Aead::set_ccm_lengths` cannot take effect after `new` (CCM tags stay 12 bytes), `Handle::last_error_message` on a fresh handle can return an uninitialised pointer, concurrent RALFit solves crash (tests serialise them).
+
 ## 0.2.23 - 2026-11-27 (PM-allocated; tools/wrapper-coverage.py and docs: exposed versus tested per wrapper; patch on 0.2.x, tools and docs only)
 
 - **tools:** `tools/wrapper-coverage.py` compares each safe wrapper's exposed public functions with the names its tests mention; `docs/WRAPPER-COVERAGE-20261127.md`: 638 exposed, 257 mentioned, 381 without any test (the gaps are listed per wrapper). Tests for the gaps follow, smallest crates first.
