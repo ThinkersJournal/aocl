@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased (docs only, patch on 0.2.x; pm-assist allocates)
+## 0.2.12 - 2026-11-27 (PM-allocated; docs only, patch on 0.2.x, the PM ruled: aocl-rng-sys and aocl-math NOTICE files in the package)
 
 - **`aocl-rng-sys`: add the missing `NOTICE` to the package** (0.2.11 shipped without it) and fix the README: the 77 UPPERCASE `S/DRAND*` forms ARE declared (`GET_RNGVERSION` is stated by the guide but not exported, so it is not); the "added on demand" wording is gone. The NOTICE carries AMD's legal line (verbatim), says the repository's authors read the headers while the declarations were written by separate sessions that read only the guide, and names the measurements (integer width, user-generator protocol).
 - **`aocl-math`: add the `NOTICE` its README already refers to** (it had none in the package).
