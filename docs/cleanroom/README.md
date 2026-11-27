@@ -34,7 +34,7 @@ as a C prototype. Anything the guide does not state is UNKNOWN and left out.
 - RNG: only the lowercase no-underscore C forms are declared; the guide also gives UPPERCASE and trailing-underscore Fortran-style forms (our current bindings expose all three). Every guide parameter pointer is `*mut` (the guide never uses `const`).
 
 ## Differences against the current main bindings, by name only (reported, no guess)
-- LibM: `math-only-in-guide.txt` (70 names: 20 `amd_fast*`, `amd_vrd8_*`, `amd_vrs16_*`); `math-only-in-current-bindings.txt` (1 name: `amd_vrd2_sincos`, the one the writer left UNKNOWN). The PM's brief counted 17 only-ours; this lane's name comparison against `crates/aocl-math-sys/bindings/bindings.rs` (313 names) finds 1. The method of the 17 is not known to this lane.
+- LibM: `math-only-in-guide.txt` (70 names: 20 `amd_fast*`, `amd_vrd8_*`, `amd_vrs16_*`); `math-only-in-current-bindings.txt` (1 name: `amd_vrd2_sincos`, the one the writer left UNKNOWN). The PM's brief counted 17 only-ours; this lane's name comparison against `crates/aocl-math-sys/bindings/bindings.rs` (313 names) finds 1. The method of the 17 is not known to this lane; `RECONCILE.md` explains the gap (383 - 366 = 17) and lists the names.
 - RNG: the 80 lowercase C names match our current lowercase names 80/80 both ways (0 only-ours, 0 only-guide); signatures were NOT compared.
 
 ## Status

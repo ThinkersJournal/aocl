@@ -29,7 +29,7 @@ A "name" here is a function-head token, case-sensitive. The guide states three f
 - **249** (PM) = this lane's regexp count over guide L111897-L115986 of every prototype head (`rng-guide-all-prototype-names-249.txt`): 78 UPPERCASE + 78 trailing-underscore + 91 lowercase + 2 mixed-case (`is_RDRAND_supported`, `is_RDSEED_supported`). **Same 249.**
 - **235** (PM, match ours) = 249 - 14. The 14 are the **SecureRNG** functions in the same chapter (`get_rdrand*`, `get_rdseed*`, `is_RDRAND/RDSEED_supported`), which are not in aocl-rng-sys.
 - **238** names in ours = 235 + 3: `GET_RNGVERSION`, `get_rngversion`, `get_rngversion_` are in ours but not in the 249 list (this lane's regexp does not match that function's head line; the writer found `get_rngversion` in the text, so this is a counting-method gap, not a missing function).
-- **80** (this lane's writer) = the lowercase C forms only, SecureRNG excluded: 77 + `get_rngversion` + `drandinitialize_secrng`... counted as listed in `rng_provenance.csv` (80 rows). They match ours' 80 lowercase no-underscore names 80/80 both ways. The other 158 of ours (UPPERCASE and `_` forms) are the Fortran-style forms the writer was told not to declare.
+- **80** (this lane's writer) = the lowercase C forms only, SecureRNG excluded: 39 s/d families x 2 = 78, plus `drandinitialize_secrng` (double only) and `get_rngversion` (`rng_provenance.csv`, 80 rows). They match ours' 80 lowercase no-underscore names 80/80 both ways. The other 158 of ours (UPPERCASE and `_` forms) are the Fortran-style forms the writer was told not to declare.
 
 ## Integer type of the n / seed / state arguments (rng_int_t)
 The guide **never defines `rng_int_t`** (no typedef, nothing on LP64/ILP64). What it states:
