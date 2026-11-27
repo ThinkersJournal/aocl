@@ -7,8 +7,10 @@ for Windows 5.3 install on 2026-11-22 (installer `DisplayVersion` 5.3.514). The 
 `*-sys` crates (sparse, securerng, utils, crypto, data-analytics, compression) were re-diffed on 2026-11-23 against the
 headers of the installed AOCL for Windows 6.0 (installer `DisplayVersion` 6.0.68; the component `ReleaseNotes.txt`
 files that name a version say 6.0.0), which is what the committed bindings are generated from, and refreshed to the
-6.0 text. The other facts in this file (blas, lapack, fft, math, rng headers and NOTICE entries) are still from 5.3
-and have not been re-read against 6.0; those crates are held.
+6.0 text. The headers and NOTICE entries of blas, lapack, fft, math and rng were re-read against the same 6.0.68 install on
+2026-11-26 (section 1b); the notice and licence facts did not change from the 5.3 reading, with the two exceptions
+listed there (the lapacke.h 2010 Intel block, now in the lapack NOTICE; the stale function count for amdlibm.h). Their
+publication status is unchanged (section 2a).
 Reproduce the header comparison with `python tools/check-notices.py` (exit 0 = all match; `--ref <rev>` reads the
 NOTICE files from an older revision, the control). The `NOTICE.txt` files of AOCL-SecureRNG, -Utils, -Crypto and -DA list
 third-party code of those libraries (documentation tooling, test frameworks, internal libraries), none of it in the
@@ -50,6 +52,23 @@ BSD-style headers the licence text is the standard 3-clause one (not compared wo
 `aocl-scalapack-sys` is hand-written: AOCL ships no public ScaLAPACK headers, and the declarations follow the published
 ScaLAPACK / BLACS conventions; nothing was copied.
 
+## 1b. Held crates re-read against AOCL 6.0.68 (2026-11-26)
+
+Headers read from `C:\Program Files\AMD\AOCL-Windows` (ILP64 and LP64 copies: `blis.h` and `cblas.h` differ by width, `lapack.h` and
+`lapacke.h` are byte-identical across widths, both widths carry no copyright text in blis/cblas). No header is
+vendored in this repo: `wrapper/*.h` are our own include lines; the AMD headers are read at bindgen time only.
+
+| Crate | Header licence at 6.0 | What we derive | NOTICE entry matches |
+|---|---|---|---|
+| `aocl-blas-sys` | `blis.h`, `cblas.h`: no copyright or licence text at all (0 hits for "copyright"); component NOTICE.txt: `flame-blis` BSD-3-Clause, Copyright 2017/2018 AMD, 2014 UT Austin | 5704 `pub fn`, types, constants | yes: both `flame-blis` blocks verbatim vs 6.0 NOTICE.txt; link header-to-NOTICE is an inference |
+| `aocl-lapack-sys` | `lapack.h`, `lapacke_mangling.h`: none; `lapacke.h`: three Intel BSD-3-Clause blocks (2014 twice, 2010 once, "Author: Intel Corporation") | 3848 `pub fn` | yes after this change: the 2010 block was missing and is now added; libFLAME / reference-LAPACK blocks match 6.0 NOTICE.txt |
+| `aocl-fft-sys` | `fftw3.h`: BSD-2-Clause, Frigo/MIT 2003, 2007-14 and AMD 2020-21, "applies only to this header file"; unchanged from 5.3 | 216 `pub fn` | yes: leading comment verbatim in NOTICE |
+| `aocl-math-sys` | `amdlibm.h` (and `amdlibm_vec.h`): AMD "Software License Agreement", (C) 2008-2026; licence is to the "object code version only", no source or derivative grant; unchanged from 5.3 apart from the year | 313 `pub fn` | no NOTICE file (held); agreement text not copied |
+| `aocl-rng-sys` | `rng.h`: `Copyright AMD,NAG 2003-2023`, no grant; unchanged from 5.3 | 238 `pub fn` | no NOTICE file (held) |
+
+The 6.0 `EULA.txt` is unchanged in kind (section 2, item 3). For `aocl-math-sys` and `aocl-rng-sys` the open questions of
+section 2 stand: no header read grants a licence to derive from it.
+
 ## 2. Open questions (not decided here; they need the owner)
 
 These are listed because the check found no licence that clearly allows what the repo does. Nothing below was resolved
@@ -58,8 +77,8 @@ by assumption.
 1. **`aocl-math-sys` (`amdlibm.h`).** The header's notice is AMD's "Software License Agreement", which grants a licence
    to "the object code version of the Software and materials associated with this Agreement" on condition that
    "all copyright legends and other legal notices" are kept. It does not grant a source-form or derivative-work
-   licence in the text read. The published bindings contain 118 function declarations derived from it (names and
-   signatures only). Whether interface-only derivation is permitted by that text is not established.
+   licence in the text read. The committed 6.0 bindings contain 313 `pub fn` declarations derived from it (names and
+   signatures only; measured 2026-11-26, `grep -c 'pub fn' crates/aocl-math-sys/bindings/bindings.rs`). Whether interface-only derivation is permitted by that text is not established.
 2. **`aocl-rng-sys` (`rng.h`).** The only notice is `Copyright AMD,NAG 2003-2023` with no licence grant. Same question.
 3. **AOCL for Windows `EULA.txt`** ("Evaluation and Object Code Distribution Agreement", byte-identical in all 12
    components, SHA-256 compared). Its grant is object code, for distribution inside the licensee's own products under
