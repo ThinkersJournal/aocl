@@ -1,0 +1,24 @@
+case=gen_nopatch dll=C:/Program Files/AMD/AOCL-Windows/amd-rng/lib/LP64/rng_amd.dll int_width=4 fn=srandinitializeuser
+UINI call #1
+  arg0 = ef279af3e0 -> [05, 00, 00, 00, 07, 00, 00, 00, 71, 52, 59, 0a, 39, b0, 00, 00]
+  arg1 = ef279af3e4 -> [07, 00, 00, 00, 71, 52, 59, 0a, 39, b0, 00, 00, 80, b9, c8, 4f]
+  arg2 = 2d64fc951c0 ==seed -> [64, 00, 00, 00, 65, 00, 00, 00, 66, 00, 00, 00, 67, 00, 00, 00]
+  arg3 = 2d64fca59f0 ==lseed -> [03, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00]
+  arg4 = 2d64ffb7040 ==state -> [00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00]
+  arg5 = ef279af35c -> [61, 00, 00, 00, c1, 52, 59, 0a, 39, b0, 00, 00, 48, 00, 00, 00]
+  arg6 = 2d64fca5180 ==info -> [00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa]
+  arg7 = 614fc8b320 -> unreadable
+  arg8 = b0390a5952c1 -> unreadable
+  arg9 = 48 -> unreadable
+  arg10 = 4 -> unreadable
+  arg11 = 2d64fca5180 ==info -> [00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa]
+  deref as rng_int_t (width 4): genid=5 subid=7 seed[0..4]=100,101,102,103 lseed=3 lstate_arg=97 info=0
+  stride arg1-arg0 = 4 bytes, arg3-arg2 irrelevant; arg5 (lstate arg) is NOT the caller's lstate buffer
+after init: info=0 info_bytes_changed_of_16=4 lstate=100 UINI_calls=1 UGEN_calls=0
+nonzero state slots (index,value) after init: [(0, 7ff6), (1, ffffffffa8a64600), (7ff8, ffffffffa8a64600)]
+after sranduniform(n=4,a=0.5,b=2.0): info=-4 UGEN_calls=0
+x element width 4: bytes changed in x = 0 (offsets None..None); guard bytes beyond n*4=16 changed: false
+x as f32 = [-3.0316488e-13, -3.0316488e-13, -3.0316488e-13, -3.0316488e-13]
+expected if callback r=(i+1)/8 and DLL scales a+(b-a)r: [0.6875, 0.875, 1.0625, 1.25]
+** On entry to sranduniform, parameter number  4 had an illegal value
+exit_code=0 (0x0)

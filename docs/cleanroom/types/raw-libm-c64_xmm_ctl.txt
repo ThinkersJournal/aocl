@@ -1,0 +1,2 @@
+case=c64_xmm_ctl dll=C:/Program Files/AMD/AOCL-Windows/amd-libm/lib/libalm.dll
+exit_code=-1073741819 (0xc0000005)

@@ -1,0 +1,9 @@
+case=nt_ptr80 dll=C:/Program Files/AMD/AOCL-Windows/amd-libm/lib/libalm.dll
+rdx=ext80(2.0) xmm1=0.5 : delta -1.1102230246251565e-16 (up=+2.220446049250313e-16, down=-1.1102230246251565e-16)
+rdx=ext80(0.5) xmm1=2.0 : delta 2.220446049250313e-16
+rdx=ext80(2.0) xmm1=NaN : result 9.999999999999999e-1
+rdx=NULL xmm1=2.0 : delta 2.220446049250313e-16 (no crash => rdx not dereferenced)
+F rdx=ext80(2.0) xmm1=0.5 : delta -5.9604645e-8 (up=+1.1920929e-7, down=-5.9604645e-8)
+F rdx=ext80(0.5) xmm1=2.0 : delta 1.1920929e-7
+F rdx=NULL xmm1=2.0 : delta 1.1920929e-7 (no crash)
+exit_code=0 (0x0)

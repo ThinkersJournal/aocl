@@ -1,0 +1,18 @@
+case=c64 dll=C:/Program Files/AMD/AOCL-Windows/amd-libm/lib/libalm.dll
+cexp(0+0i): struct->(1e0, 0e0) | explicit sret -> (1e0, 0e0) rax==retptr:true bytes_written_offsets=(16, 31) (ret buf starts at 16; 16..32 expected) input_modified=false
+   CONTROL swapped fields -> (1e0, 0e0)
+cexp(0+i*pi/2): struct->(6.123233995736766e-17, 1e0) | explicit sret -> (6.123233995736766e-17, 1e0) rax==retptr:true bytes_written_offsets=(16, 31) (ret buf starts at 16; 16..32 expected) input_modified=false
+   CONTROL swapped fields -> (4.810477380965351e0, 0e0)
+cexp(1+2i) [non-symmetric; (-1.1312043837568135, 2.4717266720048188)]: struct->(-1.1312043837568135e0, 2.4717266720048188e0) | explicit sret -> (-1.1312043837568135e0, 2.4717266720048188e0) rax==retptr:true bytes_written_offsets=(16, 31) (ret buf starts at 16; 16..32 expected) input_modified=false
+   CONTROL swapped fields -> (3.9923240484412714e0, 6.217676312367968e0)
+clog(1+0i): struct->(0e0, 0e0) | explicit sret -> (0e0, 0e0) rax==retptr:true bytes_written_offsets=(16, 31) (ret buf starts at 16; 16..32 expected) input_modified=false
+   CONTROL swapped fields -> (0e0, 1.5707963267948966e0)
+clog(e+0i): struct->(1e0, 0e0) | explicit sret -> (1e0, 0e0) rax==retptr:true bytes_written_offsets=(16, 31) (ret buf starts at 16; 16..32 expected) input_modified=false
+   CONTROL swapped fields -> (1e0, 1.5707963267948966e0)
+clog(3+4i) [non-symmetric; (1.6094379124341003, 0.9272952180016122)]: struct->(1.6094379124341003e0, 9.272952180016122e-1) | explicit sret -> (1.6094379124341003e0, 9.272952180016122e-1) rax==retptr:true bytes_written_offsets=(16, 31) (ret buf starts at 16; 16..32 expected) input_modified=false
+   CONTROL swapped fields -> (1.6094379124341003e0, 6.435011087932844e-1)
+cpow(2+0i,3+0i) [8+0i]: struct->(8e0, 0e0) | explicit sret(rcx=ret,rdx=&a,r8=&b) -> (8e0, 0e0) rax==retptr:true written=Some(16)..Some(31) | CONTROL swapped args -> (9e0, 0e0)
+cpow(i,2+0i) [-1+0i]: struct->(-1e0, 1.2246467991473532e-16) | explicit sret(rcx=ret,rdx=&a,r8=&b) -> (-1e0, 1.2246467991473532e-16) rax==retptr:true written=Some(16)..Some(31) | CONTROL swapped args -> (7.692389013639721e-1, 6.389612763136348e-1)
+cpow(1+2i,2+0i) [non-symm: -3+4i]: struct->(-3e0, 4.000000000000002e0) | explicit sret(rcx=ret,rdx=&a,r8=&b) -> (-3e0, 4.000000000000002e0) rax==retptr:true written=Some(16)..Some(31) | CONTROL swapped args -> (3.6691394948660344e-1, 1.9660554808224875e0)
+cpow(2+0i,0+1i) [non-symm: (0.7692389013639721, 0.6389612763136348)]: struct->(7.692389013639721e-1, 6.389612763136348e-1) | explicit sret(rcx=ret,rdx=&a,r8=&b) -> (7.692389013639721e-1, 6.389612763136348e-1) rax==retptr:true written=Some(16)..Some(31) | CONTROL swapped args -> (-1e0, 1.2246467991473532e-16)
+exit_code=0 (0x0)

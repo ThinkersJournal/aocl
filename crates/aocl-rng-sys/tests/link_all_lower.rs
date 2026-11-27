@@ -8,6 +8,7 @@ fn all_lowercase_symbols_link() {
         srandinitialize as usize,
         drandinitialize as usize,
         drandinitializeuser as usize,
+        srandinitializeuser as usize,
         srandinitializebbs as usize,
         drandinitializebbs as usize,
         srandblumblumshub as usize,
@@ -85,6 +86,6 @@ fn all_lowercase_symbols_link() {
         drandinitialize_secrng as usize,
         get_rngversion as usize,
     ];
-    assert_eq!(addrs.len(), 79);
+    assert_eq!(addrs.len(), 80);
     assert!(addrs.iter().all(|a| *a != 0));
 }

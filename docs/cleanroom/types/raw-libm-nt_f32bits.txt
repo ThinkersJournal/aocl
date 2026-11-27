@@ -1,0 +1,6 @@
+case=nt_f32bits dll=C:/Program Files/AMD/AOCL-Windows/amd-libm/lib/libalm.dll
+WRONG y=f32 nexttoward(1,2) = delta -1.1102230246251565e-16
+WRONG y=f32 nexttoward(1,0.5) = delta -1.1102230246251565e-16
+WRONG y=f32 nexttowardf(1,2) = delta -5.9604645e-8
+WRONG y=f32 nexttowardf(1,0.5) = delta -5.9604645e-8
+exit_code=0 (0x0)

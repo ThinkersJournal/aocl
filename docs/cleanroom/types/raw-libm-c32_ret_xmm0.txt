@@ -1,0 +1,6 @@
+case=c32_ret_xmm0 dll=C:/Program Files/AMD/AOCL-Windows/amd-libm/lib/libalm.dll
+cexpf(1+2i): rax=401e30c5bf90cb4e -> (-1.1312044, 2.4717267)
+             xmm0(low64 as f64 bits)=4005bf0abf90cb4e -> (-1.1312044, 2.089785)  (== rax? false)
+CONTROL arg packed in xmm0 (rcx unspecified): rax=000000001ea928d0 -> (0.9927513, 1.7319e-41)
+CONTROL args as (f32,f32) in xmm0,xmm1: rax -> (1.791045e-20, 0.0)
+exit_code=0 (0x0)

@@ -1,0 +1,15 @@
+case=nt_f64 dll=C:/Program Files/AMD/AOCL-Windows/amd-libm/lib/libalm.dll
+nexttoward(1,2) [up] = 1.0000000000000002e0 bits=3ff0000000000001 delta_from_x=2.220446049250313e-16
+nexttoward(1,0.5) [down] = 9.999999999999999e-1 bits=3fefffffffffffff delta_from_x=-1.1102230246251565e-16
+nexttoward(1,1.0000000000000002) [up_1ulp_target] = 1.0000000000000002e0 bits=3ff0000000000001 delta_from_x=2.220446049250313e-16
+nexttoward(1,1) [equal] = 1e0 bits=3ff0000000000000 delta_from_x=0e0
+nexttoward(-1,-2) [neg_down] = -1.0000000000000002e0 bits=bff0000000000001 delta_from_x=-2.220446049250313e-16
+nexttoward(-1,0) [neg_to_zero] = -9.999999999999999e-1 bits=bfefffffffffffff delta_from_x=1.1102230246251565e-16
+nexttoward(1,inf) [inf] = 1.0000000000000002e0 bits=3ff0000000000001 delta_from_x=2.220446049250313e-16
+expect up: 1+eps=1.0000000000000002e0; down: 1-eps/2 -> delta -1.1102230246251565e-16
+nexttowardf(1,2) [up] = 1.0000001e0 bits=3f800001 delta_from_x=1.1920929e-7
+nexttowardf(1,0.5) [down] = 9.9999994e-1 bits=3f7fffff delta_from_x=-5.9604645e-8
+nexttowardf(1,1.0000000000009095) [up_by_tiny_f64_only] = 1.0000001e0 bits=3f800001 delta_from_x=1.1920929e-7
+nexttowardf(1,1) [equal] = 1e0 bits=3f800000 delta_from_x=0e0
+expect up: delta 1.1920929e-7; down: delta -5.9604645e-8
+exit_code=0 (0x0)

@@ -10,8 +10,9 @@
 //! trailing-underscore forms are **not exported** by the 6.0.68 Windows DLLs (measured), so they are not declared;
 //! `GET_RNGVERSION` is stated by the guide but not exported, so it is not declared either.
 //!
-//! Not declared: `srandinitializeuser` and `SRANDINITIALIZEUSER` (the guide never states the S callback typedefs),
-//! and, unless the `securerng` feature is on, the SecureRNG API. With `securerng` the 15 guide-stated AOCL-SecureRNG
+//! `srandinitializeuser`/`SRANDINITIALIZEUSER` are declared with MEASURED callback typedefs but are unusable on 6.0.68 Windows as documented (see `decls_user_s.rs`).
+//!
+//! Not declared: the SecureRNG API unless the `securerng` feature is on, the SecureRNG API. With `securerng` the 15 guide-stated AOCL-SecureRNG
 //! functions are declared and `amdsecrng` is linked (Windows only; measured: `docs/cleanroom/secrng/SECRNG-MEASUREMENT.md`).
 //!
 //! For a safe, idiomatic API see [`aocl-rng`](https://docs.rs/aocl-rng).
@@ -50,11 +51,21 @@ pub type RNG_DRANDINITIALIZEUSER_UGEN = Option<
     unsafe extern "C" fn(*mut rng_int_t, *mut rng_int_t, *mut core::ffi::c_double, *mut rng_int_t),
 >;
 
+/// User initialiser callback for `srandinitializeuser`: the guide never states it; MEASURED to have the same 7-pointer shape as the D one (docs/cleanroom/types/TYPES-MEASUREMENT.md, Windows 6.0.68).
+pub type RNG_SRANDINITIALIZEUSER_UINI = Option<
+    unsafe extern "C" fn(*mut rng_int_t, *mut rng_int_t, *mut rng_int_t, *mut rng_int_t, *mut rng_int_t, *mut rng_int_t, *mut rng_int_t),
+>;
+/// User generator callback for `srandinitializeuser`: MEASURED: as the D one with a `float` output array.
+pub type RNG_SRANDINITIALIZEUSER_UGEN =
+    Option<unsafe extern "C" fn(*mut rng_int_t, *mut rng_int_t, *mut core::ffi::c_float, *mut rng_int_t)>;
+
 mod decls;
 pub use decls::*;
 #[cfg(feature = "securerng")]
 mod decls_secure;
 #[cfg(feature = "securerng")]
 pub use decls_secure::*;
+mod decls_user_s;
+pub use decls_user_s::*;
 mod decls_upper;
 pub use decls_upper::*;

@@ -1,0 +1,18 @@
+case=c32 dll=C:/Program Files/AMD/AOCL-Windows/amd-libm/lib/libalm.dll
+cexpf(0+0i): struct->(1e0, 0e0) | u64(re in low32)->(1e0, 0e0) | identical_bits=true
+   CONTROL swapped input (im low32) -> (1e0, 0e0)  differs_from_positive=false
+cexpf(0+i*pi/2): struct->(-4.371139e-8, 1e0) | u64(re in low32)->(-4.371139e-8, 1e0) | identical_bits=true
+   CONTROL swapped input (im low32) -> (4.8104777e0, 0e0)  differs_from_positive=true
+cexpf(1+2i) [non-symmetric; exp(1)*(cos2, sin2) = (-1.1312, 2.4717)]: struct->(-1.1312044e0, 2.4717267e0) | u64(re in low32)->(-1.1312044e0, 2.4717267e0) | identical_bits=true
+   CONTROL swapped input (im low32) -> (3.9923239e0, 6.217676e0)  differs_from_positive=true
+clogf(1+0i): struct->(0e0, 0e0) | u64(re in low32)->(0e0, 0e0) | identical_bits=true
+   CONTROL swapped input (im low32) -> (0e0, 1.5707964e0)  differs_from_positive=true
+clogf(e+0i): struct->(9.9999994e-1, 0e0) | u64(re in low32)->(9.9999994e-1, 0e0) | identical_bits=true
+   CONTROL swapped input (im low32) -> (9.9999994e-1, 1.5707964e0)  differs_from_positive=true
+clogf(3+4i) [non-symmetric; (ln5, atan2(4,3)) = (1.6094, 0.9273)]: struct->(1.609438e0, 9.272952e-1) | u64(re in low32)->(1.609438e0, 9.272952e-1) | identical_bits=true
+   CONTROL swapped input (im low32) -> (1.609438e0, 6.435011e-1)  differs_from_positive=true
+cpowf(2+0i,3+0i) [8+0i]: struct->(8e0, 0e0) | u64->(8e0, 0e0) | CONTROL swapped fields->(-4.3748124e-3, 7.846052e-3) | CONTROL swapped args->(9e0, 0e0)
+cpowf(i,2+0i) [-1+0i]: struct->(-1e0, -8.742278e-8) | u64->(-1e0, -8.742278e-8) | CONTROL swapped fields->(1e0, 0e0) | CONTROL swapped args->(7.692389e-1, 6.3896126e-1)
+cpowf(1+2i,2+0i) [non-symm: -3+4i]: struct->(-3.0000005e0, 3.9999998e0) | u64->(-3.0000005e0, 3.9999998e0) | CONTROL swapped fields->(-1.5283683e-2, 3.95327e-1) | CONTROL swapped args->(3.6691394e-1, 1.9660555e0)
+cpowf(2+0i,0+1i) [non-symm: exp(i ln2)=(0.7692,0.6390)]: struct->(7.692389e-1, 6.3896126e-1) | u64->(7.692389e-1, 6.3896126e-1) | CONTROL swapped fields->(-8.742278e-8, 2e0) | CONTROL swapped args->(-1e0, -8.742278e-8)
+exit_code=0 (0x0)

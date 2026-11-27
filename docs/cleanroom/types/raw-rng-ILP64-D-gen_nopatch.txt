@@ -1,0 +1,24 @@
+case=gen_nopatch dll=C:/Program Files/AMD/AOCL-Windows/amd-rng/lib/ILP64/rng_amd.dll int_width=8 fn=drandinitializeuser
+UINI call #1
+  arg0 = 5d261ef6d8 -> [05, 00, 00, 00, 00, 00, 00, 00, 07, 00, 00, 00, 00, 00, 00, 00]
+  arg1 = 5d261ef6e0 -> [07, 00, 00, 00, 00, 00, 00, 00, b9, 7e, 3b, 19, ae, 93, 00, 00]
+  arg2 = 1a45adfb460 ==seed -> [64, 00, 00, 00, 00, 00, 00, 00, 65, 00, 00, 00, 00, 00, 00, 00]
+  arg3 = 1a45ae06e00 ==lseed -> [03, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00]
+  arg4 = 1a45b0b6040 ==state -> [00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00]
+  arg5 = 5d261ef648 -> [61, 00, 00, 00, 00, 00, 00, 00, 29, 7e, 3b, 19, ae, 93, 00, 00]
+  arg6 = 1a45ae0c070 ==info -> [00, 00, 00, 00, 00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa]
+  arg7 = 61 -> unreadable
+  arg8 = 93ae193b7e29 -> unreadable
+  arg9 = 50 -> unreadable
+  arg10 = 4 -> unreadable
+  arg11 = 1a45ae0c070 ==info -> [00, 00, 00, 00, 00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa]
+  deref as rng_int_t (width 8): genid=5 subid=7 seed[0..4]=100,101,102,103 lseed=3 lstate_arg=97 info=0
+  stride arg1-arg0 = 8 bytes, arg3-arg2 irrelevant; arg5 (lstate arg) is NOT the caller's lstate buffer
+after init: info=0 info_bytes_changed_of_16=8 lstate=100 UINI_calls=1 UGEN_calls=0
+nonzero state slots (index,value) after init: [(0, 7ff6), (1, a8a64600), (7ff8, a8a64600)]
+after dranduniform(n=4,a=0.5,b=2.0): info=-4 UGEN_calls=0
+x element width 8: bytes changed in x = 0 (offsets None..None); guard bytes beyond n*8=32 changed: false
+x as f64 = [-3.7206620809969885e-103, -3.7206620809969885e-103, -3.7206620809969885e-103, -3.7206620809969885e-103]
+expected if callback r=(i+1)/8 and DLL scales a+(b-a)r: [0.6875, 0.875, 1.0625, 1.25]
+** On entry to dranduniform, parameter number  4 had an illegal value
+exit_code=0 (0x0)

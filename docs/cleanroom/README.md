@@ -39,3 +39,13 @@ as a C prototype. Anything the guide does not state is UNKNOWN and left out.
 
 ## Status
 Math: `aocl-math-sys` and `aocl-math` are wired from the 218 scalar rows (`MATH-WIRING.md`, with the breaking list). RNG stays UNWIRED and UNPUBLISHED (pm-kernels ruling 2026-11-27: `rng_int_t` width, `fc32_t`/`fc64_t`/`long double` and the two `UINI`/`UGEN` names are not in the guide; a later behavioural probe by a session that has not read headers may settle `rng_int_t`, recorded as a measurement). Nothing is published; 0.1.0 stays yanked.
+
+## Added on lane/cleanroom-rng2 (2026-11-27): provenance for the correction rows
+| Rows | What | Input | Provenance table | Measurement |
+|---|---|---|---|---|
+| 78 UPPERCASE `S/DRAND*` (77 declared + `SRANDINITIALIZEUSER` via the types probe; `GET_RNGVERSION` stated by the guide, not exported, not declared) | fresh Sonnet writer, guide chapter 9 text only | `guide-ch9` text | `rng_upper_provenance.csv` (79 rows), `rng_upper_decls.rs` | link-all + known answer: `crates/aocl-rng-sys/tests/upper_kat.rs` |
+| 15 SecureRNG | Sonnet, guide SecureRNG text + DLL exports only | `secrng-guide.txt` | `secrng/secrng_provenance.csv` | `secrng/SECRNG-MEASUREMENT.md` (vacuous controls listed) |
+| 8 LibM types + S/D user callbacks | Sonnet, guide excerpts + DLLs only, a different session from the writers | `types/` | `types/TYPES-MEASUREMENT.md`, `types/types_decls.rs` | `types/` (vacuous controls listed) |
+| 156 SIMD (154 + 2) | mechanical from `math_decls.rs` | n/a | `math_provenance.csv` | `crates/aocl-math-sys/tests/simd.rs` (nightly) |
+Link-all (every declared symbol resolves in the installed AOCL): `tools/link-all.ps1`; the 20 + 2 guide-stated functions 6.0.68 does not export: `math-guide-stated-not-linkable.txt`.
+**This lane (aocl) read the AOCL headers earlier; every declaration above was written by a session that was given only the guide text and/or the binaries, and this lane did not edit a declaration by hand.**

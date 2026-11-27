@@ -1,0 +1,38 @@
+case=gen dll=C:/Program Files/AMD/AOCL-Windows/amd-rng/lib/ILP64/rng_amd.dll int_width=8 fn=drandinitializeuser
+UINI call #1
+  arg0 = 5c7bddf598 -> [05, 00, 00, 00, 00, 00, 00, 00, 07, 00, 00, 00, 00, 00, 00, 00]
+  arg1 = 5c7bddf5a0 -> [07, 00, 00, 00, 00, 00, 00, 00, e3, 02, da, 42, 37, 8d, 00, 00]
+  arg2 = 18adee6cc20 ==seed -> [64, 00, 00, 00, 00, 00, 00, 00, 65, 00, 00, 00, 00, 00, 00, 00]
+  arg3 = 18adee77980 ==lseed -> [03, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00]
+  arg4 = 18adf104040 ==state -> [00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00]
+  arg5 = 5c7bddf508 -> [61, 00, 00, 00, 00, 00, 00, 00, 73, 03, da, 42, 37, 8d, 00, 00]
+  arg6 = 18adee80560 ==info -> [00, 00, 00, 00, 00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa]
+  arg7 = 61 -> unreadable
+  arg8 = 8d3742da0373 -> unreadable
+  arg9 = 50 -> unreadable
+  arg10 = 4 -> unreadable
+  arg11 = 18adee80560 ==info -> [00, 00, 00, 00, 00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa]
+  deref as rng_int_t (width 8): genid=5 subid=7 seed[0..4]=100,101,102,103 lseed=3 lstate_arg=97 info=0
+  stride arg1-arg0 = 8 bytes, arg3-arg2 irrelevant; arg5 (lstate arg) is NOT the caller's lstate buffer
+after init: info=0 info_bytes_changed_of_16=8 lstate=100 UINI_calls=1 UGEN_calls=0
+nonzero state slots (index,value) after init: [(0, 7ff6), (1, a8a64600), (7ff8, a8a64600)]
+harness patch: state[0..4]=1,hi,lo,hi  (ugen 7ff6a8a64600)
+UGEN call #1
+  arg0 = 5c7bddf590 -> [04, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, e0, 3f]
+  arg1 = 18adf104040 ==state -> [01, 00, 00, 00, 00, 00, 00, 00, f6, 7f, 00, 00, 00, 00, 00, 00]
+  arg2 = 18adee65a60 ==x(output buffer) -> [aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa]
+  arg3 = 18adee80260 ==info(caller's buffer) -> [aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa]
+  arg4 = 5c7bddf598 -> [00, 00, 00, 00, 00, 00, e0, 3f, 00, 00, 00, 00, 00, 00, 00, 40]
+  arg5 = 7ffed4f1f811 -> [48, 83, 7d, 00, 00, 0f, 84, f5, 00, 00, 00, 48, c7, 45, 00, fc]
+  arg6 = 7ff6a8a7f0f0 -> [55, 56, 57, 53, 48, 83, ec, 48, 48, 8d, 6c, 24, 40, 8b, 09, 41]
+  arg7 = 50 -> unreadable
+  arg8 = 18adee50000 -> [00, 00, 00, 00, 00, 00, 00, 00, 0d, bb, fb, 72, 0a, 93, 00, 01]
+  arg9 = 50 -> unreadable
+  arg10 = 18adee80260 ==info(caller's buffer) -> [aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa]
+  arg11 = 5c7bddf640 -> [b0, b5, e5, de, 8a, 01, 00, 00, 05, 00, 00, 00, 00, 00, 00, 00]
+  *arg0 as rng_int_t = 4; arg4-arg0 = 8 bytes
+after dranduniform(n=4,a=0.5,b=2.0): info=0 UGEN_calls=1
+x element width 8: bytes changed in x = 32 (offsets Some(0)..Some(31)); guard bytes beyond n*8=32 changed: false
+x as f64 = [0.6875, 0.875, 1.0625, 1.25]
+expected if callback r=(i+1)/8 and DLL scales a+(b-a)r: [0.6875, 0.875, 1.0625, 1.25]
+exit_code=0 (0x0)

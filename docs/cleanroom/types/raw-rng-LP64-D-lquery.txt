@@ -1,0 +1,20 @@
+case=lquery dll=C:/Program Files/AMD/AOCL-Windows/amd-rng/lib/LP64/rng_amd.dll int_width=4 fn=drandinitializeuser
+UINI call #1
+  arg0 = 8bc14ff780 -> [05, 00, 00, 00, 07, 00, 00, 00, 2f, bc, 23, a0, 4e, 05, 00, 00]
+  arg1 = 8bc14ff784 -> [07, 00, 00, 00, 2f, bc, 23, a0, 4e, 05, 00, 00, 70, b9, a6, 6c]
+  arg2 = 26d6ca75080 ==seed -> [64, 00, 00, 00, 65, 00, 00, 00, 66, 00, 00, 00, 67, 00, 00, 00]
+  arg3 = 26d6ca87550 ==lseed -> [03, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00]
+  arg4 = 26d6cc93040 ==state -> [00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00]
+  arg5 = 8bc14ff6fc -> [fc, ff, ff, ff, df, bd, 23, a0, 4e, 05, 00, 00, 48, 00, 00, 00]
+  arg6 = 26d6ca8d790 ==info -> [00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa]
+  arg7 = fffffffc6ca6b2f0 -> unreadable
+  arg8 = 54ea023bddf -> unreadable
+  arg9 = 48 -> unreadable
+  arg10 = 4 -> unreadable
+  arg11 = 26d6ca8d790 ==info -> [00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa]
+  deref as rng_int_t (width 4): genid=5 subid=7 seed[0..4]=100,101,102,103 lseed=3 lstate_arg=-4 info=0
+  stride arg1-arg0 = 4 bytes, arg3-arg2 irrelevant; arg5 (lstate arg) is NOT the caller's lstate buffer
+  UINI wrote *lstate = 55
+after init: info=0 info_bytes_changed_of_16=4 lstate=-1 UINI_calls=1 UGEN_calls=0
+nonzero state slots (index,value) after init: [(0, 7ff6), (1, ffffffffa8a64600), (7ff8, ffffffffa8a64600)]
+exit_code=0 (0x0)

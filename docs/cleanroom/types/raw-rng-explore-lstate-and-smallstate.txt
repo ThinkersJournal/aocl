@@ -1,0 +1,19 @@
+### lstate=0 (UINI sees lstate_arg; env: PAD=0 NSTATE=1000000)
+   arg5 = c38c8ff71c  -> [fd, ff, ff, ff, 4d, 17, c1, cc, 99, e3, 00, 00, 01, 00, 00, 00]
+query: info=0 lstate=0 info_bytes_changed=16
+exit_code=0 (0x0)
+### lstate=1 (UINI sees lstate_arg; env: PAD=0 NSTATE=1000000)
+query: info=-6 lstate=1 info_bytes_changed=16
+exit_code=0 (0x0)
+### lstate=8 (UINI sees lstate_arg; env: PAD=0 NSTATE=1000000)
+   arg5 = 3e06ff28c  -> [05, 00, 00, 00, 8b, c0, 79, 45, fb, df, 00, 00, 01, 00, 00, 00]
+query: info=0 lstate=8 info_bytes_changed=16
+exit_code=0 (0x0)
+### lstate=100 (UINI sees lstate_arg; env: PAD=0 NSTATE=1000000)
+   arg5 = d94bb5f9bc  -> [61, 00, 00, 00, 9e, 34, 4e, e2, f4, dc, 00, 00, 01, 00, 00, 00]
+query: info=0 lstate=100 info_bytes_changed=16
+exit_code=0 (0x0)
+### SMALL state buffer (4096 slots), lstate=100: DLL writes outside the buffer
+EXCEPTION code=c0000005 at=7ffeeb1267a9 rip=7ffeeb1267a9 info0=1 info1=113fdb62f64
+state addr=113fdb42f80 fault-state=0x1ffe4
+exit_code=-1073741819 (0xc0000005)

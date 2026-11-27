@@ -9,6 +9,7 @@ fn all_uppercase_symbols_link() {
         SRANDINITIALIZE as usize,
         DRANDINITIALIZE as usize,
         DRANDINITIALIZEUSER as usize,
+        SRANDINITIALIZEUSER as usize,
         SRANDINITIALIZEBBS as usize,
         DRANDINITIALIZEBBS as usize,
         SRANDBLUMBLUMSHUB as usize,
@@ -84,7 +85,7 @@ fn all_uppercase_symbols_link() {
         SRANDLEAPFROG as usize,
         DRANDLEAPFROG as usize,
     ];
-    assert_eq!(addrs.len(), 77);
+    assert_eq!(addrs.len(), 78);
     assert!(addrs.iter().all(|a| *a != 0));
 }
 

@@ -6,9 +6,9 @@
 //!
 //! **Stated by the guide but not exported by AOCL 6.0.68 on Windows (Linux not measured): 20 `amd_fast*`/`amd_fasterf*` scalar functions and `amd_vrd8_fabs`/`amd_vrs16_fabsf`. They are behind the default-OFF feature `guide-only-fast`; using them fails to link on Windows.** (0.2.7 declared the 20 by default: a defect.)
 //!
-//! Not declared, because the guide names a type it never defines so the ABI cannot be derived: `amd_nexttoward`,
-//! `amd_nexttowardf` (`long double`) and the six complex functions (`fc32_t`/`fc64_t`). `amd_vrd2_sincos` is also
-//! absent: its guide line is too garbled to read with certainty.
+//! The 8 functions with `long double` / `fc32_t` / `fc64_t` are declared on **Windows only** (`decls_types.rs`), with the ABI
+//! MEASURED against AOCL 6.0.68 (`docs/cleanroom/types/`); Linux is unmeasured. `amd_vrd2_sincos` is absent: its guide line is
+//! too garbled to read with certainty.
 //!
 //! The 156 vector-API functions the guide also states take `__m128`..`__m512d` by value, which stable Rust cannot declare in
 //! an `extern "C"` block (it needs the nightly `simd_ffi` compiler feature). They are declared in `decls_simd.rs` behind
@@ -44,3 +44,9 @@ pub use decls_guide_only::*;
 mod decls_guide_only_simd;
 #[cfg(all(feature = "guide-only-fast", feature = "simd_ffi"))]
 pub use decls_guide_only_simd::*;
+
+// Windows only: ABI measured there, Linux unmeasured. See docs/cleanroom/types/TYPES-MEASUREMENT.md.
+#[cfg(windows)]
+mod decls_types;
+#[cfg(windows)]
+pub use decls_types::*;
