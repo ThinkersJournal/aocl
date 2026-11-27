@@ -1,0 +1,9 @@
+### run.ps1 ILP64 40 fn=suser slots=131072 lstate=2
+CASE {"build": "ILP64", "slots": "131072", "fn": "suser", "lstate": "2"}
+dll=C:/Program Files/AMD/AOCL-Windows/amd-rng/lib/ILP64/rng_amd.dll int_width=8 fn=srandinitializeuser fn_addr=0x7ffed4f01010 dll_base=0x7ffed4ed0000
+uini_addr=0x7ff6bd396c10 (hi32=0x7ff6 lo32=0xbd396c10)  ugen_addr=0x7ff6bd396930 (hi32=0x7ff6 lo32=0xbd396930)
+CALL: genid=5 subid=7 lseed_in=3 lstate_in=2 state_buffer: ptr=0x20536852000 slots=131072 bytes=1048576 (guard page starts exactly at state_ptr+1048576) fill=0xa5
+RESULT info=-6 lstate_after=2 lseed_after=3 UINI_calls=0 UGEN_calls=0 bytes_in_prepad_changed=0
+CHANGED slots=0 last_changed_slot=None last_changed_byte_end=0 of buffer_bytes=1048576 (lstate*w=16)
+** On entry to srandinitializeuser, parameter number  6 had an illegal value
+child_exit_code=0x0 elapsed_ms=40

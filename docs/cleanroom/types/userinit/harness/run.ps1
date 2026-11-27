@@ -1,0 +1,10 @@
+# usage: run.ps1 <LP64|ILP64> <timeout_s> key=val ...   per-process PATH, never the caller's (as tools/link-all.ps1)
+param($build, $to, [Parameter(ValueFromRemainingArguments=$true)]$rest)
+$root = 'C:\Program Files\AMD\AOCL-Windows'
+$dirs = Get-ChildItem $root -Recurse -Filter *.dll | ForEach-Object { $_.DirectoryName } | Sort-Object -Unique
+$ilp = @($dirs | Where-Object { $_ -match 'ILP64' })
+$non = @($dirs | Where-Object { $_ -notmatch 'ILP64' })
+$oneapi = 'C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin'
+$p = if ($build -eq 'ILP64') { $ilp + $non } else { $non }
+$env:PATH = (($p + $oneapi) -join ';') + ';C:\Windows\System32;C:\Windows'
+& "$PSScriptRoot\bin\uprobe.exe" parent $to "build=$build" @rest

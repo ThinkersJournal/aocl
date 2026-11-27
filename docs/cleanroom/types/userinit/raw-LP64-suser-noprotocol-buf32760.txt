@@ -1,0 +1,8 @@
+### run.ps1 LP64 40 fn=suser slots=32760 lstate=slots
+CASE {"fn": "suser", "build": "LP64", "slots": "32760", "lstate": "slots"}
+dll=C:/Program Files/AMD/AOCL-Windows/amd-rng/lib/LP64/rng_amd.dll int_width=4 fn=srandinitializeuser fn_addr=0x7ffed6b195b0 dll_base=0x7ffed6af0000
+uini_addr=0x7ff626a77040 (hi32=0x7ff6 lo32=0x26a77040)  ugen_addr=0x7ff626a76d60 (hi32=0x7ff6 lo32=0x26a76d60)
+CALL: genid=5 subid=7 lseed_in=3 lstate_in=32760 state_buffer: ptr=0x202c1c30020 slots=32760 bytes=131040 (uncommitted (faulting) memory starts exactly at state_ptr+131040) fill=0x00
+UINI#1 id=1 genid=5 subid=7 lseed=3 lstate_arg=32757 info=0 state_ptr_matches_caller=true state[0] at UINI entry=[0]
+FAULT access=1 (WRITE) addr=0x202c1c50000 state_ptr=0x202c1c30020 fault_offset_from_state_start=131040 bytes (32760 slots of 4) rip inside rng_amd.dll (RVA 0x267a9)
+child_exit_code=0xc0000005 elapsed_ms=20

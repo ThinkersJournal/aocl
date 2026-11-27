@@ -1,0 +1,7 @@
+### run.ps1 LP64 40 fn=sinit genid=3 subid=0 slots=auto-1
+CASE {"subid": "0", "build": "LP64", "fn": "sinit", "genid": "3", "slots": "auto-1"}
+dll=C:/Program Files/AMD/AOCL-Windows/amd-rng/lib/LP64/rng_amd.dll int_width=4 fn=srandinitialize fn_addr=0x7ffef5189490 dll_base=0x7ffef5160000
+QUERY (lstate=-1,lseed=-1): lstate_out=633 lseed_out=624 info=1
+CALL: genid=3 subid=0 lseed_in=624 lstate_in=633 state_buffer: ptr=0x188e9760620 slots=632 bytes=2528 (uncommitted (faulting) memory starts exactly at state_ptr+2528) fill=0x00
+FAULT access=1 (WRITE) addr=0x188e9761000 state_ptr=0x188e9760620 fault_offset_from_state_start=2528 bytes (632 slots of 4) rip inside rng_amd.dll (RVA 0x269f5)
+child_exit_code=0xc0000005 elapsed_ms=20

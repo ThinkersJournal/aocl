@@ -1,0 +1,12 @@
+### run.ps1 ILP64 40 fn=suser slots=2097152 lstate=100 ugen=fn
+CASE {"lstate": "100", "ugen": "fn", "build": "ILP64", "fn": "suser", "slots": "2097152"}
+dll=C:/Program Files/AMD/AOCL-Windows/amd-rng/lib/ILP64/rng_amd.dll int_width=8 fn=srandinitializeuser fn_addr=0x7ffed4f01010 dll_base=0x7ffed4ed0000
+uini_addr=0x7ff626a77040 (hi32=0x7ff6 lo32=0x26a77040)  ugen_addr=0x7ff626a76d60 (hi32=0x7ff6 lo32=0x26a76d60)
+CALL: genid=5 subid=7 lseed_in=3 lstate_in=100 state_buffer: ptr=0x29e85740000 slots=2097152 bytes=16777216 (uncommitted (faulting) memory starts exactly at state_ptr+16777216) fill=0x00
+UINI#1 id=1 genid=5 subid=7 lseed=3 lstate_arg=97 info=0 state_ptr_matches_caller=true state[0] at UINI entry=[0]
+RESULT info=0 lstate_after=100 lseed_after=3 UINI_calls=1 UGEN_calls=0 bytes_in_prepad_changed=0
+CHANGED slots=3 last_changed_slot=Some(32760) last_changed_byte_end=262088 of buffer_bytes=16777216 (lstate*w=800)
+  state[0] (byte off 0x0) = 0x7ff6
+  state[1] (byte off 0x8) = 0x26a76d60
+  state[32760] (byte off 0x3ffc0) = 0x26a76d60
+child_exit_code=0x0 elapsed_ms=41

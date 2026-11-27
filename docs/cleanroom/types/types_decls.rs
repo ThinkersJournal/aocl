@@ -59,5 +59,5 @@ pub type RNG_SRANDINITIALIZEUSER_UGEN = Option<unsafe extern "C" fn(*mut rng_int
 // UNMEASURED / DO NOT DEFINE (see TYPES-MEASUREMENT.md section 3):
 //  * whether the callbacks receive more than the arguments above (the slots past arg3 / arg6 hold stack residue
 //    that cannot be told apart from a real extra parameter by this method; the guide's 4-arg / 7-arg typedefs are used);
-//  * the DLL's own defective user-state bookkeeping on 64-bit Windows (state[hi32+2] write, -4 on generate): the
+//  * the user-state protocol (superseded by userinit/USERINIT-MEASUREMENT.md: it was OUR call pattern; UINI must set state[0]=n): earlier text said 'defective' on 64-bit Windows (state[hi32+2] write, -4 on generate): the
 //    `(s|d)randinitializeuser` entry points are NOT declared here, because a safe, working call sequence was not found.

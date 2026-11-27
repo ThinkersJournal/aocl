@@ -1,0 +1,8 @@
+### run.ps1 ILP64 40 fn=duser slots=100 lstate=-1 lseed=-1
+CASE {"fn": "duser", "slots": "100", "lstate": "-1", "lseed": "-1", "build": "ILP64"}
+dll=C:/Program Files/AMD/AOCL-Windows/amd-rng/lib/ILP64/rng_amd.dll int_width=8 fn=drandinitializeuser fn_addr=0x7ffed4eff440 dll_base=0x7ffed4ed0000
+uini_addr=0x7ff626a77040 (hi32=0x7ff6 lo32=0x26a77040)  ugen_addr=0x7ff626a76d60 (hi32=0x7ff6 lo32=0x26a76d60)
+CALL: genid=5 subid=7 lseed_in=-1 lstate_in=-1 state_buffer: ptr=0x1adb1ad0ce0 slots=100 bytes=800 (uncommitted (faulting) memory starts exactly at state_ptr+800) fill=0x00
+UINI#1 id=1 genid=5 subid=7 lseed=-1 lstate_arg=-4 info=0 state_ptr_matches_caller=true state[0] at UINI entry=[0]
+FAULT access=1 (WRITE) addr=0x1adb1b10ca0 state_ptr=0x1adb1ad0ce0 fault_offset_from_state_start=262080 bytes (32760 slots of 8) rip inside rng_amd.dll (RVA 0x2e021)
+child_exit_code=0xc0000005 elapsed_ms=40

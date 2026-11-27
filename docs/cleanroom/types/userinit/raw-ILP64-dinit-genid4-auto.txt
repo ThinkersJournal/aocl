@@ -1,0 +1,27 @@
+### run.ps1 ILP64 40 fn=dinit genid=4 subid=1 slots=auto
+CASE {"fn": "dinit", "build": "ILP64", "slots": "auto", "genid": "4", "subid": "1"}
+dll=C:/Program Files/AMD/AOCL-Windows/amd-rng/lib/ILP64/rng_amd.dll int_width=8 fn=drandinitialize fn_addr=0x7ffed4eff310 dll_base=0x7ffed4ed0000
+QUERY (lstate=-1,lseed=-1): lstate_out=61 lseed_out=6 info=1
+CALL: genid=4 subid=1 lseed_in=6 lstate_in=61 state_buffer: ptr=0x18476340e18 slots=61 bytes=488 (uncommitted (faulting) memory starts exactly at state_ptr+488) fill=0x00
+RESULT info=0 lstate_after=61 lseed_after=6 UINI_calls=0 UGEN_calls=0 bytes_in_prepad_changed=0
+CHANGED slots=19 last_changed_slot=Some(60) last_changed_byte_end=488 of buffer_bytes=488 (lstate*w=488)
+  state[0] (byte off 0x0) = 0x3a
+  state[1] (byte off 0x8) = 0x12da
+  state[2] (byte off 0x10) = 0x4
+  state[5] (byte off 0x28) = 0x64
+  state[7] (byte off 0x38) = 0x65
+  state[9] (byte off 0x48) = 0x66
+  state[11] (byte off 0x58) = 0x67
+  state[13] (byte off 0x68) = 0x68
+  state[15] (byte off 0x78) = 0x69
+  state[19] (byte off 0x98) = 0x156abc
+  state[21] (byte off 0xa8) = 0xc5ee8
+  state[23] (byte off 0xb8) = 0x80cfc
+  state[27] (byte off 0xd8) = 0x14e9dd
+  state[53] (byte off 0x1a8) = 0xffffff2f
+  state[55] (byte off 0x1b8) = 0xffffa6bb
+  state[57] (byte off 0x1c8) = 0x12da
+  state[58] (byte off 0x1d0) = 0x7ffe
+  state[59] (byte off 0x1d8) = 0xd4ef2280
+  state[60] (byte off 0x1e0) = 0x12da
+child_exit_code=0x0 elapsed_ms=42

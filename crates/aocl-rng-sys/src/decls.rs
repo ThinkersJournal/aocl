@@ -22,9 +22,10 @@ extern "C" {
         info: *mut rng_int_t,
     );
     // guide 6.0 (68552) L112215
-    /// **DO NOT CALL.** AOCL 6.0.68 Windows: an isolated probe saw this entry point write ~128 KB past the start of the state buffer and the
-    /// following generate call return `info = -4`; no working call sequence was measured (status under re-measurement: see
-    /// `docs/cleanroom/types/USERINIT-MEASUREMENT.md` and `TYPES-MEASUREMENT.md`). No safe wrapper exists, no test calls it.
+    /// **Unsafe protocol, measured not documented.** AOCL 6.0.68 Windows: after `uini` returns the library reads `n = state[0]` and writes
+    /// `state[n]`, `state[n+1]` (the `ugen` address split into two integers) and `state[state[0]+2]`; `n` is never checked against `lstate`, and
+    /// `uini` that leaves `state[0] = 0` makes it write ~`hi32(ugen)+2` slots away (an out-of-bounds write). The guide does not state this.
+    /// See `docs/cleanroom/types/userinit/USERINIT-MEASUREMENT.md`. No safe wrapper exists, and no test calls this.
     pub fn drandinitializeuser(
         uini: RNG_DRANDINITIALIZEUSER_UINI,
         ugen: RNG_DRANDINITIALIZEUSER_UGEN,

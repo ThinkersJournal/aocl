@@ -1,0 +1,51 @@
+### run.ps1 ILP64 40 fn=suser slots=131072 lstate=slots uini_n=97
+CASE {"lstate": "slots", "build": "ILP64", "uini_n": "97", "fn": "suser", "slots": "131072"}
+dll=C:/Program Files/AMD/AOCL-Windows/amd-rng/lib/ILP64/rng_amd.dll int_width=8 fn=srandinitializeuser fn_addr=0x7ffed4f01010 dll_base=0x7ffed4ed0000
+uini_addr=0x7ff626a77040 (hi32=0x7ff6 lo32=0x26a77040)  ugen_addr=0x7ff626a76d60 (hi32=0x7ff6 lo32=0x26a76d60)
+CALL: genid=5 subid=7 lseed_in=3 lstate_in=131072 state_buffer: ptr=0x1d4a0c30000 slots=131072 bytes=1048576 (uncommitted (faulting) memory starts exactly at state_ptr+1048576) fill=0x00
+UINI#1 id=1 genid=5 subid=7 lseed=3 lstate_arg=131069 info=0 state_ptr_matches_caller=true state[0] at UINI entry=[0]
+UINI (protocol probe) wrote state[0]=97 and state[1..97]=0x7000+i
+RESULT info=0 lstate_after=131072 lseed_after=3 UINI_calls=1 UGEN_calls=0 bytes_in_prepad_changed=0
+CHANGED slots=100 last_changed_slot=Some(99) last_changed_byte_end=800 of buffer_bytes=1048576 (lstate*w=1048576)
+  state[0] (byte off 0x0) = 0x61
+  state[1] (byte off 0x8) = 0x7001
+  state[2] (byte off 0x10) = 0x7002
+  state[3] (byte off 0x18) = 0x7003
+  state[4] (byte off 0x20) = 0x7004
+  state[5] (byte off 0x28) = 0x7005
+  state[6] (byte off 0x30) = 0x7006
+  state[7] (byte off 0x38) = 0x7007
+  state[8] (byte off 0x40) = 0x7008
+  state[9] (byte off 0x48) = 0x7009
+  state[10] (byte off 0x50) = 0x700a
+  state[11] (byte off 0x58) = 0x700b
+  state[12] (byte off 0x60) = 0x700c
+  state[13] (byte off 0x68) = 0x700d
+  state[14] (byte off 0x70) = 0x700e
+  state[15] (byte off 0x78) = 0x700f
+  state[16] (byte off 0x80) = 0x7010
+  state[17] (byte off 0x88) = 0x7011
+  state[18] (byte off 0x90) = 0x7012
+  state[19] (byte off 0x98) = 0x7013
+  state[20] (byte off 0xa0) = 0x7014
+  state[21] (byte off 0xa8) = 0x7015
+  state[22] (byte off 0xb0) = 0x7016
+  state[23] (byte off 0xb8) = 0x7017
+  state[24] (byte off 0xc0) = 0x7018
+  state[25] (byte off 0xc8) = 0x7019
+  state[26] (byte off 0xd0) = 0x701a
+  state[27] (byte off 0xd8) = 0x701b
+  state[28] (byte off 0xe0) = 0x701c
+  state[29] (byte off 0xe8) = 0x701d
+  state[30] (byte off 0xf0) = 0x701e
+  state[31] (byte off 0xf8) = 0x701f
+  state[32] (byte off 0x100) = 0x7020
+  state[33] (byte off 0x108) = 0x7021
+  state[34] (byte off 0x110) = 0x7022
+  state[35] (byte off 0x118) = 0x7023
+  state[36] (byte off 0x120) = 0x7024
+  state[37] (byte off 0x128) = 0x7025
+  state[38] (byte off 0x130) = 0x7026
+  state[39] (byte off 0x138) = 0x7027
+  ... 60 more
+child_exit_code=0x0 elapsed_ms=40

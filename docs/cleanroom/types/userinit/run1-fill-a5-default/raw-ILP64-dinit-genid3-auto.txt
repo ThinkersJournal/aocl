@@ -1,0 +1,49 @@
+### run.ps1 ILP64 40 fn=dinit genid=3 subid=1 slots=auto
+CASE {"genid": "3", "build": "ILP64", "subid": "1", "fn": "dinit", "slots": "auto"}
+dll=C:/Program Files/AMD/AOCL-Windows/amd-rng/lib/ILP64/rng_amd.dll int_width=8 fn=drandinitialize fn_addr=0x7ffef51ff310 dll_base=0x7ffef51d0000
+QUERY (lstate=-1,lseed=-1): lstate_out=633 lseed_out=624 info=1
+CALL: genid=3 subid=1 lseed_in=624 lstate_in=633 state_buffer: ptr=0x252ba2e2c38 slots=633 bytes=5064 (guard page starts exactly at state_ptr+5064) fill=0xa5
+RESULT info=0 lstate_after=633 lseed_after=624 UINI_calls=0 UGEN_calls=0 bytes_in_prepad_changed=0
+CHANGED slots=633 last_changed_slot=Some(632) last_changed_byte_end=5064 of buffer_bytes=5064 (lstate*w=5064)
+  state[0] (byte off 0x0) = 0x276
+  state[1] (byte off 0x8) = 0xe6c
+  state[2] (byte off 0x10) = 0x3
+  state[3] (byte off 0x18) = 0x0
+  state[4] (byte off 0x20) = 0x5
+  state[5] (byte off 0x28) = 0xffffffff9908b11c
+  state[6] (byte off 0x30) = 0x1c1
+  state[7] (byte off 0x38) = 0xffffffff9908b11f
+  state[8] (byte off 0x40) = 0x1c0
+  state[9] (byte off 0x48) = 0xffffffff9908b11e
+  state[10] (byte off 0x50) = 0x1c3
+  state[11] (byte off 0x58) = 0xffffffff9908b11d
+  state[12] (byte off 0x60) = 0x1ce
+  state[13] (byte off 0x68) = 0xffffffff9908b110
+  state[14] (byte off 0x70) = 0x1cd
+  state[15] (byte off 0x78) = 0xffffffff9908b113
+  state[16] (byte off 0x80) = 0x1c4
+  state[17] (byte off 0x88) = 0xffffffff9908b11a
+  state[18] (byte off 0x90) = 0x1c7
+  state[19] (byte off 0x98) = 0xffffffff9908b119
+  state[20] (byte off 0xa0) = 0x23a
+  state[21] (byte off 0xa8) = 0xffffffff9908b2e4
+  state[22] (byte off 0xb0) = 0x239
+  state[23] (byte off 0xb8) = 0xffffffff9908b2e7
+  state[24] (byte off 0xc0) = 0x238
+  state[25] (byte off 0xc8) = 0xffffffff9908b2e6
+  state[26] (byte off 0xd0) = 0x23b
+  state[27] (byte off 0xd8) = 0xffffffff9908b2e5
+  state[28] (byte off 0xe0) = 0x236
+  state[29] (byte off 0xe8) = 0xffffffff9908b2e8
+  state[30] (byte off 0xf0) = 0x235
+  state[31] (byte off 0xf8) = 0xffffffff9908b2eb
+  state[32] (byte off 0x100) = 0x24c
+  state[33] (byte off 0x108) = 0xffffffff9908b292
+  state[34] (byte off 0x110) = 0x24f
+  state[35] (byte off 0x118) = 0xffffffff9908b291
+  state[36] (byte off 0x120) = 0x252
+  state[37] (byte off 0x128) = 0xffffffff9908b28c
+  state[38] (byte off 0x130) = 0x251
+  state[39] (byte off 0x138) = 0xffffffff9908b28f
+  ... 593 more
+child_exit_code=0x0 elapsed_ms=40

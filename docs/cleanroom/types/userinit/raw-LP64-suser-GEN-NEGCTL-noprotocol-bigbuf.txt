@@ -1,0 +1,14 @@
+### run.ps1 LP64 40 fn=suser slots=65536 lstate=100 gen=1
+CASE {"gen": "1", "fn": "suser", "slots": "65536", "build": "LP64", "lstate": "100"}
+dll=C:/Program Files/AMD/AOCL-Windows/amd-rng/lib/LP64/rng_amd.dll int_width=4 fn=srandinitializeuser fn_addr=0x7ffeeaf295b0 dll_base=0x7ffeeaf00000
+uini_addr=0x7ff77fc97f50 (hi32=0x7ff7 lo32=0x7fc97f50)  ugen_addr=0x7ff77fc97a50 (hi32=0x7ff7 lo32=0x7fc97a50)
+CALL: genid=5 subid=7 lseed_in=3 lstate_in=100 state_buffer: ptr=0x19d3eec0000 slots=65536 bytes=262144 (uncommitted (faulting) memory starts exactly at state_ptr+262144) fill=0x00
+UINI#1 id=1 genid=5 subid=7 lseed=3 lstate_arg=97 info=0 state_ptr_matches_caller=true state[0] at UINI entry=[0]
+RESULT info=0 lstate_after=100 lseed_after=3 UINI_calls=1 UGEN_calls=0 bytes_in_prepad_changed=0
+CHANGED slots=3 last_changed_slot=Some(32761) last_changed_byte_end=131048 of buffer_bytes=262144 (lstate*w=400)
+  state[0] (byte off 0x0) = 0x7ff7
+  state[1] (byte off 0x4) = 0x7fc97a50
+  state[32761] (byte off 0x1ffe4) = 0x7fc97a50
+GEN sranduniform(n=4,a=0.5,b=2.0) NO harness patch: info=-4 UGEN_calls=0 x=[-3.0316488e-13, -3.0316488e-13, -3.0316488e-13, -3.0316488e-13] expected=[0.6875, 0.875, 1.0625, 1.25] bytes_changed_beyond_n*4=0
+** On entry to sranduniform, parameter number  4 had an illegal value
+child_exit_code=0x0 elapsed_ms=40

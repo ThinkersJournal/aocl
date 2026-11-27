@@ -1,0 +1,6 @@
+### run.ps1 LP64 40 fn=selftest
+selftest: writing slot 99 (last in-bounds of 100) at 2c56d222ffc
+selftest: in-bounds write OK
+selftest: writing 1 byte one past the end (must fault)
+FAULT access=1 (WRITE) addr=0x2c56d223000 state_ptr=0x2c56d222e70 fault_offset_from_state_start=400 bytes (100 slots of 4) rip OUTSIDE rng_amd.dll (harness or other module)
+child_exit_code=0xc0000005 elapsed_ms=20

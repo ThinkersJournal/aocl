@@ -1,0 +1,17 @@
+### run.ps1 ILP64 40 fn=sinit genid=1 subid=1 slots=auto
+CASE {"slots": "auto", "build": "ILP64", "fn": "sinit", "subid": "1", "genid": "1"}
+dll=C:/Program Files/AMD/AOCL-Windows/amd-rng/lib/ILP64/rng_amd.dll int_width=8 fn=srandinitialize fn_addr=0x7ffed6b10ee0 dll_base=0x7ffed6ae0000
+QUERY (lstate=-1,lseed=-1): lstate_out=16 lseed_out=1 info=1
+CALL: genid=1 subid=1 lseed_in=1 lstate_in=16 state_buffer: ptr=0x236fab30f80 slots=16 bytes=128 (uncommitted (faulting) memory starts exactly at state_ptr+128) fill=0x00
+RESULT info=0 lstate_after=16 lseed_after=1 UINI_calls=0 UGEN_calls=0 bytes_in_prepad_changed=0
+CHANGED slots=9 last_changed_slot=Some(15) last_changed_byte_end=128 of buffer_bytes=128 (lstate*w=128)
+  state[0] (byte off 0x0) = 0xd
+  state[1] (byte off 0x8) = 0x4d2
+  state[2] (byte off 0x10) = 0x1
+  state[4] (byte off 0x20) = 0x192
+  state[8] (byte off 0x40) = 0x113769b23c5fd
+  state[12] (byte off 0x60) = 0x4d2
+  state[13] (byte off 0x68) = 0x7ffe
+  state[14] (byte off 0x70) = 0xd6b2b240
+  state[15] (byte off 0x78) = 0x4d2
+child_exit_code=0x0 elapsed_ms=40

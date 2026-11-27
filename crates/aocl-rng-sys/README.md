@@ -7,13 +7,4 @@ Raw FFI declarations for AOCL-RNG (the lowercase C forms), written clean-room fr
 **Not declared, and why**
 - UPPERCASE forms (`DRANDINITIALIZE`, ...): exported and stated by the guide, but not needed yet; added on demand.
 - Trailing-underscore forms (`drandinitialize_`, ...) and `GET_RNGVERSION`: never. The 6.0.68 DLLs do not export them (the yanked 0.1.0 declared 80 such symbols: a link-error defect).
-- `srandinitializeuser`: the guide does not state its callback typedefs (`RNG_SRANDINITIALIZEUSER_UINI/UGEN`).
-- `fc32_t`/`fc64_t` and `long double` items: the guide names the types without defining them.
-- SecureRNG (`amdsecrng`) is a separate library: declared and measured in the `aocl-securerng-sys` crate, not here.
-
-Dual-licensed under MIT or Apache-2.0. Not published; the RNG release waits on CireSnave's answer (board 523).
-
-## Coverage of the tests (what is exercised, what is only linked)
-
-- Lowercase (80, incl. `srandinitializeuser`) and UPPERCASE (78, incl. `SRANDINITIALIZEUSER`; `GET_RNGVERSION` is guide-stated but not exported, so not declared) declarations: **every symbol link-checked** (`tests/link_all_lower.rs`, `tests/upper_kat.rs`); called with a known answer: `drandinitialize`/`dranduniform` and the uppercase `DRANDINITIALIZE`/`DRANDUNIFORM` (the rest are declared from the guide and linked only).
-- `srandinitializeuser`/`SRANDINITIALIZEUSER`: declared with the S callback typedefs MEASURED (7-pointer UINI; UGEN `(n*, state*, float* r, info*)`; `docs/cleanroom/types/TYPES-MEASUREMENT.md`), link-checked only. **Measured defect on 6.0.68 Windows: the user-generator init writes ~128 KB past the start of `state` and the following generate call returns `info = -4` without calling UGEN; no working call sequence was found (also true of `drandinitializeuser`).** Unmeasured: whether UGEN has a fifth parameter.
+- `srandinitializeuser`/`SRANDINITIALIZEUSER` (and the D forms): declared with the S callback typedefs MEASURED (7-pointer UINI; UGEN `(n*, state*, float* r, info*)`), link-checked only, never called by a test. **Unsafe protocol, measured and not documented by the guide:** after UINI returns, the library reads `n = state[0]` and writes `state[n]`, `state[n+1]` and `state[state[0]+2]`; `n` is not checked against `lstate`, and a UINI that leaves `state[0] = 0` makes the library write ~`hi32(UGEN address)+2` slots away (an out-of-bounds write). With UINI setting `state[0]=n` and `lstate >= n+3` it works (measured, LP64 and ILP64). An earlier probe's "no working call sequence" was our call pattern, not a fixed AMD defect (`docs/cleanroom/types/userinit/USERINIT-MEASUREMENT.md`). No safe wrapper exists.

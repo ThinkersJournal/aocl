@@ -1,0 +1,7 @@
+### run.ps1 ILP64 40 fn=sinit genid=3 subid=0 slots=auto-1
+CASE {"build": "ILP64", "subid": "0", "genid": "3", "fn": "sinit", "slots": "auto-1"}
+dll=C:/Program Files/AMD/AOCL-Windows/amd-rng/lib/ILP64/rng_amd.dll int_width=8 fn=srandinitialize fn_addr=0x7ffef51d0ee0 dll_base=0x7ffef51a0000
+QUERY (lstate=-1,lseed=-1): lstate_out=633 lseed_out=624 info=1
+CALL: genid=3 subid=0 lseed_in=624 lstate_in=633 state_buffer: ptr=0x24b9f172c40 slots=632 bytes=5056 (guard page starts exactly at state_ptr+5056) fill=0xa5
+FAULT access=1 (WRITE) addr=0x24b9f174000 state_ptr=0x24b9f172c40 fault_offset_from_state_start=5056 bytes (632 slots of 8) rip inside rng_amd.dll (RVA 0x2e287)
+child_exit_code=0xc0000005 elapsed_ms=41

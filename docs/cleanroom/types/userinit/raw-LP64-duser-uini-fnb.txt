@@ -1,0 +1,12 @@
+### run.ps1 LP64 40 fn=duser slots=4194304 lstate=100 uini=fnb
+CASE {"uini": "fnb", "build": "LP64", "slots": "4194304", "lstate": "100", "fn": "duser"}
+dll=C:/Program Files/AMD/AOCL-Windows/amd-rng/lib/LP64/rng_amd.dll int_width=4 fn=drandinitializeuser fn_addr=0x7ffef3777b10 dll_base=0x7ffef3750000
+uini_addr=0x7ff626a770a0 (hi32=0x7ff6 lo32=0x26a770a0)  ugen_addr=0x7ff626a76d60 (hi32=0x7ff6 lo32=0x26a76d60)
+CALL: genid=5 subid=7 lseed_in=3 lstate_in=100 state_buffer: ptr=0x19a84680000 slots=4194304 bytes=16777216 (uncommitted (faulting) memory starts exactly at state_ptr+16777216) fill=0x00
+UINI#1 id=2 genid=5 subid=7 lseed=3 lstate_arg=97 info=0 state_ptr_matches_caller=true state[0] at UINI entry=[0]
+RESULT info=0 lstate_after=100 lseed_after=3 UINI_calls=1 UGEN_calls=0 bytes_in_prepad_changed=0
+CHANGED slots=3 last_changed_slot=Some(32760) last_changed_byte_end=131044 of buffer_bytes=16777216 (lstate*w=400)
+  state[0] (byte off 0x0) = 0x7ff6
+  state[1] (byte off 0x4) = 0x26a76d60
+  state[32760] (byte off 0x1ffe0) = 0x26a76d60
+child_exit_code=0x0 elapsed_ms=78
