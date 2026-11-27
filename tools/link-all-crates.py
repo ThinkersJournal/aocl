@@ -22,6 +22,7 @@ LLVM = r"C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\Llvm\x64
 args = [a for a in sys.argv[1:] if not a.startswith("--")]  # flags: --static, --strict (fail on any unresolved name not in docs/link-all/known-unresolved.json.gz)
 STATIC = "--static" in sys.argv
 STRICT = "--strict" in sys.argv
+EXTRA = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--features=")), "")  # extra cargo features for every selected crate
 crates = args or CRATES
 
 all_dirs = sorted({os.path.dirname(p) for p in glob.glob(os.path.join(ROOT, "**", "*.dll"), recursive=True)})
@@ -122,7 +123,7 @@ for crate in crates:
     modes = ["dynamic"] + (["static"] if STATIC and re.search(r"^static-link\s*=", feats_toml, re.M) else [])
     for width in widths:
         for mode in modes:
-            feats = ",".join(x for x in (("ilp64" if width == "ILP64" else ""), ("static-link" if mode == "static" else "")) if x)
+            feats = ",".join(x for x in (("ilp64" if width == "ILP64" else ""), ("static-link" if mode == "static" else ""), EXTRA) if x)
             env = env_for(width)
             rec = {"crate": f"aocl-{crate}-sys", "width": width, "mode": mode, "features": feats}
             t0 = time.time()
@@ -176,7 +177,7 @@ if STRICT:
     known = json.load(gzip.open(os.path.join(REPO, "docs", "link-all", "known-unresolved.json.gz"), "rt", encoding="utf8"))
     bad = []
     for rec in report:
-        key = f"{rec['crate']}|{rec['width']}|{rec['mode']}"
+        key = f"{rec['crate']}|{rec['width']}|{rec['mode']}" + (("|" + rec["features"]) if rec.get("features") and EXTRA else "")
         if "unresolved" not in rec:
             bad.append(f"{key}: {rec.get('error','failed')[:120]}"); continue
         if not rec.get("negative_control_ok"):
