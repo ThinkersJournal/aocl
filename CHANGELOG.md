@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.2.24 - 2026-11-27 (PM-allocated; wrapper-test group 1 (utils, securerng, scalapack gaps): tests only on the real AOCL 6.0.68; patch on 0.2.x)
+
+- **Tests for exposed wrapper functions that no test mentioned (pm-kernels: comprehensive coverage), group 1, run on the real AOCL 6.0.68 Windows:** `aocl-utils` (`x86_64_level`; `pin_threads` Core/Logical/Spread and `pin_threads_custom`, checked by reading the OS thread affinity mask back with `GetThreadGroupAffinity`, with an unpinned-thread control), `aocl-securerng` (`rdrand_u16`, `rdseed_u16`, `rdseed_u64`, `rdseed_bytes` with guard bytes), `aocl-scalapack` (`BlockCyclic::as_raw` against the BLACS descriptor layout, `Grid::context`, `Grid::barrier` in the existing `harness = false` MPI test). Each new test was shown to FAIL with a deliberately wrong expected value.
+
+## 0.2.23 - 2026-11-27 (PM-allocated; tools/wrapper-coverage.py and docs: exposed versus tested per wrapper; patch on 0.2.x, tools and docs only)
+
+- **tools:** `tools/wrapper-coverage.py` compares each safe wrapper's exposed public functions with the names its tests mention; `docs/WRAPPER-COVERAGE-20261127.md`: 638 exposed, 257 mentioned, 381 without any test (the gaps are listed per wrapper). Tests for the gaps follow, smallest crates first.
+
+## 0.2.22 - 2026-11-27 (PM-allocated; CI: adopt the advisory portfolio job, pinned reusable workflow; patch on 0.2.x, tools and CI only)
+
+- **CI:** the advisory `portfolio` job (reusable workflow `ciresnave/coderipper/.github/workflows/portfolio.yml` pinned to `467fd259d6d062cba4c5683d310f1a6f2b66e763`, `permissions: contents: read`, same syntax as cpufish) in `ci.yml`: not a required check, not in branch protection (CireSnave 2026-10-23). ROADMAP row 12.
+
 ## Unreleased (patch on 0.2.x; pm-assist allocates)
 
 - **`aocl-sparse-sys`: the complex types now carry the header's alignment.** `aoclsparse_double_complex` (16) and `aoclsparse_float_complex` (8) are declared `alignas` in aoclsparse_types.h, which the header defines away for C, so bindgen produced under-aligned structs and the by-value `z*` calls faulted (`aoclsparse_zset_value`: access violation on Windows, AOCL 6.0.68). `build.rs` re-applies the alignment (public names unchanged; the build fails if the generated text is not found), with compile-time size/align asserts and by-value tests. Every published `aocl-sparse-sys` (0.1.0 to 0.2.11) is affected.
