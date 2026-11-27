@@ -19,3 +19,5 @@ amd_fastsin
 amd_fastsinf
 amd_fasttan
 amd_fasttanf
+amd_vrd8_fabs
+amd_vrs16_fabsf   # SIMD (nightly feature simd_ffi + guide-only-fast): also unresolved on 6.0.68 Windows, not in the default nightly set
