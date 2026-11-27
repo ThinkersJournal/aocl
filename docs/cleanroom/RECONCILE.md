@@ -56,3 +56,16 @@ The guide **never defines `rng_int_t`** (no typedef, nothing on LP64/ILP64). Wha
 - The Fortran examples declare `INTEGER LSTATE,N` / `INTEGER SEED(1),STATE(LSTATE)` etc. (e.g. L114443-L114445, 113 `INTEGER` lines), with no kind or width.
 - A user-generator callback typedef at L112219-L112222 also uses `rng_int_t*`.
 So width and signedness are UNKNOWN from the guide; a ruling is needed (the PM's).
+
+## Second extraction of the 57 watermark-flagged LibM rows (2026-11-27, pm-kernels task second-extraction)
+The first extraction was the PM's `pdftotext -layout` text (`guide-6.0.txt`), where the page-header watermark is interleaved into the
+characters of some lines. Re-read from the same PDF (`AOCL API Guide.pdf`) with a different extractor, in a scratch dir outside the repo:
+**PyMuPDF 1.28.2** (`python -I`, venv in the scratchpad), reading text *spans*, dropping the watermark span (font `TimesNewRomanPSMT`,
+text `AOCL API Guide (68552)`). Plain `pdftotext` WITHOUT `-layout` does NOT help: it prints the same interleaving (e.g. `double amd_hypot(double x, doubAleOyC)#LAPI Guide (68552)`).
+Comparison: for each flagged name, the prototype from the span text vs the committed declaration: return type, parameter names, base types,
+pointer depth, `const`. Result: **56 of 57 CONFIRMED** (all 19 flagged rows that are wired included: `amd_sincos`, `amd_atan2`, `amd_hypot`,
+`amd_remquo`, `amd_modff`, the 9 `amd_vrsa_*f` rows, `amd_vrda_erfinv`, `_fabs`, `_fmax`, `_add`, `amd_vrsa_mulf`; and the 37 flagged unwired SIMD/long-double rows);
+**1 row has no declaration:** `amd_vrd2_sincos` reads clean in the second extraction as `void amd_vrd2_sincos(__m128d x, __m128d *sin, __m128d *cos)` (PDF p.2724), which is what the first
+writer suspected; it stays undeclared (by-value SIMD: not wired anyway). Per row: new `second_extraction` column of `math_provenance.csv` (with the PDF page).
+Controls: the comparer reports equal for an unchanged row and DIFFERENT when one parameter name is changed (`y`->`z`). Limit: both extractions are of the same PDF; a
+wrong text layer in the PDF itself would be in both. Nothing STILL GARBLED remains among the 57.

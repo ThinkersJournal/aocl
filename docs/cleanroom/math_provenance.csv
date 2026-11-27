@@ -1,384 +1,384 @@
-name,source_line,section,status,note,wired
-amd_sinf,L106231,Scalar Functions,DECLARED,,yes
-amd_sin,L106242,Scalar Functions,DECLARED,,yes
-amd_cosf,L106255,Scalar Functions,DECLARED,,yes
-amd_cos,L106265,Scalar Functions,DECLARED,,yes
-amd_tanf,L106278,Scalar Functions,DECLARED,,yes
-amd_tan,L106289,Scalar Functions,DECLARED,,yes
-amd_sincosf,L106302,Scalar Functions,DECLARED,,yes
-amd_sincos,L106310,Scalar Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes
-amd_asinf,L106323,Scalar Functions,DECLARED,,yes
-amd_asin,L106334,Scalar Functions,DECLARED,,yes
-amd_acosf,L106347,Scalar Functions,DECLARED,,yes
-amd_acos,L106357,Scalar Functions,DECLARED,,yes
-amd_atanf,L106370,Scalar Functions,DECLARED,,yes
-amd_atan,L106381,Scalar Functions,DECLARED,,yes
-amd_atan2f,L106394,Scalar Functions,DECLARED,,yes
-amd_atan2,L106405,Scalar Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes
-amd_sinhf,L106421,Scalar Functions,DECLARED,,yes
-amd_sinh,L106432,Scalar Functions,DECLARED,,yes
-amd_coshf,L106445,Scalar Functions,DECLARED,,yes
-amd_cosh,L106455,Scalar Functions,DECLARED,,yes
-amd_tanhf,L106468,Scalar Functions,DECLARED,,yes
-amd_tanh,L106479,Scalar Functions,DECLARED,,yes
-amd_asinhf,L106494,Scalar Functions,DECLARED,,yes
-amd_asinh,L106504,Scalar Functions,DECLARED,,yes
-amd_acoshf,L106517,Scalar Functions,DECLARED,,yes
-amd_acosh,L106528,Scalar Functions,DECLARED,,yes
-amd_atanhf,L106541,Scalar Functions,DECLARED,,yes
-amd_atanh,L106551,Scalar Functions,DECLARED,,yes
-amd_expf,L106566,Scalar Functions,DECLARED,,yes
-amd_exp,L106577,Scalar Functions,DECLARED,,yes
-amd_exp2f,L106590,Scalar Functions,DECLARED,,yes
-amd_exp2,L106600,Scalar Functions,DECLARED,,yes
-amd_exp10f,L106613,Scalar Functions,DECLARED,,yes
-amd_exp10,L106624,Scalar Functions,DECLARED,,yes
-amd_expm1f,L106637,Scalar Functions,DECLARED,,yes
-amd_expm1,L106647,Scalar Functions,DECLARED,,yes
-amd_logf,L106662,Scalar Functions,DECLARED,,yes
-amd_log,L106673,Scalar Functions,DECLARED,,yes
-amd_log2f,L106686,Scalar Functions,DECLARED,,yes
-amd_log2,L106696,Scalar Functions,DECLARED,,yes
-amd_log10f,L106709,Scalar Functions,DECLARED,,yes
-amd_log10,L106720,Scalar Functions,DECLARED,,yes
-amd_log1pf,L106733,Scalar Functions,DECLARED,,yes
-amd_log1p,L106743,Scalar Functions,DECLARED,,yes
-amd_powf,L106758,Scalar Functions,DECLARED,,yes
-amd_pow,L106770,Scalar Functions,DECLARED,,yes
-amd_sqrtf,L106784,Scalar Functions,DECLARED,,yes
-amd_sqrt,L106794,Scalar Functions,DECLARED,,yes
-amd_cbrtf,L106807,Scalar Functions,DECLARED,,yes
-amd_cbrt,L106818,Scalar Functions,DECLARED,,yes
-amd_hypotf,L106831,Scalar Functions,DECLARED,,yes
-amd_hypot,L106842,Scalar Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes
-amd_erff,L106858,Scalar Functions,DECLARED,,yes
-amd_erf,L106869,Scalar Functions,DECLARED,,yes
-amd_erfcf,L106882,Scalar Functions,DECLARED,,yes
-amd_erfc,L106892,Scalar Functions,DECLARED,,yes
-amd_erfinv,L106905,Scalar Functions,DECLARED,,yes
-amd_erfcinv,L106918,Scalar Functions,DECLARED,,yes
-amd_remainderf,L106942,Scalar Functions,DECLARED,,yes
-amd_remainder,L106954,Scalar Functions,DECLARED,,yes
-amd_remquof,L106968,Scalar Functions,DECLARED,,yes
-amd_remquo,L106980,Scalar Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes
-amd_fmodf,L106995,Scalar Functions,DECLARED,,yes
-amd_fmod,L107007,Scalar Functions,DECLARED,,yes
-amd_modff,L107020,Scalar Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes
-amd_modf,L107032,Scalar Functions,DECLARED,,yes
-amd_ceilf,L107048,Scalar Functions,DECLARED,,yes
-amd_ceil,L107059,Scalar Functions,DECLARED,,yes
-amd_floorf,L107071,Scalar Functions,DECLARED,,yes
-amd_floor,L107082,Scalar Functions,DECLARED,,yes
-amd_truncf,L107095,Scalar Functions,DECLARED,,yes
-amd_trunc,L107106,Scalar Functions,DECLARED,,yes
-amd_roundf,L107118,Scalar Functions,DECLARED,,yes
-amd_round,L107129,Scalar Functions,DECLARED,,yes
-amd_rintf,L107142,Scalar Functions,DECLARED,,yes
-amd_rint,L107154,Scalar Functions,DECLARED,,yes
-amd_nearbyintf,L107167,Scalar Functions,DECLARED,,yes
-amd_nearbyint,L107178,Scalar Functions,DECLARED,,yes
-amd_lrintf,L107191,Scalar Functions,DECLARED,,yes
-amd_lrint,L107202,Scalar Functions,DECLARED,,yes
-amd_llrintf,L107214,Scalar Functions,DECLARED,,yes
-amd_llrint,L107225,Scalar Functions,DECLARED,,yes
-amd_lroundf,L107238,Scalar Functions,DECLARED,,yes
-amd_lround,L107249,Scalar Functions,DECLARED,,yes
-amd_llroundf,L107261,Scalar Functions,DECLARED,,yes
-amd_llround,L107272,Scalar Functions,DECLARED,,yes
-amd_frexpf,L107287,Scalar Functions,DECLARED,,yes
-amd_frexp,L107299,Scalar Functions,DECLARED,,yes
-amd_ldexpf,L107312,Scalar Functions,DECLARED,,yes
-amd_ldexp,L107324,Scalar Functions,DECLARED,,yes
-amd_scalbnf,L107338,Scalar Functions,DECLARED,,yes
-amd_scalbn,L107350,Scalar Functions,DECLARED,,yes
-amd_scalblnf,L107363,Scalar Functions,DECLARED,,yes
-amd_scalbln,L107375,Scalar Functions,DECLARED,,yes
-amd_logbf,L107389,Scalar Functions,DECLARED,,yes
-amd_logb,L107400,Scalar Functions,DECLARED,,yes
-amd_ilogbf,L107412,Scalar Functions,DECLARED,,yes
-amd_ilogb,L107423,Scalar Functions,DECLARED,,yes
-amd_nextafterf,L107436,Scalar Functions,DECLARED,,yes
-amd_nextafter,L107448,Scalar Functions,DECLARED,,yes
-amd_nexttowardf,L107461,Scalar Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),no: guide type undefined (ABI)
-amd_nexttoward,L107473,Scalar Functions,DECLARED,,no: guide type undefined (ABI)
-amd_copysignf,L107487,Scalar Functions,DECLARED,,yes
-amd_copysign,L107499,Scalar Functions,DECLARED,,yes
-amd_nanf,L107512,Scalar Functions,DECLARED,,yes
-amd_nan,L107523,Scalar Functions,DECLARED,,yes
-amd_finitef,L107536,Scalar Functions,DECLARED,,yes
-amd_finite,L107547,Scalar Functions,DECLARED,,yes
-amd_fminf,L107563,Scalar Functions,DECLARED,,yes
-amd_fmin,L107575,Scalar Functions,DECLARED,,yes
-amd_fmaxf,L107589,Scalar Functions,DECLARED,,yes
-amd_fmax,L107601,Scalar Functions,DECLARED,,yes
-amd_fdimf,L107614,Scalar Functions,DECLARED,,yes
-amd_fdim,L107626,Scalar Functions,DECLARED,,yes
-amd_fabsf,L107640,Scalar Functions,DECLARED,,yes
-amd_fabs,L107651,Scalar Functions,DECLARED,,yes
-amd_fastsinf,L107720,Fast Scalar Functions,DECLARED,restated at L110528,yes
-amd_fastsin,L107728,Fast Scalar Functions,DECLARED,restated at L110536,yes
-amd_fastcosf,L107739,Fast Scalar Functions,DECLARED,restated at L110546,yes
-amd_fastcos,L107747,Fast Scalar Functions,DECLARED,restated at L110554,yes
-amd_fasttanf,L107758,Fast Scalar Functions,DECLARED,restated at L110565,yes
-amd_fasttan,L107767,Fast Scalar Functions,DECLARED,restated at L110573,yes
-amd_fastasinf,L107780,Fast Scalar Functions,DECLARED,restated at L110636,yes
-amd_fastasin,L107788,Fast Scalar Functions,DECLARED,restated at L110644,yes
-amd_fastacosf,L107799,Fast Scalar Functions,DECLARED,restated at L110655,yes
-amd_fastacos,L107807,Fast Scalar Functions,DECLARED,restated at L110663,yes
-amd_fastatanf,L107817,Fast Scalar Functions,DECLARED,restated at L110674,yes
-amd_fastatan,L107825,Fast Scalar Functions,DECLARED,restated at L110682,yes
-amd_fastexpf,L107838,Fast Scalar Functions,DECLARED,restated at L110798,yes
-amd_fastexp,L107846,Fast Scalar Functions,DECLARED,restated at L110806,yes
-amd_fastlogf,L107859,Fast Scalar Functions,DECLARED,restated at L110870,yes
-amd_fastlog,L107867,Fast Scalar Functions,DECLARED,restated at L110878,yes
-amd_fastpowf,L107880,Fast Scalar Functions,DECLARED,restated at L110938,yes
-amd_fastpow,L107892,Fast Scalar Functions,DECLARED,restated at L110950,yes
-amd_fasterff,L107908,Fast Scalar Functions,DECLARED,restated at L111015,yes
-amd_fasterf,L107916,Fast Scalar Functions,DECLARED,restated at L111023,yes
-amd_vrs4_sinf,L107937,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd2_sin,L107948,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs4_cosf,L107961,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd2_cos,L107971,Vector AVX Functions (128-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs4_tanf,L107984,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd2_tan,L107995,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs4_sincosf,L108008,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd2_sincos,L108016,Vector AVX Functions (128-bit),UNKNOWN,garbled line; could not be reconstructed,no: UNKNOWN in guide
-amd_vrs4_asinf,L108029,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd2_asin,L108040,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs4_acosf,L108053,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd2_acos,L108063,Vector AVX Functions (128-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs4_atanf,L108076,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd2_atan,L108087,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd2_atan2,L108098,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs4_coshf,L108113,Vector AVX Functions (128-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd2_cosh,L108124,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs4_tanhf,L108137,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd2_tanh,L108148,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs4_expf,L108164,Vector AVX Functions (128-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd2_exp,L108175,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs4_exp2f,L108188,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd2_exp2,L108199,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs4_exp10f,L108211,Vector AVX Functions (128-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd2_exp10,L108222,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs4_expm1f,L108235,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs4_logf,L108250,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd2_log,L108260,Vector AVX Functions (128-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs4_log2f,L108273,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd2_log2,L108284,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs4_log10f,L108297,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd2_log10,L108307,Vector AVX Functions (128-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs4_log1pf,L108320,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd2_log1p,L108331,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs4_powf,L108346,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd2_pow,L108357,Vector AVX Functions (128-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs4_powxf,L108371,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd2_powx,L108383,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs4_sqrtf,L108397,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd2_sqrt,L108407,Vector AVX Functions (128-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs4_cbrtf,L108420,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd2_cbrt,L108431,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs4_erff,L108446,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd2_erf,L108456,Vector AVX Functions (128-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs4_erfcf,L108469,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd2_erfc,L108480,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd2_erfinv,L108493,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd2_erfcinv,L108505,Vector AVX Functions (128-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs4_roundf,L108530,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd2_round,L108541,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs4_fabsf,L108555,Vector AVX Functions (128-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd2_fabs,L108566,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs8_sinf,L108597,Vector AVX2 Functions (256-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd4_sin,L108608,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs8_cosf,L108621,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd4_cos,L108632,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs8_tanf,L108644,Vector AVX2 Functions (256-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd4_tan,L108655,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs8_sincosf,L108668,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd4_sincos,L108677,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs8_asinf,L108689,Vector AVX2 Functions (256-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd4_asin,L108700,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs8_acosf,L108713,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd4_acos,L108724,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs8_atanf,L108736,Vector AVX2 Functions (256-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd4_atan,L108747,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd4_atan2,L108758,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs8_coshf,L108774,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd4_cosh,L108784,Vector AVX2 Functions (256-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs8_tanhf,L108797,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd4_tanh,L108808,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs8_expf,L108825,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd4_exp,L108835,Vector AVX2 Functions (256-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs8_exp2f,L108848,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd4_exp2,L108859,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs8_exp10f,L108872,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd4_exp10,L108882,Vector AVX2 Functions (256-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs8_logf,L108897,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd4_log,L108908,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs8_log2f,L108921,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd4_log2,L108931,Vector AVX2 Functions (256-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs8_log10f,L108944,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs8_powf,L108959,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd4_pow,L108971,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs8_powxf,L108984,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd4_powx,L108996,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs8_sqrtf,L109010,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd4_sqrt,L109021,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs8_cbrtf,L109033,Vector AVX2 Functions (256-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs8_erff,L109048,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd4_erf,L109059,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs8_erfcf,L109072,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd4_erfc,L109082,Vector AVX2 Functions (256-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd4_erfinv,L109095,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd4_erfcinv,L109108,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs8_roundf,L109132,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd4_round,L109143,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs8_fabsf,L109158,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd4_fabs,L109169,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs16_sinf,L109201,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd8_sin,L109212,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs16_cosf,L109225,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd8_cos,L109235,Vector AVX512 Functions (512-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs16_tanf,L109248,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd8_tan,L109259,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs16_sincosf,L109272,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd8_sincos,L109280,Vector AVX512 Functions (512-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs16_asinf,L109293,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd8_asin,L109304,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs16_acosf,L109317,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd8_acos,L109327,Vector AVX512 Functions (512-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs16_atanf,L109340,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd8_atan,L109351,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd8_atan2,L109362,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs16_coshf,L109377,Vector AVX512 Functions (512-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd8_cosh,L109388,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs16_tanhf,L109401,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd8_tanh,L109412,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs16_expf,L109428,Vector AVX512 Functions (512-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd8_exp,L109439,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs16_exp2f,L109452,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd8_exp2,L109463,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs16_exp10f,L109475,Vector AVX512 Functions (512-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd8_exp10,L109486,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs16_logf,L109501,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd8_log,L109512,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs16_log2f,L109524,Vector AVX512 Functions (512-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd8_log2,L109535,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs16_log10f,L109548,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs16_powf,L109563,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd8_pow,L109574,Vector AVX512 Functions (512-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs16_powxf,L109588,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd8_powx,L109600,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs16_sqrtf,L109614,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd8_sqrt,L109624,Vector AVX512 Functions (512-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs16_erff,L109639,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd8_erf,L109650,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs16_erfcf,L109663,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd8_erfc,L109673,Vector AVX512 Functions (512-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd8_erfinv,L109686,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd8_erfcinv,L109699,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs16_roundf,L109723,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd8_round,L109734,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs16_fabsf,L109749,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd8_fabs,L109760,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrsa_sinf,L109799,Vector Array Functions,DECLARED,,yes
-amd_vrda_sin,L109808,Vector Array Functions,DECLARED,,yes
-amd_vrsa_cosf,L109818,Vector Array Functions,DECLARED,,yes
-amd_vrda_cos,L109827,Vector Array Functions,DECLARED,,yes
-amd_vrsa_tanf,L109838,Vector Array Functions,DECLARED,,yes
-amd_vrda_tan,L109847,Vector Array Functions,DECLARED,,yes
-amd_vrsa_sincosf,L109857,Vector Array Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes
-amd_vrda_sincos,L109867,Vector Array Functions,DECLARED,,yes
-amd_vrsa_asinf,L109881,Vector Array Functions,DECLARED,,yes
-amd_vrda_asin,L109890,Vector Array Functions,DECLARED,,yes
-amd_vrsa_acosf,L109900,Vector Array Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes
-amd_vrda_acos,L109909,Vector Array Functions,DECLARED,,yes
-amd_vrsa_atanf,L109920,Vector Array Functions,DECLARED,,yes
-amd_vrda_atan,L109929,Vector Array Functions,DECLARED,,yes
-amd_vrsa_coshf,L109941,Vector Array Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes
-amd_vrda_cosh,L109950,Vector Array Functions,DECLARED,,yes
-amd_vrsa_tanhf,L109961,Vector Array Functions,DECLARED,,yes
-amd_vrda_tanh,L109970,Vector Array Functions,DECLARED,,yes
-amd_vrsa_expf,L109982,Vector Array Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes
-amd_vrda_exp,L109991,Vector Array Functions,DECLARED,,yes
-amd_vrsa_exp2f,L110002,Vector Array Functions,DECLARED,,yes
-amd_vrda_exp2,L110011,Vector Array Functions,DECLARED,,yes
-amd_vrsa_exp10f,L110021,Vector Array Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes
-amd_vrda_exp10,L110030,Vector Array Functions,DECLARED,,yes
-amd_vrsa_expm1f,L110041,Vector Array Functions,DECLARED,,yes
-amd_vrda_expm1,L110050,Vector Array Functions,DECLARED,,yes
-amd_vrsa_logf,L110062,Vector Array Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes
-amd_vrda_log,L110071,Vector Array Functions,DECLARED,,yes
-amd_vrsa_log2f,L110082,Vector Array Functions,DECLARED,,yes
-amd_vrda_log2,L110091,Vector Array Functions,DECLARED,,yes
-amd_vrsa_log10f,L110101,Vector Array Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes
-amd_vrda_log10,L110110,Vector Array Functions,DECLARED,,yes
-amd_vrsa_log1pf,L110121,Vector Array Functions,DECLARED,,yes
-amd_vrda_log1p,L110130,Vector Array Functions,DECLARED,,yes
-amd_vrsa_powf,L110142,Vector Array Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes
-amd_vrda_pow,L110152,Vector Array Functions,DECLARED,,yes
-amd_vrsa_powxf,L110164,Vector Array Functions,DECLARED,,yes
-amd_vrda_powx,L110174,Vector Array Functions,DECLARED,,yes
-amd_vrsa_sqrtf,L110185,Vector Array Functions,DECLARED,,yes
-amd_vrda_sqrt,L110194,Vector Array Functions,DECLARED,,yes
-amd_vrsa_cbrtf,L110205,Vector Array Functions,DECLARED,,yes
-amd_vrda_cbrt,L110214,Vector Array Functions,DECLARED,,yes
-amd_vrsa_erff,L110226,Vector Array Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes
-amd_vrda_erf,L110235,Vector Array Functions,DECLARED,,yes
-amd_vrsa_erfcf,L110246,Vector Array Functions,DECLARED,,yes
-amd_vrda_erfc,L110255,Vector Array Functions,DECLARED,,yes
-amd_vrda_erfinv,L110265,Vector Array Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes
-amd_vrda_erfcinv,L110276,Vector Array Functions,DECLARED,,yes
-amd_vrsa_fabsf,L110299,Vector Array Functions,DECLARED,,yes
-amd_vrda_fabs,L110307,Vector Array Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes
-amd_vrsa_roundf,L110320,Vector Array Functions,DECLARED,,yes
-amd_vrda_round,L110329,Vector Array Functions,DECLARED,,yes
-amd_vrsa_fmaxf,L110342,Vector Array Functions,DECLARED,,yes
-amd_vrda_fmax,L110351,Vector Array Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes
-amd_vrsa_fminf,L110363,Vector Array Functions,DECLARED,,yes
-amd_vrda_fmin,L110373,Vector Array Functions,DECLARED,,yes
-amd_vrsa_fmaxfi,L110387,Vector Array Functions,DECLARED,,yes
-amd_vrda_fmaxi,L110401,Vector Array Functions,DECLARED,,yes
-amd_vrsa_fminfi,L110417,Vector Array Functions,DECLARED,,yes
-amd_vrda_fmini,L110431,Vector Array Functions,DECLARED,,yes
-amd_cdfnorm,L111081,Special Functions (vector/scalar),DECLARED,,yes
-amd_vrd2_cdfnorm,L111094,Special Functions (vector/scalar),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd4_cdfnorm,L111106,Special Functions (vector/scalar),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd8_cdfnorm,L111118,Special Functions (vector/scalar),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrda_cdfnorm,L111130,Special Functions (vector/scalar),DECLARED,,yes
-amd_cdfnorminv,L111159,Special Functions (vector/scalar),DECLARED,,yes
-amd_vrd2_cdfnorminv,L111173,Special Functions (vector/scalar),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd4_cdfnorminv,L111185,Special Functions (vector/scalar),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd8_cdfnorminv,L111197,Special Functions (vector/scalar),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrda_cdfnorminv,L111209,Special Functions (vector/scalar),DECLARED,,yes
-amd_vrda_add,L111383,Arithmetic Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes
-amd_vrsa_addf,L111393,Arithmetic Functions,DECLARED,,yes
-amd_vrda_addi,L111404,Arithmetic Functions,DECLARED,,yes
-amd_vrsa_addfi,L111418,Arithmetic Functions,DECLARED,,yes
-amd_vrda_sub,L111435,Arithmetic Functions,DECLARED,,yes
-amd_vrsa_subf,L111445,Arithmetic Functions,DECLARED,,yes
-amd_vrda_subi,L111456,Arithmetic Functions,DECLARED,,yes
-amd_vrsa_subfi,L111470,Arithmetic Functions,DECLARED,,yes
-amd_vrda_mul,L111487,Arithmetic Functions,DECLARED,,yes
-amd_vrsa_mulf,L111496,Arithmetic Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes
-amd_vrda_muli,L111507,Arithmetic Functions,DECLARED,,yes
-amd_vrsa_mulfi,L111521,Arithmetic Functions,DECLARED,,yes
-amd_vrda_div,L111538,Arithmetic Functions,DECLARED,,yes
-amd_vrsa_divf,L111548,Arithmetic Functions,DECLARED,,yes
-amd_vrda_divi,L111559,Arithmetic Functions,DECLARED,,yes
-amd_vrsa_divfi,L111573,Arithmetic Functions,DECLARED,,yes
-amd_vrd2_linearfrac,L111590,Arithmetic Functions,DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs4_linearfracf,L111606,Arithmetic Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd4_linearfrac,L111623,Arithmetic Functions,DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs8_linearfracf,L111639,Arithmetic Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrd8_linearfrac,L111656,Arithmetic Functions,DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrs16_linearfracf,L111672,Arithmetic Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI"
-amd_vrda_linearfrac,L111689,Arithmetic Functions,DECLARED,,yes
-amd_vrsa_linearfracf,L111704,Arithmetic Functions,DECLARED,,yes
-amd_cexpf,L111727,Complex Functions,DECLARED,,no: guide type undefined (ABI)
-amd_cexp,L111738,Complex Functions,DECLARED,,no: guide type undefined (ABI)
-amd_clogf,L111750,Complex Functions,DECLARED,,no: guide type undefined (ABI)
-amd_clog,L111761,Complex Functions,DECLARED,,no: guide type undefined (ABI)
-amd_cpowf,L111774,Complex Functions,DECLARED,,no: guide type undefined (ABI)
-amd_cpow,L111786,Complex Functions,DECLARED,,no: guide type undefined (ABI)
-amd_stablesort_getsize_64f,L111856,Stable Sort,DECLARED,,yes
-amd_stablesort_ascend_64f,L111876,Stable Sort,DECLARED,,yes
+name,source_line,section,status,note,wired,second_extraction
+amd_sinf,L106231,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_sin,L106242,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_cosf,L106255,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_cos,L106265,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_tanf,L106278,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_tan,L106289,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_sincosf,L106302,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_sincos,L106310,Scalar Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes,"CONFIRMED (pymupdf, PDF p.2689): param names, types, pointer depth, const, return all equal the declaration"
+amd_asinf,L106323,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_asin,L106334,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_acosf,L106347,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_acos,L106357,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_atanf,L106370,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_atan,L106381,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_atan2f,L106394,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_atan2,L106405,Scalar Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes,"CONFIRMED (pymupdf, PDF p.2691): param names, types, pointer depth, const, return all equal the declaration"
+amd_sinhf,L106421,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_sinh,L106432,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_coshf,L106445,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_cosh,L106455,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_tanhf,L106468,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_tanh,L106479,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_asinhf,L106494,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_asinh,L106504,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_acoshf,L106517,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_acosh,L106528,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_atanhf,L106541,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_atanh,L106551,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_expf,L106566,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_exp,L106577,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_exp2f,L106590,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_exp2,L106600,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_exp10f,L106613,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_exp10,L106624,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_expm1f,L106637,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_expm1,L106647,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_logf,L106662,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_log,L106673,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_log2f,L106686,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_log2,L106696,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_log10f,L106709,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_log10,L106720,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_log1pf,L106733,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_log1p,L106743,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_powf,L106758,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_pow,L106770,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_sqrtf,L106784,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_sqrt,L106794,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_cbrtf,L106807,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_cbrt,L106818,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_hypotf,L106831,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_hypot,L106842,Scalar Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes,"CONFIRMED (pymupdf, PDF p.2700): param names, types, pointer depth, const, return all equal the declaration"
+amd_erff,L106858,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_erf,L106869,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_erfcf,L106882,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_erfc,L106892,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_erfinv,L106905,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_erfcinv,L106918,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_remainderf,L106942,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_remainder,L106954,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_remquof,L106968,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_remquo,L106980,Scalar Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes,"CONFIRMED (pymupdf, PDF p.2703): param names, types, pointer depth, const, return all equal the declaration"
+amd_fmodf,L106995,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_fmod,L107007,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_modff,L107020,Scalar Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes,"CONFIRMED (pymupdf, PDF p.2704): param names, types, pointer depth, const, return all equal the declaration"
+amd_modf,L107032,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_ceilf,L107048,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_ceil,L107059,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_floorf,L107071,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_floor,L107082,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_truncf,L107095,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_trunc,L107106,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_roundf,L107118,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_round,L107129,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_rintf,L107142,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_rint,L107154,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_nearbyintf,L107167,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_nearbyint,L107178,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_lrintf,L107191,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_lrint,L107202,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_llrintf,L107214,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_llrint,L107225,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_lroundf,L107238,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_lround,L107249,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_llroundf,L107261,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_llround,L107272,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_frexpf,L107287,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_frexp,L107299,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_ldexpf,L107312,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_ldexp,L107324,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_scalbnf,L107338,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_scalbn,L107350,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_scalblnf,L107363,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_scalbln,L107375,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_logbf,L107389,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_logb,L107400,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_ilogbf,L107412,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_ilogb,L107423,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_nextafterf,L107436,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_nextafter,L107448,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_nexttowardf,L107461,Scalar Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),no: guide type undefined (ABI),"CONFIRMED (pymupdf, PDF p.2713): param names, types, pointer depth, const, return all equal the declaration"
+amd_nexttoward,L107473,Scalar Functions,DECLARED,,no: guide type undefined (ABI),n/a (first extraction was clean)
+amd_copysignf,L107487,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_copysign,L107499,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_nanf,L107512,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_nan,L107523,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_finitef,L107536,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_finite,L107547,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_fminf,L107563,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_fmin,L107575,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_fmaxf,L107589,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_fmax,L107601,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_fdimf,L107614,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_fdim,L107626,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_fabsf,L107640,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_fabs,L107651,Scalar Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_fastsinf,L107720,Fast Scalar Functions,DECLARED,restated at L110528,yes,n/a (first extraction was clean)
+amd_fastsin,L107728,Fast Scalar Functions,DECLARED,restated at L110536,yes,n/a (first extraction was clean)
+amd_fastcosf,L107739,Fast Scalar Functions,DECLARED,restated at L110546,yes,n/a (first extraction was clean)
+amd_fastcos,L107747,Fast Scalar Functions,DECLARED,restated at L110554,yes,n/a (first extraction was clean)
+amd_fasttanf,L107758,Fast Scalar Functions,DECLARED,restated at L110565,yes,n/a (first extraction was clean)
+amd_fasttan,L107767,Fast Scalar Functions,DECLARED,restated at L110573,yes,n/a (first extraction was clean)
+amd_fastasinf,L107780,Fast Scalar Functions,DECLARED,restated at L110636,yes,n/a (first extraction was clean)
+amd_fastasin,L107788,Fast Scalar Functions,DECLARED,restated at L110644,yes,n/a (first extraction was clean)
+amd_fastacosf,L107799,Fast Scalar Functions,DECLARED,restated at L110655,yes,n/a (first extraction was clean)
+amd_fastacos,L107807,Fast Scalar Functions,DECLARED,restated at L110663,yes,n/a (first extraction was clean)
+amd_fastatanf,L107817,Fast Scalar Functions,DECLARED,restated at L110674,yes,n/a (first extraction was clean)
+amd_fastatan,L107825,Fast Scalar Functions,DECLARED,restated at L110682,yes,n/a (first extraction was clean)
+amd_fastexpf,L107838,Fast Scalar Functions,DECLARED,restated at L110798,yes,n/a (first extraction was clean)
+amd_fastexp,L107846,Fast Scalar Functions,DECLARED,restated at L110806,yes,n/a (first extraction was clean)
+amd_fastlogf,L107859,Fast Scalar Functions,DECLARED,restated at L110870,yes,n/a (first extraction was clean)
+amd_fastlog,L107867,Fast Scalar Functions,DECLARED,restated at L110878,yes,n/a (first extraction was clean)
+amd_fastpowf,L107880,Fast Scalar Functions,DECLARED,restated at L110938,yes,n/a (first extraction was clean)
+amd_fastpow,L107892,Fast Scalar Functions,DECLARED,restated at L110950,yes,n/a (first extraction was clean)
+amd_fasterff,L107908,Fast Scalar Functions,DECLARED,restated at L111015,yes,n/a (first extraction was clean)
+amd_fasterf,L107916,Fast Scalar Functions,DECLARED,restated at L111023,yes,n/a (first extraction was clean)
+amd_vrs4_sinf,L107937,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd2_sin,L107948,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs4_cosf,L107961,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd2_cos,L107971,Vector AVX Functions (128-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI","CONFIRMED (pymupdf, PDF p.2723): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrs4_tanf,L107984,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd2_tan,L107995,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs4_sincosf,L108008,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd2_sincos,L108016,Vector AVX Functions (128-bit),UNKNOWN,garbled line; could not be reconstructed,no: UNKNOWN in guide,"READS CLEAN in 2nd extraction (pymupdf, PDF p.2724): void amd_vrd2_sincos(__m128d x, __m128d *sin, __m128d *cos); still not declared (no writer row; by-value SIMD, not wired)"
+amd_vrs4_asinf,L108029,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd2_asin,L108040,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs4_acosf,L108053,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd2_acos,L108063,Vector AVX Functions (128-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI","CONFIRMED (pymupdf, PDF p.2725): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrs4_atanf,L108076,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd2_atan,L108087,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd2_atan2,L108098,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs4_coshf,L108113,Vector AVX Functions (128-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI","CONFIRMED (pymupdf, PDF p.2726): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrd2_cosh,L108124,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs4_tanhf,L108137,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd2_tanh,L108148,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs4_expf,L108164,Vector AVX Functions (128-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI","CONFIRMED (pymupdf, PDF p.2727): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrd2_exp,L108175,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs4_exp2f,L108188,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd2_exp2,L108199,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs4_exp10f,L108211,Vector AVX Functions (128-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI","CONFIRMED (pymupdf, PDF p.2728): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrd2_exp10,L108222,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs4_expm1f,L108235,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs4_logf,L108250,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd2_log,L108260,Vector AVX Functions (128-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI","CONFIRMED (pymupdf, PDF p.2729): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrs4_log2f,L108273,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd2_log2,L108284,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs4_log10f,L108297,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd2_log10,L108307,Vector AVX Functions (128-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI","CONFIRMED (pymupdf, PDF p.2730): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrs4_log1pf,L108320,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd2_log1p,L108331,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs4_powf,L108346,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd2_pow,L108357,Vector AVX Functions (128-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI","CONFIRMED (pymupdf, PDF p.2731): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrs4_powxf,L108371,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd2_powx,L108383,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs4_sqrtf,L108397,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd2_sqrt,L108407,Vector AVX Functions (128-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI","CONFIRMED (pymupdf, PDF p.2732): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrs4_cbrtf,L108420,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd2_cbrt,L108431,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs4_erff,L108446,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd2_erf,L108456,Vector AVX Functions (128-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI","CONFIRMED (pymupdf, PDF p.2733): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrs4_erfcf,L108469,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd2_erfc,L108480,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd2_erfinv,L108493,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd2_erfcinv,L108505,Vector AVX Functions (128-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI","CONFIRMED (pymupdf, PDF p.2734): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrs4_roundf,L108530,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd2_round,L108541,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs4_fabsf,L108555,Vector AVX Functions (128-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI","CONFIRMED (pymupdf, PDF p.2735): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrd2_fabs,L108566,Vector AVX Functions (128-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs8_sinf,L108597,Vector AVX2 Functions (256-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI","CONFIRMED (pymupdf, PDF p.2736): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrd4_sin,L108608,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs8_cosf,L108621,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd4_cos,L108632,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs8_tanf,L108644,Vector AVX2 Functions (256-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI","CONFIRMED (pymupdf, PDF p.2737): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrd4_tan,L108655,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs8_sincosf,L108668,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd4_sincos,L108677,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs8_asinf,L108689,Vector AVX2 Functions (256-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI","CONFIRMED (pymupdf, PDF p.2738): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrd4_asin,L108700,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs8_acosf,L108713,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd4_acos,L108724,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs8_atanf,L108736,Vector AVX2 Functions (256-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI","CONFIRMED (pymupdf, PDF p.2739): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrd4_atan,L108747,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd4_atan2,L108758,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs8_coshf,L108774,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd4_cosh,L108784,Vector AVX2 Functions (256-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI","CONFIRMED (pymupdf, PDF p.2740): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrs8_tanhf,L108797,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd4_tanh,L108808,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs8_expf,L108825,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd4_exp,L108835,Vector AVX2 Functions (256-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI","CONFIRMED (pymupdf, PDF p.2741): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrs8_exp2f,L108848,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd4_exp2,L108859,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs8_exp10f,L108872,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd4_exp10,L108882,Vector AVX2 Functions (256-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI","CONFIRMED (pymupdf, PDF p.2742): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrs8_logf,L108897,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd4_log,L108908,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs8_log2f,L108921,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd4_log2,L108931,Vector AVX2 Functions (256-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI","CONFIRMED (pymupdf, PDF p.2743): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrs8_log10f,L108944,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs8_powf,L108959,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd4_pow,L108971,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs8_powxf,L108984,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd4_powx,L108996,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs8_sqrtf,L109010,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd4_sqrt,L109021,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs8_cbrtf,L109033,Vector AVX2 Functions (256-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI","CONFIRMED (pymupdf, PDF p.2745): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrs8_erff,L109048,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd4_erf,L109059,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs8_erfcf,L109072,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd4_erfc,L109082,Vector AVX2 Functions (256-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI","CONFIRMED (pymupdf, PDF p.2746): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrd4_erfinv,L109095,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd4_erfcinv,L109108,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs8_roundf,L109132,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd4_round,L109143,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs8_fabsf,L109158,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd4_fabs,L109169,Vector AVX2 Functions (256-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs16_sinf,L109201,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd8_sin,L109212,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs16_cosf,L109225,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd8_cos,L109235,Vector AVX512 Functions (512-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI","CONFIRMED (pymupdf, PDF p.2749): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrs16_tanf,L109248,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd8_tan,L109259,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs16_sincosf,L109272,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd8_sincos,L109280,Vector AVX512 Functions (512-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI","CONFIRMED (pymupdf, PDF p.2750): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrs16_asinf,L109293,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd8_asin,L109304,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs16_acosf,L109317,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd8_acos,L109327,Vector AVX512 Functions (512-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI","CONFIRMED (pymupdf, PDF p.2751): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrs16_atanf,L109340,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd8_atan,L109351,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd8_atan2,L109362,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs16_coshf,L109377,Vector AVX512 Functions (512-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI","CONFIRMED (pymupdf, PDF p.2752): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrd8_cosh,L109388,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs16_tanhf,L109401,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd8_tanh,L109412,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs16_expf,L109428,Vector AVX512 Functions (512-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI","CONFIRMED (pymupdf, PDF p.2753): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrd8_exp,L109439,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs16_exp2f,L109452,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd8_exp2,L109463,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs16_exp10f,L109475,Vector AVX512 Functions (512-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI","CONFIRMED (pymupdf, PDF p.2754): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrd8_exp10,L109486,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs16_logf,L109501,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd8_log,L109512,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs16_log2f,L109524,Vector AVX512 Functions (512-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI","CONFIRMED (pymupdf, PDF p.2755): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrd8_log2,L109535,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs16_log10f,L109548,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs16_powf,L109563,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd8_pow,L109574,Vector AVX512 Functions (512-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI","CONFIRMED (pymupdf, PDF p.2756): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrs16_powxf,L109588,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd8_powx,L109600,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs16_sqrtf,L109614,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd8_sqrt,L109624,Vector AVX512 Functions (512-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI","CONFIRMED (pymupdf, PDF p.2757): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrs16_erff,L109639,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd8_erf,L109650,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs16_erfcf,L109663,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd8_erfc,L109673,Vector AVX512 Functions (512-bit),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI","CONFIRMED (pymupdf, PDF p.2758): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrd8_erfinv,L109686,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd8_erfcinv,L109699,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs16_roundf,L109723,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd8_round,L109734,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs16_fabsf,L109749,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd8_fabs,L109760,Vector AVX512 Functions (512-bit),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrsa_sinf,L109799,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrda_sin,L109808,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrsa_cosf,L109818,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrda_cos,L109827,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrsa_tanf,L109838,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrda_tan,L109847,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrsa_sincosf,L109857,Vector Array Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes,"CONFIRMED (pymupdf, PDF p.2762): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrda_sincos,L109867,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrsa_asinf,L109881,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrda_asin,L109890,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrsa_acosf,L109900,Vector Array Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes,"CONFIRMED (pymupdf, PDF p.2763): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrda_acos,L109909,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrsa_atanf,L109920,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrda_atan,L109929,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrsa_coshf,L109941,Vector Array Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes,"CONFIRMED (pymupdf, PDF p.2764): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrda_cosh,L109950,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrsa_tanhf,L109961,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrda_tanh,L109970,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrsa_expf,L109982,Vector Array Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes,"CONFIRMED (pymupdf, PDF p.2765): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrda_exp,L109991,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrsa_exp2f,L110002,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrda_exp2,L110011,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrsa_exp10f,L110021,Vector Array Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes,"CONFIRMED (pymupdf, PDF p.2766): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrda_exp10,L110030,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrsa_expm1f,L110041,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrda_expm1,L110050,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrsa_logf,L110062,Vector Array Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes,"CONFIRMED (pymupdf, PDF p.2767): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrda_log,L110071,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrsa_log2f,L110082,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrda_log2,L110091,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrsa_log10f,L110101,Vector Array Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes,"CONFIRMED (pymupdf, PDF p.2768): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrda_log10,L110110,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrsa_log1pf,L110121,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrda_log1p,L110130,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrsa_powf,L110142,Vector Array Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes,"CONFIRMED (pymupdf, PDF p.2769): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrda_pow,L110152,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrsa_powxf,L110164,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrda_powx,L110174,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrsa_sqrtf,L110185,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrda_sqrt,L110194,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrsa_cbrtf,L110205,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrda_cbrt,L110214,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrsa_erff,L110226,Vector Array Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes,"CONFIRMED (pymupdf, PDF p.2771): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrda_erf,L110235,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrsa_erfcf,L110246,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrda_erfc,L110255,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrda_erfinv,L110265,Vector Array Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes,"CONFIRMED (pymupdf, PDF p.2772): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrda_erfcinv,L110276,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrsa_fabsf,L110299,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrda_fabs,L110307,Vector Array Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes,"CONFIRMED (pymupdf, PDF p.2773): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrsa_roundf,L110320,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrda_round,L110329,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrsa_fmaxf,L110342,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrda_fmax,L110351,Vector Array Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes,"CONFIRMED (pymupdf, PDF p.2774): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrsa_fminf,L110363,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrda_fmin,L110373,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrsa_fmaxfi,L110387,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrda_fmaxi,L110401,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrsa_fminfi,L110417,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrda_fmini,L110431,Vector Array Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_cdfnorm,L111081,Special Functions (vector/scalar),DECLARED,,yes,n/a (first extraction was clean)
+amd_vrd2_cdfnorm,L111094,Special Functions (vector/scalar),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd4_cdfnorm,L111106,Special Functions (vector/scalar),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd8_cdfnorm,L111118,Special Functions (vector/scalar),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrda_cdfnorm,L111130,Special Functions (vector/scalar),DECLARED,,yes,n/a (first extraction was clean)
+amd_cdfnorminv,L111159,Special Functions (vector/scalar),DECLARED,,yes,n/a (first extraction was clean)
+amd_vrd2_cdfnorminv,L111173,Special Functions (vector/scalar),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrd4_cdfnorminv,L111185,Special Functions (vector/scalar),DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI","CONFIRMED (pymupdf, PDF p.2793): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrd8_cdfnorminv,L111197,Special Functions (vector/scalar),DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrda_cdfnorminv,L111209,Special Functions (vector/scalar),DECLARED,,yes,n/a (first extraction was clean)
+amd_vrda_add,L111383,Arithmetic Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes,"CONFIRMED (pymupdf, PDF p.2798): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrsa_addf,L111393,Arithmetic Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrda_addi,L111404,Arithmetic Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrsa_addfi,L111418,Arithmetic Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrda_sub,L111435,Arithmetic Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrsa_subf,L111445,Arithmetic Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrda_subi,L111456,Arithmetic Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrsa_subfi,L111470,Arithmetic Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrda_mul,L111487,Arithmetic Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrsa_mulf,L111496,Arithmetic Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),yes,"CONFIRMED (pymupdf, PDF p.2801): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrda_muli,L111507,Arithmetic Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrsa_mulfi,L111521,Arithmetic Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrda_div,L111538,Arithmetic Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrsa_divf,L111548,Arithmetic Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrda_divi,L111559,Arithmetic Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrsa_divfi,L111573,Arithmetic Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrd2_linearfrac,L111590,Arithmetic Functions,DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs4_linearfracf,L111606,Arithmetic Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI","CONFIRMED (pymupdf, PDF p.2804): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrd4_linearfrac,L111623,Arithmetic Functions,DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs8_linearfracf,L111639,Arithmetic Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI","CONFIRMED (pymupdf, PDF p.2805): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrd8_linearfrac,L111656,Arithmetic Functions,DECLARED,,"no: by-value SIMD args, not expressible in stable Rust FFI",n/a (first extraction was clean)
+amd_vrs16_linearfracf,L111672,Arithmetic Functions,DECLARED,line garbled by page-header watermark; reconstructed by removing interleaved watermark text (verified: removal leaves exactly this),"no: by-value SIMD args, not expressible in stable Rust FFI","CONFIRMED (pymupdf, PDF p.2806): param names, types, pointer depth, const, return all equal the declaration"
+amd_vrda_linearfrac,L111689,Arithmetic Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_vrsa_linearfracf,L111704,Arithmetic Functions,DECLARED,,yes,n/a (first extraction was clean)
+amd_cexpf,L111727,Complex Functions,DECLARED,,no: guide type undefined (ABI),n/a (first extraction was clean)
+amd_cexp,L111738,Complex Functions,DECLARED,,no: guide type undefined (ABI),n/a (first extraction was clean)
+amd_clogf,L111750,Complex Functions,DECLARED,,no: guide type undefined (ABI),n/a (first extraction was clean)
+amd_clog,L111761,Complex Functions,DECLARED,,no: guide type undefined (ABI),n/a (first extraction was clean)
+amd_cpowf,L111774,Complex Functions,DECLARED,,no: guide type undefined (ABI),n/a (first extraction was clean)
+amd_cpow,L111786,Complex Functions,DECLARED,,no: guide type undefined (ABI),n/a (first extraction was clean)
+amd_stablesort_getsize_64f,L111856,Stable Sort,DECLARED,,yes,n/a (first extraction was clean)
+amd_stablesort_ascend_64f,L111876,Stable Sort,DECLARED,,yes,n/a (first extraction was clean)
