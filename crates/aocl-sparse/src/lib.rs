@@ -2823,7 +2823,7 @@ pub(crate) fn check_stride(name: &str, nnz: usize, stride: i32, dense_len: usize
         )));
     }
     let last = (nnz - 1).checked_mul(stride as usize);
-    if last.is_none_or(|l| l >= dense_len) {
+    if last.map_or(true, |l| l >= dense_len) {
         return Err(Error::InvalidArgument(format!(
             "{name}: {nnz} elements at stride {stride} do not fit in a dense vector of length {dense_len}"
         )));
