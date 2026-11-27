@@ -15,7 +15,7 @@ fn main() {
         module: "bindings",
         has_int_subdir: true,
         only_lp64: false,
-        win_static: &["aoclsparse-static"],
+        win_static: &["aoclsparse"],
         win_dynamic: &["aoclsparse"],
         unix_static: &["aoclsparse"],
         unix_dynamic: &["aoclsparse"],

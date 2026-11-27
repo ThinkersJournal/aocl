@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased (patch on 0.2.x; pm-assist allocates)
+
+- **FIX `aocl-sparse-sys` and `aocl-compression-sys`, feature `static-link` (Windows):** the feature asked the linker for libraries that do not exist in AOCL 6.0.68 (`aoclsparse-static` and `aocl_compression-static`; the install has `lib/LP64/static/aoclsparse.lib` and `lib/static/aocl_compression.lib`), so a `static-link` build failed with "could not find native static library". `static-link` now links `aoclsparse` / `aocl_compression` from the `static/` directory. Dynamic linking (the default) is unchanged. Measured with the lane's link-all tool, Windows 6.0.68: `aocl-compression-sys` static: 152 of 162 declared functions resolve (the 10 others are the LZMA-SDK helper names that no installed library exports); `aocl-sparse-sys` static: all 286 resolve, but the static library also needs the OpenMP runtime (`libiomp5md.lib`), which this crate does not link: add it to your link line (ROADMAP row 26). Linux static names are unmeasured.
+
 ## 0.2.9 - 2026-11-27 (PM-allocated; patch on 0.2.x, the 0.2.x family number: aocl-math-sys nightly-only simd_ffi feature and Windows-only measured types, additive)
 
 - **`aocl-math-sys` nightly-only feature `simd_ffi`:** declares the 154 by-value SIMD functions (`__m128`..`__m512d`; needs rustc `feature(simd_ffi)`; never default; 2 more `amd_vrd8_fabs`/`amd_vrs16_fabsf` are behind `guide-only-fast` + `simd_ffi`: not exported by 6.0.68 Windows). 6 are called by tests, all 154 link-checked.
