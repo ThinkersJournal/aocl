@@ -530,7 +530,10 @@ impl BlumBlumShub {
     /// `≡ 3 (mod 4)`) and a seed `s` coprime to `p · q`. `nbits`
     /// controls how many bits per call to extract (1..=15; clamped).
     ///
-    /// **Warning (measured on AOCL 6.0.68 Windows, docs/RNG-BBS-HANG-20261127.md):** for some prime pairs this call never returns
+    /// `p` and `q` must be primes congruent to 3 mod 4. **This call may not return for large primes; no bound is known** (measured on
+    /// AOCL 6.0.68 Windows: see docs/RNG-BBS-HANG-20261127.md).
+    ///
+    /// **Detail (measured on AOCL 6.0.68 Windows, docs/RNG-BBS-HANG-20261127.md):** for some prime pairs this call never returns
     /// (100 % CPU). Every pair with both primes <= 99 991 returned at once; above about 200 000 some pairs hang and some work
     /// (not monotonic in size; e.g. `225307/225299` hangs, `541271/541267` and `812527/812519` work; one hanging prime is
     /// enough). The seed and `nbits` are not involved. The library documents no bound and the cause is not known, so the

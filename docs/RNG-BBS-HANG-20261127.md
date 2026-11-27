@@ -41,5 +41,8 @@ call returns in under 0.1 s). Single-limb primes (base 2^30 digit), `p != q`, bo
 - Cause **not determinable** from this data, and the library documents no bound: per the rule "no guess", the wrapper does **not**
   validate (an `Err` on a legal pair would be a second defect). The documented warning on `BlumBlumShub::new` now states the measured
   facts, and `BlumBlumShub` is deprecated by AMD itself in favour of SecureRNG (guide caution at line 114250).
-- Published versions with `BlumBlumShub::new`: `aocl-rng` 0.1.0 is the ONLY published version (read from the `.crate`; 0.2.x of `aocl-rng`
-  were never published) and it has it. This is a liveness defect (a safe function that spins forever), not memory unsafety: no advisory.
+- Published versions with `BlumBlumShub::new`: `aocl-rng` (the safe wrapper crate) has exactly ONE published version, 0.1.0 (crates.io
+  API lists only that; the .crate URLs for 0.2.2/0.2.4/0.2.5 return 404), not yanked; its `src/lib.rs` contains `pub struct BlumBlumShub` calling
+  `drandinitializebbs`. Current main's `aocl-rng` (0.2.24) also has the constructor (the doc comment fixed in this PR). No version in between exists.
+  Tests in this PR only use the verified prompt pair 30011 / 40031 (and other pairs below 100 000 that returned in under 0.1 s); no test calls
+  the library with a pair known to hang, so a plain test cannot hang CI. This is a liveness defect (a safe function that spins forever), not memory unsafety: no advisory.
