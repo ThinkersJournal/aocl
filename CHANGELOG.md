@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased (PR #19 draft; version: pm-assist to allocate)
+
+- **BREAKING `aocl-rng-sys`:** declarations are now clean-room from AOCL API Guide 6.0 ch. 9.3 (79 lowercase C forms), link-only, no bindgen. `rng_int_t` is `c_int` (LP64) or `i64` (`ilp64`), measured not declared. `srandinitializeuser` and the UPPERCASE, trailing-underscore and `GET_RNGVERSION` forms are no longer declared.
+- **Yank reason (0.1.0):** it declared 80 symbols that the AOCL 6.0.68 DLLs do not export (78 trailing-underscore forms, `get_rngversion_`, `GET_RNGVERSION`): a link-error defect.
+
 ## 0.2.6 - 2026-11-27 (allocated by pm-assist; docs and notices only: aocl-fft-sys publishable under our licence on stated GPL conditions, pm-kernels Q2 ruling)
 
 - `aocl-fft-sys` and `aocl-fft` README and crate docs, `THIRD-PARTY-NOTICES.md` and `docs/PROVENANCE-QUESTIONS.md` state the conditions under which `aocl-fft-sys` may be published under this project's licence (pm-kernels Q2 ruling). No code change.
