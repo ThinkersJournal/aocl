@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.13 - 2026-11-27 (PM-allocated; patch on 0.2.x, the 0.2.x family number: aocl-fft-sys feature fix, measured on AOCL 6.0.68 Windows)
+
+- **FIX `aocl-fft-sys` (Windows, measured on AOCL 6.0.68):** 84 of the 216 declared functions were exported by DLLs the crate did not link, so using them was a link error. Three NEW features, all default OFF, add the missing links: `long-double` (links `libfftw3l`: the 66 `fftwl_*` functions), `threads-omp` (links `libfftw3_omp` / `libfftw3f_omp`, and `libfftw3l_omp` with `long-double`: the `*_threads` functions; needs the LLVM OpenMP runtime `libomp.dll` on `PATH`) and `mpi` (links `libfftw3_mpi` / `libfftw3f_mpi`, and `libfftw3l_mpi` with `long-double`). `tests/link_all.rs` checks every declared function per feature set (132 / 198 / 144 / 216 / 216 resolve). Default builds are unchanged. Linux is unmeasured.
+
 ## 0.2.12 - 2026-11-27 (PM-allocated; docs only, patch on 0.2.x, the PM ruled: aocl-rng-sys and aocl-math NOTICE files in the package)
 
 - **`aocl-rng-sys`: add the missing `NOTICE` to the package** (0.2.11 shipped without it) and fix the README: the 77 UPPERCASE `S/DRAND*` forms ARE declared (`GET_RNGVERSION` is stated by the guide but not exported, so it is not); the "added on demand" wording is gone. The NOTICE carries AMD's legal line (verbatim), says the repository's authors read the headers while the declarations were written by separate sessions that read only the guide, and names the measurements (integer width, user-generator protocol).
