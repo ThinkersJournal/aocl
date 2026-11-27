@@ -1252,6 +1252,7 @@ pub fn axpyi<T: Scalar>(
             indx.len()
         )));
     }
+    check_index_vector("axpyi", indx.len(), indx, y.len())?;
     T::axpyi(alpha, x, indx, y)
 }
 
@@ -1264,6 +1265,7 @@ pub fn gthr<T: Scalar>(y: &[T], indx: &[sys::aoclsparse_int], x: &mut [T]) -> Re
             indx.len()
         )));
     }
+    check_index_vector("gthr", indx.len(), indx, y.len())?;
     T::gthr(y, indx, x)
 }
 
@@ -1276,6 +1278,7 @@ pub fn sctr<T: Scalar>(x: &[T], indx: &[sys::aoclsparse_int], y: &mut [T]) -> Re
             indx.len()
         )));
     }
+    check_index_vector("sctr", indx.len(), indx, y.len())?;
     T::sctr(x, indx, y)
 }
 
@@ -2169,6 +2172,7 @@ pub fn doti_f64(x: &[f64], indx: &[sys::aoclsparse_int], y: &[f64]) -> Result<f6
             indx.len()
         )));
     }
+    check_index_vector("doti", indx.len(), indx, y.len())?;
     let r = unsafe {
         sys::aoclsparse_ddoti(
             x.len() as sys::aoclsparse_int,
@@ -2189,6 +2193,7 @@ pub fn doti_f32(x: &[f32], indx: &[sys::aoclsparse_int], y: &[f32]) -> Result<f3
             indx.len()
         )));
     }
+    check_index_vector("doti", indx.len(), indx, y.len())?;
     let r = unsafe {
         sys::aoclsparse_sdoti(
             x.len() as sys::aoclsparse_int,
@@ -2783,22 +2788,51 @@ pub fn syprd_f32(
     check_status("sparse", status)
 }
 
-/// Validate the arguments of the sparse rotation before the library sees them: one index per sparse value, and every index
-/// inside the dense vector. The library does not check: a negative or too-large index writes outside `y` (heap corruption
-/// observed on AOCL 6.0.68), and fewer indices than values reads past the end of `indx`.
-fn check_roti(name: &str, nnz: usize, indx: &[sys::aoclsparse_int], y_len: usize) -> Result<()> {
+/// Validate an index array before the library sees it (found in review of #45: only `roti` was checked). The library does not
+/// check: a negative or too-large index reads or writes outside the dense vector (heap corruption observed on AOCL 6.0.68), and
+/// fewer indices than values reads past the end of `indx`. Indices are ZERO-based (these routines take no index-base argument).
+pub(crate) fn check_index_vector(
+    name: &str,
+    nnz: usize,
+    indx: &[sys::aoclsparse_int],
+    dense_len: usize,
+) -> Result<()> {
     if indx.len() != nnz {
         return Err(Error::InvalidArgument(format!(
             "{name}: {nnz} values but {} indices",
             indx.len()
         )));
     }
-    if let Some(bad) = indx.iter().find(|&&i| i < 0 || (i as usize) >= y_len) {
+    if let Some(bad) = indx.iter().find(|&&i| i < 0 || (i as usize) >= dense_len) {
         return Err(Error::InvalidArgument(format!(
-            "{name}: index {bad} outside the dense vector (len {y_len})"
+            "{name}: index {bad} outside the dense vector (len {dense_len})"
         )));
     }
     Ok(())
+}
+
+/// Validate a strided access `dense[i * stride]` for `i in 0..nnz`: the stride must be positive (the library refuses it otherwise
+/// too) and the last element must lie inside the dense vector.
+pub(crate) fn check_stride(name: &str, nnz: usize, stride: i32, dense_len: usize) -> Result<()> {
+    if nnz == 0 {
+        return Ok(());
+    }
+    if stride <= 0 {
+        return Err(Error::InvalidArgument(format!(
+            "{name}: stride {stride} is not positive"
+        )));
+    }
+    let last = (nnz - 1).checked_mul(stride as usize);
+    if last.map_or(true, |l| l >= dense_len) {
+        return Err(Error::InvalidArgument(format!(
+            "{name}: {nnz} elements at stride {stride} do not fit in a dense vector of length {dense_len}"
+        )));
+    }
+    Ok(())
+}
+
+fn check_roti(name: &str, nnz: usize, indx: &[sys::aoclsparse_int], y_len: usize) -> Result<()> {
+    check_index_vector(name, nnz, indx, y_len)
 }
 
 /// Sparse rotation: simultaneously rotate `(x, y)` at indices `indx`
@@ -2848,6 +2882,7 @@ pub fn roti_f32(
 
 /// Strided sparse gather: `x[i] := y[i · stride]` for `i ∈ [0, nnz)`. (`f64`)
 pub fn gthrs_f64(y: &[f64], x: &mut [f64], stride: i32) -> Result<()> {
+    check_stride("gthrs_f64", x.len(), stride, y.len())?;
     let status = unsafe {
         sys::aoclsparse_dgthrs(
             x.len() as sys::aoclsparse_int,
@@ -2860,6 +2895,7 @@ pub fn gthrs_f64(y: &[f64], x: &mut [f64], stride: i32) -> Result<()> {
 }
 /// `f32` strided gather. See [`gthrs_f64`].
 pub fn gthrs_f32(y: &[f32], x: &mut [f32], stride: i32) -> Result<()> {
+    check_stride("gthrs_f32", x.len(), stride, y.len())?;
     let status = unsafe {
         sys::aoclsparse_sgthrs(
             x.len() as sys::aoclsparse_int,
@@ -2873,6 +2909,7 @@ pub fn gthrs_f32(y: &[f32], x: &mut [f32], stride: i32) -> Result<()> {
 
 /// Strided sparse scatter: `y[i · stride] := x[i]`. (`f64`)
 pub fn sctrs_f64(x: &[f64], y: &mut [f64], stride: i32) -> Result<()> {
+    check_stride("sctrs_f64", x.len(), stride, y.len())?;
     let status = unsafe {
         sys::aoclsparse_dsctrs(
             x.len() as sys::aoclsparse_int,
@@ -2885,6 +2922,7 @@ pub fn sctrs_f64(x: &[f64], y: &mut [f64], stride: i32) -> Result<()> {
 }
 /// `f32` strided scatter. See [`sctrs_f64`].
 pub fn sctrs_f32(x: &[f32], y: &mut [f32], stride: i32) -> Result<()> {
+    check_stride("sctrs_f32", x.len(), stride, y.len())?;
     let status = unsafe {
         sys::aoclsparse_ssctrs(
             x.len() as sys::aoclsparse_int,
@@ -2899,6 +2937,7 @@ pub fn sctrs_f32(x: &[f32], y: &mut [f32], stride: i32) -> Result<()> {
 /// Gather-and-zero: copy `y[indx[i]]` into `x[i]` and zero the source.
 /// (`f64`)
 pub fn gthrz_f64(y: &mut [f64], indx: &[sys::aoclsparse_int], x: &mut [f64]) -> Result<()> {
+    check_index_vector("gthrz_f64", x.len(), indx, y.len())?;
     let status = unsafe {
         sys::aoclsparse_dgthrz(
             x.len() as sys::aoclsparse_int,
@@ -2911,6 +2950,7 @@ pub fn gthrz_f64(y: &mut [f64], indx: &[sys::aoclsparse_int], x: &mut [f64]) -> 
 }
 /// `f32` gather-and-zero. See [`gthrz_f64`].
 pub fn gthrz_f32(y: &mut [f32], indx: &[sys::aoclsparse_int], x: &mut [f32]) -> Result<()> {
+    check_index_vector("gthrz_f32", x.len(), indx, y.len())?;
     let status = unsafe {
         sys::aoclsparse_sgthrz(
             x.len() as sys::aoclsparse_int,
