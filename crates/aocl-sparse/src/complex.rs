@@ -1086,6 +1086,7 @@ pub fn axpyi<T: ComplexScalar>(
             indx.len()
         )));
     }
+    crate::check_index_vector("axpyi", indx.len(), indx, y.len())?;
     T::axpyi(alpha, x, indx, y)
 }
 
@@ -1098,6 +1099,7 @@ pub fn gthr<T: ComplexScalar>(y: &[T], indx: &[sys::aoclsparse_int], x: &mut [T]
             indx.len()
         )));
     }
+    crate::check_index_vector("gthr", indx.len(), indx, y.len())?;
     T::gthr(y, indx, x)
 }
 
@@ -1110,6 +1112,7 @@ pub fn sctr<T: ComplexScalar>(x: &[T], indx: &[sys::aoclsparse_int], y: &mut [T]
             indx.len()
         )));
     }
+    crate::check_index_vector("sctr", indx.len(), indx, y.len())?;
     T::sctr(x, indx, y)
 }
 
@@ -1683,6 +1686,7 @@ pub fn dotui_c64(
     indx: &[sys::aoclsparse_int],
     y: &[Complex64],
 ) -> Result<Complex64> {
+    crate::check_index_vector("dotui_c64", x.len(), indx, y.len())?;
     let mut out = Complex64::new(0.0, 0.0);
     let status = unsafe {
         sys::aoclsparse_zdotui(
@@ -1702,6 +1706,7 @@ pub fn dotui_c32(
     indx: &[sys::aoclsparse_int],
     y: &[Complex32],
 ) -> Result<Complex32> {
+    crate::check_index_vector("dotui_c32", x.len(), indx, y.len())?;
     let mut out = Complex32::new(0.0, 0.0);
     let status = unsafe {
         sys::aoclsparse_cdotui(
@@ -1722,6 +1727,7 @@ pub fn dotci_c64(
     indx: &[sys::aoclsparse_int],
     y: &[Complex64],
 ) -> Result<Complex64> {
+    crate::check_index_vector("dotci_c64", x.len(), indx, y.len())?;
     let mut out = Complex64::new(0.0, 0.0);
     let status = unsafe {
         sys::aoclsparse_zdotci(
@@ -1741,6 +1747,7 @@ pub fn dotci_c32(
     indx: &[sys::aoclsparse_int],
     y: &[Complex32],
 ) -> Result<Complex32> {
+    crate::check_index_vector("dotci_c32", x.len(), indx, y.len())?;
     let mut out = Complex32::new(0.0, 0.0);
     let status = unsafe {
         sys::aoclsparse_cdotci(
@@ -1759,6 +1766,7 @@ pub fn dotci_c32(
 
 /// `Complex64` strided sparse gather. See real `gthrs_f64`.
 pub fn gthrs_c64(y: &[Complex64], x: &mut [Complex64], stride: i32) -> Result<()> {
+    crate::check_stride("gthrs_c64", x.len(), stride, y.len())?;
     let status = unsafe {
         sys::aoclsparse_zgthrs(
             x.len() as sys::aoclsparse_int,
@@ -1771,6 +1779,7 @@ pub fn gthrs_c64(y: &[Complex64], x: &mut [Complex64], stride: i32) -> Result<()
 }
 /// `Complex32` strided sparse gather.
 pub fn gthrs_c32(y: &[Complex32], x: &mut [Complex32], stride: i32) -> Result<()> {
+    crate::check_stride("gthrs_c32", x.len(), stride, y.len())?;
     let status = unsafe {
         sys::aoclsparse_cgthrs(
             x.len() as sys::aoclsparse_int,
@@ -1788,6 +1797,7 @@ pub fn gthrz_c64(
     indx: &[sys::aoclsparse_int],
     x: &mut [Complex64],
 ) -> Result<()> {
+    crate::check_index_vector("gthrz_c64", x.len(), indx, y.len())?;
     let status = unsafe {
         sys::aoclsparse_zgthrz(
             x.len() as sys::aoclsparse_int,
@@ -1804,6 +1814,7 @@ pub fn gthrz_c32(
     indx: &[sys::aoclsparse_int],
     x: &mut [Complex32],
 ) -> Result<()> {
+    crate::check_index_vector("gthrz_c32", x.len(), indx, y.len())?;
     let status = unsafe {
         sys::aoclsparse_cgthrz(
             x.len() as sys::aoclsparse_int,
@@ -1817,6 +1828,7 @@ pub fn gthrz_c32(
 
 /// `Complex64` strided sparse scatter.
 pub fn sctrs_c64(x: &[Complex64], y: &mut [Complex64], stride: i32) -> Result<()> {
+    crate::check_stride("sctrs_c64", x.len(), stride, y.len())?;
     let status = unsafe {
         sys::aoclsparse_zsctrs(
             x.len() as sys::aoclsparse_int,
@@ -1829,6 +1841,7 @@ pub fn sctrs_c64(x: &[Complex64], y: &mut [Complex64], stride: i32) -> Result<()
 }
 /// `Complex32` strided sparse scatter.
 pub fn sctrs_c32(x: &[Complex32], y: &mut [Complex32], stride: i32) -> Result<()> {
+    crate::check_stride("sctrs_c32", x.len(), stride, y.len())?;
     let status = unsafe {
         sys::aoclsparse_csctrs(
             x.len() as sys::aoclsparse_int,
