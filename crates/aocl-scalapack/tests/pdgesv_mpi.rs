@@ -58,6 +58,21 @@ fn main() {
     }
     let desca = BlockCyclic::new(&grid, N, N, NB, NB, 0, 0, N).expect("desca");
     let descb = BlockCyclic::new(&grid, N, 1, NB, 1, 0, 0, N).expect("descb");
+    // `as_raw` and `context`: the raw dense descriptor is [DTYPE=1, CTXT, M, N, MB, NB, RSRC, CSRC, LLD], and CTXT is the grid's
+    // BLACS context. Control: B is N x 1, so its N entry is 1 and differs from A's.
+    let ra = desca.as_raw();
+    assert_eq!(
+        (ra[0], ra[2], ra[3], ra[4], ra[5], ra[6], ra[7], ra[8]),
+        (1, N as Int, N as Int, NB as Int, NB as Int, 0, 0, N as Int),
+        "descA {ra:?}"
+    );
+    assert_eq!(ra[1], grid.context(), "descA CTXT must be the grid context");
+    assert_eq!(descb.as_raw()[3], 1, "descB n");
+    assert_ne!(descb.as_raw()[3], ra[3]);
+    // `barrier`: every rank of the grid passes the all-process barrier (it would hang or abort on a bad scope/context).
+    grid.barrier(b'A');
+    grid.barrier(b'R');
+    grid.barrier(b'C');
     let mut ipiv = vec![0 as Int; N + NB];
     pdgesv(N, 1, &mut a, 1, 1, &desca, &mut ipiv, &mut b, 1, 1, &descb).expect("pdgesv");
 
