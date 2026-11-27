@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased (tests only, patch on 0.2.x; pm-assist allocates; no crate API changes)
+
+- **Tests for exposed wrapper functions that no test mentioned (pm-kernels: comprehensive coverage), group 1, run on the real AOCL 6.0.68 Windows:** `aocl-utils` (`x86_64_level`; `pin_threads` Core/Logical/Spread and `pin_threads_custom`, checked by reading the OS thread affinity mask back with `GetThreadGroupAffinity`, with an unpinned-thread control), `aocl-securerng` (`rdrand_u16`, `rdseed_u16`, `rdseed_u64`, `rdseed_bytes` with guard bytes), `aocl-scalapack` (`BlockCyclic::as_raw` against the BLACS descriptor layout, `Grid::context`, `Grid::barrier` in the existing `harness = false` MPI test). Each new test was shown to FAIL with a deliberately wrong expected value.
+
 ## 0.2.20 - 2026-11-27 (PM-allocated; tools and docs only, patch on 0.2.x: the 12 safe wrappers' tests on the real AOCL 6.0.68; no crate behaviour changes)
 
 - **tools:** `tools/wrapper-tests.py` runs every safe wrapper's tests on the real installed AOCL (PATH built per width) and prints a table; `--control-no-aocl` must FAIL every wrapper (they really call into the DLLs). `docs/WRAPPER-TESTS-20261127.md`: 12 wrappers, 192 tests, all pass on AOCL 6.0.68 Windows with two runtime requirements found: `aocl-crypto` needs OpenSSL 3 `libcrypto-3-x64.dll` on PATH (AOCL does not ship it), `aocl-data-analytics` needs `KMP_DUPLICATE_LIB_OK=TRUE` (AMD issue 2). `selfhosted.yml` gets a `wrappers` job (untested on a runner).
