@@ -9,8 +9,8 @@ no macros, no constants, no example code. They are declared from the guide and l
 exported by those libraries and are not declared. Measured, not guide-stated: the width of `rng_int_t` (4 bytes in the LP64
 library, 8 in the ILP64 library; docs/cleanroom/RNG-WIDTH-MEASUREMENT.md), the callback shapes of the single-precision user
 generator, and the protocol of the user-generator entry points (the UINI callback must set `state[0] = n`, `lstate >= n + 3`;
-docs/cleanroom/types/userinit/USERINIT-MEASUREMENT.md): those entry points are unsafe, link-checked only, and never called by a
-test. The authors of this repository (this lane) HAVE read the AOCL headers; the declarations were not written by those sessions.
+docs/cleanroom/types/userinit/USERINIT-MEASUREMENT.md): those entry points are unsafe, link-checked, and called by one test only
+(tests/user_init.rs), in the measured-safe shape. The authors of this repository (this lane) HAVE read the AOCL headers; the declarations were not written by those sessions.
 Guide line numbers for every declaration are in docs/cleanroom/rng_provenance.csv and docs/cleanroom/rng_upper_provenance.csv at
 https://github.com/ThinkersJournal/aocl. This crate does not contain, and does not read at build time, any AOCL header.
 
