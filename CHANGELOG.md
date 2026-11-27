@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased (docs and tools only, patch on 0.2.x; pm-assist allocates; no code change)
+
+- **Wrapper crates now ship a NOTICE** that points at their `-sys` crate's provenance statement: `aocl-blas`, `aocl-lapack`, `aocl-fft`, `aocl-utils`, `aocl-compression`, `aocl-sparse`, `aocl-crypto`, `aocl-data-analytics`, `aocl-rng`, `aocl-securerng` (`aocl-math` already did; `aocl-scalapack` has no `-sys` NOTICE to point at). `tools/check-package-files.py` now also requires a NOTICE in a wrapper whose `-sys` dependency has one (wrappers inherit the duty), not only when its README mentions provenance. Read from the latest published `.crate` files before this change: only `aocl-math` shipped a NOTICE; `aocl-fft`'s README mentions provenance without shipping one.
+
 ## 0.2.27 - 2026-11-27 (PM-allocated; aocl-rng-sys link-and-call test for the user-generator entry points in the measured-safe shape (LP64 and ILP64, D and S pass, guard asserted, wrong-value control fails) with the NOTICE commit; patch on 0.2.x, tests and docs)
 
 - **`aocl-rng-sys`: link-and-call test for the user-generator entry points** (`tests/user_init.rs`, own test binary): `drandinitializeuser`/`srandinitializeuser` followed by `dranduniform`/`sranduniform` in the ONE measured-safe shape (UINI sets `state[0] = n`, `lstate >= n + 3`, a guard region asserted untouched), D and S, LP64 and ILP64 (measured on AOCL 6.0.68 Windows); the generator's values come through. A call that does not follow the protocol is never made in CI (the wrong-`n` control stays in the measurement document). The entry points stay `unsafe extern` with no safe wrapper (ROADMAP row 19).

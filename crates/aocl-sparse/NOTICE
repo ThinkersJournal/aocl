@@ -1,0 +1,8 @@
+NOTICE for aocl-sparse
+
+Provenance. This crate is a safe wrapper over `aocl-sparse-sys`. The provenance of the declarations it calls (the AOCL header files they were generated from, or the AMD
+documentation they were written from, and the AMD licence text that applies) is stated in the NOTICE of that crate: `crates/aocl-sparse-sys/NOTICE` at
+https://github.com/ThinkersJournal/aocl, shipped in the `aocl-sparse-sys` package on crates.io. This crate contains no AMD library or header.
+
+AOCL is not shipped. Through `aocl-sparse-sys` this crate links an AOCL library that the user has installed; the user accepts AMD's licence for that library. AMD, the AMD arrow
+logo and AOCL are trademarks of Advanced Micro Devices, Inc.; their use here is for identification only. Not legal advice.
