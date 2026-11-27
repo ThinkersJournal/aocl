@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased (tests and doc corrections, patch on 0.2.x; pm-assist allocates; no behaviour change)
+
+- **`aocl-blas`, `aocl-fft`, `aocl-rng`: result-checking tests for all 57 exposed wrapper functions no test mentioned** (blas 29: packed/banded/batched routines, Givens, `scabs1`-style helpers in both layouts and all transpose/uplo/diag options; fft 9 against a naive DFT; rng 19: closed-form moments/CDFs at 5 sigma, `skip_ahead` bit-for-bit against the base stream), measured on AOCL 6.0.68 Windows (fft 29, rng 31, blas 74 tests, 0 failed, 0 ignored). **Doc corrections found by the tests (library behaviour unchanged):** `negative_binomial` counts successes before the m-th failure (not the reverse); `general_discrete` needs a `drand*reference` array, not a cumulative vector; `leapfrog` needs `0 < k <= n` and its stream offset differs from the header; `BlumBlumShub::sample` returns integers below 2^30, not `[0,1)`; `BlumBlumShub::new` never returns for primes above about 100 000 (documented, not fixable by the wrapper).
+
 ## 0.2.24 - 2026-11-27 (PM-allocated; wrapper-test group 1 (utils, securerng, scalapack gaps): tests only on the real AOCL 6.0.68; patch on 0.2.x)
 
 - **Tests for exposed wrapper functions that no test mentioned (pm-kernels: comprehensive coverage), group 1, run on the real AOCL 6.0.68 Windows:** `aocl-utils` (`x86_64_level`; `pin_threads` Core/Logical/Spread and `pin_threads_custom`, checked by reading the OS thread affinity mask back with `GetThreadGroupAffinity`, with an unpinned-thread control), `aocl-securerng` (`rdrand_u16`, `rdseed_u16`, `rdseed_u64`, `rdseed_bytes` with guard bytes), `aocl-scalapack` (`BlockCyclic::as_raw` against the BLACS descriptor layout, `Grid::context`, `Grid::barrier` in the existing `harness = false` MPI test). Each new test was shown to FAIL with a deliberately wrong expected value.

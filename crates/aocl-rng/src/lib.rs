@@ -260,8 +260,9 @@ impl Rng {
         })
     }
 
-    /// Negative-binomial: number of failures before `m` successes, each
-    /// with success probability `p`.
+    /// Negative-binomial as AOCL defines it (header `rng.h`, measured on AOCL 6.0.68): the number of **successes** before the
+    /// `m`-th **failure**, each trial succeeding with probability `p` (mean `m·p/(1−p)`; `m = 4`, `p = 0.4` gives about 2.67).
+    /// This is the reverse of the usual "failures before the m-th success" convention.
     pub fn negative_binomial(&mut self, m: RngInt, p: f64, out: &mut [RngInt]) -> Result<()> {
         self.fill_int("negative_binomial", out, |n, st, ptr, info| unsafe {
             sys::drandnegativebinomial(n, m, p, st, ptr, info)
@@ -302,9 +303,9 @@ impl Rng {
         })
     }
 
-    /// General discrete distribution. `ref_dist` is the cumulative
-    /// probability vector (sorted, with `ref_dist[k-1] == 1.0`); `out`
-    /// receives integer indices into it.
+    /// General discrete distribution. `ref_dist` must be the reference array produced by one of AOCL's `drand*reference`
+    /// routines (header `rng.h`); a plain cumulative probability vector is rejected (`info = -2`, measured on AOCL 6.0.68).
+    /// `out` receives integer indices.
     pub fn general_discrete(&mut self, ref_dist: &mut [f64], out: &mut [RngInt]) -> Result<()> {
         let n = out.len();
         if n == 0 {
@@ -445,8 +446,10 @@ impl Rng {
     }
 
     /// Leapfrog: split this stream into `n` substreams and advance
-    /// this state to substream `k` (0-based). Each `leapfrog(n, _)`
-    /// call subselects every `n`-th sample.
+    /// this state to substream `k`, with `0 < k <= n` (`k = 0` is rejected). Each `leapfrog(n, _)` call subselects every
+    /// `n`-th sample. Measured on AOCL 6.0.68 (LinearCongruential, WichmannHill, n = 3): stream `k` starts at base index
+    /// `k + 1`, not at `k − 1` as the header says; only the stride, disjointness and coverage are guaranteed here.
+    /// Not supported by every generator (Mersenne Twister returns an error).
     pub fn leapfrog(&mut self, n: RngInt, k: RngInt) -> Result<()> {
         let mut info: RngInt = 0;
         unsafe {
@@ -525,7 +528,9 @@ pub struct BlumBlumShub {
 impl BlumBlumShub {
     /// Initialise BBS from prime factors `p` and `q` (must each be
     /// `≡ 3 (mod 4)`) and a seed `s` coprime to `p · q`. `nbits`
-    /// controls how many bits per call to extract.
+    /// controls how many bits per call to extract. **Warning (measured, AOCL 6.0.68):** with primes above roughly 100 000
+    /// (e.g. `p = 999983`, `q = 1000003`), with a seed of 1, and with `nbits` of 1, 8 or 15 in those cases, this call never
+    /// returns (100 % CPU); primes up to 100 003 work. No timeout is possible, so keep `p` and `q` small.
     pub fn new(
         nbits: RngInt,
         p: &mut [RngInt],
@@ -559,7 +564,8 @@ impl BlumBlumShub {
         Ok(BlumBlumShub { state })
     }
 
-    /// Fill `out` with BBS-generated `f64` values in `[0, 1)`.
+    /// Fill `out` with BBS-generated `f64` values. Per the header the least-significant 30 bits of each double carry the
+    /// output: the values are integer-valued in `[0, 2^30)` (measured), **not** in `[0, 1)`.
     pub fn sample(&mut self, out: &mut [f64]) -> Result<()> {
         let n = out.len();
         if n == 0 {
