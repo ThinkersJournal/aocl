@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased (docs only, patch on 0.2.x; pm-assist allocates)
+
+- **Docs: what each `static-link` build needs on the link line (Windows, measured on AOCL 6.0.68; Linux unmeasured)** in the READMEs of `aocl-sparse-sys`, `aocl-blas-sys`, `aocl-lapack-sys`, `aocl-crypto-sys`, `aocl-data-analytics-sys`: the OpenMP runtime `libiomp5md.lib` (sparse, blas, lapack, data-analytics), the static BLIS (lapack), `bcrypt.lib` and OpenSSL libcrypto (crypto), the Intel oneAPI Fortran runtime and BLAS/LAPACK (data-analytics). These crates do not link them; no code change. `aocl-fft-sys`, `aocl-utils-sys` and `aocl-compression-sys` static builds need nothing extra.
+
 ## 0.2.17 - 2026-11-27 (PM-allocated; patch on 0.2.x, as 0.2.14: unlinkable and static-only declarations behind features, aocl-blas-sys)
 
 - **FIX `aocl-blas-sys` (Windows, measured on AOCL 6.0.68, LP64 and ILP64; Linux unmeasured): 2476 of 5704 declared functions did not link in a dynamic build.** 2392 exist only in the static library (`bli_*`, `lpgemm_*`, `lpgemv_*`, `packa_*`/`packb_*`, `bla_*`, `AOCL_FAL_*`, ...): now declared only with `static-link`. 83 are exported by no installed library: behind the NEW default-OFF feature `header-only-unexported` (enabling it only declares them). `xerbla_array_` (exported by libflame): declared only with the NEW default-OFF feature `libflame`, which links the libflame DLL. Default dynamic builds: 3228 of 3228 declared functions resolve; with `libflame` 3229. `static-link` builds additionally need the OpenMP runtime on the link line (not linked by this crate). New `tests/link_all.rs`. The safe wrapper `aocl-blas` uses none of the left-out names.
