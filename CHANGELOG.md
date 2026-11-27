@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased (patch on 0.2.x; pm-assist allocates)
+
+- **`aocl-sparse` soundness fixes (safe API):** `sorv_f32` now checks `x`/`b` lengths against the matrix (as `sorv<T>` already did), and `roti_f64`/`roti_f32` reject a negative or out-of-range index and a wrong number of indices with `InvalidArgument` instead of letting the library write outside `y` / read past `indx` (heap corruption and access violation observed on AOCL 6.0.68 Windows). The same defect existed in every published version (0.1.0, 0.2.2, 0.2.4, 0.2.5); see docs/SPARSE-SOUNDNESS-20261127.md for the per-bug table, the safe-code reproductions (`tests/soundness.rs`, red before / green after) and the `symgs` alpha measurement (documented; the library ignores `alpha` from a zero guess).
+
 ## 0.2.23 - 2026-11-27 (PM-allocated; tools/wrapper-coverage.py and docs: exposed versus tested per wrapper; patch on 0.2.x, tools and docs only)
 
 - **tools:** `tools/wrapper-coverage.py` compares each safe wrapper's exposed public functions with the names its tests mention; `docs/WRAPPER-COVERAGE-20261127.md`: 638 exposed, 257 mentioned, 381 without any test (the gaps are listed per wrapper). Tests for the gaps follow, smallest crates first.
