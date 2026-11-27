@@ -33,24 +33,74 @@ pub type openrng_uint64_t = core::ffi::c_ulonglong;
 pub type VSLStreamStatePtr = *mut core::ffi::c_void;
 
 /// Header: `typedef int (*InitStreamPtr)(int method, VSLStreamStatePtr stream, int n, const unsigned int params[]);`
-pub type InitStreamPtr = Option<unsafe extern "C" fn(core::ffi::c_int, VSLStreamStatePtr, core::ffi::c_int, *const core::ffi::c_uint) -> core::ffi::c_int>;
+pub type InitStreamPtr = Option<
+    unsafe extern "C" fn(
+        core::ffi::c_int,
+        VSLStreamStatePtr,
+        core::ffi::c_int,
+        *const core::ffi::c_uint,
+    ) -> core::ffi::c_int,
+>;
 /// Header: `typedef int (*sBRngPtr)(VSLStreamStatePtr stream, int n, float r[], float a, float b);`
-pub type sBRngPtr = Option<unsafe extern "C" fn(VSLStreamStatePtr, core::ffi::c_int, *mut core::ffi::c_float, core::ffi::c_float, core::ffi::c_float) -> core::ffi::c_int>;
+pub type sBRngPtr = Option<
+    unsafe extern "C" fn(
+        VSLStreamStatePtr,
+        core::ffi::c_int,
+        *mut core::ffi::c_float,
+        core::ffi::c_float,
+        core::ffi::c_float,
+    ) -> core::ffi::c_int,
+>;
 /// Header: `typedef int (*dBRngPtr)(VSLStreamStatePtr stream, int n, double r[], double a, double b);`
-pub type dBRngPtr = Option<unsafe extern "C" fn(VSLStreamStatePtr, core::ffi::c_int, *mut core::ffi::c_double, core::ffi::c_double, core::ffi::c_double) -> core::ffi::c_int>;
+pub type dBRngPtr = Option<
+    unsafe extern "C" fn(
+        VSLStreamStatePtr,
+        core::ffi::c_int,
+        *mut core::ffi::c_double,
+        core::ffi::c_double,
+        core::ffi::c_double,
+    ) -> core::ffi::c_int,
+>;
 /// Header: `typedef int (*iBRngPtr)(VSLStreamStatePtr stream, int n, unsigned int r[]);`
-pub type iBRngPtr = Option<unsafe extern "C" fn(VSLStreamStatePtr, core::ffi::c_int, *mut core::ffi::c_uint) -> core::ffi::c_int>;
+pub type iBRngPtr = Option<
+    unsafe extern "C" fn(
+        VSLStreamStatePtr,
+        core::ffi::c_int,
+        *mut core::ffi::c_uint,
+    ) -> core::ffi::c_int,
+>;
 /// Header: `typedef int (*iUpdateFuncPtr)(VSLStreamStatePtr stream, int *n, unsigned int ibuf[], int *nmin, int *nmax, int *idx);`
 pub type iUpdateFuncPtr = Option<
-    unsafe extern "C" fn(VSLStreamStatePtr, *mut core::ffi::c_int, *mut core::ffi::c_uint, *mut core::ffi::c_int, *mut core::ffi::c_int, *mut core::ffi::c_int) -> core::ffi::c_int,
+    unsafe extern "C" fn(
+        VSLStreamStatePtr,
+        *mut core::ffi::c_int,
+        *mut core::ffi::c_uint,
+        *mut core::ffi::c_int,
+        *mut core::ffi::c_int,
+        *mut core::ffi::c_int,
+    ) -> core::ffi::c_int,
 >;
 /// Header: `typedef int (*dUpdateFuncPtr)(VSLStreamStatePtr stream, int *n, double dbuf[], int *nmin, int *nmax, int *idx);`
 pub type dUpdateFuncPtr = Option<
-    unsafe extern "C" fn(VSLStreamStatePtr, *mut core::ffi::c_int, *mut core::ffi::c_double, *mut core::ffi::c_int, *mut core::ffi::c_int, *mut core::ffi::c_int) -> core::ffi::c_int,
+    unsafe extern "C" fn(
+        VSLStreamStatePtr,
+        *mut core::ffi::c_int,
+        *mut core::ffi::c_double,
+        *mut core::ffi::c_int,
+        *mut core::ffi::c_int,
+        *mut core::ffi::c_int,
+    ) -> core::ffi::c_int,
 >;
 /// Header: `typedef int (*sUpdateFuncPtr)(VSLStreamStatePtr stream, int *n, float sbuf[], int *nmin, int *nmax, int *idx);`
 pub type sUpdateFuncPtr = Option<
-    unsafe extern "C" fn(VSLStreamStatePtr, *mut core::ffi::c_int, *mut core::ffi::c_float, *mut core::ffi::c_int, *mut core::ffi::c_int, *mut core::ffi::c_int) -> core::ffi::c_int,
+    unsafe extern "C" fn(
+        VSLStreamStatePtr,
+        *mut core::ffi::c_int,
+        *mut core::ffi::c_float,
+        *mut core::ffi::c_int,
+        *mut core::ffi::c_int,
+        *mut core::ffi::c_int,
+    ) -> core::ffi::c_int,
 >;
 
 /// Header: `typedef struct { int StreamStateSize; int NSeeds; int IncludesZero; int WordSize; int NBits; InitStreamPtr InitStream; sBRngPtr sBRng; dBRngPtr dBRng; iBRngPtr iBRng; } VSLBRngProperties;`

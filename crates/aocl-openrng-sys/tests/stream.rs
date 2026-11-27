@@ -8,8 +8,21 @@ fn first_values(seed: openrng_uint_t) -> [f64; 4] {
     let mut s: VSLStreamStatePtr = core::ptr::null_mut();
     let mut r = [0f64; 4];
     unsafe {
-        assert_eq!(vslNewStream(&mut s, VSL_BRNG_PHILOX4X32X10 as openrng_int_t, seed), VSL_ERROR_OK);
-        assert_eq!(vdRngUniform(VSL_RNG_METHOD_UNIFORM_STD as openrng_int_t, s, 4, r.as_mut_ptr(), 0.0, 1.0), VSL_ERROR_OK);
+        assert_eq!(
+            vslNewStream(&mut s, VSL_BRNG_PHILOX4X32X10 as openrng_int_t, seed),
+            VSL_ERROR_OK
+        );
+        assert_eq!(
+            vdRngUniform(
+                VSL_RNG_METHOD_UNIFORM_STD as openrng_int_t,
+                s,
+                4,
+                r.as_mut_ptr(),
+                0.0,
+                1.0
+            ),
+            VSL_ERROR_OK
+        );
         assert_eq!(vslDeleteStream(&mut s), VSL_ERROR_OK);
     }
     r
@@ -27,5 +40,8 @@ fn deterministic_and_in_range() {
 
 #[test]
 fn width_matches_feature() {
-    assert_eq!(core::mem::size_of::<openrng_int_t>(), if cfg!(feature = "ilp64") { 8 } else { 4 });
+    assert_eq!(
+        core::mem::size_of::<openrng_int_t>(),
+        if cfg!(feature = "ilp64") { 8 } else { 4 }
+    );
 }

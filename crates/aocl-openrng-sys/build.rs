@@ -16,6 +16,10 @@ fn main() {
     if std::env::var_os("OPENRNG_LIB_DIR").is_some() {
         // Tests are compiled only when a built library is available (they cannot link otherwise).
         println!("cargo:rustc-cfg=openrng_linked");
-        println!("cargo:rustc-link-lib={}=openrng{}", if static_link { "static" } else { "dylib" }, if static_link { "_static" } else { "" });
+        println!(
+            "cargo:rustc-link-lib={}=openrng{}",
+            if static_link { "static" } else { "dylib" },
+            if static_link { "_static" } else { "" }
+        );
     }
 }
