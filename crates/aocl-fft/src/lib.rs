@@ -14,6 +14,13 @@
 //! single-threaded build we link against. Plan **execution** is
 //! thread-safe and not held under that lock. The same lock guards
 //! both precisions since they share the planner state.
+//!
+//! # Licence condition of the library you link
+//!
+//! The AMD `libfftw3`/`libfftw3f` in AOCL is GPL-licensed (AOCL's `NOTICE.txt` says GPL-2.0; the shipped `COPYRIGHT` says
+//! version 2 or any later version: the two disagree). This crate ships no library. A program that links it and is
+//! distributed must comply with the library's licence. Whether a source-only crate of `extern` declarations is itself a
+//! combined work is UNKNOWN (no FSF text found). This is not legal advice.
 
 #![warn(missing_debug_implementations)]
 #![cfg_attr(docsrs, feature(doc_cfg))]

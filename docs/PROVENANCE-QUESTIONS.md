@@ -88,6 +88,12 @@ crate, and state in the crate README and the `lib.rs` docs, in these words: "thi
 library". Hold publish until the pm decides; **[GUESS]** the stricter alternative is to follow `fftw-sys` and make
 `aocl-fft-sys` GPL-2.0-or-later. The same sentence is needed for the `aocl` umbrella's `fft` feature.
 
+**Fact recorded 2026-11-27 (read from the installed AOCL 6.0.68 `amd-fftw`):** the two AOCL files disagree on the library's
+GPL version. `COPYRIGHT` lines 7-9: "either version 2 of the License, or (at your option) any later version". `NOTICE.txt`
+component `fftw-fftw3 v3.3.8` is listed as GPL-2.0. **Ruling (pm-kernels, 2026-11-26):** `aocl-fft-sys` may be published
+under our licence with the conditions in its README, `lib.rs` and `THIRD-PARTY-NOTICES.md`; whether a source-only extern
+crate is itself a combined work stays UNKNOWN (no FSF text found).
+
 ## Question 3. The AMD question (drafted, NOT posted)
 
 Needed from AMD for `amdlibm.h` (AOCL-LibM) and `rng.h` (AOCL-RNG): permission to publish, in Rust crates licensed

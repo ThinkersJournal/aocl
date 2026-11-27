@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.6 - 2026-11-27 (allocated by pm-assist; docs and notices only: aocl-fft-sys publishable under our licence on stated GPL conditions, pm-kernels Q2 ruling)
+
+- `aocl-fft-sys` and `aocl-fft` README and crate docs, `THIRD-PARTY-NOTICES.md` and `docs/PROVENANCE-QUESTIONS.md` state the conditions under which `aocl-fft-sys` may be published under this project's licence (pm-kernels Q2 ruling). No code change.
+
 ## 0.2.5 - 2026-11-27 (allocated by pm-assist; notices only)
 
 - The -sys NOTICE files gain the google-snappy and lapacke 2010 blocks (check-notices: 0 problems); THIRD-PARTY-NOTICES.md updated. The lapacke 2010 block is read by the PM against the published lapack-sys list. No code change.
