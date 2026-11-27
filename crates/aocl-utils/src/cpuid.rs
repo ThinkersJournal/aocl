@@ -239,4 +239,22 @@ mod tests {
         assert!(has_flags_all(Cpu::Current, &[]));
         assert!(!has_flags_any(Cpu::Current, &[]));
     }
+    #[test]
+    fn x86_64_level_agrees_with_the_feature_flags() {
+        // The level is derived from the CPU's flags: V4 needs AVX-512, V3 needs AVX2 + FMA + BMI2, V2 needs SSE4.2 +
+        // POPCNT; `None` means not even V2. Each branch must agree with `has_flag` on the same host.
+        let level = x86_64_level(Cpu::Current);
+        let avx512 = has_flags_all(Cpu::Current, &["avx512f", "avx512vl"]);
+        let v3 = has_flags_all(Cpu::Current, &["avx2", "fma", "bmi2"]);
+        match level {
+            Some(X86_64Level::V4) => assert!(avx512 && v3, "V4 without AVX-512/AVX2"),
+            Some(X86_64Level::V3) => assert!(v3 && !avx512, "V3 but the flags say otherwise"),
+            Some(X86_64Level::V2) => assert!(!v3, "V2 but AVX2/FMA/BMI2 present"),
+            None => assert!(!has_flag(Cpu::Current, "sse4_2") || !has_flag(Cpu::Current, "popcnt")),
+            #[allow(unreachable_patterns)]
+            Some(_) => {}
+        }
+        // Control: the levels are ordered, so a higher level can never be reported for fewer flags.
+        assert!(X86_64Level::V2 < X86_64Level::V3 && X86_64Level::V3 < X86_64Level::V4);
+    }
 }

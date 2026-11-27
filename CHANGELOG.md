@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.24 - 2026-11-27 (PM-allocated; wrapper-test group 1 (utils, securerng, scalapack gaps): tests only on the real AOCL 6.0.68; patch on 0.2.x)
+
+- **Tests for exposed wrapper functions that no test mentioned (pm-kernels: comprehensive coverage), group 1, run on the real AOCL 6.0.68 Windows:** `aocl-utils` (`x86_64_level`; `pin_threads` Core/Logical/Spread and `pin_threads_custom`, checked by reading the OS thread affinity mask back with `GetThreadGroupAffinity`, with an unpinned-thread control), `aocl-securerng` (`rdrand_u16`, `rdseed_u16`, `rdseed_u64`, `rdseed_bytes` with guard bytes), `aocl-scalapack` (`BlockCyclic::as_raw` against the BLACS descriptor layout, `Grid::context`, `Grid::barrier` in the existing `harness = false` MPI test). Each new test was shown to FAIL with a deliberately wrong expected value.
+
 ## Unreleased (patch on 0.2.x; pm-assist allocates)
 
 - **`aocl-crypto` / `aocl-data-analytics`: result-checking tests for all 45 exposed wrapper functions no test mentioned** (crypto 24: NIST SP 800-38C CCM, McGrew-Viega GCM, RFC 8439 ChaCha20-Poly1305, RFC 7748 X25519, "abc" digests for all 12 modes, RSA OAEP/PSS/PKCS#1 v1.5/raw with tamper tests; data-analytics 21: reference computations and invariants), measured on AOCL 6.0.68 Windows (crypto 40 tests, data-analytics 44, 0 failed, 0 ignored).
