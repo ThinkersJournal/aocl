@@ -21,6 +21,9 @@ static-link = []
 header-only-unexported = []
 # Default OFF. Links the libflame DLL (Windows names measured) so `xerbla_array_`, which libflame exports and BLIS does not, links.
 libflame = []
+# Default OFF. Links `scalapack.dll` so the 13 `AOCL_FAL_*` / `AOCL_FLIST_*` / `AOCL_get*` helpers, which that DLL also exports, link in a
+# dynamic build (Windows names measured). Needs the ScaLAPACK DLL and its MPI runtime on PATH. No effect with `static-link`.
+scalapack-fal = []
 
 [dependencies]
 libc.workspace = true

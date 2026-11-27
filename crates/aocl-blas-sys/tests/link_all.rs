@@ -10,7 +10,13 @@
 fn declared_symbols_link() {
     let addrs: Vec<usize> = include!(concat!(env!("OUT_DIR"), "/link_all_list.rs"));
     if !cfg!(feature = "header-only-unexported") {
-        let expected = 3228 + if cfg!(feature = "libflame") { 1 } else { 0 };
+        let expected = 3228
+            + if cfg!(feature = "libflame") { 1 } else { 0 }
+            + if cfg!(feature = "scalapack-fal") {
+                13
+            } else {
+                0
+            };
         assert_eq!(addrs.len(), expected);
     }
     assert!(addrs.iter().all(|a| *a != 0));

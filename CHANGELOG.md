@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased (patch on 0.2.x; pm-assist allocates)
+
+- **`aocl-blas-sys` (Windows, measured on AOCL 6.0.68; Linux unmeasured): new default-OFF feature `scalapack-fal`.** The 13 helpers `AOCL_FAL_{Close,Error,Open,Read,Write}`, `AOCL_FLIST_{AddFile,CloseAll,CloseFile,GetFile,IsEmpty}`, `AOCL_getTimestamp`, `AOCL_getpid`, `AOCL_gettid` are exported by `scalapack.dll` (not by the BLIS DLL): in a dynamic build they are declared, and `scalapack.dll` is linked, only with this feature (it needs the ScaLAPACK DLL and its MPI runtime on `PATH`). In 0.2.17 they were declared only with `static-link`; that stays (they also exist in the static library). Link-all: 3241 of 3241 declared functions resolve with `scalapack-fal`, 3242 with `libflame,scalapack-fal` (default 3228, `libflame` 3229).
+
 ## 0.2.17 - 2026-11-27 (PM-allocated; patch on 0.2.x, as 0.2.14: unlinkable and static-only declarations behind features, aocl-blas-sys)
 
 - **FIX `aocl-blas-sys` (Windows, measured on AOCL 6.0.68, LP64 and ILP64; Linux unmeasured): 2476 of 5704 declared functions did not link in a dynamic build.** 2392 exist only in the static library (`bli_*`, `lpgemm_*`, `lpgemv_*`, `packa_*`/`packb_*`, `bla_*`, `AOCL_FAL_*`, ...): now declared only with `static-link`. 83 are exported by no installed library: behind the NEW default-OFF feature `header-only-unexported` (enabling it only declares them). `xerbla_array_` (exported by libflame): declared only with the NEW default-OFF feature `libflame`, which links the libflame DLL. Default dynamic builds: 3228 of 3228 declared functions resolve; with `libflame` 3229. `static-link` builds additionally need the OpenMP runtime on the link line (not linked by this crate). New `tests/link_all.rs`. The safe wrapper `aocl-blas` uses none of the left-out names.
