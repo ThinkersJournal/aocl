@@ -5,11 +5,13 @@
 //! provenance (guide line numbers) is `docs/cleanroom/rng_provenance.csv`; the integer-width measurement is
 //! `docs/cleanroom/RNG-WIDTH-MEASUREMENT.md` in the repository.
 //!
-//! Only the lowercase, no-underscore C form is declared (scalar inputs by value). The guide also lists UPPERCASE
-//! (all arguments by pointer) forms, which the library exports but this crate does not declare. The guide's
-//! trailing-underscore forms are **not exported** by the 6.0.68 Windows DLLs (measured), so they are not declared.
+//! Declared: the lowercase, no-underscore C form (scalar inputs by value) and the UPPERCASE `S/DRAND*` forms
+//! (`decls_upper.rs`, exported by both 6.0.68 DLLs; the guide states them mostly by pointer). The guide's
+//! trailing-underscore forms are **not exported** by the 6.0.68 Windows DLLs (measured), so they are not declared;
+//! `GET_RNGVERSION` is stated by the guide but not exported, so it is not declared either.
 //!
-//! Not declared: `srandinitializeuser` (the guide never states its callback typedefs), and the SecureRNG API.
+//! Not declared: `srandinitializeuser` and `SRANDINITIALIZEUSER` (the guide never states the S callback typedefs),
+//! and the SecureRNG API.
 //!
 //! For a safe, idiomatic API see [`aocl-rng`](https://docs.rs/aocl-rng).
 
@@ -49,3 +51,5 @@ pub type RNG_DRANDINITIALIZEUSER_UGEN = Option<
 
 mod decls;
 pub use decls::*;
+mod decls_upper;
+pub use decls_upper::*;
