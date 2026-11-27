@@ -9,6 +9,8 @@ Dual-licensed under MIT or Apache-2.0.
 **Declared (218 functions):** the scalar functions and the array-form functions (`amd_vrda_*`, `amd_vrsa_*`: a length plus
 pointers), exactly as the AOCL API Guide 6.0 states them.
 
+**`cargo build --all-features` (and `cargo doc --all-features`) FAILS on stable BY DESIGN:** the feature `simd_ffi` is nightly-only (it needs `#![feature(simd_ffi)]`). docs.rs does not enable it. Use `--features guide-only-fast` on stable, `--features simd_ffi` on nightly only.
+
 **Not declared, and why:**
 - **156 by-value SIMD functions on stable** (`amd_vrs4_*`, `amd_vrd2_*`, `amd_vrd4_*`, `amd_vrs8_*`, `amd_vrd8_*`, `amd_vrs16_*`, ...) take `__m128`..`__m512d`
   by value; stable Rust rejects SIMD types in an `extern "C"` block. They are declared behind the **nightly-only** Cargo feature
