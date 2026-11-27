@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased (patch on 0.2.x; pm-assist allocates)
+
+- **FIX `aocl-math-sys`:** 20 scalar declarations (`amd_fast{sin,cos,tan,asin,acos,atan,exp,log,pow}{,f}`, `amd_fasterf`, `amd_fasterff`) that the guide states but AOCL 6.0.68 on Windows does not export (a link error when used; found by the new `tests/link_all.rs`) are now behind the default-OFF feature `guide-only-fast`. Anyone who referenced them under 0.2.7 must enable the feature (and will still fail to link on Windows 6.0.68). `aocl-math` never exposed them.
+
 ## 0.2.7 - 2026-11-27 (PM-allocated; BREAKING only against the yanked 0.1.0 math/rng crates, nothing published at 0.2.x changes; CireSnave 523 A: 0.2.x)
 
 - **BREAKING `aocl-rng-sys`:** declarations are now clean-room from AOCL API Guide 6.0 ch. 9.3 (79 lowercase C forms), link-only, no bindgen. `rng_int_t` is `c_int` (LP64) or `i64` (`ilp64`), measured not declared. `srandinitializeuser` and the UPPERCASE, trailing-underscore and `GET_RNGVERSION` forms are no longer declared.

@@ -15,6 +15,8 @@ keywords = ["aocl", "amd", "libm", "math", "ffi"]
 [features]
 default = []
 static-link = []
+# DEFAULT OFF: 20 scalar functions the guide states but AOCL 6.0.68 on Windows does not export (use fails to link; Linux not measured).
+guide-only-fast = []
 
 [build-dependencies]
 aocl-build = { version = "0.2", path = "../aocl-build" }

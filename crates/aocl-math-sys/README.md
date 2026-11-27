@@ -9,6 +9,8 @@ Dual-licensed under MIT or Apache-2.0.
 **Declared (218 functions):** the scalar functions and the array-form functions (`amd_vrda_*`, `amd_vrsa_*`: a length plus
 pointers), exactly as the AOCL API Guide 6.0 states them.
 
+**Declared from the guide and link-tested against AOCL 6.0.68 Windows** (`tests/link_all.rs` takes the address of every declared symbol, so each resolves in the installed `libalm`; `tools/link-all.ps1`). **The guide also states 20 `amd_fast*` / `amd_fasterf*` scalar functions that 6.0.68 on Windows does not export (unresolved, dynamic and `static-link` alike): they are behind the default-OFF feature `guide-only-fast`** ("stated by the guide, not exported by AOCL 6.0.68 Windows; Linux not measured"; using them fails to link). Names and how they were detected: `docs/cleanroom/math-guide-stated-not-linkable.txt`. 0.2.7 declared them by default; the safe wrapper `aocl-math` exposes none of them.
+
 **Not declared, and why:**
 - **156 by-value SIMD functions** (`amd_vrs4_*`, `amd_vrd2_*`, `amd_vrd4_*`, `amd_vrs8_*`, `amd_vrd8_*`, `amd_vrs16_*`, ...) take `__m128`..`__m512d`
   by value; stable Rust rejects SIMD types in an `extern "C"` block (it needs the nightly `simd_ffi` feature). The array forms
