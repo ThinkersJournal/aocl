@@ -405,4 +405,248 @@ mod tests {
         // Smoke: just allocating + dropping the handle should not blow up.
         let _rsa = Rsa::new().unwrap();
     }
+
+    // Key: a 1024-bit RSA key generated with `openssl genrsa` (not by AOCL), e = 65537. Every expected ciphertext /
+    // signature below was computed independently of AOCL: pure-Python RFC 8017 arithmetic (EMSA-PKCS1-v1_5 9.2, EMSA-PSS
+    // 9.1.1 with MGF1-SHA256, RSAES-OAEP 7.1.1 with SHA-256, RSAES-PKCS1-v1_5 7.2.1, big-integer `pow`) over hashlib
+    // SHA-256, with the fixed seed / salt / pad given in the constants (the script is not kept; verify against any
+    // RFC 8017 implementation).
+    const N: &str = "b7c6615dfe4ef231354f35e2edfa1df57b53810d310b713b3ec4e4bed901b762bad5e7379114f1ddaeac3ce98a82791cfdb0d97f9d1ba42958ae0053b1bde7a51c92ce7ec5128d57829f35145c166e7135a766870b05f1a58bbc81ef980e2ef114ac8e2c39c8d2a4f5fca6fcc85d4549fdf13311b805a171b75df4cbe6a539c7";
+    const DP: &str = "5fec14b7adf0b74d02074eddd827702daaa09545d5171dc27041e66658c88649addcc6859df6dc81874918ed3bd4cdffb5e1f8653c5c7050157e34ae1d135a45";
+    const DQ: &str = "46027dfda52392c76fe542359c25678c5a1ec7169d74a59f27673987b43db0217f80f0be478a1ff089a6aaea87e9dedee85ef9995838fbb511b28468b40bbe3d";
+    const P: &str = "d946b5d329fcc5c950314613e63ef2a3f18256e42d1912f08f727d8e429d9c4d5e5535bccff7e1b53269aa3f727317f94f51db06a2451beb8f30b1360ce9d475";
+    const Q: &str = "d8872a051ca5a7f0c2ff9d5b0c4966c89dac4496ecaf74ad731d2cdb453deebcfe505def0a9cb5ed1fcfec7dc666de59ec4e680c01abd14b79d87ef084769dcb";
+    const QINV: &str = "a01ae2bb1b144a2fe9afdb07adb092cece0e4ec9b8b392048b5275e5cf4d8b1887004da70d4240bb7332c6b2a1f6fcfc225ac33b264a273e28fe5d93230cc2b6";
+    const MSG: &str = "616263";
+    const SIG_V15: &str = "083d216adc69d051bd323bd7b5b60dc67f0a990273cd8c3895cc14adcdfaf4c9cd7065083b78cd00cd193baf8c4f3387298f80436711d9d884ddba3cc6acc80197b81dc748b84c566c86dd60b6668b939794468edcc535b76ce9dca94a0de0f6cd161eda9ed0b2d7551cdfdd1574a44b6ffc6f66872287460fbe4bb0a68380ad";
+    const SALT: &str = "a0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebf";
+    const SIG_PSS: &str = "a37f4634efd5746ea8eb5b840d5b23348f8c6fefdd401cec4aac7229efa8ad7ace4777d5cb9032d85a34e4c3d2acac459b5b70331549d5840f16ff5d0e864bb5394495cbf28b9571234c6e7d95bf2d17d407679852fd36b9e6fd57703ee5aac4c1326670cce39617fb46c51887296a2a4f7ce180ff3d84ca2bfbbf9ab930b2e6";
+    const PT: &str = "61747461636b206174206461776e";
+    const LABEL: &str = "6c626c";
+    const SEED: &str = "303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f";
+    const CT_OAEP: &str = "62700edbb658c1c532a7f92b411b6c2226d08bf13c2eae1da7e84c87c13081ffb392297816f13174dd6663c23fe0c11868ac9c80c96c1edd955d300abaebbf86b7c4504881563bb5d7694e2871f2a6026807d80856a91416bd29072564443fb73c9e46ca3f953d267f0052f06727d4551cc4968cbb113999c6beaee557a1ccd6";
+    const PAD: &str = "12131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80";
+    const CT_V15: &str = "35304c2dddc03723d1af15ce5dafdf999651cb4b3be91d98a3eed30ac985e34a56e4e224b19e4cd65af5381750c44365d7abf8d281ceb327741bc07bce7e5a7216fab0516582fc3e5b6b1bfe96bb4fad848e1f87437270ad047f612a3508aa4a984b4923962a7443c5fc8ca0e3e1feae57a1079fc4c11cccdcf35dd06281363b";
+    const RAW: &str = "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f";
+    const CT_RAW: &str = "afd745ffc0d6fe0bd1aefbeabb0382fc59cf71ed8fe66d5d53a094fe431dc1f0cf753d1d0b09b4e9e9ce515eb151d66258e8ec12933648270b9257e3b224e372c88920fab40800820bbd98f65cc76c16c13635c38c0b6b077a592bf57dfc739cafff6de0fbf673c9779a218919fc77d1ddf67a9dae49223c9dd88aea6f4bf9e0";
+    const MH: &str = "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad";
+    const SIG_V15_NODIGESTINFO: &str = "14e1644d3b2e575122dca9290ac6a14f5ee432ae3bbb326946fd06e0fc3fd8deb6e75e9d580dce8f50fd9104278acc7151441327cbb1dda851d4cd3ed3b4566593cfc55c5940d9420f07d5a2bba29a65ecf554147bf7ffe49300cdb7ceeef1293ed2f814cf55cf82f1a221aa2762836408024bcf6136f371171a49bc62522819";
+    const DIGESTINFO_SHA256: &str = "3031300d060960864801650304020105000420";
+
+    fn unhex(s: &str) -> Vec<u8> {
+        (0..s.len() / 2)
+            .map(|i| u8::from_str_radix(&s[2 * i..2 * i + 2], 16).unwrap())
+            .collect()
+    }
+
+    fn pub_key() -> Rsa {
+        let mut r = Rsa::new().unwrap();
+        r.set_public_key(65537, &unhex(N)).unwrap();
+        r
+    }
+
+    /// Public + private key, SHA-256 for the digest and the MGF.
+    fn full_key() -> Rsa {
+        let mut r = pub_key();
+        r.set_private_key(
+            &unhex(DP),
+            &unhex(DQ),
+            &unhex(P),
+            &unhex(Q),
+            &unhex(QINV),
+            &unhex(N),
+        )
+        .unwrap();
+        r.add_digest(DigestMode::Sha2_256).unwrap();
+        r.add_mgf(DigestMode::Sha2_256).unwrap();
+        r
+    }
+
+    #[test]
+    fn key_size_bytes_matches_modulus() {
+        let mut r = pub_key();
+        assert_eq!(r.key_size_bytes(), 128); // 1024-bit modulus
+    }
+
+    #[test]
+    fn digest_info_size_is_the_der_prefix_length() {
+        // RFC 8017 section 9.2 note 1: the DER DigestInfo prefix is 19 bytes for SHA-224/256/384/512 (e.g.
+        // 3031300d060960864801650304020105000420 for SHA-256), 15 for SHA-1 and 18 for MD5.
+        for (m, n) in [
+            (DigestMode::Md5, 18),
+            (DigestMode::Sha1, 15),
+            (DigestMode::Sha2_224, 19),
+            (DigestMode::Sha2_256, 19),
+            (DigestMode::Sha2_384, 19),
+            (DigestMode::Sha2_512, 19),
+        ] {
+            assert_eq!(digest_info_size(m), n, "{m:?}");
+        }
+    }
+
+    #[test]
+    fn digest_info_index_distinguishes_digests() {
+        // The index is a position in ALCP's table: SHA-2 family members must have distinct, valid (non-negative) entries.
+        let idx: Vec<i32> = [
+            DigestMode::Sha2_224,
+            DigestMode::Sha2_256,
+            DigestMode::Sha2_384,
+            DigestMode::Sha2_512,
+        ]
+        .into_iter()
+        .map(digest_info_index)
+        .collect();
+        assert!(idx.iter().all(|&i| i >= 0), "{idx:?}");
+        let mut u = idx.clone();
+        u.sort();
+        u.dedup();
+        assert_eq!(u.len(), 4, "{idx:?}");
+    }
+
+    #[test]
+    fn raw_encrypt_known_answer_and_decrypt() {
+        let mut r = full_key();
+        let mut ct = vec![0u8; 128];
+        r.encrypt(&unhex(RAW), &mut ct).unwrap();
+        assert_eq!(ct, unhex(CT_RAW));
+        let mut pt = vec![0u8; 128];
+        r.decrypt(Padding::None, &ct, &mut pt).unwrap();
+        assert_eq!(pt, unhex(RAW));
+    }
+
+    #[test]
+    fn oaep_encrypt_known_answer_and_decrypt() {
+        let mut r = full_key();
+        let mut ct = vec![0u8; 128];
+        r.encrypt_oaep(&unhex(PT), &unhex(LABEL), &unhex(SEED), &mut ct)
+            .unwrap();
+        assert_eq!(ct, unhex(CT_OAEP));
+        let mut pt = vec![0u8; 128];
+        let n = r.decrypt_oaep(&ct, &unhex(LABEL), &mut pt).unwrap();
+        assert_eq!(&pt[..n], &unhex(PT)[..]);
+    }
+
+    #[test]
+    fn oaep_wrong_label_or_corrupt_ciphertext_rejected() {
+        let mut r = full_key();
+        let ct = unhex(CT_OAEP);
+        let mut pt = vec![0u8; 128];
+        assert!(r.decrypt_oaep(&ct, b"other", &mut pt).is_err());
+        let mut bad = ct.clone();
+        bad[64] ^= 1;
+        assert!(r.decrypt_oaep(&bad, &unhex(LABEL), &mut pt).is_err());
+    }
+
+    #[test]
+    fn pkcs1v15_encrypt_known_answer_and_decrypt() {
+        let mut r = full_key();
+        let mut ct = vec![0u8; 128];
+        r.encrypt_pkcs1v15(&unhex(PT), &unhex(PAD), &mut ct)
+            .unwrap();
+        assert_eq!(ct, unhex(CT_V15));
+        let mut pt = vec![0u8; 128];
+        let n = r.decrypt_pkcs1v15(&ct, &mut pt).unwrap();
+        assert_eq!(&pt[..n], &unhex(PT)[..]);
+    }
+
+    #[test]
+    fn pkcs1v15_decrypt_corrupt_ciphertext_does_not_return_plaintext() {
+        let mut r = full_key();
+        let mut bad = unhex(CT_V15);
+        bad[10] ^= 0x40;
+        let mut pt = vec![0u8; 128];
+        match r.decrypt_pkcs1v15(&bad, &mut pt) {
+            Err(_) => {}
+            Ok(n) => assert_ne!(&pt[..n.min(128)], &unhex(PT)[..]),
+        }
+    }
+
+    #[test]
+    fn pkcs1v15_sign_known_answer_verify_and_tamper() {
+        let mut r = full_key();
+        let mut sig = vec![0u8; 128];
+        r.sign_pkcs1v15(&unhex(MSG), &mut sig).unwrap();
+        assert_eq!(sig, unhex(SIG_V15)); // deterministic: RFC 8017 9.2 / SHA-256 DigestInfo
+        r.verify_pkcs1v15(&unhex(MSG), &sig).unwrap();
+        assert!(r.verify_pkcs1v15(b"abd", &sig).is_err());
+        let mut bad = sig.clone();
+        bad[127] ^= 1;
+        assert!(r.verify_pkcs1v15(&unhex(MSG), &bad).is_err());
+        // The independently computed signature verifies with a public-only handle.
+        let mut p = pub_key();
+        p.add_digest(DigestMode::Sha2_256).unwrap();
+        p.verify_pkcs1v15(&unhex(MSG), &unhex(SIG_V15)).unwrap();
+    }
+
+    /// `sign_hash_pkcs1v15` takes the DER DigestInfo-encoded hash (the layout `digest_info_size` describes), not the bare
+    /// digest: DigestInfo || H signs to exactly the EMSA-PKCS1-v1_5 signature of the message. A bare digest is padded
+    /// as `00 01 FF.. 00 || H` (no DigestInfo), which is not an RFC 8017 signature (reported as a FINDING).
+    #[test]
+    fn pkcs1v15_hash_sign_known_answers_and_verify() {
+        let mut r = full_key();
+        let mut di = unhex(DIGESTINFO_SHA256);
+        assert_eq!(di.len() as i32, digest_info_size(DigestMode::Sha2_256));
+        di.extend(unhex(MH));
+        let mut sig = vec![0u8; 128];
+        r.sign_hash_pkcs1v15(&di, &mut sig).unwrap();
+        assert_eq!(sig, unhex(SIG_V15));
+        r.verify_hash_pkcs1v15(&di, &sig).unwrap();
+        // The signature also verifies as a message signature over "abc".
+        r.verify_pkcs1v15(&unhex(MSG), &sig).unwrap();
+        let mut other = di.clone();
+        other[30] ^= 1;
+        assert!(r.verify_hash_pkcs1v15(&other, &sig).is_err());
+        // Bare digest: the library pads without DigestInfo (independently computed below), and verifies its own output.
+        let mut bare = vec![0u8; 128];
+        r.sign_hash_pkcs1v15(&unhex(MH), &mut bare).unwrap();
+        assert_eq!(bare, unhex(SIG_V15_NODIGESTINFO));
+        r.verify_hash_pkcs1v15(&unhex(MH), &bare).unwrap();
+    }
+
+    #[test]
+    fn pss_sign_known_answer_verify_and_tamper() {
+        let mut r = full_key();
+        let mut sig = vec![0u8; 128];
+        r.sign_pss(&unhex(MSG), &unhex(SALT), &mut sig).unwrap();
+        assert_eq!(sig, unhex(SIG_PSS)); // fixed salt makes PSS deterministic
+        r.verify_pss(&unhex(MSG), &sig).unwrap();
+        // A signature produced elsewhere (our independent computation) verifies too.
+        r.verify_pss(&unhex(MSG), &unhex(SIG_PSS)).unwrap();
+        assert!(r.verify_pss(b"abd", &sig).is_err());
+        let mut bad = sig.clone();
+        bad[5] ^= 0x10;
+        assert!(r.verify_pss(&unhex(MSG), &bad).is_err());
+    }
+
+    #[test]
+    fn pss_hash_sign_matches_message_sign_and_verifies() {
+        let mut r = full_key();
+        let mut sig = vec![0u8; 128];
+        r.sign_hash_pss(&unhex(MH), &unhex(SALT), &mut sig).unwrap();
+        assert_eq!(sig, unhex(SIG_PSS));
+        r.verify_hash_pss(&unhex(MH), &sig).unwrap();
+        let mut other = unhex(MH);
+        other[31] ^= 0x80;
+        assert!(r.verify_hash_pss(&other, &sig).is_err());
+    }
+
+    #[test]
+    fn copy_context_into_gives_a_working_copy() {
+        let mut src = full_key();
+        let mut dst = Rsa::new().unwrap();
+        src.copy_context_into(&mut dst).unwrap();
+        assert_eq!(dst.key_size_bytes(), 128);
+        let mut sig = vec![0u8; 128];
+        dst.sign_pkcs1v15(&unhex(MSG), &mut sig).unwrap();
+        assert_eq!(sig, unhex(SIG_V15));
+    }
+
+    #[test]
+    fn as_raw_points_at_the_live_handle() {
+        let mut r = pub_key();
+        let p = r.as_raw();
+        assert!(!p.is_null());
+        // SAFETY: `p` borrows `r`'s own handle, valid while `r` lives; the sys call reads the key size set above.
+        assert_eq!(unsafe { sys::alcp_rsa_get_key_size(p) }, 128);
+    }
 }

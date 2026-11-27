@@ -405,4 +405,230 @@ mod tests {
         assert!(!constant_time_eq(b"abc", b"abd"));
         assert!(!constant_time_eq(b"abc", b"abcd"));
     }
+
+    fn unhex(s: &str) -> Vec<u8> {
+        let s: String = s.split_whitespace().collect();
+        (0..s.len() / 2)
+            .map(|i| u8::from_str_radix(&s[2 * i..2 * i + 2], 16).unwrap())
+            .collect()
+    }
+
+    /// Seal with `mode` (not CCM: see `ccm_session`); returns (ciphertext, tag of `tag_len` bytes).
+    fn seal(
+        mode: Mode,
+        key: &[u8],
+        iv: &[u8],
+        aad: &[u8],
+        pt: &[u8],
+        tag_len: usize,
+    ) -> (Vec<u8>, Vec<u8>) {
+        let mut a = Aead::new(mode, key, iv).unwrap();
+        if !aad.is_empty() {
+            a.set_aad(aad).unwrap();
+        }
+        let mut ct = vec![0u8; pt.len()];
+        a.encrypt(pt, &mut ct).unwrap();
+        let mut tag = vec![0u8; tag_len];
+        a.get_tag(&mut tag).unwrap();
+        (ct, tag)
+    }
+
+    #[test]
+    fn aes_gcm_known_answers() {
+        // McGrew & Viega, "The Galois/Counter Mode of Operation", Test Case 2 (AES-128, zero key / IV / one zero block).
+        let (ct, tag) = seal(Mode::AesGcm, &[0; 16], &[0; 12], b"", &[0; 16], 16);
+        assert_eq!(ct, unhex("0388dace60b6a392f328c2b971b2fe78"));
+        assert_eq!(tag, unhex("ab6e47d42cec13bdf53a67b21257bddf"));
+        // Test Case 4 (AES-128, 60-byte plaintext, 20-byte AAD).
+        let key = unhex("feffe9928665731c6d6a8f9467308308");
+        let iv = unhex("cafebabefacedbaddecaf888");
+        let aad = unhex("feedfacedeadbeeffeedfacedeadbeefabaddad2");
+        let pt = unhex(
+            "d9313225f88406e5a55909c5aff5269a86a7a9531534f7da2e4c303d8a318a72\
+             1c3c0c95956809532fcf0e2449a6b525b16aedf5aa0de657ba637b39",
+        );
+        let (ct, tag) = seal(Mode::AesGcm, &key, &iv, &aad, &pt, 16);
+        assert_eq!(
+            ct,
+            unhex(
+                "42831ec2217774244b7221b784d0d49ce3aa212f2c02a4e035c17e2329aca12e\
+                 21d514b25466931c7d8f6a5aac84aa051ba30b396a0aac973d58e091"
+            )
+        );
+        assert_eq!(tag, unhex("5bc94fbc3221a5db94fae95ae7121a47"));
+    }
+
+    /// A CCM session built in the order AOCL's header requires: request, `set_ccm_lengths` (plaintext + tag length), THEN
+    /// init. `Aead::new` does request + init in one step, so a `set_ccm_lengths` after it cannot take effect (FINDING).
+    fn ccm_session(key: &[u8], nonce: &[u8], pt_len: u64, tag_len: usize) -> Aead {
+        let size = unsafe { sys::alcp_cipher_aead_context_size() } as usize;
+        let mut context = vec![0u8; size].into_boxed_slice();
+        let mut handle = sys::alc_cipher_handle_t {
+            ch_context: context.as_mut_ptr() as *mut std::os::raw::c_void,
+        };
+        let bits = key.len() as u64 * 8;
+        check(unsafe {
+            sys::alcp_cipher_aead_request(sys::alc_cipher_mode_ALC_AES_MODE_CCM, bits, &mut handle)
+        })
+        .unwrap();
+        let mut a = Aead {
+            handle,
+            _context: context,
+        };
+        a.set_ccm_lengths(pt_len, tag_len).unwrap();
+        check(unsafe {
+            sys::alcp_cipher_aead_init(
+                &mut a.handle,
+                key.as_ptr(),
+                bits,
+                nonce.as_ptr(),
+                nonce.len() as u64,
+            )
+        })
+        .unwrap();
+        a
+    }
+
+    /// NIST SP 800-38C Appendix C examples 1-3 (AES-128 CCM; nonce 7 / 8 / 12 bytes; tag 4 / 6 / 8 bytes).
+    #[test]
+    fn aes_ccm_nist_sp800_38c_known_answers() {
+        let key = unhex("404142434445464748494a4b4c4d4e4f");
+        let cases: [(&str, &str, &str, &str, &str); 3] = [
+            (
+                "10111213141516",
+                "0001020304050607",
+                "20212223",
+                "7162015b",
+                "4dac255d",
+            ),
+            (
+                "1011121314151617",
+                "000102030405060708090a0b0c0d0e0f",
+                "202122232425262728292a2b2c2d2e2f",
+                "d2a1f0e051ea5f62081a7792073d593d",
+                "1fc64fbfaccd",
+            ),
+            (
+                "101112131415161718191a1b",
+                "000102030405060708090a0b0c0d0e0f10111213",
+                "202122232425262728292a2b2c2d2e2f3031323334353637",
+                "e3b201a9f5b71a7a9b1ceaeccd97e70b6176aad9a4428aa5",
+                "484392fbc1b09951",
+            ),
+        ];
+        for (n, (nonce, aad, pt, ct_exp, tag_exp)) in cases.iter().enumerate() {
+            let (nonce, aad, pt) = (unhex(nonce), unhex(aad), unhex(pt));
+            let tag_exp = unhex(tag_exp);
+            let mut e = ccm_session(&key, &nonce, pt.len() as u64, tag_exp.len());
+            e.set_aad(&aad).unwrap();
+            let mut ct = vec![0u8; pt.len()];
+            e.encrypt(&pt, &mut ct).unwrap();
+            let mut tag = vec![0u8; tag_exp.len()];
+            e.get_tag(&mut tag).unwrap();
+            assert_eq!(ct, unhex(ct_exp), "example {}", n + 1);
+            assert_eq!(tag, tag_exp, "example {}", n + 1);
+            // Decrypt side: the correct tag is accepted, a flipped tag or ciphertext is not.
+            let open = |tag: &[u8], ct: &[u8]| {
+                let mut d = ccm_session(&key, &nonce, ct.len() as u64, tag.len());
+                d.set_aad(&aad).unwrap();
+                let mut out = vec![0u8; ct.len()];
+                let r = d.verify_and_decrypt(ct, &mut out, tag);
+                (r, out)
+            };
+            let (r, out) = open(&tag_exp, &ct);
+            r.unwrap();
+            assert_eq!(out, pt, "example {}", n + 1);
+            let mut bad = tag_exp.clone();
+            bad[0] ^= 1;
+            assert!(open(&bad, &ct).0.is_err(), "example {}", n + 1);
+            let mut badct = ct.clone();
+            badct[0] ^= 1;
+            assert!(open(&tag_exp, &badct).0.is_err(), "example {}", n + 1);
+        }
+    }
+
+    /// Through `Aead::new` (the only public constructor) `set_ccm_lengths` is accepted, and the ciphertext is the NIST
+    /// SP 800-38C example 1 one; the tag length stays at AOCL's default of 12 bytes (a 4-byte `get_tag` is rejected),
+    /// i.e. the call has no effect on the tag (FINDING). Round trip + tamper still work at 12 bytes.
+    #[test]
+    fn set_ccm_lengths_through_new_keeps_ciphertext_and_default_tag() {
+        let key = unhex("404142434445464748494a4b4c4d4e4f");
+        let nonce = unhex("10111213141516");
+        let aad = unhex("0001020304050607");
+        let pt = unhex("20212223");
+        let mut e = Aead::new(Mode::AesCcm, &key, &nonce).unwrap();
+        e.set_ccm_lengths(4, 4).unwrap();
+        e.set_aad(&aad).unwrap();
+        let mut ct = vec![0u8; 4];
+        e.encrypt(&pt, &mut ct).unwrap();
+        assert_eq!(ct, unhex("7162015b"));
+        assert!(e.get_tag(&mut [0u8; 4]).is_err());
+        let mut tag = [0u8; 12];
+        e.get_tag(&mut tag).unwrap();
+
+        let open = |tag: &[u8], ct: &[u8]| {
+            let mut d = Aead::new(Mode::AesCcm, &key, &nonce).unwrap();
+            d.set_ccm_lengths(4, 12).unwrap();
+            d.set_aad(&aad).unwrap();
+            let mut out = vec![0u8; 4];
+            let r = d.verify_and_decrypt(ct, &mut out, tag);
+            (r, out)
+        };
+        let (r, out) = open(&tag, &ct);
+        r.unwrap();
+        assert_eq!(out, pt);
+        let mut bad = tag;
+        bad[11] ^= 1;
+        assert!(open(&bad, &ct).0.is_err());
+    }
+
+    #[test]
+    fn chacha20_poly1305_rfc8439_known_answer_and_tamper() {
+        // RFC 8439 section 2.8.2 test vector.
+        let key = unhex("808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9f");
+        let iv = unhex("070000004041424344454647");
+        let aad = unhex("50515253c0c1c2c3c4c5c6c7");
+        let pt = b"Ladies and Gentlemen of the class of '99: If I could offer you only one tip for the future, sunscreen would be it.";
+        let (ct, tag) = seal(Mode::ChaCha20Poly1305, &key, &iv, &aad, pt, 16);
+        assert_eq!(
+            ct,
+            unhex(
+                "d31a8d34648e60db7b86afbc53ef7ec2a4aded51296e08fea9e2b5a736ee62d6\
+                 3dbea45e8ca9671282fafb69da92728b1a71de0a9e060b2905d6a5b67ecd3b36\
+                 92ddbd7f2d778b8c9803aee328091b58fab324e4fad675945585808b4831d7bc\
+                 3ff4def08e4b7a9de576d26586cec64b6116"
+            )
+        );
+        assert_eq!(tag, unhex("1ae10b594f09e26a7e902ecbd0600691"));
+        let mut d = Aead::new(Mode::ChaCha20Poly1305, &key, &iv).unwrap();
+        d.set_aad(&aad).unwrap();
+        let mut out = vec![0u8; ct.len()];
+        d.verify_and_decrypt(&ct, &mut out, &tag).unwrap();
+        assert_eq!(out, pt);
+        let mut bad = ct.clone();
+        bad[3] ^= 0x20;
+        let mut d = Aead::new(Mode::ChaCha20Poly1305, &key, &iv).unwrap();
+        d.set_aad(&aad).unwrap();
+        assert!(d.verify_and_decrypt(&bad, &mut out, &tag).is_err());
+    }
+
+    #[test]
+    fn default_tag_len_is_the_tag_gcm_and_chacha_produce() {
+        // RFC 8439 / McGrew-Viega: 16-byte tags. (CCM is excluded: AOCL's default CCM tag is 12 bytes, not the 16 this
+        // function reports: FINDING. SIV's synthetic IV is 16 bytes per RFC 5297 section 2.2.)
+        for (mode, key, iv) in [
+            (Mode::AesGcm, vec![7u8; 16], vec![1u8; 12]),
+            (Mode::ChaCha20Poly1305, vec![7u8; 32], vec![1u8; 12]),
+        ] {
+            assert_eq!(mode.default_tag_len(), 16, "{mode:?}");
+            let pt = b"default tag length".to_vec();
+            let (ct, tag) = seal(mode, &key, &iv, b"", &pt, mode.default_tag_len());
+            assert!(tag.iter().any(|&b| b != 0), "{mode:?}");
+            let mut d = Aead::new(mode, &key, &iv).unwrap();
+            let mut out = vec![0u8; ct.len()];
+            d.verify_and_decrypt(&ct, &mut out, &tag).unwrap();
+            assert_eq!(out, pt, "{mode:?}");
+        }
+        assert_eq!(Mode::AesSiv.default_tag_len(), 16);
+    }
 }
