@@ -113,7 +113,7 @@ fn main() {
         if case == "gen" || case == "gen_wrongw" || case == "gen_nopatch" {
             let ugen_addr = ugen_cb as usize as u64;
             if case != "gen_nopatch" {
-                // HARNESS WORKAROUND for a DLL defect (see report): make the stored callback address and the self-check consistent.
+                // HARNESS WORKAROUND (the 'defect' reading was retracted: it is the state[0]=n protocol, see userinit/USERINIT-MEASUREMENT.md): make the stored callback address and the self-check consistent.
                 state.set(0, 1); state.set(1, (ugen_addr >> 32) as i64); state.set(2, (ugen_addr & 0xffff_ffff) as i64); state.set(3, (ugen_addr >> 32) as i64);
                 println!("harness patch: state[0..4]=1,hi,lo,hi  (ugen {:x})", ugen_addr);
             }
