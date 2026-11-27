@@ -212,4 +212,37 @@ mod tests {
         assert_eq!(hash(Mode::Sha2_512, b"x").unwrap().len(), 64);
         assert_eq!(hash(Mode::Sha3_384, b"x").unwrap().len(), 48);
     }
+
+    fn unhex(s: &str) -> Vec<u8> {
+        let s: String = s.split_whitespace().collect();
+        (0..s.len() / 2)
+            .map(|i| u8::from_str_radix(&s[2 * i..2 * i + 2], 16).unwrap())
+            .collect()
+    }
+
+    /// FIPS 180-4 / FIPS 202 / RFC 1321 / RFC 3174 "abc" message digests (values from Python hashlib, independent of AOCL),
+    /// for every mode, with the published digest size.
+    #[test]
+    fn abc_known_answers_and_output_len_for_every_mode() {
+        let cases: [(Mode, usize, &str); 12] = [
+            (Mode::Md5, 16, "900150983cd24fb0d6963f7d28e17f72"),
+            (Mode::Sha1, 20, "a9993e364706816aba3e25717850c26c9cd0d89d"),
+            (Mode::Sha2_224, 28, "23097d223405d8228642a477bda255b32aadbce4bda0b3f7e36c9da7"),
+            (Mode::Sha2_256, 32, "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"),
+            (Mode::Sha2_384, 48, "cb00753f45a35e8bb5a03d699ac65007272c32ab0eded1631a8b605a43ff5bed8086072ba1e7cc2358baeca134c825a7"),
+            (Mode::Sha2_512, 64, "ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f"),
+            (Mode::Sha2_512_224, 28, "4634270f707b6a54daae7530460842e20e37ed265ceee9a43e8924aa"),
+            (Mode::Sha2_512_256, 32, "53048e2681941ef99b2e29b76b4c7dabe4c2d0c634fc6d46e0e2f13107e7af23"),
+            (Mode::Sha3_224, 28, "e642824c3f8cf24ad09234ee7d3c766fc9a3a5168d0c94ad73b46fdf"),
+            (Mode::Sha3_256, 32, "3a985da74fe225b2045c172d6bd390bd855f086e3e9d525b46bfe24511431532"),
+            (Mode::Sha3_384, 48, "ec01498288516fc926459f58e2c6ad8df9b473cb0fc08c2596da7cf0e49be4b298d88cea927ac7f539f1edf228376d25"),
+            (Mode::Sha3_512, 64, "b751850b1a57168a5693cd924b6b096e08f621827444f70d884f5d0240d2712e10e116e9192af3c91a7ec57647e3934057340b4cf408d5a56592f8274eec53f0"),
+        ];
+        for (mode, len, exp) in cases {
+            assert_eq!(mode.output_len(), len, "{mode:?}");
+            let h = hash(mode, b"abc").unwrap();
+            assert_eq!(h.len(), mode.output_len(), "{mode:?}");
+            assert_eq!(h, unhex(exp), "{mode:?}");
+        }
+    }
 }
