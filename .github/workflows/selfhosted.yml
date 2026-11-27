@@ -140,3 +140,21 @@ jobs:
       - name: Link-all tests (aocl-math-sys, aocl-rng-sys (LP64 and ILP64), aocl-securerng-sys)
         shell: powershell
         run: ./tools/link-all.ps1
+
+  wrappers:
+    name: safe wrappers' tests on the real AOCL (self-hosted Windows; UNTESTED on a runner)
+    # Same gate as above: reviewed default branch only. aocl-crypto needs an OpenSSL 3 libcrypto-3-x64.dll on PATH (AOCL does not ship it).
+    if: github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, Windows, X64, aocl]
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Wrapper tests, every safe wrapper (aocl-data-analytics needs KMP_DUPLICATE_LIB_OK=TRUE: AMD issue 2)
+        shell: powershell
+        run: python tools/wrapper-tests.py --env=KMP_DUPLICATE_LIB_OK=TRUE
+      - name: Control: the same tests must FAIL without the AOCL DLLs on PATH
+        shell: powershell
+        run: python tools/wrapper-tests.py --control-no-aocl
+
