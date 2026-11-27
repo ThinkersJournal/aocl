@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased (patch on 0.2.x; pm-assist allocates)
+## 0.2.8 - 2026-11-27 (PM-allocated; patch on 0.2.x, the PM ruled patch with no yank: HOTFIX for published aocl-math-sys 0.2.7)
 
 - **FIX `aocl-math-sys`:** 20 scalar declarations (`amd_fast{sin,cos,tan,asin,acos,atan,exp,log,pow}{,f}`, `amd_fasterf`, `amd_fasterff`) that the guide states but AOCL 6.0.68 on Windows does not export (a link error when used; found by the new `tests/link_all.rs`) are now behind the default-OFF feature `guide-only-fast`. Anyone who referenced them under 0.2.7 must enable the feature (and will still fail to link on Windows 6.0.68). `aocl-math` never exposed them.
 
