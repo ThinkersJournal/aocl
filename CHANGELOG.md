@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased (docs only; pm-assist allocates; no code change)
+
+- **Yanked versions (17 in all, read back from crates.io 2026-11-27) and why.** Each affected release was yanked because of a safe-API memory-safety or crash defect found in review; the fixed releases are below. Nothing in this workspace pins a yanked version by an exact requirement (checked: no `="x.y.z"` requirement in any `Cargo.toml`; the control grep matches a planted `version = "=0.2.5"`; `Cargo.lock` has all four crates at 0.2.28).
+  - `aocl-sparse-sys` 0.1.0, 0.2.2, 0.2.4, 0.2.5 and 0.2.11 yanked: the complex types `aoclsparse_double_complex` / `aoclsparse_float_complex` lacked the header's alignment, so by-value calls such as `aoclsparse_zset_value` faulted (access violation). Fixed in 0.2.26.
+  - `aocl-sparse` 0.1.0, 0.2.2, 0.2.4 and 0.2.5 yanked: `sorv_f32` had no length check and `roti` no index validation (out-of-bounds access from safe code). Fixed in 0.2.26 (`sorv_f32`, `roti`; the sibling index-array functions follow in a later patch).
+  - `aocl-crypto` 0.1.0, 0.2.2, 0.2.4 and 0.2.5 yanked: `Rsa::set_private_key` passed the wrong component size and did not check the component lengths (out-of-bounds read, failed or overrunning private-key operations); `Aead::set_ccm_lengths` after `Aead::new` silently did nothing; `Mode::default_tag_len` said 16 for AES-CCM (12). Fixed in 0.2.28.
+  - `aocl-data-analytics` 0.1.0, 0.2.2, 0.2.4 and 0.2.5 yanked: `KNearestNeighbours::classes` returned garbage or faulted on an unfitted handle; `Handle::last_error_message` could read uninitialised memory; concurrent `Nlls` fits crashed the process. Fixed in 0.2.28.
+
 ## 0.2.28 - 2026-11-27 (PM-allocated; FIX aocl-crypto Rsa::set_private_key size and aocl-data-analytics kNN classes (safe-API memory safety, all published versions affected) + crypto and data-analytics wrapper tests; patch on 0.2.x)
 
 - **`aocl-crypto` / `aocl-data-analytics`: result-checking tests for all 45 exposed wrapper functions no test mentioned** (crypto 24: NIST SP 800-38C CCM, McGrew-Viega GCM, RFC 8439 ChaCha20-Poly1305, RFC 7748 X25519, "abc" digests for all 12 modes, RSA OAEP/PSS/PKCS#1 v1.5/raw with tamper tests; data-analytics 21: reference computations and invariants), measured on AOCL 6.0.68 Windows (crypto 40 tests, data-analytics 44, 0 failed, 0 ignored).
