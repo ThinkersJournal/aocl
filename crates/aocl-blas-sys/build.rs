@@ -8,6 +8,10 @@ const STATIC_ONLY: &str = include_str!("static_only.txt");
 /// `*_ref_var*`/`*_blk_var*` kernels, `*_zen4_asm_*` micro-kernels, `xerbla_array_blis_impl`, ...): left out unless the feature
 /// `header-only-unexported`, which only declares them (they do not link on Windows).
 const UNEXPORTED: &str = include_str!("unexported.txt");
+/// The 13 `AOCL_FAL_*` / `AOCL_FLIST_*` / `AOCL_get*` helpers (they are in STATIC_ONLY too) that the ScaLAPACK DLL ALSO exports on
+/// AOCL 6.0.68 Windows (measured; Linux unmeasured): declared in a dynamic build with the feature `scalapack-fal`, which links
+/// `scalapack.dll` (and so needs the ScaLAPACK DLL and its MPI runtime on `PATH`).
+const SCALAPACK_FAL: &str = include_str!("scalapack_fal.txt");
 
 fn feature(name: &str) -> bool {
     std::env::var_os(format!(
@@ -20,11 +24,18 @@ fn feature(name: &str) -> bool {
 fn main() {
     println!("cargo:rerun-if-env-changed=AOCL_ROOT");
     println!("cargo:rerun-if-env-changed=LIBCLANG_PATH");
-    for f in ["HEADER_ONLY_UNEXPORTED", "LIBFLAME", "ILP64", "STATIC_LINK"] {
+    for f in [
+        "HEADER_ONLY_UNEXPORTED",
+        "LIBFLAME",
+        "SCALAPACK_FAL",
+        "ILP64",
+        "STATIC_LINK",
+    ] {
         println!("cargo:rerun-if-env-changed=CARGO_FEATURE_{f}");
     }
     println!("cargo:rerun-if-changed=static_only.txt");
     println!("cargo:rerun-if-changed=unexported.txt");
+    println!("cargo:rerun-if-changed=scalapack_fal.txt");
     println!("cargo:rerun-if-changed=wrapper");
     println!("cargo:rerun-if-changed=build.rs");
 
@@ -32,8 +43,29 @@ fn main() {
     let root = locate_aocl_root();
 
     let mut blocklist: Vec<&str> = Vec::new();
+    let target_windows = std::env::var("CARGO_CFG_TARGET_OS")
+        .map(|o| o == "windows")
+        .unwrap_or(false);
+    let scalapack_fal = feature("scalapack-fal") && !feature("static-link") && target_windows;
     if !feature("static-link") {
-        blocklist.extend(STATIC_ONLY.lines().filter(|l| !l.is_empty()));
+        blocklist.extend(
+            STATIC_ONLY
+                .lines()
+                .filter(|l| !l.is_empty())
+                .filter(|l| !(scalapack_fal && SCALAPACK_FAL.lines().any(|f| f == *l))),
+        );
+    }
+    if scalapack_fal {
+        let int_dir = if feature("ilp64") { "ILP64" } else { "LP64" };
+        println!(
+            "cargo:rustc-link-search=native={}",
+            root.join("amd-scalapack")
+                .join("lib")
+                .join(int_dir)
+                .join("shared")
+                .display()
+        );
+        println!("cargo:rustc-link-lib=dylib=scalapack");
     }
     if !feature("header-only-unexported") {
         blocklist.extend(UNEXPORTED.lines().filter(|l| !l.is_empty()));

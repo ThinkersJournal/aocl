@@ -1,0 +1,13 @@
+AOCL_FAL_Close
+AOCL_FAL_Error
+AOCL_FAL_Open
+AOCL_FAL_Read
+AOCL_FAL_Write
+AOCL_FLIST_AddFile
+AOCL_FLIST_CloseAll
+AOCL_FLIST_CloseFile
+AOCL_FLIST_GetFile
+AOCL_FLIST_IsEmpty
+AOCL_getTimestamp
+AOCL_getpid
+AOCL_gettid
