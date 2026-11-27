@@ -24,6 +24,9 @@ extern "C" {
         info: *mut rng_int_t,
     );
     // guide-6.0.txt chapter-9 file line: L305
+    /// **DO NOT CALL.** AOCL 6.0.68 Windows: an isolated probe saw this entry point write ~128 KB past the start of the state buffer and the
+    /// following generate call return `info = -4`; no working call sequence was measured (status under re-measurement: see
+    /// `docs/cleanroom/types/USERINIT-MEASUREMENT.md` and `TYPES-MEASUREMENT.md`). No safe wrapper exists, no test calls it.
     pub fn DRANDINITIALIZEUSER(
         uini: RNG_DRANDINITIALIZEUSER_UINI,
         ugen: RNG_DRANDINITIALIZEUSER_UGEN,

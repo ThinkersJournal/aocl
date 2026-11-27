@@ -6,6 +6,9 @@ use crate::{rng_int_t, RNG_SRANDINITIALIZEUSER_UGEN, RNG_SRANDINITIALIZEUSER_UIN
 // following `srand*` returns info -4 without calling the generator; it could not be driven through the public API as documented.
 // Declared and link-checked only; not called by any test.
 extern "C" {
+    /// **DO NOT CALL.** AOCL 6.0.68 Windows: an isolated probe saw this entry point write ~128 KB past the start of the state buffer and the
+    /// following generate call return `info = -4`; no working call sequence was measured (status under re-measurement: see
+    /// `docs/cleanroom/types/USERINIT-MEASUREMENT.md` and `TYPES-MEASUREMENT.md`). No safe wrapper exists, no test calls it.
     pub fn srandinitializeuser(
         uini: RNG_SRANDINITIALIZEUSER_UINI,
         ugen: RNG_SRANDINITIALIZEUSER_UGEN,
@@ -17,6 +20,9 @@ extern "C" {
         lstate: *mut rng_int_t,
         info: *mut rng_int_t,
     );
+    /// **DO NOT CALL.** AOCL 6.0.68 Windows: an isolated probe saw this entry point write ~128 KB past the start of the state buffer and the
+    /// following generate call return `info = -4`; no working call sequence was measured (status under re-measurement: see
+    /// `docs/cleanroom/types/USERINIT-MEASUREMENT.md` and `TYPES-MEASUREMENT.md`). No safe wrapper exists, no test calls it.
     pub fn SRANDINITIALIZEUSER(
         uini: RNG_SRANDINITIALIZEUSER_UINI,
         ugen: RNG_SRANDINITIALIZEUSER_UGEN,
