@@ -62,3 +62,23 @@ fn all_15_secrng_symbols_link() {
     assert_eq!(addrs.len(), 15);
     assert!(addrs.iter().all(|a| *a != 0));
 }
+
+#[test]
+fn header_constants_match_measured_codes() {
+    // The header-derived constants against what the DLL returns (measured, see docs/cleanroom/secrng/SECRNG-MEASUREMENT.md).
+    assert_eq!(SECRNG_SUCCESS as i32, 2);
+    assert_eq!(SECRNG_SUPPORTED as i32, 1);
+    assert_eq!(SECRNG_NOT_SUPPORTED, -1);
+    assert_eq!(SECRNG_FAILURE, -2);
+    assert_eq!(SECRNG_INVALID_INPUT, -3);
+    unsafe {
+        assert_eq!(is_RDRAND_supported(), SECRNG_SUPPORTED as i32);
+        let mut v = 0u32;
+        assert_eq!(get_rdrand32u(&mut v, 10), SECRNG_SUCCESS as i32);
+        assert_eq!(
+            get_rdrand32u(core::ptr::null_mut(), 10),
+            SECRNG_INVALID_INPUT,
+            "NULL output pointer"
+        );
+    }
+}

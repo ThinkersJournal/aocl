@@ -1,3 +1,5 @@
+> **Note (2026-11-27, PM ruling):** `aocl-securerng-sys` uses the bindgen route from `secrng.h` (a header with a permission grant, notice kept). The guide-only declarations and this measurement are extra evidence; the 15 names and signatures were compared with the header-derived bindings by the link-all/width test.
+
 # AOCL-SecureRNG (`amdsecrng.dll`): clean-room declarations and behavioural measurement
 
 **Inputs used (only these):** (a) `secrng-guide.txt` (AMD AOCL API Guide 6.0, doc 68552, SecureRNG text); (b) the binaries

@@ -1,7 +1,7 @@
 # AOCL-RNG `(s|d)randinitializeuser`: is the ~128 KB out-of-bounds write our error or a library defect?
 
 Behavioural measurement, clean-room. Date 2026-11-27. Everything is under
-`C:/Users/cires/AppData/Local/Temp/claude/4b8c15632be00fc5/83c2e441-df7a-4c4b-b87f-7c2eddc43692/scratchpad/userinit/`
+`docs/cleanroom/types/userinit/`
 (`uprobe.rs` harness; `out/` results; `out/harness/` copies of the scripts).
 
 ## 0. Verdict (details and evidence below)
