@@ -1,0 +1,25 @@
+NOTICE for aocl-rng-sys
+
+Provenance. The function declarations in src/decls.rs (lowercase C forms), src/decls_upper.rs (UPPERCASE forms) and
+src/decls_user_s.rs (the single-precision user-generator entry points) were written from AMD's published documentation, the
+"AOCL API Guide" 6.0 (document 68552, dated 2026-11-10), chapter 9 (AOCL-RNG), by separate writer sessions that were given only
+that text. They contain function names and C signatures as the guide states them, and nothing else: no header text, no comments,
+no macros, no constants, no example code. They are declared from the guide and link-tested against AOCL 6.0.68 on Windows
+(tests/link_all_lower.rs, tests/upper_kat.rs); the guide-stated `GET_RNGVERSION` and the trailing-underscore forms are not
+exported by those libraries and are not declared. Measured, not guide-stated: the width of `rng_int_t` (4 bytes in the LP64
+library, 8 in the ILP64 library; docs/cleanroom/RNG-WIDTH-MEASUREMENT.md), the callback shapes of the single-precision user
+generator, and the protocol of the user-generator entry points (the UINI callback must set `state[0] = n`, `lstate >= n + 3`;
+docs/cleanroom/types/userinit/USERINIT-MEASUREMENT.md): those entry points are unsafe, link-checked only, and never called by a
+test. The authors of this repository (this lane) HAVE read the AOCL headers; the declarations were not written by those sessions.
+Guide line numbers for every declaration are in docs/cleanroom/rng_provenance.csv and docs/cleanroom/rng_upper_provenance.csv at
+https://github.com/ThinkersJournal/aocl. This crate does not contain, and does not read at build time, any AOCL header.
+
+AOCL is not shipped. This crate contains no AMD library, header or documentation. It links an AOCL-RNG that the user has installed
+(rng_amd); the user accepts AMD's licence for that library.
+
+AMD's terms as the guide states them (Legal Notice, verbatim): "(c) 2024-2026 Advanced Micro Devices, Inc. All rights reserved." ...
+"No license, including implied or arising by estoppel, to any intellectual property rights is granted by this document." ... "Any
+unauthorized copying, alteration, distribution, transmission, performance, display, or other use of this material is prohibited."
+The guide therefore grants no licence. Whether declarations of names and signatures taken from it need AMD's permission is
+UNVERIFIED (not legal advice); it is recorded as an open question in docs/PROVENANCE-QUESTIONS.md. AMD, the AMD arrow logo and
+AOCL are trademarks of Advanced Micro Devices, Inc.; their use here is for identification only.
