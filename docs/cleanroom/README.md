@@ -39,3 +39,23 @@ as a C prototype. Anything the guide does not state is UNKNOWN and left out.
 
 ## Status
 Math: `aocl-math-sys` and `aocl-math` are wired from the 218 scalar rows (`MATH-WIRING.md`, with the breaking list). RNG stays UNWIRED and UNPUBLISHED (pm-kernels ruling 2026-11-27: `rng_int_t` width, `fc32_t`/`fc64_t`/`long double` and the two `UINI`/`UGEN` names are not in the guide; a later behavioural probe by a session that has not read headers may settle `rng_int_t`, recorded as a measurement). Nothing is published; 0.1.0 stays yanked.
+
+## Added on lane/cleanroom-rng2 (2026-11-27): provenance for the correction rows
+| Rows | What | Input | Provenance table | Measurement |
+|---|---|---|---|---|
+| 78 UPPERCASE `S/DRAND*` (77 declared + `SRANDINITIALIZEUSER` via the types probe; `GET_RNGVERSION` stated by the guide, not exported, not declared) | fresh Sonnet writer, guide chapter 9 text only | `guide-ch9` text | `rng_upper_provenance.csv` (79 rows), `rng_upper_decls.rs` | link-all + known answer: `crates/aocl-rng-sys/tests/upper_kat.rs` |
+| 15 SecureRNG (`aocl-securerng-sys` KEEPS its bindgen route from `secrng.h`: that header carries a BSD-style PERMISSION grant (Copyright 2017-2023 AMD), so it is used with its notice, constants and 15 fns; clean-room is for headers that grant nothing) | the guide-only declarations written here are kept ONLY as comparison evidence (`secrng/secrng_decls.rs`, not used by the crate) | `secrng-guide.txt` | `secrng/secrng_provenance.csv` | `secrng/SECRNG-MEASUREMENT.md` (behaviour probed LP64+ILP64, vacuous controls listed); link-all + width test `crates/aocl-securerng-sys/tests/securerng.rs` |
+| 8 LibM types + S/D user callbacks | Sonnet, guide excerpts + DLLs only, a different session from the writers | `types/` | `types/TYPES-MEASUREMENT.md`, `types/types_decls.rs` | `types/` (vacuous controls listed) |
+| 156 SIMD (154 + 2) | mechanical from `math_decls.rs` | n/a | `math_provenance.csv` | `crates/aocl-math-sys/tests/simd.rs` (nightly) |
+Link-all (every declared symbol resolves in the installed AOCL): `tools/link-all.ps1`; the 20 + 2 guide-stated functions 6.0.68 does not export: `math-guide-stated-not-linkable.txt`.
+**This lane (aocl) read the AOCL headers earlier; every declaration above was written by a session that was given only the guide text and/or the binaries, and this lane did not edit a declaration by hand.**
+
+## Raw evidence (one archive, not 537 files)
+Everything bulky is ONE gzip archive: `docs/cleanroom/evidence/cleanroom-evidence-20261127.tar.gz` (185,569 bytes, 537 files, paths relative to
+`docs/cleanroom/`), sha256 `44c52d9dc66729e91a7af11b46d54da8c4447f403e469a6e26f63228e9d5c687`; a second copy is on the lane host at `C:ocl-docs\evidence\`. It holds the raw probe outputs
+(`raw-*.txt`, `types/userinit/run1-fill-a5-default/`, `secrng/run-all.log`, the 212-row `types/userinit/SUMMARY-user-runs.txt`), every `dumpbin-*.txt`, `secrng/dll-compare.txt` (12,130 lines of
+`cmp -l`), the probe SOURCES (`secrng/probe/`, `types/probe-src/`, `types/userinit/src/` and `harness/`) and the RNG writer's staging file
+`rng_upper_decls.rs` (the crate's `decls_upper.rs` is generated from it). Unpack: `cd docs/cleanroom && tar -xzf evidence/cleanroom-evidence-20261127.tar.gz`.
+The measurement documents (`secrng/SECRNG-MEASUREMENT.md`, `types/TYPES-MEASUREMENT.md`, `types/userinit/USERINIT-MEASUREMENT.md`), the
+per-run findings (tables inside the three documents), the provenance CSVs and `probe/` stay in git. To regenerate the raw files, run the
+probes against AOCL 6.0.68 (Windows 11, x86_64) as each measurement document describes.

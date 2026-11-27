@@ -7,8 +7,4 @@ Raw FFI declarations for AOCL-RNG (the lowercase C forms), written clean-room fr
 **Not declared, and why**
 - UPPERCASE forms (`DRANDINITIALIZE`, ...): exported and stated by the guide, but not needed yet; added on demand.
 - Trailing-underscore forms (`drandinitialize_`, ...) and `GET_RNGVERSION`: never. The 6.0.68 DLLs do not export them (the yanked 0.1.0 declared 80 such symbols: a link-error defect).
-- `srandinitializeuser`: the guide does not state its callback typedefs (`RNG_SRANDINITIALIZEUSER_UINI/UGEN`).
-- `fc32_t`/`fc64_t` and `long double` items: the guide names the types without defining them.
-- SecureRNG (`amdsecrng`): not probed; **no SecureRNG claim is made**.
-
-Dual-licensed under MIT or Apache-2.0. Not published; the RNG release waits on CireSnave's answer (board 523).
+- `srandinitializeuser`/`SRANDINITIALIZEUSER` (and the D forms): declared with the S callback typedefs MEASURED (7-pointer UINI; UGEN `(n*, state*, float* r, info*)`), link-checked only, never called by a test. **Unsafe; undocumented protocol:** the UINI callback must set `state[0] = n` and `lstate >= n + 3`; the guide does not state this. Measured on AOCL 6.0.68 Windows (LP64 and ILP64; `docs/cleanroom/types/userinit/USERINIT-MEASUREMENT.md`): after UINI returns the library reads `n = state[0]` and writes `state[n]`, `state[n+1]` and `state[state[0]+2]`, and does not check `n` against `lstate`. An earlier probe's "no working call sequence" was our call pattern, not a library defect. No safe wrapper exists.

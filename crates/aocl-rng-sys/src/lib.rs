@@ -5,11 +5,14 @@
 //! provenance (guide line numbers) is `docs/cleanroom/rng_provenance.csv`; the integer-width measurement is
 //! `docs/cleanroom/RNG-WIDTH-MEASUREMENT.md` in the repository.
 //!
-//! Only the lowercase, no-underscore C form is declared (scalar inputs by value). The guide also lists UPPERCASE
-//! (all arguments by pointer) forms, which the library exports but this crate does not declare. The guide's
-//! trailing-underscore forms are **not exported** by the 6.0.68 Windows DLLs (measured), so they are not declared.
+//! Declared: the lowercase, no-underscore C form (scalar inputs by value) and the UPPERCASE `S/DRAND*` forms
+//! (`decls_upper.rs`, exported by both 6.0.68 DLLs; the guide states them mostly by pointer). The guide's
+//! trailing-underscore forms are **not exported** by the 6.0.68 Windows DLLs (measured), so they are not declared;
+//! `GET_RNGVERSION` is stated by the guide but not exported, so it is not declared either.
 //!
-//! Not declared: `srandinitializeuser` (the guide never states its callback typedefs), and the SecureRNG API.
+//! `srandinitializeuser`/`SRANDINITIALIZEUSER` are declared with MEASURED callback typedefs but are unusable on 6.0.68 Windows as documented (see `decls_user_s.rs`).
+//!
+//! Not declared: the SecureRNG API (separate library `amdsecrng`: see the `aocl-securerng-sys` crate).
 //!
 //! For a safe, idiomatic API see [`aocl-rng`](https://docs.rs/aocl-rng).
 
@@ -47,5 +50,26 @@ pub type RNG_DRANDINITIALIZEUSER_UGEN = Option<
     unsafe extern "C" fn(*mut rng_int_t, *mut rng_int_t, *mut core::ffi::c_double, *mut rng_int_t),
 >;
 
+/// User initialiser callback for `srandinitializeuser`: the guide never states it; MEASURED to have the same 7-pointer shape as the D one (docs/cleanroom/types/TYPES-MEASUREMENT.md, Windows 6.0.68).
+pub type RNG_SRANDINITIALIZEUSER_UINI = Option<
+    unsafe extern "C" fn(
+        *mut rng_int_t,
+        *mut rng_int_t,
+        *mut rng_int_t,
+        *mut rng_int_t,
+        *mut rng_int_t,
+        *mut rng_int_t,
+        *mut rng_int_t,
+    ),
+>;
+/// User generator callback for `srandinitializeuser`: MEASURED: as the D one with a `float` output array.
+pub type RNG_SRANDINITIALIZEUSER_UGEN = Option<
+    unsafe extern "C" fn(*mut rng_int_t, *mut rng_int_t, *mut core::ffi::c_float, *mut rng_int_t),
+>;
+
 mod decls;
 pub use decls::*;
+mod decls_user_s;
+pub use decls_user_s::*;
+mod decls_upper;
+pub use decls_upper::*;
