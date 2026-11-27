@@ -33,13 +33,19 @@ fn main() {
 /// `aoclsparse_zset_value` faulted (access violation) with the unaligned binding. Re-apply the header's alignment to the
 /// generated file; fail the build if the expected struct text is not there (a header change must be looked at).
 fn fix_complex_alignment() {
-    let out = std::path::PathBuf::from(std::env::var_os("OUT_DIR").expect("OUT_DIR")).join("bindings.rs");
-    let Ok(text) = std::fs::read_to_string(&out) else { return }; // docs.rs short-circuit writes a stub
+    let out =
+        std::path::PathBuf::from(std::env::var_os("OUT_DIR").expect("OUT_DIR")).join("bindings.rs");
+    let Ok(text) = std::fs::read_to_string(&out) else {
+        return;
+    }; // docs.rs short-circuit writes a stub
     if !text.contains("pub struct aoclsparse_double_complex_") {
         return;
     }
     let mut fixed = text.clone();
-    for (name, align) in [("aoclsparse_double_complex_", 16), ("aoclsparse_float_complex", 8)] {
+    for (name, align) in [
+        ("aoclsparse_double_complex_", 16),
+        ("aoclsparse_float_complex", 8),
+    ] {
         let tail = format!("#[derive(Debug, Default, Copy, Clone)]{{nl}}pub struct {name} {{");
         let mut done = false;
         for nl in ["\n", "\r\n"] {

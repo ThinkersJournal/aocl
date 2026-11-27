@@ -13,14 +13,20 @@ fn z(re: f64, im: f64) -> Z {
     Z { real: re, imag: im }
 }
 fn mul(a: Z, b: Z) -> Z {
-    z(a.real * b.real - a.imag * b.imag, a.real * b.imag + a.imag * b.real)
+    z(
+        a.real * b.real - a.imag * b.imag,
+        a.real * b.imag + a.imag * b.real,
+    )
 }
 fn add(a: Z, b: Z) -> Z {
     z(a.real + b.real, a.imag + b.imag)
 }
 fn div(a: Z, b: Z) -> Z {
     let d = b.real * b.real + b.imag * b.imag;
-    z((a.real * b.real + a.imag * b.imag) / d, (a.imag * b.real - a.real * b.imag) / d)
+    z(
+        (a.real * b.real + a.imag * b.imag) / d,
+        (a.imag * b.real - a.real * b.imag) / d,
+    )
 }
 fn near(a: Z, b: Z) -> bool {
     (a.real - b.real).abs() < 1e-12 && (a.imag - b.imag).abs() < 1e-12
@@ -51,15 +57,39 @@ fn diag24(ty: aoclsparse_matrix_type) -> Csr {
     let mut descr: aoclsparse_mat_descr = null_mut();
     unsafe {
         assert_eq!(
-            aoclsparse_create_zcsr(&mut mat, aoclsparse_index_base__aoclsparse_index_base_zero, 2, 2, 2, row_ptr.as_mut_ptr(), col.as_mut_ptr(), val.as_mut_ptr()),
+            aoclsparse_create_zcsr(
+                &mut mat,
+                aoclsparse_index_base__aoclsparse_index_base_zero,
+                2,
+                2,
+                2,
+                row_ptr.as_mut_ptr(),
+                col.as_mut_ptr(),
+                val.as_mut_ptr()
+            ),
             OK
         );
         assert_eq!(aoclsparse_create_mat_descr(&mut descr), OK);
         assert_eq!(aoclsparse_set_mat_type(descr, ty), OK);
-        assert_eq!(aoclsparse_set_mat_fill_mode(descr, aoclsparse_fill_mode__aoclsparse_fill_mode_lower), OK);
-        assert_eq!(aoclsparse_set_mat_diag_type(descr, aoclsparse_diag_type__aoclsparse_diag_type_non_unit), OK);
+        assert_eq!(
+            aoclsparse_set_mat_fill_mode(descr, aoclsparse_fill_mode__aoclsparse_fill_mode_lower),
+            OK
+        );
+        assert_eq!(
+            aoclsparse_set_mat_diag_type(
+                descr,
+                aoclsparse_diag_type__aoclsparse_diag_type_non_unit
+            ),
+            OK
+        );
     }
-    Csr { mat, descr, _row_ptr: row_ptr, _col: col, _val: val }
+    Csr {
+        mat,
+        descr,
+        _row_ptr: row_ptr,
+        _col: col,
+        _val: val,
+    }
 }
 
 #[test]
@@ -72,12 +102,25 @@ fn zset_value_by_value() {
         let mut c = [z(9.0, 9.0), z(9.0, 9.0)];
         assert_eq!(
             aoclsparse_zcsrmm(
-                aoclsparse_operation__aoclsparse_operation_none, z(1.0, 0.0), a.mat, a.descr, aoclsparse_order__aoclsparse_order_column,
-                b.as_ptr(), 1, 2, z(0.0, 0.0), c.as_mut_ptr(), 2
+                aoclsparse_operation__aoclsparse_operation_none,
+                z(1.0, 0.0),
+                a.mat,
+                a.descr,
+                aoclsparse_order__aoclsparse_order_column,
+                b.as_ptr(),
+                1,
+                2,
+                z(0.0, 0.0),
+                c.as_mut_ptr(),
+                2
             ),
             OK
         );
-        assert!(near(c[1], z(7.5, -2.5)), "A[1][1] after set_value: {:?}", (c[1].real, c[1].imag));
+        assert!(
+            near(c[1], z(7.5, -2.5)),
+            "A[1][1] after set_value: {:?}",
+            (c[1].real, c[1].imag)
+        );
         assert!(near(c[0], z(0.0, 0.0)));
     }
 }
@@ -89,11 +132,29 @@ fn ztrsv_alpha_by_value() {
     let b = [z(1.0, 2.0), z(3.0, -1.0)];
     let mut x = [z(0.0, 0.0); 2];
     unsafe {
-        assert_eq!(aoclsparse_ztrsv(aoclsparse_operation__aoclsparse_operation_none, alpha, a.mat, a.descr, b.as_ptr(), x.as_mut_ptr()), OK);
+        assert_eq!(
+            aoclsparse_ztrsv(
+                aoclsparse_operation__aoclsparse_operation_none,
+                alpha,
+                a.mat,
+                a.descr,
+                b.as_ptr(),
+                x.as_mut_ptr()
+            ),
+            OK
+        );
     }
     // A x = alpha b with A = diag(2, 4)
-    assert!(near(x[0], div(mul(alpha, b[0]), z(2.0, 0.0))), "{:?}", (x[0].real, x[0].imag));
-    assert!(near(x[1], div(mul(alpha, b[1]), z(4.0, 0.0))), "{:?}", (x[1].real, x[1].imag));
+    assert!(
+        near(x[0], div(mul(alpha, b[0]), z(2.0, 0.0))),
+        "{:?}",
+        (x[0].real, x[0].imag)
+    );
+    assert!(
+        near(x[1], div(mul(alpha, b[1]), z(4.0, 0.0))),
+        "{:?}",
+        (x[1].real, x[1].imag)
+    );
 }
 
 #[test]
@@ -106,8 +167,17 @@ fn zcsrmm_alpha_and_beta_by_value() {
     unsafe {
         assert_eq!(
             aoclsparse_zcsrmm(
-                aoclsparse_operation__aoclsparse_operation_none, alpha, a.mat, a.descr, aoclsparse_order__aoclsparse_order_column,
-                b.as_ptr(), 1, 2, beta, c.as_mut_ptr(), 2
+                aoclsparse_operation__aoclsparse_operation_none,
+                alpha,
+                a.mat,
+                a.descr,
+                aoclsparse_order__aoclsparse_order_column,
+                b.as_ptr(),
+                1,
+                2,
+                beta,
+                c.as_mut_ptr(),
+                2
             ),
             OK
         );
@@ -116,7 +186,12 @@ fn zcsrmm_alpha_and_beta_by_value() {
     let d = [z(2.0, 0.0), z(4.0, 0.0)];
     for i in 0..2 {
         let want = add(mul(alpha, mul(d[i], b[i])), mul(beta, c0[i]));
-        assert!(near(c[i], want), "row {i}: {:?} != {:?}", (c[i].real, c[i].imag), (want.real, want.imag));
+        assert!(
+            near(c[i], want),
+            "row {i}: {:?} != {:?}",
+            (c[i].real, c[i].imag),
+            (want.real, want.imag)
+        );
     }
 }
 
@@ -128,7 +203,16 @@ fn zdotmv_alpha_and_beta_by_value() {
     let mut y = [z(1.0, 1.0), z(2.0, 0.0)];
     let mut d = z(0.25, 0.5);
     unsafe {
-        let st = aoclsparse_zdotmv(aoclsparse_operation__aoclsparse_operation_none, alpha, a.mat, a.descr, x.as_ptr(), beta, y.as_mut_ptr(), &mut d);
+        let st = aoclsparse_zdotmv(
+            aoclsparse_operation__aoclsparse_operation_none,
+            alpha,
+            a.mat,
+            a.descr,
+            x.as_ptr(),
+            beta,
+            y.as_mut_ptr(),
+            &mut d,
+        );
         assert_eq!(st, OK);
     }
     // y := alpha * A * x + beta * y (documented); d = x^T y (not asserted: conjugation convention).
@@ -136,7 +220,12 @@ fn zdotmv_alpha_and_beta_by_value() {
     let y0 = [z(1.0, 1.0), z(2.0, 0.0)];
     for i in 0..2 {
         let want = add(mul(alpha, mul(dd[i], x[i])), mul(beta, y0[i]));
-        assert!(near(y[i], want), "row {i}: {:?} != {:?}", (y[i].real, y[i].imag), (want.real, want.imag));
+        assert!(
+            near(y[i], want),
+            "row {i}: {:?} != {:?}",
+            (y[i].real, y[i].imag),
+            (want.real, want.imag)
+        );
     }
 }
 
@@ -147,8 +236,22 @@ fn zsymgs_alpha_by_value_runs() {
     let b = [z(2.0, 0.0), z(8.0, 0.0)];
     let mut x = [z(0.0, 0.0); 2];
     unsafe {
-        assert_eq!(aoclsparse_zsymgs(aoclsparse_operation__aoclsparse_operation_none, a.mat, a.descr, alpha, b.as_ptr(), x.as_mut_ptr()), OK);
+        assert_eq!(
+            aoclsparse_zsymgs(
+                aoclsparse_operation__aoclsparse_operation_none,
+                a.mat,
+                a.descr,
+                alpha,
+                b.as_ptr(),
+                x.as_mut_ptr()
+            ),
+            OK
+        );
     }
     // diagonal system: one Gauss-Seidel sweep from x = 0 solves it exactly: x = b / diag
-    assert!(near(x[0], z(1.0, 0.0)) && near(x[1], z(2.0, 0.0)), "{:?}", (x[0].real, x[0].imag, x[1].real, x[1].imag));
+    assert!(
+        near(x[0], z(1.0, 0.0)) && near(x[1], z(2.0, 0.0)),
+        "{:?}",
+        (x[0].real, x[0].imag, x[1].real, x[1].imag)
+    );
 }
