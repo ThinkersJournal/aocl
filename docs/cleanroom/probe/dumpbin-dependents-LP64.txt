@@ -1,0 +1,36 @@
+Microsoft (R) COFF/PE Dumper Version 14.52.37028.0
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+
+Dump of file C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\LP64\rng_amd.dll
+
+File Type: DLL
+
+  Image has the following dependencies:
+
+    KERNEL32.dll
+    OLEAUT32.dll
+    libalm.dll
+    AOCL-LibBlis-Win-dll.dll
+    libmmd.dll
+    svml_dispmd.dll
+    VCRUNTIME140.dll
+    VCRUNTIME140_1.dll
+    api-ms-win-crt-stdio-l1-1-0.dll
+    api-ms-win-crt-runtime-l1-1-0.dll
+    api-ms-win-crt-environment-l1-1-0.dll
+    api-ms-win-crt-string-l1-1-0.dll
+    api-ms-win-crt-time-l1-1-0.dll
+    api-ms-win-crt-heap-l1-1-0.dll
+
+  Summary
+
+        2000 .data
+        2000 .pdata
+       13000 .rdata
+        1000 .reloc
+        1000 .rsrc
+       58000 .text
+        2000 .tls
+        1000 TEXT
+        2000 _RDATA
