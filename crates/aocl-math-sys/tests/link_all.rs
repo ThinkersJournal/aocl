@@ -207,3 +207,43 @@ fn all_scalar_symbols_link() {
     assert_eq!(addrs.len(), 198);
     assert!(addrs.iter().all(|a| *a != 0));
 }
+
+#[cfg(windows)]
+#[test]
+fn measured_types_link_and_known_answers() {
+    use aocl_math_sys::*;
+    let _ = [
+        amd_nexttoward as usize,
+        amd_nexttowardf as usize,
+        amd_cexpf as usize,
+        amd_cexp as usize,
+        amd_clogf as usize,
+        amd_clog as usize,
+        amd_cpowf as usize,
+        amd_cpow as usize,
+    ];
+    unsafe {
+        assert_eq!(amd_nexttoward(1.0, 2.0), 1.0 + f64::EPSILON);
+        assert_eq!(amd_nexttoward(1.0, 3.0), 1.0 + f64::EPSILON);
+        assert_eq!(amd_nexttoward(1.0, 0.5), 1.0 - f64::EPSILON / 2.0);
+        let e = amd_cexp(fc64_t { re: 0.0, im: 0.0 });
+        assert_eq!((e.re, e.im), (1.0, 0.0));
+        let c = amd_cpow(fc64_t { re: 1.0, im: 2.0 }, fc64_t { re: 2.0, im: 0.0 });
+        assert!(
+            (c.re + 3.0).abs() < 1e-12 && (c.im - 4.0).abs() < 1e-12,
+            "{c:?}"
+        ); // non-symmetric: re first
+        let cf = amd_cpowf(fc32_t { re: 1.0, im: 2.0 }, fc32_t { re: 2.0, im: 0.0 });
+        assert!(
+            (cf.re + 3.0).abs() < 1e-5 && (cf.im - 4.0).abs() < 1e-5,
+            "{cf:?}"
+        );
+        let l = amd_clog(fc64_t { re: 1.0, im: 0.0 });
+        assert_eq!((l.re, l.im), (0.0, 0.0));
+        let lf = amd_clogf(fc32_t { re: 1.0, im: 0.0 });
+        assert_eq!((lf.re, lf.im), (0.0, 0.0));
+        let ef = amd_cexpf(fc32_t { re: 0.0, im: 0.0 });
+        assert_eq!((ef.re, ef.im), (1.0, 0.0));
+        assert_eq!(amd_nexttowardf(1.0, 2.0), 1.0 + f32::EPSILON);
+    }
+}

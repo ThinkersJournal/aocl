@@ -3,6 +3,8 @@
 ## 0.2.8 - 2026-11-27 (PM-allocated; patch on 0.2.x, the PM ruled patch with no yank: HOTFIX for published aocl-math-sys 0.2.7)
 
 - **FIX `aocl-math-sys`:** 20 scalar declarations (`amd_fast{sin,cos,tan,asin,acos,atan,exp,log,pow}{,f}`, `amd_fasterf`, `amd_fasterff`) that the guide states but AOCL 6.0.68 on Windows does not export (a link error when used; found by the new `tests/link_all.rs`) are now behind the default-OFF feature `guide-only-fast`. Anyone who referenced them under 0.2.7 must enable the feature (and will still fail to link on Windows 6.0.68). `aocl-math` never exposed them.
+- **`aocl-math-sys` nightly-only feature `simd_ffi`:** declares the 154 by-value SIMD functions (`__m128`..`__m512d`; needs rustc `feature(simd_ffi)`; never default; 2 more `amd_vrd8_fabs`/`amd_vrs16_fabsf` are behind `guide-only-fast` + `simd_ffi`: not exported by 6.0.68 Windows). 6 are called by tests, all 154 link-checked.
+- **`aocl-math-sys` (Windows only):** the 8 functions using `long double`, `fc32_t`, `fc64_t` are declared with the ABI MEASURED against AOCL 6.0.68 (`docs/cleanroom/types/`); Linux unmeasured; not a guide declaration.
 
 ## 0.2.7 - 2026-11-27 (PM-allocated; BREAKING only against the yanked 0.1.0 math/rng crates, nothing published at 0.2.x changes; CireSnave 523 A: 0.2.x)
 

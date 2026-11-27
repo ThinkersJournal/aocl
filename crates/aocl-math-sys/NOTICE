@@ -3,7 +3,9 @@ NOTICE for aocl-math-sys
 Provenance. The function declarations in src/decls_scalar.rs were written from AMD's published documentation, the
 "AOCL API Guide" 6.0 (document 68552, dated 2026-11-10), chapter 8 (AOCL-LibM), by a separate writer session that was given
 only that text. They contain function names and C signatures as the guide states them, and nothing else: no header text, no
-comments, no macros, no constants, no example code. They are declared from the guide and link-tested against AOCL 6.0.68 on Windows (tests/link_all.rs); 20 scalar functions the guide states are not exported there and are behind the default-OFF feature `guide-only-fast` (Linux not measured). The authors of this repository (this lane) HAVE read the AOCL headers; the
+comments, no macros, no constants, no example code. They are declared from the guide and link-tested against AOCL 6.0.68 on
+Windows (tests/link_all.rs); 20 scalar + 2 SIMD functions the guide states are not exported there and are behind the default-OFF
+feature `guide-only-fast` (Linux not measured). The authors of this repository (this lane) HAVE read the AOCL headers; the
 declarations were not written by that session. Guide line numbers for every declaration are in docs/cleanroom/math_provenance.csv
 at https://github.com/ThinkersJournal/aocl. This crate does not contain, and does not read at build time, any AOCL header.
 
