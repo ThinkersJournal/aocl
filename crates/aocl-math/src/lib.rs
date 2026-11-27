@@ -700,4 +700,546 @@ mod tests {
         assert!((sqrtf(2.0_f32) - std::f32::consts::SQRT_2).abs() < 1e-5);
         assert!((sinhf(0.5_f32) - 0.5_f32.sinh()).abs() < 1e-5);
     }
+
+    // ---- f32 / rounding-mode / scaling coverage. Expected values come from Rust std or exact identities, never from the library. ----
+
+    /// `got` equals `want` within `rel` relative error (absolute `1e-7` when `want` is ~0); NaN matches NaN, infinities match exactly.
+    fn close32(got: f32, want: f32, rel: f32, what: &str) {
+        if want.is_nan() {
+            assert!(got.is_nan(), "{what}: got {got}, want NaN");
+        } else if want.is_infinite() {
+            assert_eq!(got, want, "{what}");
+        } else {
+            let tol = rel * want.abs().max(1e-7 / rel.max(1e-9));
+            assert!(
+                (got - want).abs() <= tol,
+                "{what}: got {got}, want {want} (tol {tol})"
+            );
+        }
+    }
+
+    /// Distinct per-lane inputs through a wrapper vs the std function (lane order mistakes would show).
+    macro_rules! unary32 {
+        ($name:ident, $f:ident, $std:expr, [$($x:expr),+ $(,)?]) => {
+            #[test]
+            fn $name() {
+                let std_fn: fn(f32) -> f32 = $std;
+                for x in [$($x),+] {
+                    close32($f(x), std_fn(x), 2e-6, &format!("{}({x})", stringify!($f)));
+                }
+            }
+        };
+    }
+    unary32!(
+        cosf_vs_std,
+        cosf,
+        f32::cos,
+        [0.0, 0.3, 1.0, 2.0, 3.0, -1.7, 10.0]
+    );
+    unary32!(
+        sinf_vs_std,
+        sinf,
+        f32::sin,
+        [0.1, 0.3, 1.0, 2.0, 3.0, -1.7, 10.0]
+    );
+    unary32!(tanf_vs_std, tanf, f32::tan, [0.1, 0.3, 1.0, -1.2, 2.0, 3.0]);
+    unary32!(
+        acosf_vs_std,
+        acosf,
+        f32::acos,
+        [-1.0, -0.6, -0.1, 0.0, 0.25, 0.9, 1.0]
+    );
+    unary32!(
+        asinf_vs_std,
+        asinf,
+        f32::asin,
+        [-1.0, -0.6, -0.1, 0.25, 0.5, 0.9, 1.0]
+    );
+    unary32!(
+        atanf_vs_std,
+        atanf,
+        f32::atan,
+        [-100.0, -2.0, -0.4, 0.1, 0.7, 3.0, 1000.0]
+    );
+    unary32!(
+        coshf_vs_std,
+        coshf,
+        f32::cosh,
+        [0.0, 0.2, -0.7, 1.5, 3.0, -5.0]
+    );
+    unary32!(
+        tanhf_vs_std,
+        tanhf,
+        f32::tanh,
+        [-6.0, -1.0, -0.2, 0.1, 0.8, 2.5]
+    );
+    unary32!(
+        asinhf_vs_std,
+        asinhf,
+        f32::asinh,
+        [-50.0, -2.0, -0.3, 0.1, 0.9, 7.0]
+    );
+    unary32!(
+        acoshf_vs_std,
+        acoshf,
+        f32::acosh,
+        [1.0, 1.1, 1.5, 2.0, 10.0, 500.0]
+    );
+    unary32!(
+        atanhf_vs_std,
+        atanhf,
+        f32::atanh,
+        [-0.9, -0.5, -0.1, 0.2, 0.6, 0.95]
+    );
+    unary32!(
+        exp2f_vs_std,
+        exp2f,
+        f32::exp2,
+        [-10.0, -1.5, 0.0, 0.5, 3.0, 20.0]
+    );
+    unary32!(
+        expm1f_vs_std,
+        expm1f,
+        f32::exp_m1,
+        [-3.0, -0.5, 1e-4, 0.3, 1.0, 5.0]
+    );
+    unary32!(
+        lnf_vs_std,
+        lnf,
+        f32::ln,
+        [1e-6, 0.1, 0.5, 1.0, 2.0, 100.0, 1e6]
+    );
+    unary32!(
+        log2f_vs_std,
+        log2f,
+        f32::log2,
+        [1e-6, 0.1, 0.5, 3.0, 8.0, 1000.0]
+    );
+    unary32!(
+        log10f_vs_std,
+        log10f,
+        f32::log10,
+        [1e-6, 0.1, 0.5, 3.0, 100.0, 1e6]
+    );
+    unary32!(
+        ln_1pf_vs_std,
+        ln_1pf,
+        f32::ln_1p,
+        [-0.9, -0.5, 1e-5, 0.3, 1.0, 100.0]
+    );
+    unary32!(
+        cbrtf_vs_std,
+        cbrtf,
+        f32::cbrt,
+        [-1000.0, -8.0, -0.001, 0.5, 2.0, 27.0, 1e9]
+    );
+    unary32!(
+        ceilf_vs_std,
+        ceilf,
+        f32::ceil,
+        [-2.5, -2.0, -0.1, 0.0, 0.1, 2.0, 2.5, 1e7]
+    );
+    unary32!(
+        floorf_vs_std,
+        floorf,
+        f32::floor,
+        [-2.5, -2.0, -0.1, 0.0, 0.1, 2.0, 2.5, 1e7]
+    );
+    unary32!(
+        truncf_vs_std,
+        truncf,
+        f32::trunc,
+        [-2.9, -0.9, 0.0, 0.9, 2.9, 1e7]
+    );
+    unary32!(
+        roundf_vs_std,
+        roundf,
+        f32::round,
+        [-3.5, -2.5, -0.5, 0.4, 0.5, 1.5, 2.5, 3.5]
+    );
+    unary32!(
+        fabsf_vs_std,
+        fabsf,
+        f32::abs,
+        [-0.0, -3.5, -1e-30, 0.0, 2.25, f32::NEG_INFINITY]
+    );
+    unary32!(
+        rintf_ties_even,
+        rintf,
+        f32::round_ties_even,
+        [-3.5, -2.5, -1.5, -0.5, 0.5, 1.5, 2.5, 3.5, 2.4, -2.6]
+    );
+    unary32!(
+        nearbyintf_ties_even,
+        nearbyintf,
+        f32::round_ties_even,
+        [-3.5, -2.5, -1.5, -0.5, 0.5, 1.5, 2.5, 3.5, 2.4, -2.6]
+    );
+
+    #[test]
+    fn exp10f_integer_powers() {
+        // 10^k for small integer k is exactly representable closed-form; tolerance 2e-6 relative.
+        for (k, want) in [
+            (-3.0_f32, 1e-3_f32),
+            (0.0, 1.0),
+            (1.0, 10.0),
+            (2.0, 100.0),
+            (5.0, 1e5),
+            (-1.0, 0.1),
+            (10.0, 1e10),
+        ] {
+            close32(exp10f(k), want, 2e-6, &format!("exp10f({k})"));
+        }
+        close32(exp10f(0.5), 10.0_f32.sqrt(), 2e-6, "exp10f(0.5)");
+    }
+
+    #[test]
+    fn atan2f_quadrants_vs_std() {
+        let ys = [1.0_f32, 1.0, -1.0, -1.0, 0.5, 3.0, -2.0];
+        let xs = [1.0_f32, -1.0, -1.0, 1.0, 2.0, -0.25, 0.0];
+        for (y, x) in ys.iter().zip(xs.iter()) {
+            close32(
+                atan2f(*y, *x),
+                y.atan2(*x),
+                2e-6,
+                &format!("atan2f({y},{x})"),
+            );
+        }
+        close32(
+            atan2f(1.0, 1.0),
+            std::f32::consts::FRAC_PI_4,
+            2e-6,
+            "atan2f(1,1)",
+        );
+        close32(
+            atan2f(1.0, -1.0),
+            3.0 * std::f32::consts::FRAC_PI_4,
+            2e-6,
+            "atan2f(1,-1)",
+        );
+    }
+
+    #[test]
+    fn sincosf_matches_scalar_forms() {
+        let pi = std::f32::consts::PI;
+        for x in [0.0_f32, pi / 6.0, 0.7, pi / 2.0, 2.0, -1.3, 5.0] {
+            let (s, c) = sincosf(x);
+            close32(s, x.sin(), 2e-6, &format!("sincosf({x}).sin"));
+            close32(c, x.cos(), 2e-6, &format!("sincosf({x}).cos"));
+        }
+        let (s, c) = sincosf(pi / 6.0);
+        close32(s, 0.5, 2e-6, "sin(pi/6)");
+        close32(c, 3.0_f32.sqrt() / 2.0, 2e-6, "cos(pi/6)");
+    }
+
+    #[test]
+    fn powf_hypotf_vs_std() {
+        for (x, y) in [
+            (2.0_f32, 10.0_f32),
+            (2.0, 0.5),
+            (9.0, 0.5),
+            (0.5, 3.0),
+            (10.0, -2.0),
+            (1.5, 2.5),
+            (-2.0, 3.0),
+            (-2.0, 2.0),
+        ] {
+            close32(powf(x, y), x.powf(y), 2e-6, &format!("powf({x},{y})"));
+        }
+        close32(powf(5.0, 0.0), 1.0, 1e-9, "x^0");
+        for (x, y) in [
+            (3.0_f32, 4.0_f32),
+            (5.0, 12.0),
+            (-8.0, 15.0),
+            (1e-3, 2e-3),
+            (1e20, 1e20),
+            (0.0, -7.0),
+        ] {
+            close32(hypotf(x, y), x.hypot(y), 2e-6, &format!("hypotf({x},{y})"));
+        }
+        close32(hypotf(3.0, 4.0), 5.0, 2e-6, "3-4-5");
+        close32(
+            hypotf(1e30, 1e30),
+            1e30 * std::f32::consts::SQRT_2,
+            2e-6,
+            "no overflow",
+        );
+    }
+
+    #[test]
+    fn erff_known_values() {
+        // Tabulated erf values (Abramowitz & Stegun), independent of the library.
+        for (x, want) in [
+            (0.0_f32, 0.0_f32),
+            (0.5, 0.520_499_9),
+            (1.0, 0.842_700_8),
+            (2.0, 0.995_322_3),
+            (-1.0, -0.842_700_8),
+            (6.0, 1.0),
+        ] {
+            close32(erff(x), want, 2e-6, &format!("erff({x})"));
+        }
+        assert_eq!(erff(f32::INFINITY), 1.0);
+        assert_eq!(erff(f32::NEG_INFINITY), -1.0);
+        assert!(erff(f32::NAN).is_nan());
+    }
+
+    #[test]
+    fn integer_rounding_ties_f64_f32() {
+        // (input, rint/lrint/llrint = ties-to-even in the default rounding mode, lround/llround = ties away from zero)
+        let cases: [(f64, i64, i64); 10] = [
+            (0.5, 0, 1),
+            (1.5, 2, 2),
+            (2.5, 2, 3),
+            (3.5, 4, 4),
+            (-0.5, 0, -1),
+            (-1.5, -2, -2),
+            (-2.5, -2, -3),
+            (2.4, 2, 2),
+            (-2.6, -3, -3),
+            (1.0e9, 1_000_000_000, 1_000_000_000),
+        ];
+        for (x, even, away) in cases {
+            assert_eq!(lrint(x), even, "lrint({x})");
+            assert_eq!(llrint(x), even, "llrint({x})");
+            assert_eq!(lround(x), away, "lround({x})");
+            assert_eq!(llround(x), away, "llround({x})");
+            assert_eq!(rint(x), even as f64, "rint({x})");
+            assert_eq!(nearbyint(x), even as f64, "nearbyint({x})");
+            let f = x as f32;
+            assert_eq!(lrintf(f), even, "lrintf({f})");
+            assert_eq!(llrintf(f), even, "llrintf({f})");
+            assert_eq!(lroundf(f), away, "lroundf({f})");
+            assert_eq!(llroundf(f), away, "llroundf({f})");
+        }
+        // Large values that need 64 bits (above i32::MAX) must not be truncated.
+        assert_eq!(llrint(5.0e12), 5_000_000_000_000);
+        assert_eq!(llround(-5.0e12), -5_000_000_000_000);
+    }
+
+    #[test]
+    fn rint_sign_of_zero() {
+        assert!(rint(-0.25).is_sign_negative() && rint(-0.25) == 0.0);
+        assert!(nearbyint(-0.25).is_sign_negative());
+        assert!(rintf(-0.25).is_sign_negative());
+        assert!(nearbyintf(-0.4).is_sign_negative());
+        assert!(!rintf(0.25).is_sign_negative());
+    }
+
+    #[test]
+    fn modff_frexpf_ldexpf_scalbf() {
+        for x in [3.75_f32, -3.75, 2.5, 0.25, -0.5, 100.125, 7.0, -3.0] {
+            let (frac, int) = modff(x);
+            assert_eq!(int, x.trunc(), "modff({x}) integer part");
+            assert_eq!(frac, x - x.trunc(), "modff({x}) fractional part");
+        }
+        let (f, i) = modff(-3.0);
+        assert!(
+            f == 0.0 && f.is_sign_negative() && i == -3.0,
+            "modff(-3) = ({f}, {i})"
+        );
+
+        // frexpf: x = m * 2^e with |m| in [0.5, 1).
+        assert_eq!(frexpf(12.0), (0.75, 4));
+        assert_eq!(frexpf(0.0), (0.0, 0));
+        assert_eq!(frexpf(1.0), (0.5, 1));
+        assert_eq!(frexpf(-0.25), (-0.5, -1));
+        for x in [0.1_f32, -7.5, 1e10, 3e-20, 123456.0] {
+            let (m, e) = frexpf(x);
+            assert!((0.5..1.0).contains(&m.abs()), "frexpf({x}) mantissa {m}");
+            assert_eq!(ldexpf(m, e), x, "ldexpf round trip {x}");
+            assert_eq!(scalbnf(m, e), x, "scalbnf round trip {x}");
+            assert_eq!(scalblnf(m, e as i64), x, "scalblnf round trip {x}");
+        }
+        assert_eq!(ldexpf(0.75, -2), 0.1875);
+        assert_eq!(scalbnf(1.5, 3), 12.0);
+        assert_eq!(scalblnf(3.0, 4), 48.0);
+        assert_eq!(scalblnf(1.0, -3), 0.125);
+        assert_eq!(scalbnf(1.0, 200), f32::INFINITY);
+        assert_eq!(scalbnf(-1.0, 200), f32::NEG_INFINITY);
+        assert_eq!(scalbnf(1.0, -300), 0.0);
+    }
+
+    #[test]
+    fn scalbln_f64() {
+        assert_eq!(scalbln(3.0, 4), 48.0);
+        assert_eq!(scalbln(1.0, -3), 0.125);
+        assert_eq!(scalbln(-1.5, 10), -1536.0);
+        assert_eq!(scalbln(1.0, 5_000), f64::INFINITY);
+        assert_eq!(scalbln(1.0, -5_000), 0.0);
+        let (m, e) = frexp(1234.5678);
+        assert_eq!(scalbln(m, e as i64), 1234.5678);
+    }
+
+    #[test]
+    fn logbf_ilogbf_exponents() {
+        for (x, e) in [
+            (1.0_f32, 0),
+            (8.0, 3),
+            (0.25, -2),
+            (0.1, -4),
+            (1000.0, 9),
+            (-16.0, 4),
+            (1.99, 0),
+            (2.0, 1),
+        ] {
+            assert_eq!(ilogbf(x), e, "ilogbf({x})");
+            assert_eq!(logbf(x), e as f32, "logbf({x})");
+        }
+        assert_eq!(logbf(0.0), f32::NEG_INFINITY);
+        assert_eq!(logbf(f32::INFINITY), f32::INFINITY);
+        assert!(logbf(f32::NAN).is_nan());
+    }
+
+    #[test]
+    fn fmodf_remainderf_remquof() {
+        for (x, y) in [
+            (5.5_f32, 2.0_f32),
+            (-5.5, 2.0),
+            (5.5, -2.0),
+            (-5.5, -2.0),
+            (7.0, 7.0),
+            (1.0, 3.0),
+            (1e6, 7.0),
+        ] {
+            assert_eq!(fmodf(x, y), x % y, "fmodf({x},{y})");
+        }
+        assert_eq!(fmodf(-5.5, 2.0), -1.5);
+        assert!(fmodf(5.0, 0.0).is_nan());
+        assert!(fmodf(f32::INFINITY, 2.0).is_nan());
+        assert_eq!(fmodf(3.0, f32::INFINITY), 3.0);
+        // IEEE remainder: x - n*y with n = x/y rounded to nearest even.
+        for (x, y, want) in [
+            (5.0_f32, 3.0_f32, -1.0_f32),
+            (7.0, 2.0, -1.0),
+            (5.0, 2.0, 1.0),
+            (-5.0, 3.0, 1.0),
+            (1.0, 3.0, 1.0),
+            (10.0, 4.0, 2.0),
+        ] {
+            assert_eq!(remainderf(x, y), want, "remainderf({x},{y})");
+        }
+        assert!(remainderf(1.0, 0.0).is_nan());
+        let (r, q) = remquof(5.0, 3.0);
+        assert_eq!((r, q), (-1.0, 2));
+        let (r, q) = remquof(7.0, 2.0); // 3.5 -> quotient rounds to even 4
+        assert_eq!(r, -1.0);
+        assert_eq!(q & 7, 4);
+        let (r, q) = remquof(-7.0, 2.0);
+        assert_eq!(r, 1.0);
+        assert!(q < 0 && (-q) & 7 == 4, "q = {q}");
+        let (r, q) = remquof(9.0, 3.0);
+        assert_eq!((r, q), (0.0, 3));
+    }
+
+    #[test]
+    fn float_ops_f32() {
+        // copysignf: magnitude of the first, sign bit of the second (including -0.0).
+        assert_eq!(copysignf(3.0, -1.0), -3.0);
+        assert_eq!(copysignf(-3.0, 1.0), 3.0);
+        assert_eq!(copysignf(-3.0, -0.0), -3.0);
+        assert!(copysignf(0.0, -1.0).is_sign_negative());
+        assert!(copysignf(f32::NAN, -1.0).is_sign_negative());
+        // fdimf = max(x-y, 0)
+        assert_eq!(fdimf(5.0, 3.0), 2.0);
+        assert_eq!(fdimf(3.0, 5.0), 0.0);
+        assert_eq!(fdimf(-1.0, -4.5), 3.5);
+        assert!(fdimf(f32::NAN, 1.0).is_nan());
+        // fmax/fmin ignore a single NaN
+        for (x, y) in [
+            (2.0_f32, 3.0_f32),
+            (3.0, 2.0),
+            (-1.0, -2.0),
+            (-5.0, 4.0),
+            (1.0, 1.0),
+        ] {
+            assert_eq!(fmaxf(x, y), x.max(y), "fmaxf({x},{y})");
+            assert_eq!(fminf(x, y), x.min(y), "fminf({x},{y})");
+        }
+        assert_eq!(fmaxf(f32::NAN, 1.0), 1.0);
+        assert_eq!(fmaxf(1.0, f32::NAN), 1.0);
+        assert_eq!(fminf(f32::NAN, 1.0), 1.0);
+        assert_eq!(fminf(1.0, f32::NAN), 1.0);
+        // finitef
+        assert!(
+            finitef(1.0) && finitef(0.0) && finitef(-f32::MAX) && finitef(f32::MIN_POSITIVE / 2.0)
+        );
+        assert!(!finitef(f32::INFINITY) && !finitef(f32::NEG_INFINITY) && !finitef(f32::NAN));
+    }
+
+    #[test]
+    fn nextafterf_steps() {
+        let up = f32::from_bits(1.0_f32.to_bits() + 1);
+        let down = f32::from_bits(1.0_f32.to_bits() - 1);
+        assert_eq!(nextafterf(1.0, 2.0), up);
+        assert_eq!(nextafterf(1.0, 0.0), down);
+        assert_eq!(nextafterf(1.0, 1.0), 1.0);
+        assert_eq!(nextafterf(-1.0, -2.0), -up);
+        assert_eq!(nextafterf(-1.0, 0.0), -down);
+        assert_eq!(nextafterf(0.0, 1.0), f32::from_bits(1)); // smallest subnormal
+        assert_eq!(nextafterf(0.0, -1.0), -f32::from_bits(1));
+        assert_eq!(nextafterf(f32::MAX, f32::INFINITY), f32::INFINITY);
+        assert!(nextafterf(f32::NAN, 1.0).is_nan());
+        // f64 form for symmetry of the same identity
+        assert_eq!(nextafter(1.0, 2.0), f64::from_bits(1.0_f64.to_bits() + 1));
+    }
+
+    #[test]
+    fn nanf_is_nan_with_and_without_tag() {
+        assert!(nanf("").unwrap().is_nan());
+        assert!(nanf("123").unwrap().is_nan());
+        assert!(!finitef(nanf("7").unwrap()));
+        assert!(nanf("a\0b").is_err());
+        assert!(nan("a\0b").is_err());
+    }
+
+    #[test]
+    fn f32_special_values() {
+        assert_eq!(lnf(0.0), f32::NEG_INFINITY);
+        assert!(lnf(-1.0).is_nan());
+        assert_eq!(lnf(f32::INFINITY), f32::INFINITY);
+        assert_eq!(log2f(0.0), f32::NEG_INFINITY);
+        assert_eq!(log10f(0.0), f32::NEG_INFINITY);
+        assert_eq!(ln_1pf(-1.0), f32::NEG_INFINITY);
+        assert_eq!(exp2f(f32::NEG_INFINITY), 0.0);
+        assert_eq!(exp2f(200.0), f32::INFINITY);
+        assert_eq!(exp10f(100.0), f32::INFINITY);
+        assert_eq!(expm1f(f32::NEG_INFINITY), -1.0);
+        assert_eq!(atanf(f32::INFINITY), std::f32::consts::FRAC_PI_2);
+        assert!(asinf(1.5).is_nan());
+        assert!(acosf(-1.5).is_nan());
+        assert!(acoshf(0.5).is_nan());
+        assert_eq!(atanhf(1.0), f32::INFINITY);
+        assert_eq!(tanhf(f32::INFINITY), 1.0);
+        assert_eq!(tanhf(f32::NEG_INFINITY), -1.0);
+        assert_eq!(coshf(f32::NEG_INFINITY), f32::INFINITY);
+        assert!(cosf(f32::INFINITY).is_nan());
+        assert!(sinf(f32::INFINITY).is_nan());
+        assert!(tanf(f32::INFINITY).is_nan());
+        assert!(cbrtf(-27.0) == -3.0);
+        assert!(powf(-8.0, 0.5).is_nan());
+        assert_eq!(hypotf(f32::INFINITY, f32::NAN), f32::INFINITY);
+        assert_eq!(fabsf(-0.0).to_bits(), 0.0_f32.to_bits());
+        // exact closed forms
+        close32(cosf(0.0), 1.0, 1e-9, "cosf(0)");
+        close32(
+            asinf(0.5),
+            std::f32::consts::FRAC_PI_6,
+            2e-6,
+            "asin(1/2)=pi/6",
+        );
+        close32(
+            acosf(0.5),
+            std::f32::consts::FRAC_PI_3,
+            2e-6,
+            "acos(1/2)=pi/3",
+        );
+        close32(tanf(std::f32::consts::FRAC_PI_4), 1.0, 2e-6, "tan(pi/4)");
+        close32(acoshf(1.0), 0.0, 2e-6, "acosh(1)");
+        close32(lnf(std::f32::consts::E), 1.0, 2e-6, "ln e");
+        close32(log2f(1024.0), 10.0, 2e-6, "log2 1024");
+        close32(log10f(1000.0), 3.0, 2e-6, "log10 1000");
+        close32(cbrtf(27.0), 3.0, 2e-6, "cbrt 27");
+        close32(exp2f(10.0), 1024.0, 2e-6, "2^10");
+    }
 }
