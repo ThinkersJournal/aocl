@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased (tools and docs only, patch on 0.2.x; pm-assist allocates; no crate is published for it)
+## 0.2.20 - 2026-11-27 (PM-allocated; tools and docs only, patch on 0.2.x: the 12 safe wrappers' tests on the real AOCL 6.0.68; no crate behaviour changes)
 
 - **tools:** `tools/wrapper-tests.py` runs every safe wrapper's tests on the real installed AOCL (PATH built per width) and prints a table; `--control-no-aocl` must FAIL every wrapper (they really call into the DLLs). `docs/WRAPPER-TESTS-20261127.md`: 12 wrappers, 192 tests, all pass on AOCL 6.0.68 Windows with two runtime requirements found: `aocl-crypto` needs OpenSSL 3 `libcrypto-3-x64.dll` on PATH (AOCL does not ship it), `aocl-data-analytics` needs `KMP_DUPLICATE_LIB_OK=TRUE` (AMD issue 2). `selfhosted.yml` gets a `wrappers` job (untested on a runner).
 
