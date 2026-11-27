@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.22 - 2026-11-27 (PM-allocated; CI: adopt the advisory portfolio job, pinned reusable workflow; patch on 0.2.x, tools and CI only)
+
+- **CI:** the advisory `portfolio` job (reusable workflow `ciresnave/coderipper/.github/workflows/portfolio.yml` pinned to `467fd259d6d062cba4c5683d310f1a6f2b66e763`, `permissions: contents: read`, same syntax as cpufish) in `ci.yml`: not a required check, not in branch protection (CireSnave 2026-10-23). ROADMAP row 12.
+
 ## 0.2.21 - 2026-11-27 (PM-allocated; ROADMAP row 19 decided: RNG user-generator entry points document-only, patch on 0.2.x)
 
 - **ROADMAP row 19 decided: the RNG user-generator entry points stay `unsafe extern` declarations with NO safe wrapper in `aocl-rng`** (protocol measured but undocumented by AMD; callbacks have no user-data pointer; the library does not validate `n` against `lstate`): reasons in the row. No code change.
