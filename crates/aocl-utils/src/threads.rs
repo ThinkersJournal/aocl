@@ -68,3 +68,81 @@ pub unsafe fn pin_threads_custom(threads: &mut [ThreadHandle], affinity_vector: 
         );
     }
 }
+
+#[cfg(all(test, windows))]
+mod tests {
+    use super::*;
+    use std::os::windows::io::AsRawHandle;
+    use std::sync::mpsc;
+
+    #[repr(C)]
+    #[derive(Default)]
+    struct GroupAffinity {
+        mask: usize,
+        group: u16,
+        reserved: [u16; 3],
+    }
+    extern "system" {
+        fn GetThreadGroupAffinity(
+            thread: *mut core::ffi::c_void,
+            affinity: *mut GroupAffinity,
+        ) -> i32;
+    }
+
+    /// Spawn a live thread that waits, run `f` on its handle, and read back the OS affinity mask of that thread.
+    fn pinned_mask(f: impl FnOnce(&mut [ThreadHandle])) -> usize {
+        let (tx, rx) = mpsc::channel::<()>();
+        let th = std::thread::spawn(move || {
+            let _ = rx.recv();
+        });
+        let mut handles = [th.as_raw_handle() as ThreadHandle];
+        f(&mut handles);
+        let mut ga = GroupAffinity::default();
+        let ok = unsafe { GetThreadGroupAffinity(handles[0] as *mut _, &mut ga) };
+        assert_ne!(ok, 0, "GetThreadGroupAffinity failed");
+        tx.send(()).unwrap();
+        th.join().unwrap();
+        ga.mask
+    }
+
+    #[test]
+    fn pin_threads_custom_binds_the_thread_to_the_requested_logical_processor() {
+        // Logical processor 0 -> exactly bit 0 of the affinity mask. Control: an unpinned thread is not bound to one core
+        // (the default mask has more than one bit set on a multi-core host).
+        let unpinned = pinned_mask(|_| {});
+        let pinned = pinned_mask(|h| unsafe { pin_threads_custom(h, &[0]) });
+        assert_eq!(pinned, 1, "affinity mask after pin_threads_custom(&[0])");
+        if std::thread::available_parallelism()
+            .map(|n| n.get())
+            .unwrap_or(1)
+            > 1
+        {
+            assert!(
+                unpinned.count_ones() > 1,
+                "control: unpinned mask {unpinned:#x}"
+            );
+        }
+    }
+
+    #[test]
+    fn pin_threads_core_and_logical_and_spread_leave_a_single_processor_mask() {
+        // Core / Logical / Spread each pin one live thread to a processor of this host: the mask is non-empty, a subset of
+        // the host's processors, and differs from the unpinned mask (control).
+        let unpinned = pinned_mask(|_| {});
+        for strategy in [PinStrategy::Core, PinStrategy::Logical, PinStrategy::Spread] {
+            let m = pinned_mask(|h| unsafe { pin_threads(strategy, h) });
+            assert_ne!(m, 0, "{strategy:?}");
+            assert!(
+                m.count_ones() >= 1 && m.count_ones() <= unpinned.count_ones(),
+                "{strategy:?}: {m:#x} vs {unpinned:#x}"
+            );
+            if std::thread::available_parallelism()
+                .map(|n| n.get())
+                .unwrap_or(1)
+                > 1
+            {
+                assert_ne!(m, unpinned, "{strategy:?} left the thread unpinned");
+            }
+        }
+    }
+}

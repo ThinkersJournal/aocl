@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.24 - 2026-11-27 (PM-allocated; wrapper-test group 1 (utils, securerng, scalapack gaps): tests only on the real AOCL 6.0.68; patch on 0.2.x)
+
+- **Tests for exposed wrapper functions that no test mentioned (pm-kernels: comprehensive coverage), group 1, run on the real AOCL 6.0.68 Windows:** `aocl-utils` (`x86_64_level`; `pin_threads` Core/Logical/Spread and `pin_threads_custom`, checked by reading the OS thread affinity mask back with `GetThreadGroupAffinity`, with an unpinned-thread control), `aocl-securerng` (`rdrand_u16`, `rdseed_u16`, `rdseed_u64`, `rdseed_bytes` with guard bytes), `aocl-scalapack` (`BlockCyclic::as_raw` against the BLACS descriptor layout, `Grid::context`, `Grid::barrier` in the existing `harness = false` MPI test). Each new test was shown to FAIL with a deliberately wrong expected value.
+
 ## Unreleased (patch on 0.2.x; pm-assist allocates)
 
 - **`aocl-sparse` soundness fixes (safe API):** `sorv_f32` now checks `x`/`b` lengths against the matrix (as `sorv<T>` already did), and `roti_f64`/`roti_f32` reject a negative or out-of-range index and a wrong number of indices with `InvalidArgument` instead of letting the library write outside `y` / read past `indx` (heap corruption and access violation observed on AOCL 6.0.68 Windows). The same defect existed in every published version (0.1.0, 0.2.2, 0.2.4, 0.2.5); see docs/SPARSE-SOUNDNESS-20261127.md for the per-bug table, the safe-code reproductions (`tests/soundness.rs`, red before / green after) and the `symgs` alpha measurement (documented; the library ignores `alpha` from a zero guess).
