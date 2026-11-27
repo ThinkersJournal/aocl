@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased (patch on 0.2.x; pm-assist allocates)
+
+- **`aocl-sparse`: the index-range validation of `roti` now covers every sibling function that takes an index array or a stride** (found in review of #45): `axpyi`, `gthr`, `sctr`, `doti_f64/f32`, `gthrz_f64/f32`, the complex `axpyi`/`gthr`/`sctr`, `dotui_*`, `dotci_*`, `gthrz_*`, and the strided `gthrs_*`/`sctrs_*` (real and complex) refuse a negative or too-large index, a wrong number of indices, a non-positive stride, and a strided access past the dense vector, with `InvalidArgument` before the library is called. Before, such a call read or wrote outside the dense vector inside the library from safe code. Same published versions as the `roti` finding (`aocl-sparse` 0.1.0 to 0.2.26: 0.2.26 carries the `roti` fix only). Indices are zero-based (no index-base argument exists for these routines).
+
 ## 0.2.27 - 2026-11-27 (PM-allocated; aocl-rng-sys link-and-call test for the user-generator entry points in the measured-safe shape (LP64 and ILP64, D and S pass, guard asserted, wrong-value control fails) with the NOTICE commit; patch on 0.2.x, tests and docs)
 
 - **`aocl-rng-sys`: link-and-call test for the user-generator entry points** (`tests/user_init.rs`, own test binary): `drandinitializeuser`/`srandinitializeuser` followed by `dranduniform`/`sranduniform` in the ONE measured-safe shape (UINI sets `state[0] = n`, `lstate >= n + 3`, a guard region asserted untouched), D and S, LP64 and ILP64 (measured on AOCL 6.0.68 Windows); the generator's values come through. A call that does not follow the protocol is never made in CI (the wrong-`n` control stays in the measurement document). The entry points stay `unsafe extern` with no safe wrapper (ROADMAP row 19).
