@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.5 - 2026-11-27 (allocated by pm-assist; notices only)
+
+- The -sys NOTICE files gain the google-snappy and lapacke 2010 blocks (check-notices: 0 problems); THIRD-PARTY-NOTICES.md updated. The lapacke 2010 block is read by the PM against the published lapack-sys list. No code change.
+
 ## 0.2.4 - 2026-11-26 (allocated by pm-assist; docs only: ROADMAP pin row)
 
 - ROADMAP: CodeRipper pin row added (aocl#16). Docs only; not breaking.
