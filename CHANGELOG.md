@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased (tests and docs only, patch on 0.2.x; pm-assist allocates; no behaviour change)
+
+- **Layout audit of every `-sys` crate's by-value and array struct types against the C/C++ layout of the same header** (docs/SYS-LAYOUT-AUDIT-20261127.md; Windows x64, LP64 and ILP64): no open mismatch outside `aocl-sparse-sys` (whose two complex types are fixed by the alignment PR). Compile-time size/align asserts added to `aocl-blas-sys`, `aocl-lapack-sys`, `aocl-fft-sys`, `aocl-crypto-sys`; new tests call the real library for the by-value LAPACKE complex functions (`crates/aocl-lapack-sys/tests/by_value_complex.rs`) and check BLIS `rntm_t` layout at run time (`crates/aocl-blas-sys/tests/rntm_layout.rs`, feature `static-link`). Not decidable from the headers read: `aocl-math-sys` `fc32_t`/`fc64_t` and its 156 vector functions (clean-room crate, no header read; behavioural ABI only).
+
 ## 0.2.24 - 2026-11-27 (PM-allocated; wrapper-test group 1 (utils, securerng, scalapack gaps): tests only on the real AOCL 6.0.68; patch on 0.2.x)
 
 - **Tests for exposed wrapper functions that no test mentioned (pm-kernels: comprehensive coverage), group 1, run on the real AOCL 6.0.68 Windows:** `aocl-utils` (`x86_64_level`; `pin_threads` Core/Logical/Spread and `pin_threads_custom`, checked by reading the OS thread affinity mask back with `GetThreadGroupAffinity`, with an unpinned-thread control), `aocl-securerng` (`rdrand_u16`, `rdseed_u16`, `rdseed_u64`, `rdseed_bytes` with guard bytes), `aocl-scalapack` (`BlockCyclic::as_raw` against the BLACS descriptor layout, `Grid::context`, `Grid::barrier` in the existing `harness = false` MPI test). Each new test was shown to FAIL with a deliberately wrong expected value.
