@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased (tools only, patch on 0.2.x; pm-assist allocates; no crate is published for it)
+
+- **tools:** `tools/check-package-files.py` now also requires NOTICE in the package of any crate, wrappers included, whose README mentions NOTICE (ours, not AMD's `NOTICE.txt`) or carries a Provenance statement; the trigger "mentions provenance" is narrowed to a Provenance label so a link to `docs/PROVENANCE-QUESTIONS.md` (as in the `aocl-fft` README) does not demand one. Controls re-run: it fails on `aocl-math` and on `aocl-rng-sys` with their NOTICE removed (exit 1) and passes on the tree (exit 0).
+
 ## 0.2.13 - 2026-11-27 (PM-allocated; patch on 0.2.x, the 0.2.x family number: aocl-fft-sys feature fix, measured on AOCL 6.0.68 Windows)
 
 - **FIX `aocl-fft-sys` (Windows, measured on AOCL 6.0.68):** 84 of the 216 declared functions were exported by DLLs the crate did not link, so using them was a link error. Three NEW features, all default OFF, add the missing links: `long-double` (links `libfftw3l`: the 66 `fftwl_*` functions), `threads-omp` (links `libfftw3_omp` / `libfftw3f_omp`, and `libfftw3l_omp` with `long-double`: the `*_threads` functions; needs the LLVM OpenMP runtime `libomp.dll` on `PATH`) and `mpi` (links `libfftw3_mpi` / `libfftw3f_mpi`, and `libfftw3l_mpi` with `long-double`). `tests/link_all.rs` checks every declared function per feature set (132 / 198 / 144 / 216 / 216 resolve). Default builds are unchanged. Linux is unmeasured.
