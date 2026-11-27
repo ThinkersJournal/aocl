@@ -50,12 +50,12 @@ Math: `aocl-math-sys` and `aocl-math` are wired from the 218 scalar rows (`MATH-
 Link-all (every declared symbol resolves in the installed AOCL): `tools/link-all.ps1`; the 20 + 2 guide-stated functions 6.0.68 does not export: `math-guide-stated-not-linkable.txt`.
 **This lane (aocl) read the AOCL headers earlier; every declaration above was written by a session that was given only the guide text and/or the binaries, and this lane did not edit a declaration by hand.**
 
-## Raw evidence (one archive, not 536 files)
-Everything bulky is ONE gzip archive: `docs/cleanroom/evidence/cleanroom-evidence-20261127.tar.gz` (184,341 bytes, 536 files, paths relative to
-`docs/cleanroom/`), sha256 `b8f86773fab24c7378ff387b0c32543e5d4554b4dc1f320730cb193324e1697a`; a second copy is on the lane host at `C:ocl-docs\evidence\`. It holds the raw probe outputs
-(`raw-*.txt`, `types/userinit/run1-fill-a5-default/`, `secrng/run-all.log`), every `dumpbin-*.txt`, `secrng/dll-compare.txt` (12,130 lines of
+## Raw evidence (one archive, not 537 files)
+Everything bulky is ONE gzip archive: `docs/cleanroom/evidence/cleanroom-evidence-20261127.tar.gz` (185,569 bytes, 537 files, paths relative to
+`docs/cleanroom/`), sha256 `44c52d9dc66729e91a7af11b46d54da8c4447f403e469a6e26f63228e9d5c687`; a second copy is on the lane host at `C:ocl-docs\evidence\`. It holds the raw probe outputs
+(`raw-*.txt`, `types/userinit/run1-fill-a5-default/`, `secrng/run-all.log`, the 212-row `types/userinit/SUMMARY-user-runs.txt`), every `dumpbin-*.txt`, `secrng/dll-compare.txt` (12,130 lines of
 `cmp -l`), the probe SOURCES (`secrng/probe/`, `types/probe-src/`, `types/userinit/src/` and `harness/`) and the RNG writer's staging file
 `rng_upper_decls.rs` (the crate's `decls_upper.rs` is generated from it). Unpack: `cd docs/cleanroom && tar -xzf evidence/cleanroom-evidence-20261127.tar.gz`.
 The measurement documents (`secrng/SECRNG-MEASUREMENT.md`, `types/TYPES-MEASUREMENT.md`, `types/userinit/USERINIT-MEASUREMENT.md`), the
-per-run summary `types/userinit/SUMMARY-user-runs.txt`, the provenance CSVs and `probe/` stay in git. To regenerate the raw files, run the
+per-run findings (tables inside the three documents), the provenance CSVs and `probe/` stay in git. To regenerate the raw files, run the
 probes against AOCL 6.0.68 (Windows 11, x86_64) as each measurement document describes.
