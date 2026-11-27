@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.29 - 2026-11-27 (PM-allocated; aocl-sparse index-range and stride validation for every index-array function (the roti siblings), red-first tests; patch on 0.2.x)
+
+- **`aocl-sparse`: the index-range validation of `roti` now covers every sibling function that takes an index array or a stride** (found in review of #45): `axpyi`, `gthr`, `sctr`, `doti_f64/f32`, `gthrz_f64/f32`, the complex `axpyi`/`gthr`/`sctr`, `dotui_*`, `dotci_*`, `gthrz_*`, and the strided `gthrs_*`/`sctrs_*` (real and complex) refuse a negative or too-large index, a wrong number of indices, a non-positive stride, and a strided access past the dense vector, with `InvalidArgument` before the library is called. Before, such a call read or wrote outside the dense vector inside the library from safe code. Same published versions as the `roti` finding (`aocl-sparse` 0.1.0 to 0.2.26: 0.2.26 carries the `roti` fix only). Indices are zero-based (no index-base argument exists for these routines).
+
 ## 0.2.28 - 2026-11-27 (PM-allocated; FIX aocl-crypto Rsa::set_private_key size and aocl-data-analytics kNN classes (safe-API memory safety, all published versions affected) + crypto and data-analytics wrapper tests; patch on 0.2.x)
 
 - **`aocl-crypto` / `aocl-data-analytics`: result-checking tests for all 45 exposed wrapper functions no test mentioned** (crypto 24: NIST SP 800-38C CCM, McGrew-Viega GCM, RFC 8439 ChaCha20-Poly1305, RFC 7748 X25519, "abc" digests for all 12 modes, RSA OAEP/PSS/PKCS#1 v1.5/raw with tamper tests; data-analytics 21: reference computations and invariants), measured on AOCL 6.0.68 Windows (crypto 40 tests, data-analytics 44, 0 failed, 0 ignored).
