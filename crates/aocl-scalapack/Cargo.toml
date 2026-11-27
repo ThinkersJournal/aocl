@@ -12,9 +12,9 @@ categories = ["api-bindings", "mathematics", "science"]
 keywords = ["aocl", "amd", "scalapack", "mpi", "blacs"]
 
 [dependencies]
-aocl-scalapack-sys = { version = "0.2", path = "../aocl-scalapack-sys" }
-aocl-error = { version = "0.2", path = "../aocl-error" }
-aocl-types = { version = "0.2", path = "../aocl-types" }
+aocl-scalapack-sys = { version = "0.3", path = "../aocl-scalapack-sys" }
+aocl-error = { version = "0.3", path = "../aocl-error" }
+aocl-types = { version = "0.3", path = "../aocl-types" }
 
 [features]
 default = []
