@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.19 - 2026-11-27 (PM-allocated; docs only, patch on 0.2.x: the measured static-link link-line requirements in the sparse, blas, lapack, crypto and data-analytics -sys READMEs)
+
+- **Docs: what each `static-link` build needs on the link line (Windows, measured on AOCL 6.0.68; Linux unmeasured)** in the READMEs of `aocl-sparse-sys`, `aocl-blas-sys`, `aocl-lapack-sys`, `aocl-crypto-sys`, `aocl-data-analytics-sys`: the OpenMP runtime `libiomp5md.lib` (sparse, blas, lapack, data-analytics), the static BLIS (lapack), `bcrypt.lib` and OpenSSL libcrypto (crypto), the Intel oneAPI Fortran runtime and BLAS/LAPACK (data-analytics). These crates do not link them; no code change. `aocl-fft-sys`, `aocl-utils-sys` and `aocl-compression-sys` static builds need nothing extra.
+
 ## 0.2.18 - 2026-11-27 (PM-allocated; patch on 0.2.x: aocl-blas-sys default-OFF scalapack-fal feature, pm-kernels ruling: follow-up to 0.2.17)
 
 - **`aocl-blas-sys` (Windows, measured on AOCL 6.0.68; Linux unmeasured): new default-OFF feature `scalapack-fal`.** The 13 helpers `AOCL_FAL_{Close,Error,Open,Read,Write}`, `AOCL_FLIST_{AddFile,CloseAll,CloseFile,GetFile,IsEmpty}`, `AOCL_getTimestamp`, `AOCL_getpid`, `AOCL_gettid` are exported by `scalapack.dll` (not by the BLIS DLL): in a dynamic build they are declared, and `scalapack.dll` is linked, only with this feature (it needs the ScaLAPACK DLL and its MPI runtime on `PATH`). In 0.2.17 they were declared only with `static-link`; that stays (they also exist in the static library). Link-all: 3241 of 3241 declared functions resolve with `scalapack-fal`, 3242 with `libflame,scalapack-fal` (default 3228, `libflame` 3229).
