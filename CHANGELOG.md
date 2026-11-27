@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased (patch on 0.2.x; pm-assist allocates)
+
+- **`aocl-sparse-sys`: the complex types now carry the header's alignment.** `aoclsparse_double_complex` (16) and `aoclsparse_float_complex` (8) are declared `alignas` in aoclsparse_types.h, which the header defines away for C, so bindgen produced under-aligned structs and the by-value `z*` calls faulted (`aoclsparse_zset_value`: access violation on Windows, AOCL 6.0.68). `build.rs` re-applies the alignment (public names unchanged; the build fails if the generated text is not found), with compile-time size/align asserts and by-value tests. Every published `aocl-sparse-sys` (0.1.0 to 0.2.11) is affected.
+
 ## 0.2.21 - 2026-11-27 (PM-allocated; ROADMAP row 19 decided: RNG user-generator entry points document-only, patch on 0.2.x)
 
 - **ROADMAP row 19 decided: the RNG user-generator entry points stay `unsafe extern` declarations with NO safe wrapper in `aocl-rng`** (protocol measured but undocumented by AMD; callbacks have no user-data pointer; the library does not validate `n` against `lstate`): reasons in the row. No code change.
