@@ -26,7 +26,7 @@ extern "C" {
     // guide-6.0.txt chapter-9 file line: L305
     /// **Unsafe; undocumented protocol.** Requires the `uini` callback to set `state[0] = n` and `lstate >= n + 3`; the guide does not state
     /// this. Measured on AOCL 6.0.68 Windows (see `docs/cleanroom/types/userinit/USERINIT-MEASUREMENT.md`). The library does not validate `n`
-    /// against `lstate`, so a `uini` that does not follow it corrupts memory. No safe wrapper exists and no test calls this.
+    /// against `lstate`, so a `uini` that does not follow it corrupts memory. No safe wrapper exists; the only call in the repository is `tests/user_init.rs`, in the measured-safe shape (UINI sets `state[0] = n`, `lstate >= n + 3`, guard region asserted).
     pub fn DRANDINITIALIZEUSER(
         uini: RNG_DRANDINITIALIZEUSER_UINI,
         ugen: RNG_DRANDINITIALIZEUSER_UGEN,
