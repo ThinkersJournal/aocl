@@ -14,3 +14,13 @@
 )]
 
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
+
+// Compile-time guard: LAPACKE passes `lapack_complex_float` / `lapack_complex_double` (`float _Complex` / `double _Complex`,
+// lapack.h) BY VALUE; bindgen declares them as the generic `__BindgenComplex<T>`. C layout (clang, -x c and C++, Windows x64):
+// 8 bytes align 4 and 16 bytes align 8 (docs/SYS-LAYOUT-AUDIT-20261127.md; tests/by_value_complex.rs calls the library).
+const _: () = {
+    assert!(core::mem::size_of::<__BindgenComplex<f32>>() == 8);
+    assert!(core::mem::align_of::<__BindgenComplex<f32>>() == 4);
+    assert!(core::mem::size_of::<__BindgenComplex<f64>>() == 16);
+    assert!(core::mem::align_of::<__BindgenComplex<f64>>() == 8);
+};
