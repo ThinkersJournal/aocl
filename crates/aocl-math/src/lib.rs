@@ -6,13 +6,13 @@
 //! cbrt, hypot); floor/ceil/round/trunc/rint/nearbyint and their integer
 //! variants (lrint, llrint, lround, llround); fmod / remainder / remquo;
 //! frexp / ldexp / scalbn / scalbln / modf; nextafter / copysign /
-//! fdim / fmin / fmax; finite check; erf; complex cexp / cpow / clog
-//! (via aocl_types::Complex32 / Complex64).
+//! fdim / fmin / fmax; finite check; erf.
 //!
-//! Each `f32` entry point forwards to the corresponding `amd_*f` symbol;
-//! complex routines accept and return our [`aocl_types::Complex32`] /
-//! [`aocl_types::Complex64`] (ABI-equivalent to AOCL's `fc32_t` / `fc64_t`
-//! storage layout `{ _Val: [f, 2] }`).
+//! Removed in the clean-room rewrite (the AOCL API Guide does not define the types their C signatures use, so the ABI is not
+//! derivable): `nexttoward`, `nexttowardf` (`long double`) and the complex `cexp`, `cexpf`, `cpow`, `cpowf`, `cln`, `clnf`
+//! (`fc32_t`/`fc64_t`).
+//!
+//! Each `f32` entry point forwards to the corresponding `amd_*f` symbol.
 
 #![warn(missing_debug_implementations)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
@@ -525,16 +525,6 @@ pub fn nextafter(x: f64, y: f64) -> f64 {
 pub fn nextafterf(x: f32, y: f32) -> f32 {
     unsafe { sys::amd_nextafterf(x, y) }
 }
-/// `nexttoward` — `y` is f64 even for f32 input.
-#[inline]
-pub fn nexttoward(x: f64, y: f64) -> f64 {
-    unsafe { sys::amd_nexttoward(x, y) }
-}
-#[inline]
-pub fn nexttowardf(x: f32, y: f64) -> f32 {
-    unsafe { sys::amd_nexttowardf(x, y) }
-}
-
 /// `max(x − y, 0)`.
 #[inline]
 pub fn fdim(x: f64, y: f64) -> f64 {
@@ -591,62 +581,6 @@ pub fn erf(x: f64) -> f64 {
 #[inline]
 pub fn erff(x: f32) -> f32 {
     unsafe { sys::amd_erff(x) }
-}
-
-// =========================================================================
-//   Complex math (cexp, cpow, clog)
-// =========================================================================
-
-// AOCL-LibM's fc32_t/fc64_t are MSVC's `_Fcomplex` / `_Dcomplex`, which are
-// repr(C) structs `{ _Val: [f32; 2] }` / `{ _Val: [f64; 2] }`. Our
-// Complex32/Complex64 are repr(C) `{ re: f, im: f }`. Same byte layout
-// — we transmute via raw cast at the boundary.
-
-#[inline]
-fn to_fc32(c: Complex32) -> sys::fc32_t {
-    sys::fc32_t { _Val: [c.re, c.im] }
-}
-#[inline]
-fn from_fc32(c: sys::fc32_t) -> Complex32 {
-    Complex32::new(c._Val[0], c._Val[1])
-}
-#[inline]
-fn to_fc64(c: Complex64) -> sys::fc64_t {
-    sys::fc64_t { _Val: [c.re, c.im] }
-}
-#[inline]
-fn from_fc64(c: sys::fc64_t) -> Complex64 {
-    Complex64::new(c._Val[0], c._Val[1])
-}
-
-/// Complex exponential `e^z`.
-#[inline]
-pub fn cexp(z: Complex64) -> Complex64 {
-    from_fc64(unsafe { sys::amd_cexp(to_fc64(z)) })
-}
-#[inline]
-pub fn cexpf(z: Complex32) -> Complex32 {
-    from_fc32(unsafe { sys::amd_cexpf(to_fc32(z)) })
-}
-
-/// Complex power `z^w`.
-#[inline]
-pub fn cpow(z: Complex64, w: Complex64) -> Complex64 {
-    from_fc64(unsafe { sys::amd_cpow(to_fc64(z), to_fc64(w)) })
-}
-#[inline]
-pub fn cpowf(z: Complex32, w: Complex32) -> Complex32 {
-    from_fc32(unsafe { sys::amd_cpowf(to_fc32(z), to_fc32(w)) })
-}
-
-/// Complex natural logarithm.
-#[inline]
-pub fn cln(z: Complex64) -> Complex64 {
-    from_fc64(unsafe { sys::amd_clog(to_fc64(z)) })
-}
-#[inline]
-pub fn clnf(z: Complex32) -> Complex32 {
-    from_fc32(unsafe { sys::amd_clogf(to_fc32(z)) })
 }
 
 // =========================================================================
@@ -752,25 +686,6 @@ mod tests {
         approx(erf(0.0), 0.0, 1e-12);
         // erf(1) ≈ 0.8427007929497149
         approx(erf(1.0), 0.842_700_792_949_715, 1e-12);
-    }
-
-    #[test]
-    fn complex_exp_cpow_clog_round_trip() {
-        // e^(iπ) ≈ -1
-        let z = Complex64::new(0.0, std::f64::consts::PI);
-        let r = cexp(z);
-        assert!((r.re + 1.0).abs() < 1e-10, "got {r:?}");
-        assert!(r.im.abs() < 1e-10);
-
-        // cpow(e, ln(2)) ≈ 2
-        let e = Complex64::new(std::f64::consts::E, 0.0);
-        let ln2 = Complex64::new(std::f64::consts::LN_2, 0.0);
-        let two = cpow(e, ln2);
-        assert!((two.re - 2.0).abs() < 1e-10);
-
-        // clog(e) ≈ 1
-        let one = cln(e);
-        assert!((one.re - 1.0).abs() < 1e-10);
     }
 
     #[test]

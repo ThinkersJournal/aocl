@@ -1,0 +1,433 @@
+
+##### POS build=LP64 argwidth=4 case=width  cmd: pwsh run.ps1 LP64 4 width
+dll=C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\LP64\rng_amd.dll argwidth_bytes=4 case=width
+get_rngversion = "AOCL-RNG 6.0.0 Build 20261027"
+query: info_bytes_changed_of_16=4 info_raw=[01, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=1 lstate_as_w=16
+init:  info_bytes_changed_of_16=4 info_raw=[00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=0
+unif:  info_bytes_changed_of_16=4 info_raw=[00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=0
+x 3fef20e1d46d4343 0.9727639340363584
+x 3fda1130e69a1dc0 0.40729925651291055
+x 3fc7961d2b90e59e 0.18426861407514833
+x 3fd1fe6699e6a363 0.28115239171397927
+x 3fd5d1befabf0267 0.34092688071181104
+x 3fb6891484464c6f 0.08802917699203915
+modules_loaded=16
+module C:\Users\cires\AppData\Local\Temp\claude\4b8c15632be00fc5\b299b104-b1aa-413e-986f-9de7549c771f\scratchpad\probe\work\probe.exe
+module C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\LP64\rng_amd.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-blis\lib\LP64\AOCL-LibBlis-Win-dll.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-libm\lib\libalm.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\libmmd.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\svml_dispmd.dll
+omp_modules: []
+exit_code=0 (0x0)
+##### POS build=LP64 argwidth=4 case=kat1  cmd: pwsh run.ps1 LP64 4 kat1
+dll=C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\LP64\rng_amd.dll argwidth_bytes=4 case=kat1
+get_rngversion = "AOCL-RNG 6.0.0 Build 20261027"
+query: info_bytes_changed_of_16=4 info_raw=[01, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=1 lstate_as_w=16
+init:  info_bytes_changed_of_16=4 info_raw=[00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=0
+unif:  info_bytes_changed_of_16=4 info_raw=[00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=0
+x 3fef20e1d46d4343 0.9727639340363584
+x 3fda1130e69a1dc0 0.40729925651291055
+x 3fc7961d2b90e59e 0.18426861407514833
+x 3fd1fe6699e6a363 0.28115239171397927
+x 3fd5d1befabf0267 0.34092688071181104
+x 3fb6891484464c6f 0.08802917699203915
+modules_loaded=16
+module C:\Users\cires\AppData\Local\Temp\claude\4b8c15632be00fc5\b299b104-b1aa-413e-986f-9de7549c771f\scratchpad\probe\work\probe.exe
+module C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\LP64\rng_amd.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-libm\lib\libalm.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-blis\lib\LP64\AOCL-LibBlis-Win-dll.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\libmmd.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\svml_dispmd.dll
+omp_modules: []
+exit_code=0 (0x0)
+##### POS build=LP64 argwidth=4 case=kat2  cmd: pwsh run.ps1 LP64 4 kat2
+dll=C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\LP64\rng_amd.dll argwidth_bytes=4 case=kat2
+get_rngversion = "AOCL-RNG 6.0.0 Build 20261027"
+query: info_bytes_changed_of_16=4 info_raw=[01, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=1 lstate_as_w=20
+init:  info_bytes_changed_of_16=4 info_raw=[00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=0
+unif:  info_bytes_changed_of_16=4 info_raw=[00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=0
+x 3fefff64705bf7eb 0.9999258226887354
+x 3fefb456a473e7bf 0.9907639705627317
+x 3feb2b0066891910 0.8489992144248237
+x 3fdc5965828e7888 0.4429563307729798
+x 3feeb396da5fd678 0.9594225182651845
+x 3fc71eb1cdc51ef0 0.18062422320712512
+modules_loaded=16
+module C:\Users\cires\AppData\Local\Temp\claude\4b8c15632be00fc5\b299b104-b1aa-413e-986f-9de7549c771f\scratchpad\probe\work\probe.exe
+module C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\LP64\rng_amd.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-blis\lib\LP64\AOCL-LibBlis-Win-dll.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-libm\lib\libalm.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\libmmd.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\svml_dispmd.dll
+omp_modules: []
+exit_code=0 (0x0)
+##### POS build=LP64 argwidth=4 case=kat3  cmd: pwsh run.ps1 LP64 4 kat3
+dll=C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\LP64\rng_amd.dll argwidth_bytes=4 case=kat3
+get_rngversion = "AOCL-RNG 6.0.0 Build 20261027"
+query: info_bytes_changed_of_16=4 info_raw=[01, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=1 lstate_as_w=633
+init:  info_bytes_changed_of_16=4 info_raw=[00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=0
+unif:  info_bytes_changed_of_16=4 info_raw=[00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=0
+x 3fe4a46e622948dd 0.6450721661770121
+x 3fd6a228d8ad4452 0.3536474338516814
+x 3fe4356f60a86adf 0.6315228355263932
+x 3fd7802ad5af0056 0.3671977125886817
+x 3fe465efd1e8cbe0 0.6374434566299634
+x 3faa0832f8341066 0.05084380416704519
+modules_loaded=16
+module C:\Users\cires\AppData\Local\Temp\claude\4b8c15632be00fc5\b299b104-b1aa-413e-986f-9de7549c771f\scratchpad\probe\work\probe.exe
+module C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\LP64\rng_amd.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-blis\lib\LP64\AOCL-LibBlis-Win-dll.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-libm\lib\libalm.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\libmmd.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\svml_dispmd.dll
+omp_modules: []
+exit_code=0 (0x0)
+##### POS build=ILP64 argwidth=8 case=width  cmd: pwsh run.ps1 ILP64 8 width
+dll=C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\ILP64\rng_amd.dll argwidth_bytes=8 case=width
+get_rngversion = "AOCL-RNG 6.0.0 Build 20261027"
+query: info_bytes_changed_of_16=8 info_raw=[01, 00, 00, 00, 00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=1 lstate_as_w=16
+init:  info_bytes_changed_of_16=8 info_raw=[00, 00, 00, 00, 00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=0
+unif:  info_bytes_changed_of_16=8 info_raw=[00, 00, 00, 00, 00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=0
+x 3fef20e1d46d4343 0.9727639340363584
+x 3fda1130e69a1dc0 0.40729925651291055
+x 3fc7961d2b90e59e 0.18426861407514833
+x 3fd1fe6699e6a363 0.28115239171397927
+x 3fd5d1befabf0267 0.34092688071181104
+x 3fb6891484464c6f 0.08802917699203915
+modules_loaded=16
+module C:\Users\cires\AppData\Local\Temp\claude\4b8c15632be00fc5\b299b104-b1aa-413e-986f-9de7549c771f\scratchpad\probe\work\probe.exe
+module C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\ILP64\rng_amd.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-libm\lib\libalm.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\libmmd.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\svml_dispmd.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-blis\lib\ILP64\AOCL-LibBlis-Win-dll.dll
+omp_modules: []
+exit_code=0 (0x0)
+##### POS build=ILP64 argwidth=8 case=kat1  cmd: pwsh run.ps1 ILP64 8 kat1
+dll=C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\ILP64\rng_amd.dll argwidth_bytes=8 case=kat1
+get_rngversion = "AOCL-RNG 6.0.0 Build 20261027"
+query: info_bytes_changed_of_16=8 info_raw=[01, 00, 00, 00, 00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=1 lstate_as_w=16
+init:  info_bytes_changed_of_16=8 info_raw=[00, 00, 00, 00, 00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=0
+unif:  info_bytes_changed_of_16=8 info_raw=[00, 00, 00, 00, 00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=0
+x 3fef20e1d46d4343 0.9727639340363584
+x 3fda1130e69a1dc0 0.40729925651291055
+x 3fc7961d2b90e59e 0.18426861407514833
+x 3fd1fe6699e6a363 0.28115239171397927
+x 3fd5d1befabf0267 0.34092688071181104
+x 3fb6891484464c6f 0.08802917699203915
+modules_loaded=16
+module C:\Users\cires\AppData\Local\Temp\claude\4b8c15632be00fc5\b299b104-b1aa-413e-986f-9de7549c771f\scratchpad\probe\work\probe.exe
+module C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\ILP64\rng_amd.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-blis\lib\ILP64\AOCL-LibBlis-Win-dll.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-libm\lib\libalm.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\libmmd.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\svml_dispmd.dll
+omp_modules: []
+exit_code=0 (0x0)
+##### POS build=ILP64 argwidth=8 case=kat2  cmd: pwsh run.ps1 ILP64 8 kat2
+dll=C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\ILP64\rng_amd.dll argwidth_bytes=8 case=kat2
+get_rngversion = "AOCL-RNG 6.0.0 Build 20261027"
+query: info_bytes_changed_of_16=8 info_raw=[01, 00, 00, 00, 00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=1 lstate_as_w=20
+init:  info_bytes_changed_of_16=8 info_raw=[00, 00, 00, 00, 00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=0
+unif:  info_bytes_changed_of_16=8 info_raw=[00, 00, 00, 00, 00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=0
+x 3fefff64705bf7eb 0.9999258226887354
+x 3fefb456a473e7bf 0.9907639705627317
+x 3feb2b0066891910 0.8489992144248237
+x 3fdc5965828e7888 0.4429563307729798
+x 3feeb396da5fd678 0.9594225182651845
+x 3fc71eb1cdc51ef0 0.18062422320712512
+modules_loaded=16
+module C:\Users\cires\AppData\Local\Temp\claude\4b8c15632be00fc5\b299b104-b1aa-413e-986f-9de7549c771f\scratchpad\probe\work\probe.exe
+module C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\ILP64\rng_amd.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-blis\lib\ILP64\AOCL-LibBlis-Win-dll.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-libm\lib\libalm.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\libmmd.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\svml_dispmd.dll
+omp_modules: []
+exit_code=0 (0x0)
+##### POS build=ILP64 argwidth=8 case=kat3  cmd: pwsh run.ps1 ILP64 8 kat3
+dll=C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\ILP64\rng_amd.dll argwidth_bytes=8 case=kat3
+get_rngversion = "AOCL-RNG 6.0.0 Build 20261027"
+query: info_bytes_changed_of_16=8 info_raw=[01, 00, 00, 00, 00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=1 lstate_as_w=633
+init:  info_bytes_changed_of_16=8 info_raw=[00, 00, 00, 00, 00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=0
+unif:  info_bytes_changed_of_16=8 info_raw=[00, 00, 00, 00, 00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=0
+x 3fe4a46e622948dd 0.6450721661770121
+x 3fd6a228d8ad4452 0.3536474338516814
+x 3fe4356f60a86adf 0.6315228355263932
+x 3fd7802ad5af0056 0.3671977125886817
+x 3fe465efd1e8cbe0 0.6374434566299634
+x 3faa0832f8341066 0.05084380416704519
+modules_loaded=16
+module C:\Users\cires\AppData\Local\Temp\claude\4b8c15632be00fc5\b299b104-b1aa-413e-986f-9de7549c771f\scratchpad\probe\work\probe.exe
+module C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\ILP64\rng_amd.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-blis\lib\ILP64\AOCL-LibBlis-Win-dll.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-libm\lib\libalm.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\libmmd.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\svml_dispmd.dll
+omp_modules: []
+exit_code=0 (0x0)
+##### NEG build=LP64 argwidth=8 case=width  cmd: pwsh run.ps1 LP64 8 width
+dll=C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\LP64\rng_amd.dll argwidth_bytes=8 case=width
+get_rngversion = "AOCL-RNG 6.0.0 Build 20261027"
+query: info_bytes_changed_of_16=4 info_raw=[01, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=-6148914694099828735 lstate_as_w=-4294967280
+lstate query gave implausible -4294967280; using 1024
+init:  info_bytes_changed_of_16=4 info_raw=[00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=-6148914694099828736
+unif:  info_bytes_changed_of_16=4 info_raw=[00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=-6148914694099828736
+x 3fef20e1d46d4343 0.9727639340363584
+x 3fda1130e69a1dc0 0.40729925651291055
+x 3fc7961d2b90e59e 0.18426861407514833
+x 3fd1fe6699e6a363 0.28115239171397927
+x 3fd5d1befabf0267 0.34092688071181104
+x 3fb6891484464c6f 0.08802917699203915
+modules_loaded=16
+module C:\Users\cires\AppData\Local\Temp\claude\4b8c15632be00fc5\b299b104-b1aa-413e-986f-9de7549c771f\scratchpad\probe\work\probe.exe
+module C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\LP64\rng_amd.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-blis\lib\LP64\AOCL-LibBlis-Win-dll.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-libm\lib\libalm.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\libmmd.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\svml_dispmd.dll
+omp_modules: []
+exit_code=0 (0x0)
+##### NEG build=LP64 argwidth=8 case=kat1  cmd: pwsh run.ps1 LP64 8 kat1
+dll=C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\LP64\rng_amd.dll argwidth_bytes=8 case=kat1
+get_rngversion = "AOCL-RNG 6.0.0 Build 20261027"
+query: info_bytes_changed_of_16=4 info_raw=[01, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=-6148914694099828735 lstate_as_w=-4294967280
+lstate query gave implausible -4294967280; using 1024
+init:  info_bytes_changed_of_16=4 info_raw=[00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=-6148914694099828736
+unif:  info_bytes_changed_of_16=4 info_raw=[00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=-6148914694099828736
+x 3fef20e1d46d4343 0.9727639340363584
+x 3fda1130e69a1dc0 0.40729925651291055
+x 3fc7961d2b90e59e 0.18426861407514833
+x 3fd1fe6699e6a363 0.28115239171397927
+x 3fd5d1befabf0267 0.34092688071181104
+x 3fb6891484464c6f 0.08802917699203915
+modules_loaded=16
+module C:\Users\cires\AppData\Local\Temp\claude\4b8c15632be00fc5\b299b104-b1aa-413e-986f-9de7549c771f\scratchpad\probe\work\probe.exe
+module C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\LP64\rng_amd.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-libm\lib\libalm.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\libmmd.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-blis\lib\LP64\AOCL-LibBlis-Win-dll.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\svml_dispmd.dll
+omp_modules: []
+exit_code=0 (0x0)
+##### NEG build=LP64 argwidth=8 case=kat2  cmd: pwsh run.ps1 LP64 8 kat2
+dll=C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\LP64\rng_amd.dll argwidth_bytes=8 case=kat2
+get_rngversion = "AOCL-RNG 6.0.0 Build 20261027"
+query: info_bytes_changed_of_16=4 info_raw=[01, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=-6148914694099828735 lstate_as_w=-4294967276
+lstate query gave implausible -4294967276; using 1024
+init:  info_bytes_changed_of_16=4 info_raw=[fd, ff, ff, ff, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=-6148914689804861443
+unif:  info_bytes_changed_of_16=4 info_raw=[fc, ff, ff, ff, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=-6148914689804861444
+x aaaaaaaaaaaaaaaa -0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000037206620809969885
+x aaaaaaaaaaaaaaaa -0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000037206620809969885
+x aaaaaaaaaaaaaaaa -0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000037206620809969885
+x aaaaaaaaaaaaaaaa -0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000037206620809969885
+x aaaaaaaaaaaaaaaa -0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000037206620809969885
+x aaaaaaaaaaaaaaaa -0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000037206620809969885
+modules_loaded=16
+module C:\Users\cires\AppData\Local\Temp\claude\4b8c15632be00fc5\b299b104-b1aa-413e-986f-9de7549c771f\scratchpad\probe\work\probe.exe
+module C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\LP64\rng_amd.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-blis\lib\LP64\AOCL-LibBlis-Win-dll.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-libm\lib\libalm.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\libmmd.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\svml_dispmd.dll
+omp_modules: []
+** On entry to drandinitialize, parameter number  3 had an illegal value
+** On entry to dranduniform, parameter number  4 had an illegal value
+exit_code=0 (0x0)
+##### NEG build=LP64 argwidth=8 case=kat3  cmd: pwsh run.ps1 LP64 8 kat3
+dll=C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\LP64\rng_amd.dll argwidth_bytes=8 case=kat3
+get_rngversion = "AOCL-RNG 6.0.0 Build 20261027"
+query: info_bytes_changed_of_16=4 info_raw=[01, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=-6148914694099828735 lstate_as_w=-4294966663
+lstate query gave implausible -4294966663; using 1024
+init:  info_bytes_changed_of_16=4 info_raw=[fd, ff, ff, ff, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=-6148914689804861443
+unif:  info_bytes_changed_of_16=4 info_raw=[fc, ff, ff, ff, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=-6148914689804861444
+x aaaaaaaaaaaaaaaa -0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000037206620809969885
+x aaaaaaaaaaaaaaaa -0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000037206620809969885
+x aaaaaaaaaaaaaaaa -0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000037206620809969885
+x aaaaaaaaaaaaaaaa -0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000037206620809969885
+x aaaaaaaaaaaaaaaa -0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000037206620809969885
+x aaaaaaaaaaaaaaaa -0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000037206620809969885
+modules_loaded=16
+module C:\Users\cires\AppData\Local\Temp\claude\4b8c15632be00fc5\b299b104-b1aa-413e-986f-9de7549c771f\scratchpad\probe\work\probe.exe
+module C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\LP64\rng_amd.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-blis\lib\LP64\AOCL-LibBlis-Win-dll.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-libm\lib\libalm.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\libmmd.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\svml_dispmd.dll
+omp_modules: []
+** On entry to drandinitialize, parameter number  3 had an illegal value
+** On entry to dranduniform, parameter number  4 had an illegal value
+exit_code=0 (0x0)
+##### NEG build=ILP64 argwidth=4 case=width  cmd: pwsh run.ps1 ILP64 4 width
+dll=C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\ILP64\rng_amd.dll argwidth_bytes=4 case=width
+get_rngversion = "AOCL-RNG 6.0.0 Build 20261027"
+query: info_bytes_changed_of_16=8 info_raw=[01, 00, 00, 00, 00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=1 lstate_as_w=16
+init:  info_bytes_changed_of_16=8 info_raw=[01, 00, 00, 00, 00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=1
+unif:  info_bytes_changed_of_16=8 info_raw=[fc, ff, ff, ff, ff, ff, ff, ff, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=-4
+x aaaaaaaaaaaaaaaa -0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000037206620809969885
+x aaaaaaaaaaaaaaaa -0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000037206620809969885
+x aaaaaaaaaaaaaaaa -0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000037206620809969885
+x aaaaaaaaaaaaaaaa -0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000037206620809969885
+x aaaaaaaaaaaaaaaa -0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000037206620809969885
+x aaaaaaaaaaaaaaaa -0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000037206620809969885
+modules_loaded=16
+module C:\Users\cires\AppData\Local\Temp\claude\4b8c15632be00fc5\b299b104-b1aa-413e-986f-9de7549c771f\scratchpad\probe\work\probe.exe
+module C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\ILP64\rng_amd.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-blis\lib\ILP64\AOCL-LibBlis-Win-dll.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-libm\lib\libalm.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\libmmd.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\svml_dispmd.dll
+omp_modules: []
+** On entry to dranduniform, parameter number  4 had an illegal value
+exit_code=0 (0x0)
+##### NEG build=ILP64 argwidth=4 case=kat1  cmd: pwsh run.ps1 ILP64 4 kat1
+dll=C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\ILP64\rng_amd.dll argwidth_bytes=4 case=kat1
+get_rngversion = "AOCL-RNG 6.0.0 Build 20261027"
+query: info_bytes_changed_of_16=8 info_raw=[01, 00, 00, 00, 00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=1 lstate_as_w=16
+init:  info_bytes_changed_of_16=8 info_raw=[01, 00, 00, 00, 00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=1
+unif:  info_bytes_changed_of_16=8 info_raw=[fc, ff, ff, ff, ff, ff, ff, ff, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=-4
+x aaaaaaaaaaaaaaaa -0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000037206620809969885
+x aaaaaaaaaaaaaaaa -0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000037206620809969885
+x aaaaaaaaaaaaaaaa -0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000037206620809969885
+x aaaaaaaaaaaaaaaa -0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000037206620809969885
+x aaaaaaaaaaaaaaaa -0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000037206620809969885
+x aaaaaaaaaaaaaaaa -0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000037206620809969885
+modules_loaded=16
+module C:\Users\cires\AppData\Local\Temp\claude\4b8c15632be00fc5\b299b104-b1aa-413e-986f-9de7549c771f\scratchpad\probe\work\probe.exe
+module C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\ILP64\rng_amd.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-blis\lib\ILP64\AOCL-LibBlis-Win-dll.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-libm\lib\libalm.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\libmmd.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\svml_dispmd.dll
+omp_modules: []
+** On entry to dranduniform, parameter number  4 had an illegal value
+exit_code=0 (0x0)
+##### NEG build=ILP64 argwidth=4 case=kat2  cmd: pwsh run.ps1 ILP64 4 kat2
+dll=C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\ILP64\rng_amd.dll argwidth_bytes=4 case=kat2
+get_rngversion = "AOCL-RNG 6.0.0 Build 20261027"
+query: info_bytes_changed_of_16=8 info_raw=[01, 00, 00, 00, 00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=1 lstate_as_w=20
+init:  info_bytes_changed_of_16=8 info_raw=[01, 00, 00, 00, 00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=1
+unif:  info_bytes_changed_of_16=8 info_raw=[fc, ff, ff, ff, ff, ff, ff, ff, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=-4
+x aaaaaaaaaaaaaaaa -0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000037206620809969885
+x aaaaaaaaaaaaaaaa -0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000037206620809969885
+x aaaaaaaaaaaaaaaa -0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000037206620809969885
+x aaaaaaaaaaaaaaaa -0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000037206620809969885
+x aaaaaaaaaaaaaaaa -0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000037206620809969885
+x aaaaaaaaaaaaaaaa -0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000037206620809969885
+modules_loaded=16
+module C:\Users\cires\AppData\Local\Temp\claude\4b8c15632be00fc5\b299b104-b1aa-413e-986f-9de7549c771f\scratchpad\probe\work\probe.exe
+module C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\ILP64\rng_amd.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-blis\lib\ILP64\AOCL-LibBlis-Win-dll.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-libm\lib\libalm.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\libmmd.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\svml_dispmd.dll
+omp_modules: []
+** On entry to dranduniform, parameter number  4 had an illegal value
+exit_code=0 (0x0)
+##### NEG build=ILP64 argwidth=4 case=kat3  cmd: pwsh run.ps1 ILP64 4 kat3
+dll=C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\ILP64\rng_amd.dll argwidth_bytes=4 case=kat3
+get_rngversion = "AOCL-RNG 6.0.0 Build 20261027"
+query: info_bytes_changed_of_16=8 info_raw=[01, 00, 00, 00, 00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=1 lstate_as_w=633
+init:  info_bytes_changed_of_16=8 info_raw=[01, 00, 00, 00, 00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=1
+unif:  info_bytes_changed_of_16=8 info_raw=[fc, ff, ff, ff, ff, ff, ff, ff, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=-4
+x aaaaaaaaaaaaaaaa -0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000037206620809969885
+x aaaaaaaaaaaaaaaa -0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000037206620809969885
+x aaaaaaaaaaaaaaaa -0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000037206620809969885
+x aaaaaaaaaaaaaaaa -0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000037206620809969885
+x aaaaaaaaaaaaaaaa -0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000037206620809969885
+x aaaaaaaaaaaaaaaa -0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000037206620809969885
+modules_loaded=16
+module C:\Users\cires\AppData\Local\Temp\claude\4b8c15632be00fc5\b299b104-b1aa-413e-986f-9de7549c771f\scratchpad\probe\work\probe.exe
+module C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\ILP64\rng_amd.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-blis\lib\ILP64\AOCL-LibBlis-Win-dll.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-libm\lib\libalm.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\libmmd.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\svml_dispmd.dll
+omp_modules: []
+** On entry to dranduniform, parameter number  4 had an illegal value
+exit_code=0 (0x0)
+##### RUN2 POS build=LP64 argwidth=4 case=kat1
+dll=C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\LP64\rng_amd.dll argwidth_bytes=4 case=kat1
+get_rngversion = "AOCL-RNG 6.0.0 Build 20261027"
+query: info_bytes_changed_of_16=4 info_raw=[01, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=1 lstate_as_w=16
+init:  info_bytes_changed_of_16=4 info_raw=[00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=0
+unif:  info_bytes_changed_of_16=4 info_raw=[00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=0
+x 3fef20e1d46d4343 0.9727639340363584
+x 3fda1130e69a1dc0 0.40729925651291055
+x 3fc7961d2b90e59e 0.18426861407514833
+x 3fd1fe6699e6a363 0.28115239171397927
+x 3fd5d1befabf0267 0.34092688071181104
+x 3fb6891484464c6f 0.08802917699203915
+modules_loaded=16
+module C:\Users\cires\AppData\Local\Temp\claude\4b8c15632be00fc5\b299b104-b1aa-413e-986f-9de7549c771f\scratchpad\probe\work\probe.exe
+module C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\LP64\rng_amd.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-blis\lib\LP64\AOCL-LibBlis-Win-dll.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-libm\lib\libalm.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\libmmd.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\svml_dispmd.dll
+omp_modules: []
+exit_code=0 (0x0)
+##### RUN2 POS build=LP64 argwidth=4 case=kat3
+dll=C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\LP64\rng_amd.dll argwidth_bytes=4 case=kat3
+get_rngversion = "AOCL-RNG 6.0.0 Build 20261027"
+query: info_bytes_changed_of_16=4 info_raw=[01, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=1 lstate_as_w=633
+init:  info_bytes_changed_of_16=4 info_raw=[00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=0
+unif:  info_bytes_changed_of_16=4 info_raw=[00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=0
+x 3fe4a46e622948dd 0.6450721661770121
+x 3fd6a228d8ad4452 0.3536474338516814
+x 3fe4356f60a86adf 0.6315228355263932
+x 3fd7802ad5af0056 0.3671977125886817
+x 3fe465efd1e8cbe0 0.6374434566299634
+x 3faa0832f8341066 0.05084380416704519
+modules_loaded=16
+module C:\Users\cires\AppData\Local\Temp\claude\4b8c15632be00fc5\b299b104-b1aa-413e-986f-9de7549c771f\scratchpad\probe\work\probe.exe
+module C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\LP64\rng_amd.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-blis\lib\LP64\AOCL-LibBlis-Win-dll.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-libm\lib\libalm.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\libmmd.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\svml_dispmd.dll
+omp_modules: []
+exit_code=0 (0x0)
+##### RUN2 POS build=ILP64 argwidth=8 case=kat1
+dll=C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\ILP64\rng_amd.dll argwidth_bytes=8 case=kat1
+get_rngversion = "AOCL-RNG 6.0.0 Build 20261027"
+query: info_bytes_changed_of_16=8 info_raw=[01, 00, 00, 00, 00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=1 lstate_as_w=16
+init:  info_bytes_changed_of_16=8 info_raw=[00, 00, 00, 00, 00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=0
+unif:  info_bytes_changed_of_16=8 info_raw=[00, 00, 00, 00, 00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=0
+x 3fef20e1d46d4343 0.9727639340363584
+x 3fda1130e69a1dc0 0.40729925651291055
+x 3fc7961d2b90e59e 0.18426861407514833
+x 3fd1fe6699e6a363 0.28115239171397927
+x 3fd5d1befabf0267 0.34092688071181104
+x 3fb6891484464c6f 0.08802917699203915
+modules_loaded=16
+module C:\Users\cires\AppData\Local\Temp\claude\4b8c15632be00fc5\b299b104-b1aa-413e-986f-9de7549c771f\scratchpad\probe\work\probe.exe
+module C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\ILP64\rng_amd.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-libm\lib\libalm.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-blis\lib\ILP64\AOCL-LibBlis-Win-dll.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\libmmd.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\svml_dispmd.dll
+omp_modules: []
+exit_code=0 (0x0)
+##### RUN2 POS build=ILP64 argwidth=8 case=kat3
+dll=C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\ILP64\rng_amd.dll argwidth_bytes=8 case=kat3
+get_rngversion = "AOCL-RNG 6.0.0 Build 20261027"
+query: info_bytes_changed_of_16=8 info_raw=[01, 00, 00, 00, 00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=1 lstate_as_w=633
+init:  info_bytes_changed_of_16=8 info_raw=[00, 00, 00, 00, 00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=0
+unif:  info_bytes_changed_of_16=8 info_raw=[00, 00, 00, 00, 00, 00, 00, 00, aa, aa, aa, aa, aa, aa, aa, aa] info_as_w=0
+x 3fe4a46e622948dd 0.6450721661770121
+x 3fd6a228d8ad4452 0.3536474338516814
+x 3fe4356f60a86adf 0.6315228355263932
+x 3fd7802ad5af0056 0.3671977125886817
+x 3fe465efd1e8cbe0 0.6374434566299634
+x 3faa0832f8341066 0.05084380416704519
+modules_loaded=16
+module C:\Users\cires\AppData\Local\Temp\claude\4b8c15632be00fc5\b299b104-b1aa-413e-986f-9de7549c771f\scratchpad\probe\work\probe.exe
+module C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\ILP64\rng_amd.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-blis\lib\ILP64\AOCL-LibBlis-Win-dll.dll
+module C:\Program Files\AMD\AOCL-Windows\amd-libm\lib\libalm.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\libmmd.dll
+module C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin\svml_dispmd.dll
+omp_modules: []
+exit_code=0 (0x0)

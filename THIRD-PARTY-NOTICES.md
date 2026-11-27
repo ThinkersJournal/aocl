@@ -44,7 +44,7 @@ The headers those files were generated from carry these notices (read from the i
 | | `lapacke.h` | BSD-style, Copyright 2014 Intel Corp. | LAPACKE |
 | `aocl-blas-sys` | `blis.h`, `cblas.h` | NO notice in the header; AOCL-BLAS `NOTICE.txt` lists `flame-blis` (BSD-3-Clause), Copyright 2017/2018 AMD and 2014 The University of Texas at Austin, full licence text in that NOTICE | AOCL-BLAS (BLIS) |
 | `aocl-rng-sys` | `rng.h` | `Copyright AMD,NAG 2003-2023` only, no licence grant | AOCL-RNG |
-| `aocl-math-sys` | `amdlibm.h` | AMD "Software License Agreement" (object-code licence, see 2) | AOCL-LibM |
+| `aocl-math-sys` | **superseded 2026-11-27 (this branch):** no longer derived from `amdlibm.h`; declarations written from the AOCL API Guide 6.0 text (see `crates/aocl-math-sys/NOTICE`). Earlier: `amdlibm.h`, AMD "Software License Agreement" (object-code licence, see 2) | AOCL-LibM |
 
 Where the notice is BSD- or MIT-style, redistribution of a derived work is allowed provided the notice is kept; this
 file keeps the copyright holders' names and the licence family, and the bindings contain only interface facts. For the
@@ -74,7 +74,7 @@ section 2 stand: no header read grants a licence to derive from it.
 These are listed because the check found no licence that clearly allows what the repo does. Nothing below was resolved
 by assumption.
 
-1. **`aocl-math-sys` (`amdlibm.h`).** The header's notice is AMD's "Software License Agreement", which grants a licence
+1. **`aocl-math-sys` (`amdlibm.h`).** **Superseded on this branch (2026-11-27):** the crate now ships 218 declarations written from AMD's published AOCL API Guide 6.0 (doc 68552) by a separate session that read no header; its own `NOTICE` and `docs/cleanroom/` state provenance. The question below applies to the 0.1.0 already on crates.io and to the earlier bindgen output; whether names and signatures taken from the guide need AMD's permission is UNVERIFIED (the guide's legal notice grants no licence). The header's notice is AMD's "Software License Agreement", which grants a licence
    to "the object code version of the Software and materials associated with this Agreement" on condition that
    "all copyright legends and other legal notices" are kept. It does not grant a source-form or derivative-work
    licence in the text read. The committed 6.0 bindings contain 313 `pub fn` declarations derived from it (names and
@@ -107,7 +107,7 @@ crate directories (the published 0.1.0 packages carry neither), and a `NOTICE` f
 `aocl-fft-sys` holding the verbatim leading notice blocks of every header in the include closure of that crate's
 `wrapper/*.h` (plus, for compression, the bzip2 and LZ4 texts from the AOCL-Compression NOTICE). `aocl-blas-sys` and
 `aocl-lapack-sys` carry a `NOTICE` with the BLIS and libFLAME/LAPACK entries from the component NOTICE files.
-`aocl-math-sys` and `aocl-rng-sys` have no `NOTICE` because their publication is held (below).
+`aocl-rng-sys` has no `NOTICE` because its publication is held (below); `aocl-math-sys` gained one on 2026-11-27 (clean-room declarations).
 Checked with `cargo package --list` (`aocl-sparse-sys` lists `NOTICE`, `LICENSE-MIT`, `LICENSE-APACHE`; control:
 `aocl-math-sys` lists the two licences and no `NOTICE`).
 
