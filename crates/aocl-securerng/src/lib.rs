@@ -249,4 +249,61 @@ mod tests {
             assert!(!v.is_empty());
         }
     }
+    /// The 16- and 64-bit RDRAND/RDSEED reads: each returns the widths it names, and many draws are not all equal (a stuck
+    /// or constant value, or a read that only fills part of the integer, fails the spread checks; 64 draws of a 16-bit
+    /// value are all equal with probability 2^-960).
+    #[test]
+    fn rdrand_u16_and_rdseed_u16_u64_vary() {
+        if is_rdrand_supported() {
+            let v: Vec<u16> = (0..64)
+                .map(|_| rdrand_u16(DEFAULT_RETRY_COUNT).unwrap())
+                .collect();
+            assert!(v.iter().any(|x| *x != v[0]), "rdrand_u16 constant: {v:?}");
+            assert!(
+                v.iter().any(|x| *x > 0xFF),
+                "rdrand_u16 never above 8 bits: {v:?}"
+            );
+        }
+        if is_rdseed_supported() {
+            let v: Vec<u16> = (0..64).map(|_| rdseed_u16(1000).unwrap()).collect();
+            assert!(v.iter().any(|x| *x != v[0]), "rdseed_u16 constant: {v:?}");
+            assert!(
+                v.iter().any(|x| *x > 0xFF),
+                "rdseed_u16 never above 8 bits: {v:?}"
+            );
+            let w: Vec<u64> = (0..64).map(|_| rdseed_u64(1000).unwrap()).collect();
+            assert!(w.iter().any(|x| *x != w[0]), "rdseed_u64 constant: {w:?}");
+            assert!(
+                w.iter().any(|x| *x > u32::MAX as u64),
+                "rdseed_u64 never above 32 bits: {w:?}"
+            );
+        }
+    }
+
+    /// `rdseed_bytes` fills exactly the buffer it is given (odd lengths too: not rounded up) and leaves the guard bytes
+    /// around it alone; an empty buffer is a no-op.
+    #[test]
+    fn rdseed_bytes_fills_exactly_the_buffer() {
+        if !is_rdseed_supported() {
+            return;
+        }
+        for n in [1usize, 3, 7, 9, 13, 31, 64] {
+            let mut buf = vec![0xAAu8; n + 2];
+            rdseed_bytes(&mut buf[1..=n], 1000).unwrap();
+            assert_eq!(
+                (buf[0], buf[n + 1]),
+                (0xAA, 0xAA),
+                "guard bytes touched for n={n}"
+            );
+            // 32 random bytes differ from the fill pattern somewhere with overwhelming probability; shorter ones may all
+            // equal 0xAA with probability 256^-n, so only n >= 7 is asserted.
+            if n >= 7 {
+                assert!(
+                    buf[1..=n].iter().any(|b| *b != 0xAA),
+                    "n={n} not written: {buf:?}"
+                );
+            }
+        }
+        rdseed_bytes(&mut [], 1000).unwrap();
+    }
 }
