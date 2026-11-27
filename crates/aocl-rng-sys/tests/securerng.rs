@@ -11,7 +11,9 @@ fn written(buf: &[u8; 16], sentinel: u8) -> usize {
 fn width_by_sentinel() {
     unsafe {
         assert_eq!(is_RDRAND_supported(), 1);
-        let v = std::ffi::CStr::from_ptr(get_secrngversion()).to_str().unwrap();
+        let v = std::ffi::CStr::from_ptr(get_secrngversion())
+            .to_str()
+            .unwrap();
         assert!(v.starts_with("AOCL-SecureRNG 6."), "{v}");
         // Positive: widths 2/4/8 (distinct); a fixed sentinel byte can equal a random byte, so use 32 trials and union.
         let mut w = [[false; 16]; 3];

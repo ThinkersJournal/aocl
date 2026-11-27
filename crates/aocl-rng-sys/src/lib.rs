@@ -53,11 +53,20 @@ pub type RNG_DRANDINITIALIZEUSER_UGEN = Option<
 
 /// User initialiser callback for `srandinitializeuser`: the guide never states it; MEASURED to have the same 7-pointer shape as the D one (docs/cleanroom/types/TYPES-MEASUREMENT.md, Windows 6.0.68).
 pub type RNG_SRANDINITIALIZEUSER_UINI = Option<
-    unsafe extern "C" fn(*mut rng_int_t, *mut rng_int_t, *mut rng_int_t, *mut rng_int_t, *mut rng_int_t, *mut rng_int_t, *mut rng_int_t),
+    unsafe extern "C" fn(
+        *mut rng_int_t,
+        *mut rng_int_t,
+        *mut rng_int_t,
+        *mut rng_int_t,
+        *mut rng_int_t,
+        *mut rng_int_t,
+        *mut rng_int_t,
+    ),
 >;
 /// User generator callback for `srandinitializeuser`: MEASURED: as the D one with a `float` output array.
-pub type RNG_SRANDINITIALIZEUSER_UGEN =
-    Option<unsafe extern "C" fn(*mut rng_int_t, *mut rng_int_t, *mut core::ffi::c_float, *mut rng_int_t)>;
+pub type RNG_SRANDINITIALIZEUSER_UGEN = Option<
+    unsafe extern "C" fn(*mut rng_int_t, *mut rng_int_t, *mut core::ffi::c_float, *mut rng_int_t),
+>;
 
 mod decls;
 pub use decls::*;

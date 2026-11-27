@@ -10,8 +10,16 @@ fn main() {
 
     // `securerng`: also link amdsecrng (same lib dir, per-width). Windows names only: the Linux library name was not measured.
     let secure = std::env::var_os("CARGO_FEATURE_SECURERNG").is_some();
-    let win_static: &[&str] = if secure { &["rng_amd-static", "amdsecrng-static"] } else { &["rng_amd-static"] };
-    let win_dynamic: &[&str] = if secure { &["rng_amd", "amdsecrng"] } else { &["rng_amd"] };
+    let win_static: &[&str] = if secure {
+        &["rng_amd-static", "amdsecrng-static"]
+    } else {
+        &["rng_amd-static"]
+    };
+    let win_dynamic: &[&str] = if secure {
+        &["rng_amd", "amdsecrng"]
+    } else {
+        &["rng_amd"]
+    };
 
     Component {
         component_dir: "amd-rng",

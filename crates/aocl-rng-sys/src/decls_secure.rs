@@ -18,11 +18,23 @@ extern "C" {
     // secrng-guide.txt (docs/cleanroom/secrng/secrng_provenance.csv) L99
     pub fn get_rdrand64u(rng_val: *mut u64, retry_count: core::ffi::c_uint) -> core::ffi::c_int;
     // secrng-guide.txt (docs/cleanroom/secrng/secrng_provenance.csv) L121
-    pub fn get_rdrand32u_arr(rng_arr: *mut u32, N: core::ffi::c_uint, retry_count: core::ffi::c_uint) -> core::ffi::c_int;
+    pub fn get_rdrand32u_arr(
+        rng_arr: *mut u32,
+        N: core::ffi::c_uint,
+        retry_count: core::ffi::c_uint,
+    ) -> core::ffi::c_int;
     // secrng-guide.txt (docs/cleanroom/secrng/secrng_provenance.csv) L141 (interleaved text, de-interleaved)
-    pub fn get_rdrand64u_arr(rng_arr: *mut u64, N: core::ffi::c_uint, retry_count: core::ffi::c_uint) -> core::ffi::c_int;
+    pub fn get_rdrand64u_arr(
+        rng_arr: *mut u64,
+        N: core::ffi::c_uint,
+        retry_count: core::ffi::c_uint,
+    ) -> core::ffi::c_int;
     // secrng-guide.txt (docs/cleanroom/secrng/secrng_provenance.csv) L161
-    pub fn get_rdrand_bytes_arr(rng_arr: *mut core::ffi::c_uchar, N: core::ffi::c_uint, retry_count: core::ffi::c_uint) -> core::ffi::c_int;
+    pub fn get_rdrand_bytes_arr(
+        rng_arr: *mut core::ffi::c_uchar,
+        N: core::ffi::c_uint,
+        retry_count: core::ffi::c_uint,
+    ) -> core::ffi::c_int;
     // secrng-guide.txt (docs/cleanroom/secrng/secrng_provenance.csv) L182  (9.4.3)
     pub fn is_RDSEED_supported() -> core::ffi::c_int;
     // secrng-guide.txt (docs/cleanroom/secrng/secrng_provenance.csv) L192
@@ -32,9 +44,21 @@ extern "C" {
     // secrng-guide.txt (docs/cleanroom/secrng/secrng_provenance.csv) L229
     pub fn get_rdseed64u(rng_val: *mut u64, retry_count: core::ffi::c_uint) -> core::ffi::c_int;
     // secrng-guide.txt (docs/cleanroom/secrng/secrng_provenance.csv) L251
-    pub fn get_rdseed32u_arr(rng_arr: *mut u32, N: core::ffi::c_uint, retry_count: core::ffi::c_uint) -> core::ffi::c_int;
+    pub fn get_rdseed32u_arr(
+        rng_arr: *mut u32,
+        N: core::ffi::c_uint,
+        retry_count: core::ffi::c_uint,
+    ) -> core::ffi::c_int;
     // secrng-guide.txt (docs/cleanroom/secrng/secrng_provenance.csv) L271 (interleaved text, de-interleaved)
-    pub fn get_rdseed64u_arr(rng_arr: *mut u64, N: core::ffi::c_uint, retry_count: core::ffi::c_uint) -> core::ffi::c_int;
+    pub fn get_rdseed64u_arr(
+        rng_arr: *mut u64,
+        N: core::ffi::c_uint,
+        retry_count: core::ffi::c_uint,
+    ) -> core::ffi::c_int;
     // secrng-guide.txt (docs/cleanroom/secrng/secrng_provenance.csv) L291
-    pub fn get_rdseed_bytes_arr(rng_arr: *mut core::ffi::c_uchar, N: core::ffi::c_uint, retry_count: core::ffi::c_uint) -> core::ffi::c_int;
+    pub fn get_rdseed_bytes_arr(
+        rng_arr: *mut core::ffi::c_uchar,
+        N: core::ffi::c_uint,
+        retry_count: core::ffi::c_uint,
+    ) -> core::ffi::c_int;
 }

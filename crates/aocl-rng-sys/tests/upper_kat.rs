@@ -102,9 +102,24 @@ fn uppercase_known_answer() {
     let (mut a, mut b) = (0f64, 1f64);
     let mut x = [0f64; 3];
     unsafe {
-        DRANDINITIALIZE(&mut genid, &mut subid, seed.as_mut_ptr(), &mut lseed, state.as_mut_ptr(), &mut lstate, &mut info);
+        DRANDINITIALIZE(
+            &mut genid,
+            &mut subid,
+            seed.as_mut_ptr(),
+            &mut lseed,
+            state.as_mut_ptr(),
+            &mut lstate,
+            &mut info,
+        );
         assert_eq!(info, 0, "init info");
-        DRANDUNIFORM(&mut n, &mut a, &mut b, state.as_mut_ptr(), x.as_mut_ptr(), &mut info);
+        DRANDUNIFORM(
+            &mut n,
+            &mut a,
+            &mut b,
+            state.as_mut_ptr(),
+            x.as_mut_ptr(),
+            &mut info,
+        );
         assert_eq!(info, 0, "uniform info");
     }
     assert_eq!(x[0].to_bits(), 0x3fef20e1d46d4343);

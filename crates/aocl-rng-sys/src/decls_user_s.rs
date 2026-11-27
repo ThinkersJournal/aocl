@@ -6,6 +6,26 @@ use crate::{rng_int_t, RNG_SRANDINITIALIZEUSER_UGEN, RNG_SRANDINITIALIZEUSER_UIN
 // following `srand*` returns info -4 without calling the generator; it could not be driven through the public API as documented.
 // Declared and link-checked only; not called by any test.
 extern "C" {
-    pub fn srandinitializeuser(uini: RNG_SRANDINITIALIZEUSER_UINI, ugen: RNG_SRANDINITIALIZEUSER_UGEN, genid: rng_int_t, subid: rng_int_t, seed: *mut rng_int_t, lseed: *mut rng_int_t, state: *mut rng_int_t, lstate: *mut rng_int_t, info: *mut rng_int_t);
-    pub fn SRANDINITIALIZEUSER(uini: RNG_SRANDINITIALIZEUSER_UINI, ugen: RNG_SRANDINITIALIZEUSER_UGEN, genid: rng_int_t, subid: rng_int_t, seed: *mut rng_int_t, lseed: *mut rng_int_t, state: *mut rng_int_t, lstate: *mut rng_int_t, info: *mut rng_int_t);
+    pub fn srandinitializeuser(
+        uini: RNG_SRANDINITIALIZEUSER_UINI,
+        ugen: RNG_SRANDINITIALIZEUSER_UGEN,
+        genid: rng_int_t,
+        subid: rng_int_t,
+        seed: *mut rng_int_t,
+        lseed: *mut rng_int_t,
+        state: *mut rng_int_t,
+        lstate: *mut rng_int_t,
+        info: *mut rng_int_t,
+    );
+    pub fn SRANDINITIALIZEUSER(
+        uini: RNG_SRANDINITIALIZEUSER_UINI,
+        ugen: RNG_SRANDINITIALIZEUSER_UGEN,
+        genid: rng_int_t,
+        subid: rng_int_t,
+        seed: *mut rng_int_t,
+        lseed: *mut rng_int_t,
+        state: *mut rng_int_t,
+        lstate: *mut rng_int_t,
+        info: *mut rng_int_t,
+    );
 }
