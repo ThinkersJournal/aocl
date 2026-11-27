@@ -3459,6 +3459,14 @@ impl std::fmt::Debug for Svm {
 mod tests {
     use super::*;
 
+    /// RALFit (the NLLS solver in `aocl-da.dll`) is not safe to run from several threads at once (measured on AOCL
+    /// 6.0.68: concurrent solves crash with an access violation), so every test that fits an `Nlls` holds this lock.
+    static NLLS_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
+    fn nlls_guard() -> std::sync::MutexGuard<'static, ()> {
+        NLLS_LOCK.lock().unwrap_or_else(|e| e.into_inner())
+    }
+
     #[test]
     fn column_means_2x3() {
         let x = [1.0_f64, 2.0, 3.0, 4.0, 5.0, 6.0];
@@ -3659,6 +3667,7 @@ mod tests {
 
     #[test]
     fn nlls_fits_exponential_decay() {
+        let _lock = nlls_guard();
         // Fit y(t) = a · exp(-b · t) to noiseless data with a=2, b=0.3.
         // 5 sample points; residuals = predictions - observed.
         let t: Vec<f64> = vec![0.0, 1.0, 2.0, 3.0, 4.0];
@@ -3938,5 +3947,627 @@ mod tests {
         assert_eq!(labels[3], labels[4]);
         assert_eq!(labels[4], labels[5]);
         assert_ne!(labels[0], labels[3]);
+    }
+
+    // ---- reference helpers: naive formulas, independent of AOCL ----
+
+    fn near(a: f64, b: f64, tol: f64, what: &str) {
+        assert!(
+            (a - b).abs() <= tol * (1.0 + b.abs()),
+            "{what}: got {a}, want {b}"
+        );
+    }
+
+    /// Column `j` (axis = Col) or row `i` (axis = Row) of a row-major `r x c` matrix.
+    fn slices(x: &[f64], r: usize, c: usize, axis: Axis) -> Vec<Vec<f64>> {
+        match axis {
+            Axis::Col => (0..c)
+                .map(|j| (0..r).map(|i| x[i * c + j]).collect())
+                .collect(),
+            Axis::Row => (0..r).map(|i| x[i * c..(i + 1) * c].to_vec()).collect(),
+            _ => unreachable!(),
+        }
+    }
+
+    const X23: [f64; 6] = [1.0, 2.0, 4.0, 4.0, 8.0, 16.0]; // row-major 2 x 3, all positive
+
+    #[test]
+    fn geometric_mean_matches_exp_mean_log_f64_and_f32() {
+        for axis in [Axis::Col, Axis::Row] {
+            let want: Vec<f64> = slices(&X23, 2, 3, axis)
+                .iter()
+                .map(|v| (v.iter().map(|x| x.ln()).sum::<f64>() / v.len() as f64).exp())
+                .collect();
+            let mut out = vec![0.0_f64; want.len()];
+            geometric_mean(axis, 2, 3, &X23, &mut out).unwrap();
+            for (g, w) in out.iter().zip(&want) {
+                near(*g, *w, 1e-12, "f64 geometric mean");
+            }
+            let x32: Vec<f32> = X23.iter().map(|&v| v as f32).collect();
+            let mut out32 = vec![0.0_f32; want.len()];
+            geometric_mean(axis, 2, 3, &x32, &mut out32).unwrap();
+            for (g, w) in out32.iter().zip(&want) {
+                near(*g as f64, *w, 1e-5, "f32 geometric mean");
+            }
+        }
+        // Closed form: columns of [[1,2,4],[4,8,16]] have geometric means sqrt(4)=2, sqrt(16)=4, sqrt(64)=8.
+        let mut out = [0.0_f64; 3];
+        geometric_mean(Axis::Col, 2, 3, &X23, &mut out).unwrap();
+        for (g, w) in out.iter().zip([2.0, 4.0, 8.0]) {
+            near(*g, w, 1e-12, "closed-form geometric mean");
+        }
+    }
+
+    #[test]
+    fn harmonic_mean_matches_n_over_sum_of_reciprocals_f64_and_f32() {
+        for axis in [Axis::Col, Axis::Row] {
+            let want: Vec<f64> = slices(&X23, 2, 3, axis)
+                .iter()
+                .map(|v| v.len() as f64 / v.iter().map(|x| 1.0 / x).sum::<f64>())
+                .collect();
+            let mut out = vec![0.0_f64; want.len()];
+            harmonic_mean(axis, 2, 3, &X23, &mut out).unwrap();
+            for (g, w) in out.iter().zip(&want) {
+                near(*g, *w, 1e-12, "f64 harmonic mean");
+            }
+            let x32: Vec<f32> = X23.iter().map(|&v| v as f32).collect();
+            let mut out32 = vec![0.0_f32; want.len()];
+            harmonic_mean(axis, 2, 3, &x32, &mut out32).unwrap();
+            for (g, w) in out32.iter().zip(&want) {
+                near(*g as f64, *w, 1e-5, "f32 harmonic mean");
+            }
+        }
+        // Closed form: harmonic mean of {1, 4} = 2 / (1 + 1/4) = 1.6.
+        let mut out = [0.0_f64; 3];
+        harmonic_mean(Axis::Col, 2, 3, &X23, &mut out).unwrap();
+        near(out[0], 1.6, 1e-12, "harmonic mean of column 0");
+    }
+
+    #[test]
+    fn moment_matches_central_moment_definition_f64_and_f32() {
+        let x = [
+            1.0_f64, 2.0, 4.0, 8.0, 3.0, 5.0, 7.0, 11.0, 6.0, 9.0, 10.0, 14.0,
+        ]; // 4 x 3
+        for axis in [Axis::Col, Axis::Row] {
+            let sl = slices(&x, 4, 3, axis);
+            for k in [2_i64, 3] {
+                let means: Vec<f64> = sl
+                    .iter()
+                    .map(|v| v.iter().sum::<f64>() / v.len() as f64)
+                    .collect();
+                let want: Vec<f64> = sl
+                    .iter()
+                    .zip(&means)
+                    .map(|(v, m)| {
+                        v.iter().map(|x| (x - m).powi(k as i32)).sum::<f64>() / v.len() as f64
+                    })
+                    .collect();
+                let mut mean_out = vec![0.0_f64; sl.len()];
+                let mut mom = vec![0.0_f64; sl.len()];
+                moment(axis, 4, 3, &x, k, false, &mut mean_out, &mut mom).unwrap();
+                for j in 0..sl.len() {
+                    near(mean_out[j], means[j], 1e-12, "moment: mean output");
+                    near(mom[j], want[j], 1e-10, "f64 central moment");
+                }
+                // Precomputed means supplied: same result.
+                let mut mom2 = vec![0.0_f64; sl.len()];
+                let mut means_in = means.clone();
+                moment(axis, 4, 3, &x, k, true, &mut means_in, &mut mom2).unwrap();
+                for j in 0..sl.len() {
+                    near(
+                        mom2[j],
+                        want[j],
+                        1e-10,
+                        "f64 central moment, precomputed mean",
+                    );
+                }
+                let x32: Vec<f32> = x.iter().map(|&v| v as f32).collect();
+                let mut m32 = vec![0.0_f32; sl.len()];
+                let mut mom32 = vec![0.0_f32; sl.len()];
+                moment(axis, 4, 3, &x32, k, false, &mut m32, &mut mom32).unwrap();
+                for j in 0..sl.len() {
+                    near(mom32[j] as f64, want[j], 1e-4, "f32 central moment");
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn moment_rejects_short_output() {
+        let mut m = [0.0_f64; 1];
+        let mut o = [0.0_f64; 1];
+        assert!(moment(Axis::Col, 2, 3, &X23, 2, false, &mut m, &mut o).is_err());
+    }
+
+    fn dot(a: &[f64], b: &[f64]) -> f64 {
+        a.iter().zip(b).map(|(x, y)| x * y).sum()
+    }
+
+    #[test]
+    fn polynomial_and_sigmoid_kernels_match_definitions_f64_and_f32() {
+        let x = [1.0_f64, 0.5, -1.0, 2.0, 0.0, 1.5]; // 3 x 2 row-major
+        let y = [0.5_f64, -0.5, 1.0, 1.0]; // 2 x 2
+        let (gamma, coef0, degree) = (0.5_f64, 1.0_f64, 3_i64);
+        let rows = |m: &[f64], n: usize| -> Vec<Vec<f64>> {
+            (0..n).map(|i| m[i * 2..i * 2 + 2].to_vec()).collect()
+        };
+        let (xr, yr) = (rows(&x, 3), rows(&y, 2));
+        // Cross kernel (3 x 2) and self kernel (3 x 3).
+        for with_y in [true, false] {
+            let (n, other): (usize, &Vec<Vec<f64>>) = if with_y { (2, &yr) } else { (3, &xr) };
+            let ys: Option<&[f64]> = if with_y { Some(&y) } else { None };
+            let mut pd = vec![0.0_f64; 3 * n];
+            polynomial_kernel(3, n, 2, &x, ys, &mut pd, gamma, degree, coef0).unwrap();
+            let mut sg = vec![0.0_f64; 3 * n];
+            sigmoid_kernel(3, n, 2, &x, ys, &mut sg, gamma, coef0).unwrap();
+            let x32: Vec<f32> = x.iter().map(|&v| v as f32).collect();
+            let y32: Vec<f32> = y.iter().map(|&v| v as f32).collect();
+            let ys32: Option<&[f32]> = if with_y { Some(&y32) } else { None };
+            let mut pd32 = vec![0.0_f32; 3 * n];
+            polynomial_kernel(
+                3,
+                n,
+                2,
+                &x32,
+                ys32,
+                &mut pd32,
+                gamma as f32,
+                degree,
+                coef0 as f32,
+            )
+            .unwrap();
+            let mut sg32 = vec![0.0_f32; 3 * n];
+            sigmoid_kernel(3, n, 2, &x32, ys32, &mut sg32, gamma as f32, coef0 as f32).unwrap();
+            for i in 0..3 {
+                for j in 0..n {
+                    let d = dot(&xr[i], &other[j]);
+                    let wp = (gamma * d + coef0).powi(degree as i32);
+                    let ws = (gamma * d + coef0).tanh();
+                    near(pd[i * n + j], wp, 1e-12, "polynomial kernel f64");
+                    near(sg[i * n + j], ws, 1e-12, "sigmoid kernel f64");
+                    near(pd32[i * n + j] as f64, wp, 1e-4, "polynomial kernel f32");
+                    near(sg32[i * n + j] as f64, ws, 1e-5, "sigmoid kernel f32");
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn datastore_n_cols_and_select_rows() {
+        use std::io::Write;
+        let mut path = std::env::temp_dir();
+        path.push(format!("aocl_da_rows_{}.csv", std::process::id()));
+        {
+            let mut f = std::fs::File::create(&path).unwrap();
+            writeln!(f, "1.0,2.0,3.0").unwrap();
+            writeln!(f, "4.0,5.0,6.0").unwrap();
+            writeln!(f, "7.0,8.0,9.0").unwrap();
+            writeln!(f, "10.0,11.0,12.0").unwrap();
+        }
+        let mut store = Datastore::new().unwrap();
+        assert_eq!(store.n_cols().unwrap(), 0); // empty store (control)
+        store.load_csv(path.to_str().unwrap()).unwrap();
+        assert_eq!(store.n_cols().unwrap(), 3);
+        assert_eq!(store.n_rows().unwrap(), 4);
+        // Rows 1..=2 (zero-based, inclusive): [[4,5,6],[7,8,9]].
+        store.select_rows("mid", 1, 2).unwrap();
+        let mut buf = vec![0.0_f64; 6];
+        store
+            .extract_f64("mid", Layout::RowMajor, &mut buf, 3)
+            .unwrap();
+        assert_eq!(buf, [4.0, 5.0, 6.0, 7.0, 8.0, 9.0]);
+        // Out-of-range selection is an error.
+        assert!(store.select_rows("bad", 0, 10).is_err());
+        let _ = std::fs::remove_file(&path);
+    }
+
+    fn decay_data() -> (Vec<f64>, Vec<f64>) {
+        let t: Vec<f64> = (0..8).map(|i| i as f64 * 0.5).collect();
+        let y: Vec<f64> = t.iter().map(|&ti| 2.0 * (-0.3 * ti).exp()).collect();
+        (t, y)
+    }
+
+    #[test]
+    fn nlls_with_analytic_jacobian_recovers_parameters() {
+        let _lock = nlls_guard();
+        let (t, y) = decay_data();
+        let (t2, y2) = (t.clone(), y.clone());
+        let model = Nlls::new(2, t.len(), move |x: &[f64], r: &mut [f64]| {
+            for i in 0..r.len() {
+                r[i] = x[0] * (-x[1] * t2[i]).exp() - y2[i];
+            }
+            0
+        })
+        .unwrap();
+        let t3 = t.clone();
+        let jac_calls = std::cell::Cell::new(0usize);
+        let mut model = model
+            .with_jacobian(|x: &[f64], j: &mut [f64]| {
+                jac_calls.set(jac_calls.get() + 1);
+                // Row-major n_res x n_coef: d r_i / d a and d r_i / d b.
+                for i in 0..t3.len() {
+                    let e = (-x[1] * t3[i]).exp();
+                    j[i * 2] = e;
+                    j[i * 2 + 1] = -x[0] * t3[i] * e;
+                }
+                0
+            })
+            .unwrap();
+        let mut coef = vec![1.0_f64, 1.0];
+        model.fit(&mut coef).unwrap();
+        near(coef[0], 2.0, 1e-5, "a");
+        near(coef[1], 0.3, 1e-5, "b");
+        drop(model);
+        assert!(
+            jac_calls.get() > 0,
+            "the analytic Jacobian was never called"
+        );
+    }
+
+    #[test]
+    fn nlls_set_bounds_are_respected_and_wide_bounds_do_not_bind() {
+        let _lock = nlls_guard();
+        let (t, y) = decay_data();
+        let make = || {
+            let (t, y) = (t.clone(), y.clone());
+            Nlls::new(2, 8, move |x: &[f64], r: &mut [f64]| {
+                for i in 0..r.len() {
+                    r[i] = x[0] * (-x[1] * t[i]).exp() - y[i];
+                }
+                0
+            })
+            .unwrap()
+        };
+        // Wide bounds around the truth (a = 2, b = 0.3): the unconstrained answer is recovered.
+        let mut m = make();
+        m.set_bounds(Some(&mut [0.0, 0.0]), Some(&mut [10.0, 5.0]))
+            .unwrap();
+        let mut c = vec![1.0_f64, 1.0];
+        m.fit(&mut c).unwrap();
+        near(c[0], 2.0, 1e-4, "a (wide bounds)");
+        near(c[1], 0.3, 1e-4, "b (wide bounds)");
+        // Upper bound a <= 1.5 excludes the true a = 2: the fit must stay feasible, sit on the bound, and leave a
+        // strictly positive residual (the data are exactly generated by a = 2).
+        let mut m = make();
+        m.set_bounds(None, Some(&mut [1.5, 5.0])).unwrap();
+        let mut c = vec![1.0_f64, 1.0];
+        m.fit(&mut c).unwrap();
+        assert!(c[0] <= 1.5 + 1e-9, "a = {} violates a <= 1.5", c[0]);
+        near(c[0], 1.5, 1e-4, "a sits on its upper bound");
+        let obj: f64 = (0..8)
+            .map(|i| (c[0] * (-c[1] * t[i]).exp() - y[i]).powi(2))
+            .sum();
+        assert!(obj > 1e-4, "constrained objective {obj} should exceed 0");
+        // Lower bound b >= 0.5 excludes the true b = 0.3.
+        let mut m = make();
+        m.set_bounds(Some(&mut [0.0, 0.5]), None).unwrap();
+        let mut c = vec![1.0_f64, 1.0];
+        m.fit(&mut c).unwrap();
+        assert!(c[1] >= 0.5 - 1e-9, "b = {} violates b >= 0.5", c[1]);
+        // Too-short bound slices are rejected.
+        let mut m = make();
+        assert!(m.set_bounds(Some(&mut [0.0]), None).is_err());
+    }
+
+    #[test]
+    fn nlls_set_weights_tiny_weight_suppresses_an_outlier() {
+        let _lock = nlls_guard();
+        let (t, mut y) = decay_data();
+        y[7] += 5.0; // corrupt the last observation
+        let make = || {
+            let (t, y) = (t.clone(), y.clone());
+            Nlls::new(2, 8, move |x: &[f64], r: &mut [f64]| {
+                for i in 0..r.len() {
+                    r[i] = x[0] * (-x[1] * t[i]).exp() - y[i];
+                }
+                0
+            })
+            .unwrap()
+        };
+        // Unweighted: the outlier drags the fit away from the truth (control for the weighted case).
+        let mut m = make();
+        let mut c = vec![1.0_f64, 1.0];
+        m.fit(&mut c).unwrap();
+        assert!(
+            (c[0] - 2.0).abs() > 1e-2 || (c[1] - 0.3).abs() > 1e-2,
+            "outlier had no effect: {c:?}"
+        );
+        // Weights w_i = sqrt(W_ii): AOCL rejects zero ("must be sufficiently positive"), so the outlier gets 1e-4, which
+        // shrinks its pull by 10^4 and recovers the true parameters to ~1e-3.
+        let mut m = make();
+        let mut w = vec![1.0_f64; 8];
+        w[7] = 1e-4;
+        m.set_weights(&mut w).unwrap();
+        let mut c = vec![1.0_f64, 1.0];
+        m.fit(&mut c).unwrap();
+        near(c[0], 2.0, 3e-3, "a (weighted)");
+        near(c[1], 0.3, 3e-3, "b (weighted)");
+        assert!(m.set_weights(&mut [1.0; 3]).is_err());
+    }
+
+    /// (A fresh handle's `last_error_message` is NOT asserted `None`: on AOCL 6.0.68 the library returns success with an
+    /// uninitialised pointer when no error is stored, so the wrapper can return garbage: FINDING.)
+    #[test]
+    fn last_error_message_names_the_rejected_option() {
+        let mut h = Handle::new_double(HandleKind::Linmod).unwrap();
+        assert!(h.set_int_option("no such option", 1).is_err());
+        let msg = h
+            .last_error_message()
+            .expect("an error message after a rejected option");
+        assert!(!msg.is_empty());
+        assert!(
+            msg.contains("no such option"),
+            "message does not name the option: {msg}"
+        );
+    }
+
+    // Two separable clusters in 2-D, column-major (feature 0 then feature 1): class 0 near (0,0), class 1 near (10,10).
+    const CL_X: [f64; 12] = [
+        0.0, 0.1, 0.2, 10.0, 10.1, 10.2, 0.1, 0.0, 0.1, 10.1, 10.0, 10.1,
+    ];
+    const CL_Y: [i32; 6] = [0, 0, 0, 1, 1, 1];
+    const CL_TEST: [f64; 4] = [0.05, 9.95, 0.05, 10.05]; // (0.05,0.05) and (9.95,10.05)
+
+    #[test]
+    fn knn_classes_lists_distinct_labels_whatever_the_buffer_size() {
+        let mut knn = KNearestNeighbours::new().unwrap();
+        knn.fit(6, 2, &CL_X, &[7, 7, 7, 3, 3, 3]).unwrap();
+        // Ascending distinct labels; the return value is the number of classes, not the buffer length.
+        let mut big = [0_i32; 5];
+        assert_eq!(knn.classes(&mut big).unwrap(), 2);
+        assert_eq!(&big[..2], &[3, 7]);
+        let mut exact = [0_i32; 2];
+        assert_eq!(knn.classes(&mut exact).unwrap(), 2);
+        assert_eq!(exact, [3, 7]);
+    }
+
+    #[test]
+    fn knn_kneighbors_match_brute_force_ranking() {
+        let mut knn = KNearestNeighbours::new().unwrap();
+        knn.fit(6, 2, &CL_X, &CL_Y).unwrap();
+        // Queries (0.04, 0.02) and (10.15, 10.0): no distance ties among the training points.
+        let q = [0.04, 10.15, 0.02, 10.0];
+        let k = 3;
+        let mut ind = vec![0_i32; 2 * k];
+        let mut dist = vec![0.0_f64; 2 * k];
+        knn.kneighbors(2, 2, &q, &mut ind, &mut dist, k, true)
+            .unwrap();
+        for qi in 0..2 {
+            let mut ranked: Vec<(f64, i32)> = (0..6)
+                .map(|i| {
+                    (
+                        ((CL_X[i] - q[qi]).powi(2) + (CL_X[6 + i] - q[2 + qi]).powi(2)).sqrt(),
+                        i as i32,
+                    )
+                })
+                .collect();
+            ranked.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
+            for j in 0..k {
+                // Column-major (n_queries x k): element (query, rank) at rank * n_queries + query.
+                assert_eq!(ind[j * 2 + qi], ranked[j].1, "query {qi} rank {j}");
+                near(dist[j * 2 + qi], ranked[j].0, 1e-9, "neighbour distance");
+            }
+        }
+        // Without distances the indices are the same.
+        let mut ind2 = vec![0_i32; 2 * k];
+        let mut dist2 = vec![0.0_f64; 2 * k];
+        knn.kneighbors(2, 2, &q, &mut ind2, &mut dist2, k, false)
+            .unwrap();
+        assert_eq!(ind, ind2);
+    }
+
+    #[test]
+    fn knn_predict_proba_counts_neighbour_classes() {
+        // Default k = 5 with 3 training points per class: a query always has all 3 of its own cluster plus the 2
+        // nearest of the other, so P(own class) = 3/5 and P(other) = 2/5. Queries 0 and 1 sit in cluster 0, query 2 in
+        // cluster 1. The 3 x 2 result is column-major (ldp = n_queries): element (query, class) at class * 3 + query.
+        let mut knn = KNearestNeighbours::new().unwrap();
+        knn.fit(6, 2, &CL_X, &CL_Y).unwrap();
+        let q = [0.05, 0.1, 9.95, 0.05, 0.0, 10.05]; // 3 queries: (0.05,0.05) (0.1,0.0) (9.95,10.05)
+        let mut proba = vec![0.0_f64; 6];
+        knn.predict_proba(3, 2, &q, &mut proba).unwrap();
+        for (g, w) in proba.iter().zip([0.6, 0.6, 0.4, 0.4, 0.4, 0.6]) {
+            near(*g, w, 1e-9, "knn predict_proba");
+        }
+    }
+
+    #[test]
+    fn dbscan_core_sample_indices_exclude_noise() {
+        // Five points in a tight cluster plus one far outlier: with min samples = 3 and eps = 1 the cluster points
+        // (indices 0..=4) are core samples, the outlier (index 5) is noise (label -1) and not core.
+        let data: Vec<f64> = vec![
+            0.0, 0.1, 0.2, 0.0, 0.1, 50.0, // feature 0
+            0.0, 0.1, 0.0, 0.2, 0.1, 50.0, // feature 1
+        ];
+        let mut db = Dbscan::new().unwrap();
+        let cs = std::ffi::CString::new("eps").unwrap();
+        let st = unsafe { sys::da_options_set_real_d(db.handle_mut().as_raw(), cs.as_ptr(), 1.0) };
+        assert_eq!(st, sys::da_status__da_status_success);
+        db.handle_mut().set_int_option("min samples", 3).unwrap();
+        db.fit(6, 2, &data).unwrap();
+        let mut core = db.core_sample_indices().unwrap();
+        core.sort();
+        assert_eq!(core, vec![0, 1, 2, 3, 4]);
+        assert_eq!(core.len(), db.n_core_samples().unwrap());
+        let labels = db.labels().unwrap();
+        assert_eq!(labels[5], -1);
+        assert!(labels[..5].iter().all(|&l| l == labels[0] && l >= 0));
+    }
+
+    // Four queries (column-major, feature 0 then feature 1): classes 0, 1, 0, 1.
+    const Q4: [f64; 8] = [0.05, 9.95, 0.2, 10.2, 0.05, 10.05, 0.0, 10.1];
+
+    /// Probability outputs are laid out in the handle's storage order (column-major, `ldy >= n_samples`): element
+    /// (sample `i`, class `c`) is at `c * ldy + i`. (The wrapper's docs say row-major / `ldy >= n_class`: FINDING.)
+    #[test]
+    fn tree_and_forest_predict_proba_and_log_proba_on_separable_data() {
+        let mut tree = DecisionTree::new().unwrap();
+        tree.fit(6, 2, 2, &CL_X, &CL_Y).unwrap();
+        let mut forest = DecisionForest::new().unwrap();
+        forest.fit(6, 2, 2, &CL_X, &CL_Y).unwrap();
+        let truth = [0usize, 1, 0, 1];
+        let at = |v: &[f64], i: usize, c: usize| v[c * 4 + i];
+
+        let mut tp = vec![0.0_f64; 8];
+        tree.predict_proba(4, 2, &Q4, &mut tp, 2, 4).unwrap();
+        for i in 0..4 {
+            for c in 0..2 {
+                near(
+                    at(&tp, i, c),
+                    if c == truth[i] { 1.0 } else { 0.0 },
+                    1e-12,
+                    "tree proba (pure leaves)",
+                );
+            }
+        }
+        let mut tl = vec![0.0_f64; 8];
+        tree.predict_log_proba(4, 2, &Q4, &mut tl, 2, 4).unwrap();
+        for i in 0..4 {
+            near(
+                at(&tl, i, truth[i]),
+                0.0,
+                1e-12,
+                "tree log P(true class) = ln 1",
+            );
+            assert!(
+                at(&tl, i, 1 - truth[i]) < -10.0,
+                "ln 0 must be very negative: {tl:?}"
+            );
+        }
+
+        let mut fp = vec![0.0_f64; 8];
+        forest.predict_proba(4, 2, &Q4, &mut fp, 2, 4).unwrap();
+        for i in 0..4 {
+            near(
+                at(&fp, i, 0) + at(&fp, i, 1),
+                1.0,
+                1e-9,
+                "forest probabilities sum to 1",
+            );
+            assert!(at(&fp, i, truth[i]) > 0.8, "forest proba {fp:?}");
+        }
+        let mut fl = vec![0.0_f64; 8];
+        forest.predict_log_proba(4, 2, &Q4, &mut fl, 2, 4).unwrap();
+        // exp(log P) reproduces P wherever P > 0 (the invariant tying the two outputs together).
+        for (l, p) in fl.iter().zip(&fp) {
+            if *p > 1e-12 {
+                near(l.exp(), *p, 1e-9, "forest exp(log_proba) == proba");
+            }
+        }
+    }
+
+    #[test]
+    fn linmod_logistic_separates_two_classes() {
+        // 1-D, linearly separable at 0: class 0 for x < 0, class 1 for x > 0.
+        let x = [-2.0_f64, -1.0, -0.5, 0.5, 1.0, 2.0];
+        let y = [0.0_f64, 0.0, 0.0, 1.0, 1.0, 1.0];
+        let mut m = Linmod::new_logistic().unwrap();
+        assert_eq!(m.kind(), LinmodKind::Logistic);
+        m.fit(6, 1, &x, &y).unwrap();
+        let coefs = m.coefficients().unwrap();
+        assert!(
+            coefs[0] > 0.0,
+            "slope of a positively separated problem must be > 0: {coefs:?}"
+        );
+        let mut pred = vec![0.0_f64; 6];
+        m.predict(6, 1, &x, &mut pred).unwrap();
+        assert_eq!(pred, y);
+        // Unseen points on either side of the boundary.
+        let mut p2 = [0.0_f64; 2];
+        m.predict(2, 1, &[-3.0, 3.0], &mut p2).unwrap();
+        assert_eq!(p2, [0.0, 1.0]);
+    }
+
+    fn set_real(svm: &mut Svm, name: &str, v: f64) {
+        let cs = std::ffi::CString::new(name).unwrap();
+        let st = unsafe { sys::da_options_set_real_d(svm.handle_mut().as_raw(), cs.as_ptr(), v) };
+        assert_eq!(st, sys::da_status__da_status_success, "option {name}");
+    }
+
+    #[test]
+    fn svm_nu_svc_separates_two_classes() {
+        let y = [0.0_f64, 0.0, 0.0, 1.0, 1.0, 1.0];
+        let mut svm = Svm::new_nu_svc().unwrap();
+        assert_eq!(svm.kind(), SvmKind::NuSvc);
+        svm.fit(6, 2, &CL_X, &y).unwrap();
+        let mut p = [0.0_f64; 2];
+        svm.predict(2, 2, &CL_TEST, &mut p).unwrap();
+        assert_eq!(p, [0.0, 1.0]);
+        near(
+            svm.score(6, 2, &CL_X, &y).unwrap(),
+            1.0,
+            1e-12,
+            "nu-svc training accuracy",
+        );
+    }
+
+    #[test]
+    fn svm_decision_function_sign_separates_classes() {
+        let y = [0.0_f64, 0.0, 0.0, 1.0, 1.0, 1.0];
+        let mut svm = Svm::new_svc().unwrap();
+        svm.fit(6, 2, &CL_X, &y).unwrap();
+        for shape in [DecisionShape::Ovo, DecisionShape::Ovr] {
+            let mut dv = vec![0.0_f64; 2];
+            svm.decision_function(2, 2, &CL_TEST, shape, &mut dv, 2)
+                .unwrap();
+            // Binary problem (scikit-learn convention): positive value <=> the second class.
+            assert!(dv[0] < 0.0 && dv[1] > 0.0, "{shape:?}: {dv:?}");
+        }
+        // On the training set every class-1 sample scores above every class-0 sample.
+        let mut dv = vec![0.0_f64; 6];
+        svm.decision_function(6, 2, &CL_X, DecisionShape::Ovo, &mut dv, 6)
+            .unwrap();
+        let max0 = dv[..3].iter().cloned().fold(f64::MIN, f64::max);
+        let min1 = dv[3..].iter().cloned().fold(f64::MAX, f64::min);
+        assert!(max0 < min1, "{dv:?}");
+    }
+
+    /// y = 2x + 1 sampled at x = 0..=9: a linear-kernel SVR with a large C must reproduce it within its epsilon tube.
+    fn regression_data() -> (Vec<f64>, Vec<f64>) {
+        let x: Vec<f64> = (0..10).map(|i| i as f64).collect();
+        let y: Vec<f64> = x.iter().map(|&v| 2.0 * v + 1.0).collect();
+        (x, y)
+    }
+
+    #[test]
+    fn svm_svr_fits_a_line() {
+        let (x, y) = regression_data();
+        let mut svm = Svm::new_svr().unwrap();
+        assert_eq!(svm.kind(), SvmKind::Svr);
+        svm.handle_mut()
+            .set_string_option("kernel", "linear")
+            .unwrap();
+        set_real(&mut svm, "C", 1000.0);
+        set_real(&mut svm, "epsilon", 0.1);
+        svm.fit(10, 1, &x, &y).unwrap();
+        let mut p = vec![0.0_f64; 10];
+        svm.predict(10, 1, &x, &mut p).unwrap();
+        for (g, w) in p.iter().zip(&y) {
+            // Epsilon-insensitive loss: training points lie within epsilon (+ solver slack) of the truth.
+            assert!((g - w).abs() < 0.2, "svr pred {g} vs {w}");
+        }
+        assert!(svm.score(10, 1, &x, &y).unwrap() > 0.99);
+    }
+
+    #[test]
+    fn svm_nu_svr_fits_a_line() {
+        let (x, y) = regression_data();
+        let mut svm = Svm::new_nu_svr().unwrap();
+        assert_eq!(svm.kind(), SvmKind::NuSvr);
+        svm.handle_mut()
+            .set_string_option("kernel", "linear")
+            .unwrap();
+        set_real(&mut svm, "C", 1000.0);
+        svm.fit(10, 1, &x, &y).unwrap();
+        let mut p = vec![0.0_f64; 10];
+        svm.predict(10, 1, &x, &mut p).unwrap();
+        for (g, w) in p.iter().zip(&y) {
+            assert!((g - w).abs() < 0.5, "nu-svr pred {g} vs {w}");
+        }
+        assert!(svm.score(10, 1, &x, &y).unwrap() > 0.99);
+        // Extrapolation follows the line (slope 2): f(12) ~ 25.
+        let mut q = [0.0_f64; 1];
+        svm.predict(1, 1, &[12.0], &mut q).unwrap();
+        assert!((q[0] - 25.0).abs() < 1.0, "f(12) = {}", q[0]);
     }
 }
