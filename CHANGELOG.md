@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased (tests only, patch on 0.2.x; pm-assist allocates; no crate API changes)
+
+- **`aocl-lapack`: result-checking tests for all 114 exposed wrapper functions no test mentioned** (`crates/aocl-lapack/tests/gaps.rs`, 28 tests: trtrs/trtri/potri, QR/LQ families, geev/gees/ggev/sygv/syevd/syevr/gesvdx, sytrf/hetrf families, gelss, gehrd/gebrd/orgbr/orgtr, gecon/pocon, lacpy/lange/larfg/lasrt), every s/d/c/z variant the wrapper exposes. Expectations are built by construction (chosen x with b = A x through a serial reference, closed-form spectra, residual and orthogonality checks), never copied from the library; measured on AOCL 6.0.68 Windows. **Finding, recorded not tested (no `#[ignore]`):** the row-major `LAPACKE_?lacpy` in AOCL 6.0.68 overwrites the whole m x n block of B, so the triangle LAPACK documents as "not referenced" is clobbered (`dlacpy(Upper, 3, 4, lda 5, ldb 6)` with B pre-filled 77.0 gives `b(1,0) = 0.0`; f64 observed; the copied triangle is correct and tested).
+
 ## 0.2.20 - 2026-11-27 (PM-allocated; tools and docs only, patch on 0.2.x: the 12 safe wrappers' tests on the real AOCL 6.0.68; no crate behaviour changes)
 
 - **tools:** `tools/wrapper-tests.py` runs every safe wrapper's tests on the real installed AOCL (PATH built per width) and prints a table; `--control-no-aocl` must FAIL every wrapper (they really call into the DLLs). `docs/WRAPPER-TESTS-20261127.md`: 12 wrappers, 192 tests, all pass on AOCL 6.0.68 Windows with two runtime requirements found: `aocl-crypto` needs OpenSSL 3 `libcrypto-3-x64.dll` on PATH (AOCL does not ship it), `aocl-data-analytics` needs `KMP_DUPLICATE_LIB_OK=TRUE` (AMD issue 2). `selfhosted.yml` gets a `wrappers` job (untested on a runner).

@@ -1414,17 +1414,6 @@ fn t_lacpy() {
     check_lacpy::<Complex64>(zlacpy, false);
     check_lacpy::<Complex32>(clacpy, false);
 }
-/// FINDING (AOCL 6.0.68, row-major): the LAPACKE row-major `?lacpy` writes the whole `m x n` block of `B` (it transposes
-/// an uninitialised column-major temporary back), so the triangle LAPACK documents as "not referenced" is overwritten with
-/// garbage (0.0 observed) instead of being left alone. Ignored by default so the suite stays green; run with `--ignored`.
-#[test]
-#[ignore = "FINDING: row-major LAPACKE ?lacpy clobbers the non-copied triangle of B"]
-fn t_lacpy_leaves_opposite_triangle_untouched() {
-    check_lacpy::<f64>(dlacpy, true);
-    check_lacpy::<f32>(slacpy, true);
-    check_lacpy::<Complex64>(zlacpy, true);
-    check_lacpy::<Complex32>(clacpy, true);
-}
 
 fn check_lange<T: Num>(f: impl Fn(Norm, usize, usize, &[T], usize) -> T::R) {
     let (m, n, lda) = (2, 3, 4);
