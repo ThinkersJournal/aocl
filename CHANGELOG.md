@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.16 - 2026-11-27 (PM-allocated; patch on 0.2.x, as 0.2.14: unlinkable declarations behind default-OFF features, aocl-lapack-sys)
+
+- **FIX `aocl-lapack-sys` (Windows, measured on AOCL 6.0.68, LP64 and ILP64; Linux unmeasured): 151 declared functions did not link.** 150 (100 `LAPACKE_*x`/`xx` extended-precision routines with their `_work` forms, 50 Fortran `*x_`/`clagge_`-type routines) are exported by no installed library: no longer declared by default, behind the NEW default-OFF feature `header-only-unexported` (enabling it only declares them). `lsame_` is exported by BLIS, not libflame: declared only with the NEW default-OFF feature `blis`, which links the BLIS library. Default builds: 3697 of 3697 declared functions resolve; with `blis` 3698. New `tests/link_all.rs`. The safe wrapper `aocl-lapack` uses none of these names.
+
 ## 0.2.15 - 2026-11-27 (PM-allocated; tools only, patch on 0.2.x; no crate is published for it)
 
 - **tools:** `tools/check-package-files.py` now also requires NOTICE in the package of any crate, wrappers included, whose README mentions NOTICE (ours, not AMD's `NOTICE.txt`) or carries a Provenance statement; the trigger "mentions provenance" is narrowed to a Provenance label so a link to `docs/PROVENANCE-QUESTIONS.md` (as in the `aocl-fft` README) does not demand one. Controls re-run: it fails on `aocl-math` and on `aocl-rng-sys` with their NOTICE removed (exit 1) and passes on the tree (exit 0).
