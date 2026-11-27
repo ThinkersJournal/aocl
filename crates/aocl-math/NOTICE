@@ -1,0 +1,20 @@
+NOTICE for aocl-math
+
+Provenance. This crate is a safe wrapper over `aocl-math-sys`, whose function declarations (src/decls_scalar.rs there) were written from AMD's published documentation, the
+"AOCL API Guide" 6.0 (document 68552, dated 2026-11-10), chapter 8 (AOCL-LibM), by a separate writer session that was given
+only that text. They contain function names and C signatures as the guide states them, and nothing else: no header text, no
+comments, no macros, no constants, no example code. They are declared from the guide and link-tested against AOCL 6.0.68 on
+Windows (tests/link_all.rs of aocl-math-sys); 20 scalar + 2 SIMD functions the guide states are not exported there and are behind the default-OFF
+feature `guide-only-fast` (Linux not measured). The authors of this repository (this lane) HAVE read the AOCL headers; the
+declarations were not written by that session. Guide line numbers for every declaration are in docs/cleanroom/math_provenance.csv
+at https://github.com/ThinkersJournal/aocl. Neither this crate nor aocl-math-sys contains, or reads at build time, any AOCL header.
+
+AOCL is not shipped. This crate contains no AMD library, header or documentation. Through aocl-math-sys it links an AOCL-LibM that the user has installed
+(libalm); the user accepts AMD's licence for that library.
+
+AMD's terms as the guide states them (Legal Notice, verbatim): "(c) 2024-2026 Advanced Micro Devices, Inc. All rights reserved." ...
+"No license, including implied or arising by estoppel, to any intellectual property rights is granted by this document." ... "Any
+unauthorized copying, alteration, distribution, transmission, performance, display, or other use of this material is prohibited."
+The guide therefore grants no licence. Whether declarations of names and signatures taken from it need AMD's permission is
+UNVERIFIED (not legal advice); it is recorded as an open question in docs/PROVENANCE-QUESTIONS.md. AMD, the AMD arrow logo and
+AOCL are trademarks of Advanced Micro Devices, Inc.; their use here is for identification only.
