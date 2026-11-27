@@ -2454,6 +2454,10 @@ pub fn blkcsrmv_f64(
 
 /// Symmetric Gauss-Seidel sweep `x := x + α · D⁻¹ (b − A·x)` against a
 /// symmetric matrix handle. (`f64`)
+///
+/// **`alpha` (measured, AOCL 6.0.68, docs/SPARSE-WRAPPER-FINDINGS-20261127.md):** the library documents `op(A) x = α b`, but
+/// from a zero initial guess `x` the result does not depend on `alpha` (α = 1, 2, 3 gave the same `x`); from a non-zero guess it
+/// does (non-linearly). Do not rely on `alpha` scaling the right-hand side; scale `b` yourself.
 pub fn symgs_f64(
     op: Trans,
     a: &SparseMatrix<f64>,
@@ -2779,6 +2783,24 @@ pub fn syprd_f32(
     check_status("sparse", status)
 }
 
+/// Validate the arguments of the sparse rotation before the library sees them: one index per sparse value, and every index
+/// inside the dense vector. The library does not check: a negative or too-large index writes outside `y` (heap corruption
+/// observed on AOCL 6.0.68), and fewer indices than values reads past the end of `indx`.
+fn check_roti(name: &str, nnz: usize, indx: &[sys::aoclsparse_int], y_len: usize) -> Result<()> {
+    if indx.len() != nnz {
+        return Err(Error::InvalidArgument(format!(
+            "{name}: {nnz} values but {} indices",
+            indx.len()
+        )));
+    }
+    if let Some(bad) = indx.iter().find(|&&i| i < 0 || (i as usize) >= y_len) {
+        return Err(Error::InvalidArgument(format!(
+            "{name}: index {bad} outside the dense vector (len {y_len})"
+        )));
+    }
+    Ok(())
+}
+
 /// Sparse rotation: simultaneously rotate `(x, y)` at indices `indx`
 /// by `(c, s)`. `x` is sparse with `indx` indices into the dense `y`. (`f64`)
 pub fn roti_f64(
@@ -2788,6 +2810,7 @@ pub fn roti_f64(
     c: f64,
     s: f64,
 ) -> Result<()> {
+    check_roti("roti_f64", x.len(), indx, y.len())?;
     let status = unsafe {
         sys::aoclsparse_droti(
             x.len() as sys::aoclsparse_int,
@@ -2809,6 +2832,7 @@ pub fn roti_f32(
     c: f32,
     s: f32,
 ) -> Result<()> {
+    check_roti("roti_f32", x.len(), indx, y.len())?;
     let status = unsafe {
         sys::aoclsparse_sroti(
             x.len() as sys::aoclsparse_int,
@@ -2910,6 +2934,15 @@ pub fn sorv_f32(
     x: &mut [f32],
     b: &[f32],
 ) -> Result<()> {
+    if x.len() < a.dims().1 || b.len() < a.dims().0 {
+        return Err(Error::InvalidArgument(format!(
+            "sorv_f32: x.len()={}, b.len()={}, dims=({}, {})",
+            x.len(),
+            b.len(),
+            a.dims().0,
+            a.dims().1
+        )));
+    }
     let status = unsafe {
         sys::aoclsparse_ssorv(
             sor_type.raw(),
