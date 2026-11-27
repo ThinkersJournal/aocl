@@ -16,6 +16,11 @@ keywords = ["aocl", "amd", "blas", "blis", "ffi"]
 default = []
 ilp64 = []
 static-link = []
+# Default OFF. 83 declarations the headers state but NO installed AOCL 6.0.68 Windows library exports, dynamic or static (a link
+# error when used; Linux unmeasured). Enabling the feature only declares them; it does not make them link on Windows.
+header-only-unexported = []
+# Default OFF. Links the libflame DLL (Windows names measured) so `xerbla_array_`, which libflame exports and BLIS does not, links.
+libflame = []
 
 [dependencies]
 libc.workspace = true

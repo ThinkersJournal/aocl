@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.17 - 2026-11-27 (PM-allocated; patch on 0.2.x, as 0.2.14: unlinkable and static-only declarations behind features, aocl-blas-sys)
+
+- **FIX `aocl-blas-sys` (Windows, measured on AOCL 6.0.68, LP64 and ILP64; Linux unmeasured): 2476 of 5704 declared functions did not link in a dynamic build.** 2392 exist only in the static library (`bli_*`, `lpgemm_*`, `lpgemv_*`, `packa_*`/`packb_*`, `bla_*`, `AOCL_FAL_*`, ...): now declared only with `static-link`. 83 are exported by no installed library: behind the NEW default-OFF feature `header-only-unexported` (enabling it only declares them). `xerbla_array_` (exported by libflame): declared only with the NEW default-OFF feature `libflame`, which links the libflame DLL. Default dynamic builds: 3228 of 3228 declared functions resolve; with `libflame` 3229. `static-link` builds additionally need the OpenMP runtime on the link line (not linked by this crate). New `tests/link_all.rs`. The safe wrapper `aocl-blas` uses none of the left-out names.
+
 ## 0.2.16 - 2026-11-27 (PM-allocated; patch on 0.2.x, as 0.2.14: unlinkable declarations behind default-OFF features, aocl-lapack-sys)
 
 - **FIX `aocl-lapack-sys` (Windows, measured on AOCL 6.0.68, LP64 and ILP64; Linux unmeasured): 151 declared functions did not link.** 150 (100 `LAPACKE_*x`/`xx` extended-precision routines with their `_work` forms, 50 Fortran `*x_`/`clagge_`-type routines) are exported by no installed library: no longer declared by default, behind the NEW default-OFF feature `header-only-unexported` (enabling it only declares them). `lsame_` is exported by BLIS, not libflame: declared only with the NEW default-OFF feature `blis`, which links the BLIS library. Default builds: 3697 of 3697 declared functions resolve; with `blis` 3698. New `tests/link_all.rs`. The safe wrapper `aocl-lapack` uses none of these names.
