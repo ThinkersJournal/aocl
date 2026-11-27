@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.0 - 2026-11-27 (PM-allocated; BREAKING: aocl-math-sys and aocl-rng-sys clean-room declarations, aocl-math -8 pub fns)
+## Unreleased (PR #19 draft; version: pm-assist to allocate)
 
 - **BREAKING `aocl-rng-sys`:** declarations are now clean-room from AOCL API Guide 6.0 ch. 9.3 (79 lowercase C forms), link-only, no bindgen. `rng_int_t` is `c_int` (LP64) or `i64` (`ilp64`), measured not declared. `srandinitializeuser` and the UPPERCASE, trailing-underscore and `GET_RNGVERSION` forms are no longer declared.
 - **Yank reason (0.1.0):** it declared 80 symbols that the AOCL 6.0.68 DLLs do not export (78 trailing-underscore forms, `get_rngversion_`, `GET_RNGVERSION`): a link-error defect.

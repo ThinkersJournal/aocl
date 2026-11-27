@@ -12,8 +12,8 @@ categories = ["api-bindings", "cryptography"]
 keywords = ["aocl", "amd", "rdrand", "rdseed"]
 
 [dependencies]
-aocl-securerng-sys = { version = "0.3", path = "../aocl-securerng-sys" }
-aocl-error = { version = "0.3", path = "../aocl-error" }
+aocl-securerng-sys = { version = "0.2", path = "../aocl-securerng-sys" }
+aocl-error = { version = "0.2", path = "../aocl-error" }
 
 [features]
 default = []
