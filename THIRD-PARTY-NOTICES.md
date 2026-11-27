@@ -30,7 +30,7 @@ The headers those files were generated from carry these notices (read from the i
 | Crate | Header(s) used (`wrapper/*.h`) | Notice in the header | Origin |
 |---|---|---|---|
 | `aocl-sparse-sys` | `aoclsparse*.h` | MIT-style, Copyright AMD | AOCL-Sparse |
-| `aocl-securerng-sys` | `secrng.h` | MIT-style, Copyright 2017-2023 AMD | AOCL-SecureRNG |
+| `aocl-securerng-sys` | **superseded 2026-11-27 (branch lane/cleanroom-rng2):** no longer derived from `secrng.h`; 15 declarations written from the AOCL API Guide 6.0 text (see `crates/aocl-securerng-sys/NOTICE`). Earlier: `secrng.h` | MIT-style, Copyright 2017-2023 AMD (applied to the earlier header-derived bindings only) | AOCL-SecureRNG |
 | `aocl-utils-sys` | `alci/*`, `Capi/au/*` | BSD-style, Copyright AMD | AOCL-Utils |
 | `aocl-crypto-sys` | `alcp/alcp.h`, `alcp/rsa.h` | BSD-style, Copyright AMD | AOCL-Cryptography |
 | `aocl-data-analytics-sys` | `aoclda.h` | BSD-style, Copyright AMD | AOCL-DA |

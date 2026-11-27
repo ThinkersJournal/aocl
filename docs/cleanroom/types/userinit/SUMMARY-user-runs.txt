@@ -1,0 +1,212 @@
+ILP64-duser-earlier-1M-slots-lstate100-fillA5 | lstate=100 buf_slots=1000000 | FAULT READ slot -313330713024 (byte -2506645704193) in-DLL
+ILP64-duser-earlier-1M-slots-lstate100 | lstate=100 buf_slots=1000000 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+ILP64-duser-lstate0-uinin1-bigbuf | lstate=0 buf_slots=131072 | ok info=0 wrote: 0=0x1 1=0x7ff6 2=0x26a76d60 3=0x7ff6
+ILP64-duser-lstate1-uinin1-bigbuf | lstate=1 buf_slots=131072 | ok info=-6 wrote: 
+ILP64-duser-lstate2-uinin1-bigbuf | lstate=2 buf_slots=131072 | ok info=-6 wrote: 
+ILP64-duser-lstate3-uinin1-bigbuf | lstate=3 buf_slots=131072 | ok info=-6 wrote: 
+ILP64-duser-lstate4-uinin1-bigbuf | lstate=4 buf_slots=131072 | ok info=0 wrote: 0=0x1 1=0x7ff6 2=0x26a76d60 3=0x7ff6
+ILP64-duser-lstate5-uinin1-bigbuf | lstate=5 buf_slots=131072 | ok info=0 wrote: 0=0x1 1=0x7ff6 2=0x26a76d60 3=0x7ff6
+ILP64-duser-lstate6-uinin1-bigbuf | lstate=6 buf_slots=131072 | ok info=0 wrote: 0=0x1 1=0x7ff6 2=0x26a76d60 3=0x7ff6
+ILP64-duser-noprotocol-buf100 | lstate=100 buf_slots=100 | FAULT WRITE slot 32760 (byte 262080) in-DLL
+ILP64-duser-noprotocol-buf16MiB-lstate-slots | lstate=2097152 buf_slots=2097152 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+ILP64-duser-noprotocol-buf16MiB-lstate100 | lstate=100 buf_slots=2097152 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+ILP64-duser-noprotocol-buf1MiB-lstate-slots | lstate=131072 buf_slots=131072 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+ILP64-duser-noprotocol-buf1MiB-lstate100 | lstate=100 buf_slots=131072 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+ILP64-duser-noprotocol-buf32760 | lstate=32760 buf_slots=32760 | FAULT WRITE slot 32760 (byte 262080) in-DLL
+ILP64-duser-noprotocol-buf32761 | lstate=32761 buf_slots=32761 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+ILP64-duser-noprotocol-buf32762 | lstate=32762 buf_slots=32762 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+ILP64-duser-noprotocol-buf32768 | lstate=32768 buf_slots=32768 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+ILP64-duser-noprotocol-buf4096 | lstate=4096 buf_slots=4096 | FAULT WRITE slot 32760 (byte 262080) in-DLL
+ILP64-duser-noprotocol-buf65536 | lstate=65536 buf_slots=65536 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+ILP64-duser-q-lstate-1-lseed-1 | lstate=-1 buf_slots=100 | FAULT WRITE slot 32760 (byte 262080) in-DLL
+ILP64-duser-q-lstate-1-nostateinit | lstate=-1 buf_slots=100 | FAULT WRITE slot 32760 (byte 262080) in-DLL
+ILP64-duser-q-lstate-1-uinin1 | lstate=-1 buf_slots=100 | ok info=0 wrote: 0=0x1 1=0x7ff6 2=0x26a76d60 3=0x7ff6
+ILP64-duser-ugen-fn-a | lstate=100 buf_slots=2097152 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+ILP64-duser-ugen-fn-b | lstate=100 buf_slots=2097152 | ok info=0 wrote: 0=0x7ff6 1=0x26a76ed0 32760=0x26a76ed0
+ILP64-duser-ugen-tramp-10000000-uinin1 | lstate=100 buf_slots=2097152 | ok info=0 wrote: 0=0x1 2=0x10000123
+ILP64-duser-ugen-tramp-10000000 | lstate=100 buf_slots=2097152 | ok info=0 wrote: 1=0x10000123 2=0x10000123
+ILP64-duser-ugen-tramp-100000000-uinin1 | lstate=100 buf_slots=2097152 | ok info=0 wrote: 0=0x1 1=0x1 2=0x123 3=0x1
+ILP64-duser-ugen-tramp-100000000 | lstate=100 buf_slots=2097152 | ok info=0 wrote: 0=0x1 1=0x123 3=0x123
+ILP64-duser-ugen-tramp-2000000000-uinin1 | lstate=100 buf_slots=2097152 | ok info=0 wrote: 0=0x1 1=0x20 2=0x123 3=0x20
+ILP64-duser-ugen-tramp-2000000000 | lstate=100 buf_slots=2097152 | ok info=0 wrote: 0=0x20 1=0x123 34=0x123
+ILP64-duser-ugen-tramp-500000000-uinin1 | lstate=100 buf_slots=2097152 | ok info=0 wrote: 0=0x1 1=0x5 2=0x123 3=0x5
+ILP64-duser-ugen-tramp-500000000 | lstate=100 buf_slots=2097152 | ok info=0 wrote: 0=0x5 1=0x123 7=0x123
+ILP64-duser-ugen-tramp-70000000000-uinin1 | lstate=100 buf_slots=2097152 | ok info=0 wrote: 0=0x1 1=0x700 2=0x123 3=0x700
+ILP64-duser-ugen-tramp-70000000000 | lstate=100 buf_slots=2097152 | ok info=0 wrote: 0=0x700 1=0x123 1794=0x123
+ILP64-duser-ugen-tramp-700000000000-uinin1 | lstate=100 buf_slots=2097152 | ok info=0 wrote: 0=0x1 1=0x7000 2=0x123 3=0x7000
+ILP64-duser-ugen-tramp-700000000000 | lstate=100 buf_slots=2097152 | ok info=0 wrote: 0=0x7000 1=0x123 28674=0x123
+ILP64-duser-uini-fnb | lstate=100 buf_slots=2097152 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+ILP64-duser-uini-tramp-500000000-ugen-tramp-2000000000 | lstate=100 buf_slots=2097152 | ok info=0 wrote: 0=0x20 1=0x123 34=0x123
+ILP64-duser-uini-tramp-500000000 | lstate=100 buf_slots=2097152 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+ILP64-duser-uini-writes-0x5100-seq | lstate=100 buf_slots=2097152 | ok info=0 wrote: 0=0x5100 1=0x5101 2=0x5102 3=0x5103 4=0x5104 5=0x5105 6=0x5106 7=0x5107 20736=0x7ff6 20737=0x26a76d60 20738=0x5101
+ILP64-duser-uinin0-buf100-lstate100 | lstate=100 buf_slots=100 | FAULT WRITE slot 32760 (byte 262080) in-DLL
+ILP64-duser-uinin1-buf100-lstate100 | lstate=100 buf_slots=100 | ok info=0 wrote: 0=0x1 1=0x7ff6 2=0x26a76d60 3=0x7ff6
+ILP64-duser-uinin1-buf16MiB-lstateslots | lstate=2097152 buf_slots=2097152 | ok info=0 wrote: 0=0x1 1=0x7ff6 2=0x26a76d60 3=0x7ff6
+ILP64-duser-uinin1-buf1MiB-lstateslots | lstate=131072 buf_slots=131072 | ok info=0 wrote: 0=0x1 1=0x7ff6 2=0x26a76d60 3=0x7ff6
+ILP64-duser-uinin1-buf3-lstate4-NEGCTL | lstate=4 buf_slots=3 | FAULT WRITE slot 3 (byte 24) in-DLL
+ILP64-duser-uinin1-buf4-lstate4 | lstate=4 buf_slots=4 | ok info=0 wrote: 0=0x1 1=0x7ff6 2=0x26a76d60 3=0x7ff6
+ILP64-duser-uinin1000-buf100-lstate100 | lstate=100 buf_slots=100 | FAULT WRITE slot 1000 (byte 8000) in-DLL
+ILP64-duser-uinin5-buf100-lstate100 | lstate=100 buf_slots=100 | ok info=0 wrote: 0=0x5 1=0x7001 2=0x7002 3=0x7003 4=0x7004 5=0x7ff6 6=0x26a76d60 7=0x7001
+ILP64-duser-uinin97-buf100-lstate100 | lstate=100 buf_slots=100 | ok info=0 wrote: 0=0x61 1=0x7001 2=0x7002 3=0x7003 4=0x7004 5=0x7005 6=0x7006 7=0x7007 8=0x7008 9=0x7009 10=0x700a 11=0x700b
+ILP64-duser-uinin97-buf1MiB-lstateslots | lstate=131072 buf_slots=131072 | ok info=0 wrote: 0=0x61 1=0x7001 2=0x7002 3=0x7003 4=0x7004 5=0x7005 6=0x7006 7=0x7007 8=0x7008 9=0x7009 10=0x700a 11=0x700b
+ILP64-duser-uinin98-buf100-lstate100 | lstate=100 buf_slots=100 | FAULT WRITE slot 100 (byte 800) in-DLL
+ILP64-duser-uinin99-buf100-lstate100 | lstate=100 buf_slots=100 | FAULT WRITE slot 100 (byte 800) in-DLL
+ILP64-suser-earlier-1M-slots-lstate100-fillA5 | lstate=100 buf_slots=1000000 | FAULT READ slot -271969796544 (byte -2175758372353) in-DLL
+ILP64-suser-earlier-1M-slots-lstate100 | lstate=100 buf_slots=1000000 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+ILP64-suser-lstate0-uinin1-bigbuf | lstate=0 buf_slots=131072 | ok info=0 wrote: 0=0x1 1=0x7ff6 2=0x26a76d60 3=0x7ff6
+ILP64-suser-lstate1-uinin1-bigbuf | lstate=1 buf_slots=131072 | ok info=-6 wrote: 
+ILP64-suser-lstate2-uinin1-bigbuf | lstate=2 buf_slots=131072 | ok info=-6 wrote: 
+ILP64-suser-lstate3-uinin1-bigbuf | lstate=3 buf_slots=131072 | ok info=-6 wrote: 
+ILP64-suser-lstate4-uinin1-bigbuf | lstate=4 buf_slots=131072 | ok info=0 wrote: 0=0x1 1=0x7ff6 2=0x26a76d60 3=0x7ff6
+ILP64-suser-lstate5-uinin1-bigbuf | lstate=5 buf_slots=131072 | ok info=0 wrote: 0=0x1 1=0x7ff6 2=0x26a76d60 3=0x7ff6
+ILP64-suser-lstate6-uinin1-bigbuf | lstate=6 buf_slots=131072 | ok info=0 wrote: 0=0x1 1=0x7ff6 2=0x26a76d60 3=0x7ff6
+ILP64-suser-noprotocol-buf100 | lstate=100 buf_slots=100 | FAULT WRITE slot 32760 (byte 262080) in-DLL
+ILP64-suser-noprotocol-buf16MiB-lstate-slots | lstate=2097152 buf_slots=2097152 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+ILP64-suser-noprotocol-buf16MiB-lstate100 | lstate=100 buf_slots=2097152 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+ILP64-suser-noprotocol-buf1MiB-lstate-slots | lstate=131072 buf_slots=131072 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+ILP64-suser-noprotocol-buf1MiB-lstate100 | lstate=100 buf_slots=131072 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+ILP64-suser-noprotocol-buf32760 | lstate=32760 buf_slots=32760 | FAULT WRITE slot 32760 (byte 262080) in-DLL
+ILP64-suser-noprotocol-buf32761 | lstate=32761 buf_slots=32761 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+ILP64-suser-noprotocol-buf32762 | lstate=32762 buf_slots=32762 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+ILP64-suser-noprotocol-buf32768 | lstate=32768 buf_slots=32768 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+ILP64-suser-noprotocol-buf4096 | lstate=4096 buf_slots=4096 | FAULT WRITE slot 32760 (byte 262080) in-DLL
+ILP64-suser-noprotocol-buf65536 | lstate=65536 buf_slots=65536 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+ILP64-suser-q-lstate-1-lseed-1 | lstate=-1 buf_slots=100 | FAULT WRITE slot 32760 (byte 262080) in-DLL
+ILP64-suser-q-lstate-1-nostateinit | lstate=-1 buf_slots=100 | FAULT WRITE slot 32760 (byte 262080) in-DLL
+ILP64-suser-q-lstate-1-uinin1 | lstate=-1 buf_slots=100 | ok info=0 wrote: 0=0x1 1=0x7ff6 2=0x26a76d60 3=0x7ff6
+ILP64-suser-ugen-fn-a | lstate=100 buf_slots=2097152 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+ILP64-suser-ugen-fn-b | lstate=100 buf_slots=2097152 | ok info=0 wrote: 0=0x7ff6 1=0x26a76ed0 32760=0x26a76ed0
+ILP64-suser-ugen-tramp-10000000-uinin1 | lstate=100 buf_slots=2097152 | ok info=0 wrote: 0=0x1 2=0x10000123
+ILP64-suser-ugen-tramp-10000000 | lstate=100 buf_slots=2097152 | ok info=0 wrote: 1=0x10000123 2=0x10000123
+ILP64-suser-ugen-tramp-100000000-uinin1 | lstate=100 buf_slots=2097152 | ok info=0 wrote: 0=0x1
+ILP64-suser-ugen-tramp-100000000 | lstate=100 buf_slots=2097152 | ok info=0 wrote: 0=0x1 1=0x123 3=0x123
+ILP64-suser-ugen-tramp-2000000000-uinin1 | lstate=100 buf_slots=2097152 | ok info=0 wrote: 0=0x1 1=0x20 2=0x123 3=0x20
+ILP64-suser-ugen-tramp-2000000000 | lstate=100 buf_slots=2097152 | ok info=0 wrote: 0=0x20 1=0x123 34=0x123
+ILP64-suser-ugen-tramp-500000000-uinin1 | lstate=100 buf_slots=2097152 | ok info=0 wrote: 0=0x1 1=0x5 2=0x123 3=0x5
+ILP64-suser-ugen-tramp-500000000 | lstate=100 buf_slots=2097152 | ok info=0 wrote: 0=0x5 1=0x123 7=0x123
+ILP64-suser-ugen-tramp-70000000000-uinin1 | lstate=100 buf_slots=2097152 | ok info=0 wrote: 0=0x1 1=0x700 2=0x123 3=0x700
+ILP64-suser-ugen-tramp-70000000000 | lstate=100 buf_slots=2097152 | ok info=0 wrote: 0=0x700 1=0x123 1794=0x123
+ILP64-suser-ugen-tramp-700000000000-uinin1 | lstate=100 buf_slots=2097152 | ok info=0 wrote: 0=0x1 1=0x7000 2=0x123 3=0x7000
+ILP64-suser-ugen-tramp-700000000000 | lstate=100 buf_slots=2097152 | ok info=0 wrote: 0=0x7000 1=0x123 28674=0x123
+ILP64-suser-uini-fnb | lstate=100 buf_slots=2097152 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+ILP64-suser-uini-tramp-500000000-ugen-tramp-2000000000 | lstate=100 buf_slots=2097152 | ok info=0 wrote: 0=0x20 1=0x123 34=0x123
+ILP64-suser-uini-tramp-500000000 | lstate=100 buf_slots=2097152 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+ILP64-suser-uini-writes-0x5100-seq | lstate=100 buf_slots=2097152 | ok info=0 wrote: 0=0x5100 1=0x5101 2=0x5102 3=0x5103 4=0x5104 5=0x5105 6=0x5106 7=0x5107 20736=0x7ff6 20737=0x26a76d60 20738=0x5101
+ILP64-suser-uinin0-buf100-lstate100 | lstate=100 buf_slots=100 | FAULT WRITE slot 32760 (byte 262080) in-DLL
+ILP64-suser-uinin1-buf100-lstate100 | lstate=100 buf_slots=100 | ok info=0 wrote: 0=0x1 1=0x7ff6 2=0x26a76d60 3=0x7ff6
+ILP64-suser-uinin1-buf16MiB-lstateslots | lstate=2097152 buf_slots=2097152 | ok info=0 wrote: 0=0x1 1=0x7ff6 2=0x26a76d60 3=0x7ff6
+ILP64-suser-uinin1-buf1MiB-lstateslots | lstate=131072 buf_slots=131072 | ok info=0 wrote: 0=0x1 1=0x7ff6 2=0x26a76d60 3=0x7ff6
+ILP64-suser-uinin1-buf3-lstate4-NEGCTL | lstate=4 buf_slots=3 | FAULT WRITE slot 3 (byte 24) in-DLL
+ILP64-suser-uinin1-buf4-lstate4 | lstate=4 buf_slots=4 | ok info=0 wrote: 0=0x1 1=0x7ff6 2=0x26a76d60 3=0x7ff6
+ILP64-suser-uinin1000-buf100-lstate100 | lstate=100 buf_slots=100 | FAULT WRITE slot 1000 (byte 8000) in-DLL
+ILP64-suser-uinin5-buf100-lstate100 | lstate=100 buf_slots=100 | ok info=0 wrote: 0=0x5 1=0x7001 2=0x7002 3=0x7003 4=0x7004 5=0x7ff6 6=0x26a76d60 7=0x7001
+ILP64-suser-uinin97-buf100-lstate100 | lstate=100 buf_slots=100 | ok info=0 wrote: 0=0x61 1=0x7001 2=0x7002 3=0x7003 4=0x7004 5=0x7005 6=0x7006 7=0x7007 8=0x7008 9=0x7009 10=0x700a 11=0x700b
+ILP64-suser-uinin97-buf1MiB-lstateslots | lstate=131072 buf_slots=131072 | ok info=0 wrote: 0=0x61 1=0x7001 2=0x7002 3=0x7003 4=0x7004 5=0x7005 6=0x7006 7=0x7007 8=0x7008 9=0x7009 10=0x700a 11=0x700b
+ILP64-suser-uinin98-buf100-lstate100 | lstate=100 buf_slots=100 | FAULT WRITE slot 100 (byte 800) in-DLL
+ILP64-suser-uinin99-buf100-lstate100 | lstate=100 buf_slots=100 | FAULT WRITE slot 100 (byte 800) in-DLL
+LP64-duser-earlier-1M-slots-lstate100-fillA5 | lstate=100 buf_slots=1000000 | FAULT WRITE slot -1515870811 (byte -6063483244) in-DLL
+LP64-duser-earlier-1M-slots-lstate100 | lstate=100 buf_slots=1000000 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+LP64-duser-lstate0-uinin1-bigbuf | lstate=0 buf_slots=262144 | ok info=0 wrote: 0=0x1 1=0x7ff6 2=0x26a76d60 3=0x7ff6
+LP64-duser-lstate1-uinin1-bigbuf | lstate=1 buf_slots=262144 | ok info=-6 wrote: 
+LP64-duser-lstate2-uinin1-bigbuf | lstate=2 buf_slots=262144 | ok info=-6 wrote: 
+LP64-duser-lstate3-uinin1-bigbuf | lstate=3 buf_slots=262144 | ok info=-6 wrote: 
+LP64-duser-lstate4-uinin1-bigbuf | lstate=4 buf_slots=262144 | ok info=0 wrote: 0=0x1 1=0x7ff6 2=0x26a76d60 3=0x7ff6
+LP64-duser-lstate5-uinin1-bigbuf | lstate=5 buf_slots=262144 | ok info=0 wrote: 0=0x1 1=0x7ff6 2=0x26a76d60 3=0x7ff6
+LP64-duser-lstate6-uinin1-bigbuf | lstate=6 buf_slots=262144 | ok info=0 wrote: 0=0x1 1=0x7ff6 2=0x26a76d60 3=0x7ff6
+LP64-duser-noprotocol-buf100 | lstate=100 buf_slots=100 | FAULT WRITE slot 32760 (byte 131040) in-DLL
+LP64-duser-noprotocol-buf16MiB-lstate-slots | lstate=4194304 buf_slots=4194304 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+LP64-duser-noprotocol-buf16MiB-lstate100 | lstate=100 buf_slots=4194304 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+LP64-duser-noprotocol-buf1MiB-lstate-slots | lstate=262144 buf_slots=262144 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+LP64-duser-noprotocol-buf1MiB-lstate100 | lstate=100 buf_slots=262144 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+LP64-duser-noprotocol-buf32760 | lstate=32760 buf_slots=32760 | FAULT WRITE slot 32760 (byte 131040) in-DLL
+LP64-duser-noprotocol-buf32761 | lstate=32761 buf_slots=32761 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+LP64-duser-noprotocol-buf32762 | lstate=32762 buf_slots=32762 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+LP64-duser-noprotocol-buf32768 | lstate=32768 buf_slots=32768 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+LP64-duser-noprotocol-buf4096 | lstate=4096 buf_slots=4096 | FAULT WRITE slot 32760 (byte 131040) in-DLL
+LP64-duser-noprotocol-buf65536 | lstate=65536 buf_slots=65536 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+LP64-duser-q-lstate-1-lseed-1 | lstate=-1 buf_slots=100 | FAULT WRITE slot 32760 (byte 131040) in-DLL
+LP64-duser-q-lstate-1-nostateinit | lstate=-1 buf_slots=100 | FAULT WRITE slot 32760 (byte 131040) in-DLL
+LP64-duser-q-lstate-1-uinin1 | lstate=-1 buf_slots=100 | ok info=0 wrote: 0=0x1 1=0x7ff6 2=0x26a76d60 3=0x7ff6
+LP64-duser-ugen-fn-a | lstate=100 buf_slots=4194304 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+LP64-duser-ugen-fn-b | lstate=100 buf_slots=4194304 | ok info=0 wrote: 0=0x7ff6 1=0x26a76ed0 32760=0x26a76ed0
+LP64-duser-ugen-tramp-10000000-uinin1 | lstate=100 buf_slots=4194304 | ok info=0 wrote: 0=0x1 2=0x10000123
+LP64-duser-ugen-tramp-10000000 | lstate=100 buf_slots=4194304 | ok info=0 wrote: 1=0x10000123 2=0x10000123
+LP64-duser-ugen-tramp-100000000-uinin1 | lstate=100 buf_slots=4194304 | ok info=0 wrote: 0=0x1 1=0x1 2=0x123 3=0x1
+LP64-duser-ugen-tramp-100000000 | lstate=100 buf_slots=4194304 | ok info=0 wrote: 0=0x1 1=0x123 3=0x123
+LP64-duser-ugen-tramp-2000000000-uinin1 | lstate=100 buf_slots=4194304 | ok info=0 wrote: 0=0x1 1=0x20 2=0x123 3=0x20
+LP64-duser-ugen-tramp-2000000000 | lstate=100 buf_slots=4194304 | ok info=0 wrote: 0=0x20 1=0x123 34=0x123
+LP64-duser-ugen-tramp-500000000-uinin1 | lstate=100 buf_slots=4194304 | ok info=0 wrote: 0=0x1 1=0x5 2=0x123 3=0x5
+LP64-duser-ugen-tramp-500000000 | lstate=100 buf_slots=4194304 | ok info=0 wrote: 0=0x5 1=0x123 7=0x123
+LP64-duser-ugen-tramp-70000000000-uinin1 | lstate=100 buf_slots=4194304 | ok info=0 wrote: 0=0x1 1=0x700 2=0x123 3=0x700
+LP64-duser-ugen-tramp-70000000000 | lstate=100 buf_slots=4194304 | ok info=0 wrote: 0=0x700 1=0x123 1794=0x123
+LP64-duser-ugen-tramp-700000000000-uinin1 | lstate=100 buf_slots=4194304 | ok info=0 wrote: 0=0x1 1=0x7000 2=0x123 3=0x7000
+LP64-duser-ugen-tramp-700000000000 | lstate=100 buf_slots=4194304 | ok info=0 wrote: 0=0x7000 1=0x123 28674=0x123
+LP64-duser-uini-fnb | lstate=100 buf_slots=4194304 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+LP64-duser-uini-tramp-500000000-ugen-tramp-2000000000 | lstate=100 buf_slots=4194304 | ok info=0 wrote: 0=0x20 1=0x123 34=0x123
+LP64-duser-uini-tramp-500000000 | lstate=100 buf_slots=4194304 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+LP64-duser-uini-writes-0x5100-seq | lstate=100 buf_slots=4194304 | ok info=0 wrote: 0=0x5100 1=0x5101 2=0x5102 3=0x5103 4=0x5104 5=0x5105 6=0x5106 7=0x5107 20736=0x7ff6 20737=0x26a76d60 20738=0x5101
+LP64-duser-uinin0-buf100-lstate100 | lstate=100 buf_slots=100 | FAULT WRITE slot 32760 (byte 131040) in-DLL
+LP64-duser-uinin1-buf100-lstate100 | lstate=100 buf_slots=100 | ok info=0 wrote: 0=0x1 1=0x7ff6 2=0x26a76d60 3=0x7ff6
+LP64-duser-uinin1-buf16MiB-lstateslots | lstate=4194304 buf_slots=4194304 | ok info=0 wrote: 0=0x1 1=0x7ff6 2=0x26a76d60 3=0x7ff6
+LP64-duser-uinin1-buf1MiB-lstateslots | lstate=262144 buf_slots=262144 | ok info=0 wrote: 0=0x1 1=0x7ff6 2=0x26a76d60 3=0x7ff6
+LP64-duser-uinin1-buf3-lstate4-NEGCTL | lstate=4 buf_slots=3 | FAULT WRITE slot 3 (byte 12) in-DLL
+LP64-duser-uinin1-buf4-lstate4 | lstate=4 buf_slots=4 | ok info=0 wrote: 0=0x1 1=0x7ff6 2=0x26a76d60 3=0x7ff6
+LP64-duser-uinin1000-buf100-lstate100 | lstate=100 buf_slots=100 | FAULT WRITE slot 1000 (byte 4000) in-DLL
+LP64-duser-uinin5-buf100-lstate100 | lstate=100 buf_slots=100 | ok info=0 wrote: 0=0x5 1=0x7001 2=0x7002 3=0x7003 4=0x7004 5=0x7ff6 6=0x26a76d60 7=0x7001
+LP64-duser-uinin97-buf100-lstate100 | lstate=100 buf_slots=100 | ok info=0 wrote: 0=0x61 1=0x7001 2=0x7002 3=0x7003 4=0x7004 5=0x7005 6=0x7006 7=0x7007 8=0x7008 9=0x7009 10=0x700a 11=0x700b
+LP64-duser-uinin97-buf1MiB-lstateslots | lstate=262144 buf_slots=262144 | ok info=0 wrote: 0=0x61 1=0x7001 2=0x7002 3=0x7003 4=0x7004 5=0x7005 6=0x7006 7=0x7007 8=0x7008 9=0x7009 10=0x700a 11=0x700b
+LP64-duser-uinin98-buf100-lstate100 | lstate=100 buf_slots=100 | FAULT WRITE slot 100 (byte 400) in-DLL
+LP64-duser-uinin99-buf100-lstate100 | lstate=100 buf_slots=100 | FAULT WRITE slot 100 (byte 400) in-DLL
+LP64-suser-earlier-1M-slots-lstate100-fillA5 | lstate=100 buf_slots=1000000 | FAULT WRITE slot -1515870811 (byte -6063483244) in-DLL
+LP64-suser-earlier-1M-slots-lstate100 | lstate=100 buf_slots=1000000 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+LP64-suser-lstate0-uinin1-bigbuf | lstate=0 buf_slots=262144 | ok info=0 wrote: 0=0x1 1=0x7ff6 2=0x26a76d60 3=0x7ff6
+LP64-suser-lstate1-uinin1-bigbuf | lstate=1 buf_slots=262144 | ok info=-6 wrote: 
+LP64-suser-lstate2-uinin1-bigbuf | lstate=2 buf_slots=262144 | ok info=-6 wrote: 
+LP64-suser-lstate3-uinin1-bigbuf | lstate=3 buf_slots=262144 | ok info=-6 wrote: 
+LP64-suser-lstate4-uinin1-bigbuf | lstate=4 buf_slots=262144 | ok info=0 wrote: 0=0x1 1=0x7ff6 2=0x26a76d60 3=0x7ff6
+LP64-suser-lstate5-uinin1-bigbuf | lstate=5 buf_slots=262144 | ok info=0 wrote: 0=0x1 1=0x7ff6 2=0x26a76d60 3=0x7ff6
+LP64-suser-lstate6-uinin1-bigbuf | lstate=6 buf_slots=262144 | ok info=0 wrote: 0=0x1 1=0x7ff6 2=0x26a76d60 3=0x7ff6
+LP64-suser-noprotocol-buf100 | lstate=100 buf_slots=100 | FAULT WRITE slot 32760 (byte 131040) in-DLL
+LP64-suser-noprotocol-buf16MiB-lstate-slots | lstate=4194304 buf_slots=4194304 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+LP64-suser-noprotocol-buf16MiB-lstate100 | lstate=100 buf_slots=4194304 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+LP64-suser-noprotocol-buf1MiB-lstate-slots | lstate=262144 buf_slots=262144 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+LP64-suser-noprotocol-buf1MiB-lstate100 | lstate=100 buf_slots=262144 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+LP64-suser-noprotocol-buf32760 | lstate=32760 buf_slots=32760 | FAULT WRITE slot 32760 (byte 131040) in-DLL
+LP64-suser-noprotocol-buf32761 | lstate=32761 buf_slots=32761 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+LP64-suser-noprotocol-buf32762 | lstate=32762 buf_slots=32762 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+LP64-suser-noprotocol-buf32768 | lstate=32768 buf_slots=32768 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+LP64-suser-noprotocol-buf4096 | lstate=4096 buf_slots=4096 | FAULT WRITE slot 32760 (byte 131040) in-DLL
+LP64-suser-noprotocol-buf65536 | lstate=65536 buf_slots=65536 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+LP64-suser-q-lstate-1-lseed-1 | lstate=-1 buf_slots=100 | FAULT WRITE slot 32760 (byte 131040) in-DLL
+LP64-suser-q-lstate-1-nostateinit | lstate=-1 buf_slots=100 | FAULT WRITE slot 32760 (byte 131040) in-DLL
+LP64-suser-q-lstate-1-uinin1 | lstate=-1 buf_slots=100 | ok info=0 wrote: 0=0x1 1=0x7ff6 2=0x26a76d60 3=0x7ff6
+LP64-suser-ugen-fn-a | lstate=100 buf_slots=4194304 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+LP64-suser-ugen-fn-b | lstate=100 buf_slots=4194304 | ok info=0 wrote: 0=0x7ff6 1=0x26a76ed0 32760=0x26a76ed0
+LP64-suser-ugen-tramp-10000000-uinin1 | lstate=100 buf_slots=4194304 | ok info=0 wrote: 0=0x1 2=0x10000123
+LP64-suser-ugen-tramp-10000000 | lstate=100 buf_slots=4194304 | ok info=0 wrote: 1=0x10000123 2=0x10000123
+LP64-suser-ugen-tramp-100000000-uinin1 | lstate=100 buf_slots=4194304 | ok info=0 wrote: 0=0x1 1=0x1 2=0x123 3=0x1
+LP64-suser-ugen-tramp-100000000 | lstate=100 buf_slots=4194304 | ok info=0 wrote: 0=0x1 1=0x123 3=0x123
+LP64-suser-ugen-tramp-2000000000-uinin1 | lstate=100 buf_slots=4194304 | ok info=0 wrote: 0=0x1 1=0x20 2=0x123 3=0x20
+LP64-suser-ugen-tramp-2000000000 | lstate=100 buf_slots=4194304 | ok info=0 wrote: 0=0x20 1=0x123 34=0x123
+LP64-suser-ugen-tramp-500000000-uinin1 | lstate=100 buf_slots=4194304 | ok info=0 wrote: 0=0x1 1=0x5 2=0x123 3=0x5
+LP64-suser-ugen-tramp-500000000 | lstate=100 buf_slots=4194304 | ok info=0 wrote: 0=0x5 1=0x123 7=0x123
+LP64-suser-ugen-tramp-70000000000-uinin1 | lstate=100 buf_slots=4194304 | ok info=0 wrote: 0=0x1 1=0x700 2=0x123 3=0x700
+LP64-suser-ugen-tramp-70000000000 | lstate=100 buf_slots=4194304 | ok info=0 wrote: 0=0x700 1=0x123 1794=0x123
+LP64-suser-ugen-tramp-700000000000-uinin1 | lstate=100 buf_slots=4194304 | ok info=0 wrote: 0=0x1 1=0x7000 2=0x123 3=0x7000
+LP64-suser-ugen-tramp-700000000000 | lstate=100 buf_slots=4194304 | ok info=0 wrote: 0=0x7000 1=0x123 28674=0x123
+LP64-suser-uini-fnb | lstate=100 buf_slots=4194304 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+LP64-suser-uini-tramp-500000000-ugen-tramp-2000000000 | lstate=100 buf_slots=4194304 | ok info=0 wrote: 0=0x20 1=0x123 34=0x123
+LP64-suser-uini-tramp-500000000 | lstate=100 buf_slots=4194304 | ok info=0 wrote: 0=0x7ff6 1=0x26a76d60 32760=0x26a76d60
+LP64-suser-uini-writes-0x5100-seq | lstate=100 buf_slots=4194304 | ok info=0 wrote: 0=0x5100 1=0x5101 2=0x5102 3=0x5103 4=0x5104 5=0x5105 6=0x5106 7=0x5107 20736=0x7ff6 20737=0x26a76d60 20738=0x5101
+LP64-suser-uinin0-buf100-lstate100 | lstate=100 buf_slots=100 | FAULT WRITE slot 32760 (byte 131040) in-DLL
+LP64-suser-uinin1-buf100-lstate100 | lstate=100 buf_slots=100 | ok info=0 wrote: 0=0x1 1=0x7ff6 2=0x26a76d60 3=0x7ff6
+LP64-suser-uinin1-buf16MiB-lstateslots | lstate=4194304 buf_slots=4194304 | ok info=0 wrote: 0=0x1 1=0x7ff6 2=0x26a76d60 3=0x7ff6
+LP64-suser-uinin1-buf1MiB-lstateslots | lstate=262144 buf_slots=262144 | ok info=0 wrote: 0=0x1 1=0x7ff6 2=0x26a76d60 3=0x7ff6
+LP64-suser-uinin1-buf3-lstate4-NEGCTL | lstate=4 buf_slots=3 | FAULT WRITE slot 3 (byte 12) in-DLL
+LP64-suser-uinin1-buf4-lstate4 | lstate=4 buf_slots=4 | ok info=0 wrote: 0=0x1 1=0x7ff6 2=0x26a76d60 3=0x7ff6
+LP64-suser-uinin1000-buf100-lstate100 | lstate=100 buf_slots=100 | FAULT WRITE slot 1000 (byte 4000) in-DLL
+LP64-suser-uinin5-buf100-lstate100 | lstate=100 buf_slots=100 | ok info=0 wrote: 0=0x5 1=0x7001 2=0x7002 3=0x7003 4=0x7004 5=0x7ff6 6=0x26a76d60 7=0x7001
+LP64-suser-uinin97-buf100-lstate100 | lstate=100 buf_slots=100 | ok info=0 wrote: 0=0x61 1=0x7001 2=0x7002 3=0x7003 4=0x7004 5=0x7005 6=0x7006 7=0x7007 8=0x7008 9=0x7009 10=0x700a 11=0x700b
+LP64-suser-uinin97-buf1MiB-lstateslots | lstate=262144 buf_slots=262144 | ok info=0 wrote: 0=0x61 1=0x7001 2=0x7002 3=0x7003 4=0x7004 5=0x7005 6=0x7006 7=0x7007 8=0x7008 9=0x7009 10=0x700a 11=0x700b
+LP64-suser-uinin98-buf100-lstate100 | lstate=100 buf_slots=100 | FAULT WRITE slot 100 (byte 400) in-DLL
+LP64-suser-uinin99-buf100-lstate100 | lstate=100 buf_slots=100 | FAULT WRITE slot 100 (byte 400) in-DLL

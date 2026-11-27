@@ -22,6 +22,9 @@ extern "C" {
         info: *mut rng_int_t,
     );
     // guide 6.0 (68552) L112215
+    /// **Unsafe; undocumented protocol.** Requires the `uini` callback to set `state[0] = n` and `lstate >= n + 3`; the guide does not state
+    /// this. Measured on AOCL 6.0.68 Windows (see `docs/cleanroom/types/userinit/USERINIT-MEASUREMENT.md`). The library does not validate `n`
+    /// against `lstate`, so a `uini` that does not follow it corrupts memory. No safe wrapper exists and no test calls this.
     pub fn drandinitializeuser(
         uini: RNG_DRANDINITIALIZEUSER_UINI,
         ugen: RNG_DRANDINITIALIZEUSER_UGEN,

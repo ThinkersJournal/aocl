@@ -1,4 +1,4 @@
-# Link-all check: every declared symbol of aocl-math-sys (the RNG crates join in their own PR) resolves in the installed AOCL.
+# Link-all check: every declared symbol of aocl-math-sys and aocl-rng-sys (+ SecureRNG) resolves in the installed AOCL.
 # A declaration that cannot link is the defect class of the yanked aocl 0.1.0 and the 20 amd_fast* of 0.2.7.
 # Needs AOCL (AOCL_ROOT or %ProgramFiles%\AMD\AOCL-Windows) + oneAPI compiler runtime; fails loudly, installs nothing.
 $ErrorActionPreference = 'Stop'
@@ -14,9 +14,21 @@ $extra = if ($oneapi) { @(Join-Path $oneapi.FullName 'bin') } else { @() }
 $cargoDir = @((Get-Command cargo -ErrorAction SilentlyContinue | ForEach-Object { Split-Path $_.Source }), (Join-Path $env:CARGO_HOME 'bin'), (Join-Path $env:USERPROFILE '.cargo\bin'), 'C:\rust\.cargo\bin') | Where-Object { $_ -and (Test-Path (Join-Path $_ 'cargo.exe')) } | Select-Object -First 1
 if (-not $cargoDir) { throw 'cargo not found' }
 $tail = ';C:\Windows\System32;C:\Windows;' + $cargoDir + ';' + (Join-Path $env:ProgramFiles 'Git\cmd')
+foreach ($w in 'LP64', 'ILP64') {
+  $p = if ($w -eq 'ILP64') { $ilp + $non } else { $non }
+  $env:PATH = (($p + $extra) -join ';') + $tail
+  $env:CARGO_BUILD_BUILD_DIR = "target-linkall-$w"
+  $f = if ($w -eq 'ILP64') { 'ilp64' } else { '' }
+  cargo test -p aocl-rng-sys --features $f --test link_all_lower --test upper_kat
+  if ($LASTEXITCODE -ne 0) { throw "aocl-rng-sys link-all failed ($w)" }
+}
 # LibM has no integer-width split.
 $env:PATH = (($non + $extra) -join ';') + $tail
 $env:CARGO_BUILD_BUILD_DIR = 'target-linkall-math'
 cargo test -p aocl-math-sys --test link_all
 if ($LASTEXITCODE -ne 0) { throw 'aocl-math-sys link-all failed' }
+# SecureRNG (separate library amdsecrng; LP64 build, the ILP64 DLL is byte-identical in its sections).
+$env:CARGO_BUILD_BUILD_DIR = 'target-linkall-sec'
+cargo test -p aocl-securerng-sys --test securerng
+if ($LASTEXITCODE -ne 0) { throw 'aocl-securerng-sys link-all failed' }
 'link-all: OK'
