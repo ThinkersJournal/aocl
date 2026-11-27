@@ -1,0 +1,74 @@
+== crate tests, build=ilp64, 2026-11-27T15:36:48
+$ git rev-parse HEAD    (cwd C:\Projects\aocl-wt-orng)
+4df250d16fa510768dfa14ac6a447829894f9231
+[exit 0]
+$ git status --short --untracked-files=no    (cwd C:\Projects\aocl-wt-orng)
+ M Cargo.lock
+[exit 0]
+openrng.dll    sha256=1d3fd3a49fad0cf4b8ac62fd7583d5f77f5a9688d23ec30681bfc4fd3726b771 OK = build record
+openrng.lib    sha256=1d534f3e2b7dd87032a0cbad9e0d17ec8ad82189cbbc8d5a50f6355c6a84ab56 OK = build record
+$ C:\rust\.cargo\bin\cargo.exe test --offline -p aocl-openrng-sys --features ilp64 -- --nocapture --test-threads=1    (cwd C:\Projects\aocl-wt-orng)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 1 test
+test record_philox_words ... KAT PHILOX4X32X10 seed=42  viRngUniformBits32 x8 = 9ceaf053 77f5493b 12bf50ad 5742b3d7 fcdb2127 53ba6cfd 838f5a6e 744e06fb
+KAT PHILOX4X32X10 seed=42  vdRngUniform[0,1) x4 bits = 3fbceaf053000000 3feefea927600000 3fe257ea15a00000 3feae8567ae00000 values = [0.11295988108031452, 0.9685865181963891, 0.5732317373622209, 0.8408615493681282]
+KAT seed=42 repeat identical: true
+KAT PHILOX4X32X10 seed=0   viRngUniformBits32 x8 = 6627e8d5 e169c58d bc57ac4c 9b00dbd8 f8e4cca4 5cb200db b1a574eb 097eff67
+KAT PHILOX4X32X10 seed=0   vdRngUniform[0,1) x4 bits = 3fecc4fd1aa00000 3fd85a7163400000 3fce2bd626000000 3fbb00dbd8000000 values = [0.8990464706439525, 0.380520197795704, 0.23571278434246778, 0.10548185370862484]
+KAT seed=0 repeat identical: true
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 1 test
+test all_openrng_symbols_link ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 4 tests
+test deterministic_and_in_range ... ok
+test philox_seed0_matches_the_published_random123_vector ... ok
+test philox_seed42_matches_the_recorded_words ... ok
+test width_matches_feature ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 1 test
+test ilp64_feature_matches_an_ilp64_library ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 1 test
+test record_width_probe ... PROBE crate openrng_int_t = 8 bytes (the crate's own type for this build)
+PROBE n=4 (control: both widths accept)                          status=0      doubles_written=4
+PROBE n=-4 (control: both widths refuse)                         status=-2     doubles_written=0
+PROBE n=0xFFFFFFFF_00000004 (low half 4, high half all ones)     status=-2     doubles_written=0
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling aocl-openrng-sys v0.2.27 (C:\Projects\aocl-wt-orng\crates\aocl-openrng-sys)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.51s
+     Running unittests src\lib.rs (C:\openrng-measure\target-crate-ilp64\debug\build\aocl-openrng-sys/c8f6b37b9ddb0549\out\aocl_openrng_sys-c8f6b37b9ddb0549.exe)
+     Running tests\kat_record.rs (C:\openrng-measure\target-crate-ilp64\debug\build\aocl-openrng-sys/83bf50bbbdf58990\out\kat_record-83bf50bbbdf58990.exe)
+     Running tests\link_all.rs (C:\openrng-measure\target-crate-ilp64\debug\build\aocl-openrng-sys/a473af7aa3a809bd\out\link_all-a473af7aa3a809bd.exe)
+     Running tests\stream.rs (C:\openrng-measure\target-crate-ilp64\debug\build\aocl-openrng-sys/1880ff168b008b76\out\stream-1880ff168b008b76.exe)
+     Running tests\width_match.rs (C:\openrng-measure\target-crate-ilp64\debug\build\aocl-openrng-sys/612ccc04580b9cf0\out\width_match-612ccc04580b9cf0.exe)
+     Running tests\width_probe.rs (C:\openrng-measure\target-crate-ilp64\debug\build\aocl-openrng-sys/44ad66e2b1f26e60\out\width_probe-44ad66e2b1f26e60.exe)
+   Doc-tests aocl_openrng_sys
+[exit 0]
+== finished; exit 0

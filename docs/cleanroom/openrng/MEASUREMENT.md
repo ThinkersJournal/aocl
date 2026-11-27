@@ -71,3 +71,17 @@ asserts in `tests/stream.rs` (seed 0 = the Random123 vector above; seed 42 = the
 numbers and compiled against both builds (the warning was seen for an ILP64 dir with the feature off). Running the new tests needs the PM-built DLLs, which this lane may not run; they
 are for the PM's session or CI to run: `set OPENRNG_LIB_DIR=...\rel-llvm-<lp64|ilp64>\install\lib` then
 `cargo test -p aocl-openrng-sys [--features ilp64]` (PATH with the build's `lib` dir and `amd-libm\lib`).
+
+## The crate's own tests, run on both builds (run by the PM session on CireSnave's 524: A)
+After the width guard and the known-answer asserts were added to `crates/aocl-openrng-sys` (the skeleton PR, #34, branch `lane/openrng-skeleton` at `4df250d1`), the PM ran the crate's tests on each build with
+`measurement-harness/run_crate_tests.py` (hashes of `openrng.dll`/`openrng.lib` checked against the build record first; writes only under its own folder; no network):
+```
+set OPENRNG_LIB_DIR=C:\openrng-build\src\build\rel-llvm-lp64\install\lib  & python -I C:\openrng-measure\run_crate_tests.py
+set OPENRNG_LIB_DIR=C:\openrng-build\src\build\rel-llvm-ilp64\install\lib & python -I C:\openrng-measure\run_crate_tests.py     (adds --features ilp64 itself)
+```
+Result, both builds exit 0 (`measurement-raw/CRATE-TESTS-lp64-20261127-153643.txt`, `CRATE-TESTS-ilp64-20261127-153648.txt`): `link_all` ok; `stream` 4 ok (`deterministic_and_in_range`,
+`philox_seed0_matches_the_published_random123_vector`, `philox_seed42_matches_the_recorded_words`, `width_matches_feature`); `width_probe` and `kat_record` ok; `width_match`: the LP64 run executed
+`lp64_feature_off_is_32_bit_and_a_legal_n_works`, the ILP64 run executed `ilp64_feature_matches_an_ilp64_library`, both ok.
+
+**Not exercised:** the *mismatch fails* case of `width_match` (the `ilp64` feature ON against the LP64 library, which must make `ilp64_feature_matches_an_ilp64_library` fail): both runs used the MATCHING feature, so the
+guard's failure path was not demonstrated; only the pass paths were. The build-time warning for a mismatched `OPENRNG_LIB_DIR` was seen once on this lane's machine (ILP64 dir, feature off), not in the PM runs.
