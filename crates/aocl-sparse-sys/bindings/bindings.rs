@@ -4,13 +4,13 @@ pub const AOCLSPARSE_VERSION_MAJOR: u32 = 6;
 pub const AOCLSPARSE_VERSION_MINOR: u32 = 0;
 pub const AOCLSPARSE_VERSION_PATCH: u32 = 0;
 pub type aoclsparse_int = i32;
-#[repr(C)]
+#[repr(C, align(8))]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct aoclsparse_float_complex {
     pub real: f32,
     pub imag: f32,
 }
-#[repr(C)]
+#[repr(C, align(16))]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct aoclsparse_double_complex_ {
     pub real: f64,
