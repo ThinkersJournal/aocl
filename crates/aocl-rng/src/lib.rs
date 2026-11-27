@@ -528,9 +528,14 @@ pub struct BlumBlumShub {
 impl BlumBlumShub {
     /// Initialise BBS from prime factors `p` and `q` (must each be
     /// `≡ 3 (mod 4)`) and a seed `s` coprime to `p · q`. `nbits`
-    /// controls how many bits per call to extract. **Warning (measured, AOCL 6.0.68):** with primes above roughly 100 000
-    /// (e.g. `p = 999983`, `q = 1000003`), with a seed of 1, and with `nbits` of 1, 8 or 15 in those cases, this call never
-    /// returns (100 % CPU); primes up to 100 003 work. No timeout is possible, so keep `p` and `q` small.
+    /// controls how many bits per call to extract (1..=15; clamped).
+    ///
+    /// **Warning (measured on AOCL 6.0.68 Windows, docs/RNG-BBS-HANG-20261127.md):** for some prime pairs this call never returns
+    /// (100 % CPU). Every pair with both primes <= 99 991 returned at once; above about 200 000 some pairs hang and some work
+    /// (not monotonic in size; e.g. `225307/225299` hangs, `541271/541267` and `812527/812519` work; one hanging prime is
+    /// enough). The seed and `nbits` are not involved. The library documents no bound and the cause is not known, so the
+    /// wrapper cannot validate it; keep `p` and `q` below 100 000 unless you have tested the pair. AMD deprecates this
+    /// generator in favour of SecureRNG.
     pub fn new(
         nbits: RngInt,
         p: &mut [RngInt],
