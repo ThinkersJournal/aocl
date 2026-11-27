@@ -15,6 +15,8 @@ keywords = ["aocl", "amd", "libm", "math", "ffi"]
 [features]
 default = []
 static-link = []
+# NIGHTLY ONLY: declares the 156 by-value SIMD functions (needs rustc `feature(simd_ffi)`). Never default; do not enable on stable or docs.rs.
+simd_ffi = []
 
 [build-dependencies]
 aocl-build = { version = "0.2", path = "../aocl-build" }

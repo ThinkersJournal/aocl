@@ -10,9 +10,12 @@ Dual-licensed under MIT or Apache-2.0.
 pointers), exactly as the AOCL API Guide 6.0 states them.
 
 **Not declared, and why:**
-- **156 by-value SIMD functions** (`amd_vrs4_*`, `amd_vrd2_*`, `amd_vrd4_*`, `amd_vrs8_*`, `amd_vrd8_*`, `amd_vrs16_*`, ...) take `__m128`..`__m512d`
-  by value; stable Rust rejects SIMD types in an `extern "C"` block (it needs the nightly `simd_ffi` feature). The array forms
-  cover the same functions. They remain a recorded later row.
+- **156 by-value SIMD functions on stable** (`amd_vrs4_*`, `amd_vrd2_*`, `amd_vrd4_*`, `amd_vrs8_*`, `amd_vrd8_*`, `amd_vrs16_*`, ...) take `__m128`..`__m512d`
+  by value; stable Rust rejects SIMD types in an `extern "C"` block. They are declared behind the **nightly-only** Cargo feature
+  `simd_ffi` (needs `rustc` `feature(simd_ffi)`; never default, not enabled for docs.rs), IN ADDITION to the array forms.
+  Tested on `rustc 1.101.0-nightly (1c3a65069 2026-11-02)`, Windows x86_64, AOCL 6.0.68: `docs/cleanroom/probe/cargo-test-simd.ps1`
+  checks `amd_vrs4_sinf`/`cosf`, `amd_vrd2_sin`, `amd_vrs8_sinf`, `amd_vrd4_sin`, `amd_vrs16_sinf` lane by lane against the scalar
+  functions (a sample of 6 of the 156; the others are declared, not called).
 - **8 functions with a type the guide never defines:** `amd_nexttoward`, `amd_nexttowardf` (`long double`) and `amd_cexp`,
   `amd_cexpf`, `amd_clog`, `amd_clogf`, `amd_cpow`, `amd_cpowf` (`fc32_t`, `fc64_t`): the ABI cannot be derived from the guide.
 - **1 unreadable:** `amd_vrd2_sincos`: its line in the guide text is garbled; it stays UNKNOWN rather than guessed.

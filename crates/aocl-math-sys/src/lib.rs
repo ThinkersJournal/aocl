@@ -8,9 +8,13 @@
 //! `amd_nexttowardf` (`long double`) and the six complex functions (`fc32_t`/`fc64_t`). `amd_vrd2_sincos` is also
 //! absent: its guide line is too garbled to read with certainty.
 //!
-//! The 156 vector-API functions the guide also states take `__m128`..`__m512d` by value, which stable Rust cannot declare in\n//! an `extern "C"` block (it needs the nightly `simd_ffi` feature). They are in `docs/cleanroom/math_decls.rs` and are not\n//! wired here. The previous header-derived crate declared the scalar API only, so no scalar item is lost.\n//!
+//! The 156 vector-API functions the guide also states take `__m128`..`__m512d` by value, which stable Rust cannot declare in
+//! an `extern "C"` block (it needs the nightly `simd_ffi` compiler feature). They are declared in `decls_simd.rs` behind
+//! this crate's **nightly-only** `simd_ffi` Cargo feature (never default, never enabled for docs.rs); see `README.md`.
+//!
 //! For a safe, idiomatic API see [`aocl-math`](https://docs.rs/aocl-math).
 
+#![cfg_attr(feature = "simd_ffi", feature(simd_ffi))]
 #![allow(
     non_upper_case_globals,
     non_camel_case_types,
@@ -23,3 +27,8 @@
 
 mod decls_scalar;
 pub use decls_scalar::*;
+
+#[cfg(feature = "simd_ffi")]
+mod decls_simd;
+#[cfg(feature = "simd_ffi")]
+pub use decls_simd::*;
