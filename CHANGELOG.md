@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.23 - 2026-11-27 (PM-allocated; tools/wrapper-coverage.py and docs: exposed versus tested per wrapper; patch on 0.2.x, tools and docs only)
+
+- **tools:** `tools/wrapper-coverage.py` compares each safe wrapper's exposed public functions with the names its tests mention; `docs/WRAPPER-COVERAGE-20261127.md`: 638 exposed, 257 mentioned, 381 without any test (the gaps are listed per wrapper). Tests for the gaps follow, smallest crates first.
+
 ## 0.2.22 - 2026-11-27 (PM-allocated; CI: adopt the advisory portfolio job, pinned reusable workflow; patch on 0.2.x, tools and CI only)
 
 - **CI:** the advisory `portfolio` job (reusable workflow `ciresnave/coderipper/.github/workflows/portfolio.yml` pinned to `467fd259d6d062cba4c5683d310f1a6f2b66e763`, `permissions: contents: read`, same syntax as cpufish) in `ci.yml`: not a required check, not in branch protection (CireSnave 2026-10-23). ROADMAP row 12.
