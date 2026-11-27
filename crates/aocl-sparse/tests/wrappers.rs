@@ -1318,3 +1318,657 @@ fn set_value_c64_by_value_complex_argument() {
         Some(cxm::mv::<Complex64>),
     );
 }
+
+// ---------------------------------------------------------------- format conversions: csc, ell, dia
+
+fn rect<T: Lib>() -> D {
+    dm::<T>(&[&[1., 0., 2., 0.], &[0., 3., 0., 4.], &[5., 6., 0., 7.]])
+}
+fn t_csc<T: Lib>(
+    f: fn(
+        usize,
+        usize,
+        &MatDescr,
+        IndexBase,
+        &[I],
+        &[I],
+        &[T],
+        &mut [I],
+        &mut [I],
+        &mut [T],
+    ) -> Result<()>,
+) {
+    let a = rect::<T>();
+    let cs = csr(&a);
+    for base in [IndexBase::Zero, IndexBase::One] {
+        let (rp, ci) = cs.arrays(base);
+        let d = gen_descr(base);
+        let (mut row_ind, mut col_ptr, mut val) =
+            (vec![0 as I; 7], vec![0 as I; 5], vec![T::mk(ZERO); 7]);
+        f(
+            3,
+            4,
+            &d,
+            base,
+            &rp,
+            &ci,
+            &lv::<T>(&cs.v),
+            &mut row_ind,
+            &mut col_ptr,
+            &mut val,
+        )
+        .unwrap();
+        // transposed dense reconstruction: CSC of A is the CSR of A^T
+        let at = opd(&a, Trans::T);
+        let rec = csr_dense(4, 3, base, &col_ptr, &row_ind, &cv(&val));
+        dense_eq(&format!("csr_to_csc {base:?}"), &rec, &at, T::TOL);
+        let counts: Vec<I> = (0..4)
+            .map(|j| (0..3).filter(|&i| a[i][j] != ZERO).count() as I + off(base))
+            .collect();
+        assert_eq!(col_ptr[0], off(base));
+        assert_eq!(col_ptr[4] - off(base), 7);
+        assert_eq!(
+            &col_ptr[1..],
+            &[
+                counts[0],
+                counts[1] + counts[0] - off(base),
+                counts[2] + counts[1] + counts[0] - 2 * off(base),
+                7 + off(base)
+            ]
+        );
+    }
+    // wrong output sizes are rejected by the wrapper
+    let (rp, ci) = cs.arrays(IndexBase::Zero);
+    let d = gen_descr(IndexBase::Zero);
+    let (mut row_ind, mut val) = (vec![0 as I; 7], vec![T::mk(ZERO); 7]);
+    assert!(f(
+        3,
+        4,
+        &d,
+        IndexBase::Zero,
+        &rp,
+        &ci,
+        &lv::<T>(&cs.v),
+        &mut row_ind,
+        &mut [0 as I; 4],
+        &mut val
+    )
+    .is_err());
+    assert!(f(
+        3,
+        4,
+        &d,
+        IndexBase::Zero,
+        &rp,
+        &ci,
+        &lv::<T>(&cs.v),
+        &mut row_ind[..6],
+        &mut [0 as I; 5],
+        &mut val
+    )
+    .is_err());
+}
+#[test]
+fn csr_to_csc_is_the_transposed_csr() {
+    t_csc::<f64>(s::csr_to_csc::<f64>);
+    t_csc::<f32>(s::csr_to_csc::<f32>);
+}
+
+fn t_ell<T: Lib + s::Scalar>(
+    f: fn(usize, &MatDescr, &[I], &[I], &[T], &mut [I], &mut [T], usize) -> Result<()>,
+) {
+    let a = rect::<T>();
+    let cs = csr(&a);
+    let w = 3; // the longest row has 3 nonzeros
+    let (mut col, mut val) = (vec![0 as I; 3 * w], vec![T::mk(ZERO); 3 * w]);
+    f(
+        3,
+        &gen_descr(IndexBase::Zero),
+        &cs.rp,
+        &cs.ci,
+        &lv::<T>(&cs.v),
+        &mut col,
+        &mut val,
+        w,
+    )
+    .unwrap();
+    // rebuild the dense matrix from the ELL slots (row-major slots, padding slots carry value 0)
+    let mut rec = vec![vec![ZERO; 4]; 3];
+    for i in 0..3 {
+        for k in 0..w {
+            let z = val[i * w + k].get();
+            if z != ZERO {
+                assert_eq!(
+                    rec[i][col[i * w + k] as usize],
+                    ZERO,
+                    "column repeated in row {i}"
+                );
+                rec[i][col[i * w + k] as usize] = z;
+            }
+        }
+    }
+    dense_eq("csr2ell", &rec, &a, T::TOL);
+    // and the ELL result drives ellmv to the dense product
+    let x = vecg::<T>(4, 1);
+    let mut y = vec![T::mk(ZERO); 3];
+    s::ellmv(
+        Trans::No,
+        T::mk(ONE),
+        3,
+        4,
+        &val,
+        &col,
+        w,
+        &gen_descr(IndexBase::Zero),
+        &lv::<T>(&x),
+        T::mk(ZERO),
+        &mut y,
+    )
+    .unwrap();
+    check("ellmv of csr2ell", &y, &mv_d(&a, &x));
+}
+#[test]
+fn csr2ell_pads_rows_to_the_width() {
+    t_ell::<f64>(s::csr2ell_f64);
+    t_ell::<f32>(s::csr2ell_f32);
+}
+
+fn t_dia<T: Lib>(
+    f: fn(usize, usize, &MatDescr, &[I], &[I], &[T], usize, &mut [I], &mut [T]) -> Result<()>,
+) {
+    // 4x4 with diagonals -1, 0 and +2 populated
+    let a = dm::<T>(&[
+        &[1., 0., 2., 0.],
+        &[3., 4., 0., 5.],
+        &[0., 6., 7., 0.],
+        &[0., 0., 8., 9.],
+    ]);
+    let cs = csr(&a);
+    let (mut off_d, mut val) = (vec![0 as I; 3], vec![T::mk(c(-9.0, 0.0)); 12]);
+    f(
+        4,
+        4,
+        &gen_descr(IndexBase::Zero),
+        &cs.rp,
+        &cs.ci,
+        &lv::<T>(&cs.v),
+        3,
+        &mut off_d,
+        &mut val,
+    )
+    .unwrap();
+    let mut sorted = off_d.clone();
+    sorted.sort();
+    assert_eq!(sorted, [-1, 0, 2], "diagonal offsets");
+    // dia_val holds one length-m column per diagonal: val[d * m + i] is A[i][i + off_d[d]]
+    let mut rec = vec![vec![ZERO; 4]; 4];
+    for (dg, &o) in off_d.iter().enumerate() {
+        for i in 0..4i64 {
+            let j = i + o as i64;
+            let z = val[dg * 4 + i as usize].get();
+            if (0..4).contains(&j) {
+                rec[i as usize][j as usize] = z;
+            }
+        }
+    }
+    dense_eq("csr2dia", &rec, &a, T::TOL);
+}
+#[test]
+fn csr2dia_stores_one_column_per_diagonal() {
+    t_dia::<f64>(s::csr2dia_f64);
+    t_dia::<f32>(s::csr2dia_f32);
+}
+
+// ---------------------------------------------------------------- creators (csc, tcsr), library-owned handles
+
+/// Create a raw handle with `create`, turn it into a CSR handle with `aoclsparse_convert_csr` and compare it with `want`.
+fn csr_of_raw<T: Lib>(raw: Raw, want: &D, what: &str) {
+    let mut conv: Raw = std::ptr::null_mut();
+    let st = unsafe {
+        sys::aoclsparse_convert_csr(
+            raw,
+            sys::aoclsparse_operation__aoclsparse_operation_none,
+            &mut conv,
+        )
+    };
+    assert_eq!(
+        st,
+        sys::aoclsparse_status__aoclsparse_status_success,
+        "{what}: convert_csr status"
+    );
+    let h = T::own(conv).unwrap();
+    let (b, rp, ci, val) = T::export(&h);
+    dense_eq(
+        what,
+        &csr_dense(nrow(want), ncol(want), b, &rp, &ci, &val),
+        want,
+        T::TOL,
+    );
+}
+fn destroy(mut raw: Raw) {
+    let st = unsafe { sys::aoclsparse_destroy(&mut raw) };
+    assert_eq!(st, sys::aoclsparse_status__aoclsparse_status_success);
+}
+fn t_create_csc<T: Lib>(
+    f: fn(IndexBase, usize, usize, usize, &mut [I], &mut [I], &mut [T]) -> Result<Raw>,
+) {
+    let a = rect::<T>();
+    for base in [IndexBase::Zero, IndexBase::One] {
+        let o = off(base);
+        let at = opd(&a, Trans::T); // column j of A is row j of A^T
+        let cs = csr(&at);
+        let mut cp: Vec<I> = cs.rp.iter().map(|p| p + o).collect();
+        let mut ri: Vec<I> = cs.ci.iter().map(|j| j + o).collect();
+        let mut vals = lv::<T>(&cs.v);
+        let raw = f(base, 3, 4, cs.v.len(), &mut cp, &mut ri, &mut vals).unwrap();
+        csr_of_raw::<T>(raw, &a, &format!("create_csc {base:?}"));
+        destroy(raw);
+    }
+    // a row index outside 0..m is invalid_index_value
+    let (mut cp, mut ri, mut vals) = ([0 as I, 1, 1, 1, 1], [3 as I], [T::mk(ONE)]);
+    assert!(f(IndexBase::Zero, 3, 4, 1, &mut cp, &mut ri, &mut vals).is_err());
+}
+#[test]
+fn create_csc_builds_a_matrix_equal_to_the_dense_source() {
+    t_create_csc::<f64>(s::create_csc_f64);
+    t_create_csc::<f32>(s::create_csc_f32);
+    t_create_csc::<Complex64>(cxm::create_csc_c64);
+    t_create_csc::<Complex32>(cxm::create_csc_c32);
+}
+
+type Tcsr<T> = fn(
+    IndexBase,
+    usize,
+    usize,
+    usize,
+    &mut [I],
+    &mut [I],
+    &mut [I],
+    &mut [I],
+    &mut [T],
+    &mut [T],
+) -> Result<Raw>;
+fn t_create_tcsr<T: Lib>(f: Tcsr<T>) {
+    let a = spd::<T>(); // symmetric / Hermitian, the type the Gauss-Seidel sweep accepts on TCSR
+    for base in [IndexBase::Zero, IndexBase::One] {
+        let o = off(base);
+        // L part per row: strictly-lower entries then the diagonal; U part per row: the diagonal then the strictly-upper entries
+        let (mut rl, mut ru, mut cl, mut cu, mut vl, mut vu) =
+            (vec![o], vec![o], vec![], vec![], vec![], vec![]);
+        for i in 0..4 {
+            for j in (0..=i).filter(|&j| a[i][j] != ZERO) {
+                cl.push(j as I + o);
+                vl.push(a[i][j]);
+            }
+            for j in (i..4).filter(|&j| a[i][j] != ZERO) {
+                cu.push(j as I + o);
+                vu.push(a[i][j]);
+            }
+            rl.push(cl.len() as I + o);
+            ru.push(cu.len() as I + o);
+        }
+        let nnz = cl.len() + cu.len() - 4; // the diagonal is stored in both parts
+        let (mut vl, mut vu) = (lv::<T>(&vl), lv::<T>(&vu));
+        let raw = f(
+            base, 4, 4, nnz, &mut rl, &mut ru, &mut cl, &mut cu, &mut vl, &mut vu,
+        )
+        .unwrap();
+        // TCSR cannot be exported or converted to CSR (both answer an error), so the content is checked through a triangular
+        // solve (the operation the header lists for TCSR): `L y = b` and `U y = b` against the dense triangles, by multiplying back
+        for fill in [FillMode::Lower, FillMode::Upper] {
+            let tri: D = (0..4)
+                .map(|i| {
+                    (0..4)
+                        .map(|j| {
+                            if (fill == FillMode::Lower && j <= i)
+                                || (fill == FillMode::Upper && j >= i)
+                            {
+                                a[i][j]
+                            } else {
+                                ZERO
+                            }
+                        })
+                        .collect()
+                })
+                .collect();
+            let b = vecg::<T>(4, 3);
+            let mut x = vec![T::mk(ZERO); 4];
+            let st = T::trsv_raw(
+                raw,
+                &descr(MatType::Triangular, fill, DiagType::NonUnit, base),
+                T::mk(ONE),
+                &lv::<T>(&b),
+                &mut x,
+            );
+            assert_eq!(
+                st,
+                sys::aoclsparse_status__aoclsparse_status_success,
+                "trsv on TCSR {base:?} {fill:?}"
+            );
+            checkc(
+                &format!("tcsr trsv {base:?} {fill:?}"),
+                &mv_d(&tri, &cv(&x)),
+                &b,
+                T::TOL * 20.0,
+            );
+        }
+        destroy(raw);
+    }
+    // TCSR needs a full diagonal: a missing one is invalid_value
+    let (mut rl, mut ru, mut cl, mut cu) = ([0 as I, 0, 1], [0 as I, 1, 1], [0 as I], [1 as I]);
+    let (mut vl, mut vu) = ([T::mk(ONE)], [T::mk(ONE)]);
+    assert!(f(
+        IndexBase::Zero,
+        2,
+        2,
+        2,
+        &mut rl,
+        &mut ru,
+        &mut cl,
+        &mut cu,
+        &mut vl,
+        &mut vu
+    )
+    .is_err());
+}
+#[test]
+fn create_tcsr_builds_a_matrix_equal_to_the_dense_source() {
+    t_create_tcsr::<f64>(s::create_tcsr_f64);
+    t_create_tcsr::<f32>(s::create_tcsr_f32);
+    t_create_tcsr::<Complex64>(cxm::create_tcsr_c64);
+    t_create_tcsr::<Complex32>(cxm::create_tcsr_c32);
+}
+
+fn t_own<T: Lib>() {
+    let a = rect::<T>();
+    let h = T::build(IndexBase::One, &csr(&a));
+    let mut conv: Raw = std::ptr::null_mut();
+    let st = unsafe {
+        sys::aoclsparse_convert_csr(
+            T::raw(&h),
+            sys::aoclsparse_operation__aoclsparse_operation_transpose,
+            &mut conv,
+        )
+    };
+    assert_eq!(st, sys::aoclsparse_status__aoclsparse_status_success);
+    let owned = T::own(conv).unwrap(); // the library allocated `conv`; the wrapper takes it over and frees it on drop
+    let (b, rp, ci, val) = T::export(&owned);
+    dense_eq(
+        "from_library_owned",
+        &csr_dense(4, 3, b, &rp, &ci, &val),
+        &opd(&a, Trans::T),
+        T::TOL,
+    );
+    // a null handle is an error, not a dereference
+    assert!(T::own(std::ptr::null_mut()).is_err());
+}
+#[test]
+fn from_library_owned_adopts_a_library_allocated_matrix() {
+    t_own::<f64>();
+    t_own::<f32>();
+    t_own::<Complex64>();
+    t_own::<Complex32>();
+}
+
+// ---------------------------------------------------------------- sparse-sparse -> dense, symmetric products
+
+fn t_sp2md<T: Lib>(
+    f: fn(
+        Trans,
+        &MatDescr,
+        &T::M,
+        Trans,
+        &MatDescr,
+        &T::M,
+        T,
+        T,
+        &mut [T],
+        Order,
+        usize,
+    ) -> Result<()>,
+) {
+    let a = rect::<T>(); // 3x4
+    let b: D = dm::<T>(&[&[1., 2.], &[0., 3.], &[4., 0.], &[0., 5.]]); // 4x2
+    let bt = dm::<T>(&[&[2., 0., 1.], &[0., 3., 4.]]); // 2x3
+    let tr = if T::CPLX { Trans::C } else { Trans::T };
+    // (op_a, op_b, A, B): C = alpha op(A) op(B) + beta C
+    let cases: [(Trans, Trans, &D, &D); 2] = [(Trans::No, Trans::No, &a, &b), (tr, tr, &a, &bt)];
+    for (opa, opb, ma, mb) in cases {
+        for order in [Order::RowMajor, Order::ColMajor] {
+            let (alpha, beta) = (v::<T>(2.0, 0.5), v::<T>(-0.5, 0.25));
+            let (ha, hb) = (
+                T::build(IndexBase::Zero, &csr(ma)),
+                T::build(IndexBase::Zero, &csr(mb)),
+            );
+            let d = gen_descr(IndexBase::Zero);
+            let prod = mm_d(&opd(ma, opa), &opd(mb, opb));
+            let (m, n) = (nrow(&prod), ncol(&prod));
+            let ld = if order == Order::RowMajor { n } else { m };
+            let c0: D = (0..m).map(|i| vecg::<T>(n, i)).collect();
+            let mut cbuf = lv::<T>(&dense_ld(&c0, order, ld));
+            f(
+                opa,
+                &d,
+                &ha,
+                opb,
+                &d,
+                &hb,
+                T::mk(alpha),
+                T::mk(beta),
+                &mut cbuf,
+                order,
+                ld,
+            )
+            .unwrap_or_else(|e| panic!("sp2md {opa:?} {opb:?} {order:?}: {e:?}"));
+            let want: D = (0..m)
+                .map(|i| {
+                    (0..n)
+                        .map(|j| alpha * prod[i][j] + beta * c0[i][j])
+                        .collect()
+                })
+                .collect();
+            dense_eq(
+                &format!("sp2md {opa:?} {opb:?} {order:?}"),
+                &from_ld(&cv(&cbuf), m, n, order, ld),
+                &want,
+                T::TOL * 10.0,
+            );
+        }
+    }
+}
+#[test]
+fn sp2md_multiplies_two_sparse_matrices_into_a_dense_one() {
+    t_sp2md::<f64>(s::sp2md::<f64>);
+    t_sp2md::<f32>(s::sp2md::<f32>);
+    t_sp2md::<Complex64>(cxm::sp2md::<Complex64>);
+    t_sp2md::<Complex32>(cxm::sp2md::<Complex32>);
+}
+
+/// `C := alpha A op(A) + beta C` (op none) or `alpha op(A) A + beta C`; only the upper triangle of C is computed, the
+/// strictly lower triangle must keep its old values. For complex data only the real parts of alpha and beta count
+/// and the result is Hermitian, so the reference uses `op = conjugate transpose` for complex and plain transpose for real.
+fn t_syrkd<T: Lib>(f: fn(Trans, &T::M, T, T, &mut [T], Order, usize) -> Result<()>) {
+    let a = rect::<T>(); // 3x4
+    let h = T::build(IndexBase::Zero, &csr(&a));
+    let tr = if T::CPLX { Trans::C } else { Trans::T };
+    for op in [Trans::No, tr] {
+        for order in [Order::RowMajor, Order::ColMajor] {
+            let (alpha, beta) = (c(2.0, 0.0), c(-0.5, 0.0));
+            let prod = if op == Trans::No {
+                mm_d(&a, &opd(&a, tr))
+            } else {
+                mm_d(&opd(&a, tr), &a)
+            };
+            let n = nrow(&prod);
+            let c0: D = (0..n)
+                .map(|i| (0..n).map(|j| c(1.0 + (3 * i + j) as f64, 0.0)).collect())
+                .collect();
+            let mut cbuf = lv::<T>(&dense_ld(&c0, order, n));
+            f(op, &h, T::mk(alpha), T::mk(beta), &mut cbuf, order, n)
+                .unwrap_or_else(|e| panic!("syrkd {op:?} {order:?}: {e:?}"));
+            let got = from_ld(&cv(&cbuf), n, n, order, n);
+            for i in 0..n {
+                for j in 0..n {
+                    let want = if j >= i {
+                        alpha * prod[i][j] + beta * c0[i][j]
+                    } else {
+                        c0[i][j]
+                    };
+                    near(
+                        &format!("syrkd {op:?} {order:?} [{i}][{j}]"),
+                        0,
+                        got[i][j],
+                        want,
+                        T::TOL * 10.0,
+                    );
+                }
+            }
+        }
+    }
+}
+#[test]
+fn syrkd_updates_the_upper_triangle_of_a_a_t() {
+    t_syrkd::<f64>(s::syrkd_f64);
+    t_syrkd::<f32>(s::syrkd_f32);
+    t_syrkd::<Complex64>(cxm::syrkd_c64);
+    t_syrkd::<Complex32>(cxm::syrkd_c32);
+}
+
+/// `C := alpha A B op(A) + beta C` for `op` none (A is m x k, B the symmetric / Hermitian k x k matrix stored in full,
+/// C m x m) and `C := alpha op(A) B A + beta C` otherwise (B is m x m, C is k x k); only the upper triangle of C is
+/// computed, the strictly lower triangle keeps its old values.
+fn t_syprd<T: Lib>(
+    f: fn(Trans, &T::M, &[T], Order, usize, T, T, &mut [T], Order, usize) -> Result<()>,
+) {
+    let a = rect::<T>(); // 3x4: m = 3, k = 4
+    let h = T::build(IndexBase::Zero, &csr(&a));
+    let b4 = herm::<T>(&[
+        &[4., 1., 0., 2.],
+        &[1., 5., 3., 0.],
+        &[0., 3., 6., 1.],
+        &[2., 0., 1., 7.],
+    ]);
+    let b3 = herm::<T>(&[&[4., 1., 2.], &[1., 5., 3.], &[2., 3., 6.]]);
+    let tr = if T::CPLX { Trans::C } else { Trans::T };
+    for (op, bm) in [(Trans::No, &b4), (tr, &b3)] {
+        for order in [Order::RowMajor, Order::ColMajor] {
+            let (alpha, beta) = (c(2.0, 0.0), c(-0.5, 0.0));
+            let prod = if op == Trans::No {
+                mm_d(&mm_d(&a, bm), &opd(&a, tr))
+            } else {
+                mm_d(&mm_d(&opd(&a, tr), bm), &a)
+            };
+            let n = nrow(&prod);
+            let ldb = nrow(bm);
+            let c0: D = (0..n)
+                .map(|i| (0..n).map(|j| c(1.0 + (3 * i + j) as f64, 0.0)).collect())
+                .collect();
+            let mut cbuf = lv::<T>(&dense_ld(&c0, order, n));
+            let bbuf = lv::<T>(&dense_ld(bm, order, ldb));
+            f(
+                op,
+                &h,
+                &bbuf,
+                order,
+                ldb,
+                T::mk(alpha),
+                T::mk(beta),
+                &mut cbuf,
+                order,
+                n,
+            )
+            .unwrap_or_else(|e| panic!("syprd {op:?} {order:?}: {e:?}"));
+            let got = from_ld(&cv(&cbuf), n, n, order, n);
+            for i in 0..n {
+                for j in 0..n {
+                    let want = if j >= i {
+                        alpha * prod[i][j] + beta * c0[i][j]
+                    } else {
+                        c0[i][j]
+                    };
+                    near(
+                        &format!("syprd {op:?} {order:?} [{i}][{j}]"),
+                        0,
+                        got[i][j],
+                        want,
+                        T::TOL * 20.0,
+                    );
+                }
+            }
+        }
+    }
+}
+#[test]
+fn syprd_updates_the_upper_triangle_of_a_b_a_t() {
+    t_syprd::<f64>(s::syprd_f64);
+    t_syprd::<f32>(s::syprd_f32);
+    t_syprd::<Complex64>(cxm::syprd_c64);
+    t_syprd::<Complex32>(cxm::syprd_c32);
+}
+
+// ---------------------------------------------------------------- block-CSR mat-vec
+
+/// The block-CSR layout (bitmasks) comes from `aoclsparse_csr2blkcsr` (no safe wrapper); `blkcsrmv_f64` must then give the
+/// dense `y = alpha A x + beta y` for an 4 x 8 matrix, 4 rows per block.
+#[test]
+fn blkcsrmv_f64_matches_the_dense_product() {
+    let a = dm::<f64>(&[
+        &[1., 0., 2., 0., 0., 3., 0., 0.],
+        &[0., 4., 0., 0., 5., 0., 0., 6.],
+        &[7., 0., 0., 8., 0., 0., 9., 0.],
+        &[0., 0., 1., 0., 2., 0., 0., 3.],
+    ]);
+    let cs = csr(&a);
+    let nnz = cs.v.len();
+    let vals: Vec<f64> = cs.v.iter().map(|z| z.re).collect();
+    let (mut brp, mut bci, mut bv, mut masks) = (
+        vec![0 as I; 64],
+        vec![0 as I; 64],
+        vec![0.0f64; 64],
+        vec![0u8; 64],
+    );
+    let st = unsafe {
+        sys::aoclsparse_csr2blkcsr(
+            4,
+            8,
+            nnz as I,
+            cs.rp.as_ptr(),
+            cs.ci.as_ptr(),
+            vals.as_ptr(),
+            brp.as_mut_ptr(),
+            bci.as_mut_ptr(),
+            bv.as_mut_ptr(),
+            masks.as_mut_ptr(),
+            4,
+            sys::aoclsparse_index_base__aoclsparse_index_base_zero,
+        )
+    };
+    assert_eq!(st, sys::aoclsparse_status__aoclsparse_status_success);
+    let d = gen_descr(IndexBase::Zero);
+    let (alpha, beta) = (2.0, -0.5);
+    let x = vecg::<f64>(8, 1);
+    let y0 = vecg::<f64>(4, 2);
+    let mut y: Vec<f64> = y0.iter().map(|z| z.re).collect();
+    let xs: Vec<f64> = x.iter().map(|z| z.re).collect();
+    s::blkcsrmv_f64(
+        Trans::No,
+        alpha,
+        4,
+        8,
+        &masks,
+        &bv,
+        &bci,
+        &brp,
+        &d,
+        &xs,
+        beta,
+        &mut y,
+        4,
+    )
+    .unwrap();
+    let ax = mv_d(&a, &x);
+    let want: Vec<Cx> = (0..4)
+        .map(|i| c(alpha, 0.0) * ax[i] + c(beta, 0.0) * y0[i])
+        .collect();
+    check("blkcsrmv", &y, &want);
+}
