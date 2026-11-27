@@ -1027,6 +1027,13 @@ unsafe extern "C" fn nlls_resgrd_shim(
     }
 }
 
+/// Process-wide lock around every call into the NLLS (RALFit) library code: it is not thread-safe.
+static NLLS_LIB_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
+fn nlls_lib_lock() -> std::sync::MutexGuard<'static, ()> {
+    NLLS_LIB_LOCK.lock().unwrap_or_else(|e| e.into_inner())
+}
+
 /// Nonlinear least-squares solver wrapping AOCL's `RAlfit` family.
 ///
 /// Provide a residual function (mandatory) and optionally a Jacobian.
@@ -1048,6 +1055,7 @@ impl<'a> Nlls<'a> {
     where
         F: FnMut(&[f64], &mut [f64]) -> i32 + 'a,
     {
+        let _guard = nlls_lib_lock();
         let handle = Handle::new_double(HandleKind::Nlls)?;
         let callbacks = Box::new(NllsCallbacks {
             resfun: Box::new(resfun),
@@ -1089,6 +1097,7 @@ impl<'a> Nlls<'a> {
             )
         };
         if status != sys::da_status__da_status_success {
+            self.handle.note_status(status);
             let extra = self.handle.last_error_message().unwrap_or_default();
             return Err(Error::Status {
                 component: "data-analytics",
@@ -1163,7 +1172,12 @@ impl<'a> Nlls<'a> {
 
     /// Run the optimiser. On entry `coef` is the initial guess; on
     /// success it holds the optimised coefficients.
+    ///
+    /// Concurrent solves are serialised: RALFit in `aocl-da.dll` is not thread-safe (AOCL 6.0.68, Windows: concurrent
+    /// solves from several threads crashed the process), so every NLLS library call in this crate takes one
+    /// process-wide lock. Two `Nlls` fits on different threads therefore run one after the other.
     pub fn fit(&mut self, coef: &mut [f64]) -> Result<()> {
+        let _guard = nlls_lib_lock();
         if coef.len() < self.callbacks.n_coef {
             return Err(Error::InvalidArgument(format!(
                 "nlls fit: coef length {} < n_coef = {}",
@@ -1181,6 +1195,7 @@ impl<'a> Nlls<'a> {
             )
         };
         if status != sys::da_status__da_status_success {
+            self.handle.note_status(status);
             let extra = self.handle.last_error_message().unwrap_or_default();
             return Err(Error::Status {
                 component: "data-analytics",
@@ -1208,6 +1223,7 @@ impl<'a> Nlls<'a> {
             )
         };
         if status != sys::da_status__da_status_success {
+            self.handle.note_status(status);
             let extra = self.handle.last_error_message().unwrap_or_default();
             return Err(Error::Status {
                 component: "data-analytics",
@@ -1854,6 +1870,10 @@ pub struct Handle {
     raw: sys::da_handle,
     kind: HandleKind,
     precision: Precision,
+    /// A call on this handle has failed, so the library has a message stored. AOCL 6.0.68's `da_handle_get_error_message`
+    /// on a handle with NO stored error can return success with a pointer to uninitialised heap (not a valid C string),
+    /// so the message is only read after a failure this wrapper has seen.
+    error_pending: std::cell::Cell<bool>,
 }
 
 unsafe impl Send for Handle {}
@@ -1871,6 +1891,7 @@ impl Handle {
             raw,
             kind,
             precision: Precision::Double,
+            error_pending: std::cell::Cell::new(false),
         })
     }
 
@@ -1886,6 +1907,7 @@ impl Handle {
             raw,
             kind,
             precision: Precision::Single,
+            error_pending: std::cell::Cell::new(false),
         })
     }
 
@@ -1895,6 +1917,7 @@ impl Handle {
             .map_err(|e| Error::InvalidArgument(format!("set_int_option: {e}")))?;
         let status =
             unsafe { sys::da_options_set_int(self.raw, cs.as_ptr(), value as sys::da_int) };
+        self.note_status(status);
         check_status("data-analytics", status)
     }
 
@@ -1905,6 +1928,7 @@ impl Handle {
         let v = std::ffi::CString::new(value)
             .map_err(|e| Error::InvalidArgument(format!("set_string_option: {e}")))?;
         let status = unsafe { sys::da_options_set_string(self.raw, n.as_ptr(), v.as_ptr()) };
+        self.note_status(status);
         check_status("data-analytics", status)
     }
 
@@ -1922,6 +1946,10 @@ impl Handle {
     /// this handle, or `None` if there isn't one. Useful for diagnosing
     /// which option or input value the C library found objectionable.
     pub fn last_error_message(&self) -> Option<String> {
+        if !self.error_pending.get() {
+            // No failure seen on this handle: the library may hand back uninitialised memory here (see `error_pending`).
+            return None;
+        }
         let mut p: *mut std::os::raw::c_char = std::ptr::null_mut();
         let status = unsafe { sys::da_handle_get_error_message(self.raw, &mut p) };
         if status != sys::da_status__da_status_success || p.is_null() {
@@ -1938,6 +1966,13 @@ impl Handle {
             None
         } else {
             Some(s)
+        }
+    }
+
+    /// Record that a call on this handle returned `status`: a failure means the library has an error message stored.
+    pub(crate) fn note_status(&self, status: sys::da_status) {
+        if status != sys::da_status__da_status_success {
+            self.error_pending.set(true);
         }
     }
 }
@@ -2461,6 +2496,7 @@ impl Linmod {
             )
         };
         if status != sys::da_status__da_status_success {
+            self.handle.note_status(status);
             let extra = self.handle.last_error_message().unwrap_or_default();
             return Err(Error::Status {
                 component: "data-analytics",
@@ -2470,6 +2506,7 @@ impl Linmod {
         }
         let status = unsafe { sys::da_linmod_fit_d(self.handle.raw) };
         if status != sys::da_status__da_status_success {
+            self.handle.note_status(status);
             let extra = self.handle.last_error_message().unwrap_or_default();
             return Err(Error::Status {
                 component: "data-analytics",
@@ -2503,6 +2540,7 @@ impl Linmod {
             return Ok(tmp[..dim as usize].to_vec());
         }
         if probe != sys::da_status__da_status_invalid_array_dimension {
+            self.handle.note_status(probe);
             let extra = self.handle.last_error_message().unwrap_or_default();
             return Err(Error::Status {
                 component: "data-analytics",
@@ -2527,6 +2565,7 @@ impl Linmod {
             )
         };
         if status != sys::da_status__da_status_success {
+            self.handle.note_status(status);
             let extra = self.handle.last_error_message().unwrap_or_default();
             return Err(Error::Status {
                 component: "data-analytics",
@@ -2697,6 +2736,7 @@ impl Dbscan {
             )
         };
         if status != sys::da_status__da_status_success {
+            self.handle.note_status(status);
             let extra = self.handle.last_error_message().unwrap_or_default();
             return Err(Error::Status {
                 component: "data-analytics",
@@ -2706,6 +2746,7 @@ impl Dbscan {
         }
         let status = unsafe { sys::da_dbscan_compute_d(self.handle.raw) };
         if status != sys::da_status__da_status_success {
+            self.handle.note_status(status);
             let extra = self.handle.last_error_message().unwrap_or_default();
             return Err(Error::Status {
                 component: "data-analytics",
@@ -2863,6 +2904,7 @@ impl DecisionTree {
             )
         };
         if status != sys::da_status__da_status_success {
+            self.handle.note_status(status);
             let extra = self.handle.last_error_message().unwrap_or_default();
             return Err(Error::Status {
                 component: "data-analytics",
@@ -2872,6 +2914,7 @@ impl DecisionTree {
         }
         let status = unsafe { sys::da_tree_fit_d(self.handle.raw) };
         if status != sys::da_status__da_status_success {
+            self.handle.note_status(status);
             let extra = self.handle.last_error_message().unwrap_or_default();
             return Err(Error::Status {
                 component: "data-analytics",
@@ -3069,6 +3112,7 @@ impl DecisionForest {
             )
         };
         if status != sys::da_status__da_status_success {
+            self.handle.note_status(status);
             let extra = self.handle.last_error_message().unwrap_or_default();
             return Err(Error::Status {
                 component: "data-analytics",
@@ -3078,6 +3122,7 @@ impl DecisionForest {
         }
         let status = unsafe { sys::da_forest_fit_d(self.handle.raw) };
         if status != sys::da_status__da_status_success {
+            self.handle.note_status(status);
             let extra = self.handle.last_error_message().unwrap_or_default();
             return Err(Error::Status {
                 component: "data-analytics",
@@ -3338,6 +3383,7 @@ impl Svm {
             )
         };
         if status != sys::da_status__da_status_success {
+            self.handle.note_status(status);
             let extra = self.handle.last_error_message().unwrap_or_default();
             return Err(Error::Status {
                 component: "data-analytics",
@@ -3347,6 +3393,7 @@ impl Svm {
         }
         let status = unsafe { sys::da_svm_compute_d(self.handle.raw) };
         if status != sys::da_status__da_status_success {
+            self.handle.note_status(status);
             let extra = self.handle.last_error_message().unwrap_or_default();
             return Err(Error::Status {
                 component: "data-analytics",
@@ -3458,14 +3505,6 @@ impl std::fmt::Debug for Svm {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    /// RALFit (the NLLS solver in `aocl-da.dll`) is not safe to run from several threads at once (measured on AOCL
-    /// 6.0.68: concurrent solves crash with an access violation), so every test that fits an `Nlls` holds this lock.
-    static NLLS_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
-
-    fn nlls_guard() -> std::sync::MutexGuard<'static, ()> {
-        NLLS_LOCK.lock().unwrap_or_else(|e| e.into_inner())
-    }
 
     #[test]
     fn column_means_2x3() {
@@ -3665,9 +3704,42 @@ mod tests {
         let _ = std::fs::remove_file(&path);
     }
 
+    /// Red-first, SAFE code only: several threads each build and fit their own `Nlls` through the safe API. RALFit in
+    /// `aocl-da.dll` is not safe to run concurrently (AOCL 6.0.68, Windows: the process died with an access violation
+    /// before the wrapper serialised the NLLS library calls). Each thread must recover its own parameters.
+    #[test]
+    fn concurrent_nlls_fits_through_the_safe_api_do_not_crash() {
+        let threads: Vec<_> = (0..6)
+            .map(|k| {
+                std::thread::spawn(move || {
+                    for rep in 0..15 {
+                        let t: Vec<f64> = vec![0.0, 1.0, 2.0, 3.0, 4.0];
+                        let (a, b) = (1.0 + k as f64 * 0.5, 0.2 + 0.05 * rep as f64);
+                        let y: Vec<f64> = t.iter().map(|&ti| a * (-b * ti).exp()).collect();
+                        let resfun = move |x: &[f64], res: &mut [f64]| -> i32 {
+                            for i in 0..res.len() {
+                                res[i] = x[0] * (-x[1] * t[i]).exp() - y[i];
+                            }
+                            0
+                        };
+                        let mut m = Nlls::new(2, 5, resfun).unwrap();
+                        let mut coef = vec![1.0_f64, 1.0_f64];
+                        m.fit(&mut coef).unwrap();
+                        assert!(
+                            (coef[0] - a).abs() < 1e-3 && (coef[1] - b).abs() < 1e-3,
+                            "thread {k} rep {rep}: {coef:?} vs ({a}, {b})"
+                        );
+                    }
+                })
+            })
+            .collect();
+        for h in threads {
+            h.join().unwrap();
+        }
+    }
+
     #[test]
     fn nlls_fits_exponential_decay() {
-        let _lock = nlls_guard();
         // Fit y(t) = a · exp(-b · t) to noiseless data with a=2, b=0.3.
         // 5 sample points; residuals = predictions - observed.
         let t: Vec<f64> = vec![0.0, 1.0, 2.0, 3.0, 4.0];
@@ -4169,7 +4241,6 @@ mod tests {
 
     #[test]
     fn nlls_with_analytic_jacobian_recovers_parameters() {
-        let _lock = nlls_guard();
         let (t, y) = decay_data();
         let (t2, y2) = (t.clone(), y.clone());
         let model = Nlls::new(2, t.len(), move |x: &[f64], r: &mut [f64]| {
@@ -4206,7 +4277,6 @@ mod tests {
 
     #[test]
     fn nlls_set_bounds_are_respected_and_wide_bounds_do_not_bind() {
-        let _lock = nlls_guard();
         let (t, y) = decay_data();
         let make = || {
             let (t, y) = (t.clone(), y.clone());
@@ -4251,7 +4321,6 @@ mod tests {
 
     #[test]
     fn nlls_set_weights_tiny_weight_suppresses_an_outlier() {
-        let _lock = nlls_guard();
         let (t, mut y) = decay_data();
         y[7] += 5.0; // corrupt the last observation
         let make = || {
@@ -4285,8 +4354,17 @@ mod tests {
         assert!(m.set_weights(&mut [1.0; 3]).is_err());
     }
 
-    /// (A fresh handle's `last_error_message` is NOT asserted `None`: on AOCL 6.0.68 the library returns success with an
-    /// uninitialised pointer when no error is stored, so the wrapper can return garbage: FINDING.)
+    /// Red-first (deterministic by repetition): before the fix a fresh handle returned a string read from uninitialised
+    /// memory about 1 time in 25 (success status, pointer into uninitialised heap). Now a handle that has seen no failure
+    /// never reaches the library call, so every one of 2000 fresh handles gives `None`.
+    #[test]
+    fn last_error_message_on_a_fresh_handle_is_none_every_time() {
+        for i in 0..2000 {
+            let h = Handle::new_double(HandleKind::Linmod).unwrap();
+            assert_eq!(h.last_error_message(), None, "fresh handle #{i}");
+        }
+    }
+
     #[test]
     fn last_error_message_names_the_rejected_option() {
         let mut h = Handle::new_double(HandleKind::Linmod).unwrap();

@@ -73,6 +73,8 @@ fn check(err: sys::alc_error_t) -> Result<()> {
 pub struct Aead {
     handle: sys::alc_cipher_handle_t,
     _context: Box<[u8]>,
+    /// CCM session: AOCL wants the lengths set between request and init, so after [`Aead::new`] they cannot be set.
+    ccm: bool,
 }
 
 impl Aead {
@@ -107,13 +109,57 @@ impl Aead {
         Ok(Self {
             handle,
             _context: context,
+            ccm: matches!(mode, Mode::AesCcm),
         })
     }
 
-    /// CCM-only: declare the plaintext length and tag length up front
-    /// (CCM needs both before processing AAD/plaintext). For other
-    /// modes this is a no-op.
+    /// Create an AES-CCM session with the plaintext length and tag length declared in the order AOCL requires (request,
+    /// set the lengths, THEN init). `tag_len` is 4..=16 (even) bytes; the nonce is 7..=13 bytes. This is the only way to
+    /// get a CCM tag other than the 12-byte default; [`Aead::set_ccm_lengths`] after [`Aead::new`] is refused.
+    pub fn new_ccm(key: &[u8], nonce: &[u8], plaintext_len: u64, tag_len: usize) -> Result<Self> {
+        let key_len_bits = (key.len() as u64).saturating_mul(8);
+        let context_size = unsafe { sys::alcp_cipher_aead_context_size() } as usize;
+        if context_size == 0 {
+            return Err(Error::AllocationFailed("crypto"));
+        }
+        let mut context = vec![0u8; context_size].into_boxed_slice();
+        let mut handle = sys::alc_cipher_handle_t {
+            ch_context: context.as_mut_ptr() as *mut std::os::raw::c_void,
+        };
+        check(unsafe {
+            sys::alcp_cipher_aead_request(Mode::AesCcm.raw(), key_len_bits, &mut handle)
+        })?;
+        check(unsafe {
+            sys::alcp_cipher_aead_set_ccm_plaintext_length(&mut handle, plaintext_len)
+        })?;
+        check(unsafe { sys::alcp_cipher_aead_set_tag_length(&mut handle, tag_len as u64) })?;
+        check(unsafe {
+            sys::alcp_cipher_aead_init(
+                &mut handle,
+                key.as_ptr(),
+                key_len_bits,
+                nonce.as_ptr(),
+                nonce.len() as u64,
+            )
+        })?;
+        Ok(Self {
+            handle,
+            _context: context,
+            ccm: true,
+        })
+    }
+
+    /// CCM lengths cannot be declared on a session built by [`Aead::new`]: AOCL requires them between request and init,
+    /// and `new` does both, so the call used to be accepted and silently do nothing (the tag stayed at 12 bytes). For a
+    /// CCM session this now returns [`Error::InvalidArgument`]; build the session with [`Aead::new_ccm`]. For other modes
+    /// it is passed to the library as before (a no-op there).
     pub fn set_ccm_lengths(&mut self, plaintext_len: u64, tag_len: usize) -> Result<()> {
+        if self.ccm {
+            return Err(Error::InvalidArgument(
+                "set_ccm_lengths: AES-CCM lengths must be declared before init; use Aead::new_ccm"
+                    .into(),
+            ));
+        }
         check(unsafe {
             sys::alcp_cipher_aead_set_ccm_plaintext_length(&mut self.handle, plaintext_len)
         })?;
@@ -458,35 +504,9 @@ mod tests {
         assert_eq!(tag, unhex("5bc94fbc3221a5db94fae95ae7121a47"));
     }
 
-    /// A CCM session built in the order AOCL's header requires: request, `set_ccm_lengths` (plaintext + tag length), THEN
-    /// init. `Aead::new` does request + init in one step, so a `set_ccm_lengths` after it cannot take effect (FINDING).
+    /// A CCM session with the lengths declared in the order AOCL requires.
     fn ccm_session(key: &[u8], nonce: &[u8], pt_len: u64, tag_len: usize) -> Aead {
-        let size = unsafe { sys::alcp_cipher_aead_context_size() } as usize;
-        let mut context = vec![0u8; size].into_boxed_slice();
-        let mut handle = sys::alc_cipher_handle_t {
-            ch_context: context.as_mut_ptr() as *mut std::os::raw::c_void,
-        };
-        let bits = key.len() as u64 * 8;
-        check(unsafe {
-            sys::alcp_cipher_aead_request(sys::alc_cipher_mode_ALC_AES_MODE_CCM, bits, &mut handle)
-        })
-        .unwrap();
-        let mut a = Aead {
-            handle,
-            _context: context,
-        };
-        a.set_ccm_lengths(pt_len, tag_len).unwrap();
-        check(unsafe {
-            sys::alcp_cipher_aead_init(
-                &mut a.handle,
-                key.as_ptr(),
-                bits,
-                nonce.as_ptr(),
-                nonce.len() as u64,
-            )
-        })
-        .unwrap();
-        a
+        Aead::new_ccm(key, nonce, pt_len, tag_len).unwrap()
     }
 
     /// NIST SP 800-38C Appendix C examples 1-3 (AES-128 CCM; nonce 7 / 8 / 12 bytes; tag 4 / 6 / 8 bytes).
@@ -547,39 +567,36 @@ mod tests {
         }
     }
 
-    /// Through `Aead::new` (the only public constructor) `set_ccm_lengths` is accepted, and the ciphertext is the NIST
-    /// SP 800-38C example 1 one; the tag length stays at AOCL's default of 12 bytes (a 4-byte `get_tag` is rejected),
-    /// i.e. the call has no effect on the tag (FINDING). Round trip + tamper still work at 12 bytes.
+    /// Red-first: before the fix `Aead::new` + `set_ccm_lengths(4, 4)` returned Ok and did nothing (the tag stayed 12 bytes,
+    /// a 4-byte `get_tag` failed). Now the misuse is an error, and `Aead::new_ccm` gives the 4-byte tag of NIST SP 800-38C
+    /// example 1 (ciphertext 7162015b, tag 4dac255d: C = 7162015b4dac255d).
     #[test]
-    fn set_ccm_lengths_through_new_keeps_ciphertext_and_default_tag() {
+    fn set_ccm_lengths_after_new_is_refused_and_new_ccm_honours_the_tag_length() {
         let key = unhex("404142434445464748494a4b4c4d4e4f");
         let nonce = unhex("10111213141516");
         let aad = unhex("0001020304050607");
         let pt = unhex("20212223");
         let mut e = Aead::new(Mode::AesCcm, &key, &nonce).unwrap();
-        e.set_ccm_lengths(4, 4).unwrap();
-        e.set_aad(&aad).unwrap();
+        assert!(matches!(
+            e.set_ccm_lengths(4, 4),
+            Err(Error::InvalidArgument(_))
+        ));
+        // the 12-byte default still works through `new`, and a 4-byte tag does not exist there
+        let mut e2 = Aead::new_ccm(&key, &nonce, 4, 4).unwrap();
+        e2.set_aad(&aad).unwrap();
         let mut ct = vec![0u8; 4];
-        e.encrypt(&pt, &mut ct).unwrap();
+        e2.encrypt(&pt, &mut ct).unwrap();
         assert_eq!(ct, unhex("7162015b"));
-        assert!(e.get_tag(&mut [0u8; 4]).is_err());
-        let mut tag = [0u8; 12];
-        e.get_tag(&mut tag).unwrap();
-
-        let open = |tag: &[u8], ct: &[u8]| {
-            let mut d = Aead::new(Mode::AesCcm, &key, &nonce).unwrap();
-            d.set_ccm_lengths(4, 12).unwrap();
-            d.set_aad(&aad).unwrap();
-            let mut out = vec![0u8; 4];
-            let r = d.verify_and_decrypt(ct, &mut out, tag);
-            (r, out)
-        };
-        let (r, out) = open(&tag, &ct);
-        r.unwrap();
-        assert_eq!(out, pt);
+        let mut tag = [0u8; 4];
+        e2.get_tag(&mut tag).unwrap();
+        assert_eq!(tag, unhex("4dac255d")[..]);
+        // tamper: a flipped tag byte is rejected by a session built the same way
+        let mut d = Aead::new_ccm(&key, &nonce, 4, 4).unwrap();
+        d.set_aad(&aad).unwrap();
+        let mut out = vec![0u8; 4];
         let mut bad = tag;
-        bad[11] ^= 1;
-        assert!(open(&bad, &ct).0.is_err());
+        bad[3] ^= 1;
+        assert!(d.verify_and_decrypt(&ct, &mut out, &bad).is_err());
     }
 
     #[test]
