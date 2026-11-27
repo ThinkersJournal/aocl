@@ -1,8 +1,12 @@
 # Changelog
 
-## Unreleased (tools only, patch on 0.2.x; pm-assist allocates; no crate is published for it)
+## 0.2.15 - 2026-11-27 (PM-allocated; tools only, patch on 0.2.x; no crate is published for it)
 
 - **tools:** `tools/check-package-files.py` now also requires NOTICE in the package of any crate, wrappers included, whose README mentions NOTICE (ours, not AMD's `NOTICE.txt`) or carries a Provenance statement; the trigger "mentions provenance" is narrowed to a Provenance label so a link to `docs/PROVENANCE-QUESTIONS.md` (as in the `aocl-fft` README) does not demand one. Controls re-run: it fails on `aocl-math` and on `aocl-rng-sys` with their NOTICE removed (exit 1) and passes on the tree (exit 0).
+
+## 0.2.14 - 2026-11-27 (PM-allocated; patch on 0.2.x, as 0.2.8: unlinkable declarations behind a default-OFF feature; the PM ruled patch with no yank for the same shape)
+
+- **FIX `aocl-utils-sys` and `aocl-compression-sys` (Windows, measured on AOCL 6.0.68; Linux unmeasured): declarations that did not link.** New feature `header-only-unexported` (default OFF) in both crates: `aocl-utils-sys` no longer declares `au_get_version_{major,minor,patch,str}` and `au_is_error` by default (declared in the headers, exported by no installed library; they are `extern "C"`, not inline); `aocl-compression-sys` no longer declares by default ten LZMA-SDK stream helpers (`LookInStream_*`, `SeqInStream_*`, `SecToLook_/SecToRead_CreateVTable`, `LookToRead2_CreateVTable`: declared in `7zTypes.h`, exported by no installed library), and declares `BZ2_bzCompressBound` / `Lzma_compressBound` only with `static-link` (they exist only in the static library). Enabling `header-only-unexported` restores the declarations (they still do not link on Windows). `aocl-build` gains `Component::build_with_blocklist` (additive). The safe wrappers use none of these names. New `tests/link_all.rs` per crate (utils 29, compression 150 (+2 with `static-link`) resolve).
 
 ## 0.2.13 - 2026-11-27 (PM-allocated; patch on 0.2.x, the 0.2.x family number: aocl-fft-sys feature fix, measured on AOCL 6.0.68 Windows)
 
