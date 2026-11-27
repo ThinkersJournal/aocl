@@ -1,0 +1,34 @@
+dll=C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\ILP64\amdsecrng.dll case=retry
+get_rdseed32u            threads=1  retry=0     calls=50000 return-tally={-2: 25890, 2: 24110} on_failure: slot_untouched=25890 slot_partly_written=0
+get_rdseed32u            threads=1  retry=1     calls=50000 return-tally={-2: 19179, 2: 30821} on_failure: slot_untouched=19179 slot_partly_written=0
+get_rdseed32u            threads=1  retry=10    calls=50000 return-tally={-2: 3469, 2: 46531} on_failure: slot_untouched=3469 slot_partly_written=0
+get_rdseed32u            threads=1  retry=1000  calls=50000 return-tally={2: 50000} on_failure: slot_untouched=0 slot_partly_written=0
+get_rdseed32u            threads=16 retry=0     calls=800000 return-tally={-2: 438988, 2: 361012} on_failure: slot_untouched=438988 slot_partly_written=0
+get_rdseed32u            threads=16 retry=1     calls=800000 return-tally={-2: 256296, 2: 543704} on_failure: slot_untouched=256296 slot_partly_written=0
+get_rdseed32u            threads=16 retry=10    calls=800000 return-tally={-2: 5388, 2: 794612} on_failure: slot_untouched=5388 slot_partly_written=0
+get_rdseed32u            threads=16 retry=1000  calls=800000 return-tally={2: 800000} on_failure: slot_untouched=0 slot_partly_written=0
+get_rdrand32u            threads=1  retry=0     calls=50000 return-tally={2: 50000} on_failure: slot_untouched=0 slot_partly_written=0
+get_rdrand32u            threads=1  retry=1     calls=50000 return-tally={2: 50000} on_failure: slot_untouched=0 slot_partly_written=0
+get_rdrand32u            threads=1  retry=10    calls=50000 return-tally={2: 50000} on_failure: slot_untouched=0 slot_partly_written=0
+get_rdrand32u            threads=1  retry=1000  calls=50000 return-tally={2: 50000} on_failure: slot_untouched=0 slot_partly_written=0
+get_rdrand32u            threads=16 retry=0     calls=800000 return-tally={2: 800000} on_failure: slot_untouched=0 slot_partly_written=0
+get_rdrand32u            threads=16 retry=1     calls=800000 return-tally={2: 800000} on_failure: slot_untouched=0 slot_partly_written=0
+get_rdrand32u            threads=16 retry=10    calls=800000 return-tally={2: 800000} on_failure: slot_untouched=0 slot_partly_written=0
+get_rdrand32u            threads=16 retry=1000  calls=800000 return-tally={2: 800000} on_failure: slot_untouched=0 slot_partly_written=0
+get_rdseed32u_arr(N=8)   threads=1  retry=0     calls=50000 return-tally={-2: 46440, 2: 3560} on_failure: slot_untouched=42262 slot_partly_written=4178
+get_rdseed32u_arr(N=8)   threads=1  retry=1     calls=50000 return-tally={-2: 43100, 2: 6900} on_failure: slot_untouched=35471 slot_partly_written=7629
+get_rdseed32u_arr(N=8)   threads=1  retry=10    calls=50000 return-tally={-2: 23456, 2: 26544} on_failure: slot_untouched=1830 slot_partly_written=21626
+get_rdseed32u_arr(N=8)   threads=1  retry=1000  calls=50000 return-tally={2: 50000} on_failure: slot_untouched=0 slot_partly_written=0
+get_rdseed32u_arr(N=8)   threads=16 retry=0     calls=800000 return-tally={-2: 785996, 2: 14004} on_failure: slot_untouched=492924 slot_partly_written=293072
+get_rdseed32u_arr(N=8)   threads=16 retry=1     calls=800000 return-tally={-2: 688455, 2: 111545} on_failure: slot_untouched=291541 slot_partly_written=396914
+get_rdseed32u_arr(N=8)   threads=16 retry=10    calls=800000 return-tally={-2: 57941, 2: 742059} on_failure: slot_untouched=11697 slot_partly_written=46244
+get_rdseed32u_arr(N=8)   threads=16 retry=1000  calls=800000 return-tally={2: 800000} on_failure: slot_untouched=0 slot_partly_written=0
+  module[0] = C:\Users\cires\AppData\Local\Temp\claude\4b8c15632be00fc5\83c2e441-df7a-4c4b-b87f-7c2eddc43692\scratchpad\sec\probe\probe.exe
+  module[1] = C:\WINDOWS\SYSTEM32\ntdll.dll
+  module[2] = C:\WINDOWS\System32\KERNEL32.DLL
+  module[3] = C:\WINDOWS\System32\KERNELBASE.dll
+  module[4] = C:\WINDOWS\System32\ucrtbase.dll
+  module[5] = C:\WINDOWS\SYSTEM32\VCRUNTIME140.dll
+  module[6] = C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\ILP64\amdsecrng.dll
+modules_loaded=7 openmp_like_modules=0
+exit_code=0 (0x0)

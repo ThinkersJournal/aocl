@@ -1,0 +1,3 @@
+dll=C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\ILP64\amdsecrng.dll case=crash_get_rdrand_bytes_arr_swapped
+calling get_rdrand_bytes_arr with kind=swapped
+exit_code=-1073741819 (0xc0000005)

@@ -1,0 +1,4 @@
+dll=C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\ILP64\amdsecrng.dll case=crash_get_rdseed_bytes_arr_null
+calling get_rdseed_bytes_arr with kind=null
+returned ret=-3 (no crash); slot=[aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa]
+exit_code=0 (0x0)

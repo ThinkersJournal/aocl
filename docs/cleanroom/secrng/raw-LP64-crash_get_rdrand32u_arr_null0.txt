@@ -1,0 +1,4 @@
+dll=C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\LP64\amdsecrng.dll case=crash_get_rdrand32u_arr_null0
+calling get_rdrand32u_arr with kind=null0
+returned ret=-3 (no crash); slot=[aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa, aa]
+exit_code=0 (0x0)

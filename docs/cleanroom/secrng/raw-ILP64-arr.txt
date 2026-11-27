@@ -1,0 +1,54 @@
+dll=C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\ILP64\amdsecrng.dll case=arr
+get_rdrand32u_arr    N=0   ret=[-2] bytes_written=0 max_off=-1 expect=0
+get_rdrand32u_arr    N=1   ret=[2] bytes_written=4 max_off=3 expect=4
+get_rdrand32u_arr    N=3   ret=[2] bytes_written=12 max_off=11 expect=12
+get_rdrand32u_arr    N=13  ret=[2] bytes_written=52 max_off=51 expect=52
+get_rdrand32u_arr    N=16  ret=[2] bytes_written=64 max_off=63 expect=64
+get_rdrand32u_arr    N=17  ret=[2] bytes_written=68 max_off=67 expect=68
+get_rdseed32u_arr    N=0   ret=[-2] bytes_written=0 max_off=-1 expect=0
+get_rdseed32u_arr    N=1   ret=[-2, 2] bytes_written=4 max_off=3 expect=4
+get_rdseed32u_arr    N=3   ret=[-2, 2] bytes_written=12 max_off=11 expect=12
+get_rdseed32u_arr    N=13  ret=[-2] bytes_written=32 max_off=31 expect=52
+get_rdseed32u_arr    N=16  ret=[-2] bytes_written=48 max_off=47 expect=64
+get_rdseed32u_arr    N=17  ret=[-2] bytes_written=32 max_off=31 expect=68
+get_rdrand64u_arr    N=0   ret=[-2] bytes_written=0 max_off=-1 expect=0
+get_rdrand64u_arr    N=1   ret=[2] bytes_written=8 max_off=7 expect=8
+get_rdrand64u_arr    N=3   ret=[2] bytes_written=24 max_off=23 expect=24
+get_rdrand64u_arr    N=13  ret=[2] bytes_written=104 max_off=103 expect=104
+get_rdrand64u_arr    N=16  ret=[2] bytes_written=128 max_off=127 expect=128
+get_rdrand64u_arr    N=17  ret=[2] bytes_written=136 max_off=135 expect=136
+get_rdseed64u_arr    N=0   ret=[-2] bytes_written=0 max_off=-1 expect=0
+get_rdseed64u_arr    N=1   ret=[2] bytes_written=8 max_off=7 expect=8
+get_rdseed64u_arr    N=3   ret=[2] bytes_written=24 max_off=23 expect=24
+get_rdseed64u_arr    N=13  ret=[2] bytes_written=104 max_off=103 expect=104
+get_rdseed64u_arr    N=16  ret=[2] bytes_written=128 max_off=127 expect=128
+get_rdseed64u_arr    N=17  ret=[2] bytes_written=136 max_off=135 expect=136
+get_rdrand_bytes_arr N=0   ret=[-2] bytes_written=0 max_off=-1 expect=0
+get_rdrand_bytes_arr N=1   ret=[2] bytes_written=1 max_off=0 expect=1
+get_rdrand_bytes_arr N=3   ret=[2] bytes_written=3 max_off=2 expect=3
+get_rdrand_bytes_arr N=7   ret=[2] bytes_written=7 max_off=6 expect=7
+get_rdrand_bytes_arr N=8   ret=[2] bytes_written=8 max_off=7 expect=8
+get_rdrand_bytes_arr N=9   ret=[2] bytes_written=9 max_off=8 expect=9
+get_rdrand_bytes_arr N=13  ret=[2] bytes_written=13 max_off=12 expect=13
+get_rdrand_bytes_arr N=16  ret=[2] bytes_written=16 max_off=15 expect=16
+get_rdrand_bytes_arr N=17  ret=[2] bytes_written=17 max_off=16 expect=17
+get_rdrand_bytes_arr N=31  ret=[2] bytes_written=31 max_off=30 expect=31
+get_rdseed_bytes_arr N=0   ret=[-2] bytes_written=0 max_off=-1 expect=0
+get_rdseed_bytes_arr N=1   ret=[2] bytes_written=1 max_off=0 expect=1
+get_rdseed_bytes_arr N=3   ret=[2] bytes_written=3 max_off=2 expect=3
+get_rdseed_bytes_arr N=7   ret=[2] bytes_written=7 max_off=6 expect=7
+get_rdseed_bytes_arr N=8   ret=[2] bytes_written=8 max_off=7 expect=8
+get_rdseed_bytes_arr N=9   ret=[2] bytes_written=9 max_off=8 expect=9
+get_rdseed_bytes_arr N=13  ret=[2] bytes_written=13 max_off=12 expect=13
+get_rdseed_bytes_arr N=16  ret=[2] bytes_written=16 max_off=15 expect=16
+get_rdseed_bytes_arr N=17  ret=[2] bytes_written=17 max_off=16 expect=17
+get_rdseed_bytes_arr N=31  ret=[2] bytes_written=31 max_off=30 expect=31
+  module[0] = C:\Users\cires\AppData\Local\Temp\claude\4b8c15632be00fc5\83c2e441-df7a-4c4b-b87f-7c2eddc43692\scratchpad\sec\probe\probe.exe
+  module[1] = C:\WINDOWS\SYSTEM32\ntdll.dll
+  module[2] = C:\WINDOWS\System32\KERNEL32.DLL
+  module[3] = C:\WINDOWS\System32\KERNELBASE.dll
+  module[4] = C:\WINDOWS\System32\ucrtbase.dll
+  module[5] = C:\WINDOWS\SYSTEM32\VCRUNTIME140.dll
+  module[6] = C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\ILP64\amdsecrng.dll
+modules_loaded=7 openmp_like_modules=0
+exit_code=0 (0x0)

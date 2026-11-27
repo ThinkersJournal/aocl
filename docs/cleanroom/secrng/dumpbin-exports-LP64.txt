@@ -1,0 +1,49 @@
+Microsoft (R) COFF/PE Dumper Version 14.52.37028.0
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+
+Dump of file C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\LP64\amdsecrng.dll
+
+File Type: DLL
+
+  Section contains the following exports for amdsecrng.dll
+
+    00000000 characteristics
+           0 time date stamp
+        0.00 version
+           1 ordinal base
+          21 number of functions
+          21 number of names
+
+    ordinal hint RVA      name
+
+          1    0 00004008 aoclsecrng_version
+          2    1 000010A0 get_rdrand16u
+          3    2 00001170 get_rdrand32u
+          4    3 00001300 get_rdrand32u_arr
+          5    4 00001250 get_rdrand64u
+          6    5 00001490 get_rdrand64u_arr
+          7    6 00001630 get_rdrand_bytes_arr
+          8    7 00001970 get_rdseed16u
+          9    8 00001A00 get_rdseed32u
+         10    9 00001B10 get_rdseed32u_arr
+         11    A 00001A80 get_rdseed64u
+         12    B 00001C70 get_rdseed64u_arr
+         13    C 00001DC0 get_rdseed_bytes_arr
+         14    D 000020A0 get_secrngversion
+         15    E 00001000 is_RDRAND_supported
+         16    F 00001030 is_RDSEED_supported
+         17   10 00001070 l_get_rdrand16u
+         18   11 00001150 l_get_rdrand32u
+         19   12 00001220 l_get_rdrand64u
+         20   13 00004000 trdrand_status
+         21   14 00004004 trdseed_status
+
+  Summary
+
+        1000 .data
+        1000 .pdata
+        1000 .rdata
+        1000 .reloc
+        1000 .rsrc
+        2000 .text

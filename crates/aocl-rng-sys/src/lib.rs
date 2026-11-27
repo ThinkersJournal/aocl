@@ -11,7 +11,8 @@
 //! `GET_RNGVERSION` is stated by the guide but not exported, so it is not declared either.
 //!
 //! Not declared: `srandinitializeuser` and `SRANDINITIALIZEUSER` (the guide never states the S callback typedefs),
-//! and the SecureRNG API.
+//! and, unless the `securerng` feature is on, the SecureRNG API. With `securerng` the 15 guide-stated AOCL-SecureRNG
+//! functions are declared and `amdsecrng` is linked (Windows only; measured: `docs/cleanroom/secrng/SECRNG-MEASUREMENT.md`).
 //!
 //! For a safe, idiomatic API see [`aocl-rng`](https://docs.rs/aocl-rng).
 
@@ -51,5 +52,9 @@ pub type RNG_DRANDINITIALIZEUSER_UGEN = Option<
 
 mod decls;
 pub use decls::*;
+#[cfg(feature = "securerng")]
+mod decls_secure;
+#[cfg(feature = "securerng")]
+pub use decls_secure::*;
 mod decls_upper;
 pub use decls_upper::*;

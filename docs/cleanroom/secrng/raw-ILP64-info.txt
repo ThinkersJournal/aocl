@@ -1,0 +1,16 @@
+dll=C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\ILP64\amdsecrng.dll case=info
+get_secrngversion() = "AOCL-SecureRNG 6.0.0 Build 20261027"
+is_RDRAND_supported() = 1
+is_RDSEED_supported() = 1
+raw first16 bytes at export aoclsecrng_version = [60, 31, 98, fd, fe, 7f, 00, 00, ff, ff, ff, ff, 00, 00, 00, 00]
+raw first16 bytes at export trdrand_status = [01, 00, 00, 00, 01, 00, 00, 00, 60, 31, 98, fd, fe, 7f, 00, 00]
+raw first16 bytes at export trdseed_status = [01, 00, 00, 00, 60, 31, 98, fd, fe, 7f, 00, 00, ff, ff, ff, ff]
+  module[0] = C:\Users\cires\AppData\Local\Temp\claude\4b8c15632be00fc5\83c2e441-df7a-4c4b-b87f-7c2eddc43692\scratchpad\sec\probe\probe.exe
+  module[1] = C:\WINDOWS\SYSTEM32\ntdll.dll
+  module[2] = C:\WINDOWS\System32\KERNEL32.DLL
+  module[3] = C:\WINDOWS\System32\KERNELBASE.dll
+  module[4] = C:\WINDOWS\System32\ucrtbase.dll
+  module[5] = C:\WINDOWS\SYSTEM32\VCRUNTIME140.dll
+  module[6] = C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\ILP64\amdsecrng.dll
+modules_loaded=7 openmp_like_modules=0
+exit_code=0 (0x0)

@@ -1,0 +1,26 @@
+dll=C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\LP64\amdsecrng.dll case=single
+get_rdrand16u      ret=[2] bytes_written=2 max_offset_written=1 (expected width 2)
+get_rdrand32u      ret=[2] bytes_written=4 max_offset_written=3 (expected width 4)
+get_rdrand64u      ret=[2] bytes_written=8 max_offset_written=7 (expected width 8)
+get_rdseed16u      ret=[-2, 2] bytes_written=2 max_offset_written=1 (expected width 2)
+get_rdseed32u      ret=[-2, 2] bytes_written=4 max_offset_written=3 (expected width 4)
+get_rdseed64u      ret=[2] bytes_written=8 max_offset_written=7 (expected width 8)
+-- wrong-width controls: call fn through a type that assumes a wider slot; count bytes the fn actually wrote
+-- retry_count=0 and 0xFFFFFFFF
+get_rdrand32u retry=0 -> ret=2 val=0xad4c3138
+get_rdseed32u retry=0 -> ret=2 val=0x5bfcc60c
+get_rdrand32u retry=1 -> ret=2 val=0xed9e8d13
+get_rdseed32u retry=1 -> ret=2 val=0x3e31faa0
+get_rdrand32u retry=1000 -> ret=2 val=0x23cc256b
+get_rdseed32u retry=1000 -> ret=2 val=0x7c72c058
+get_rdrand32u retry=4294967295 -> ret=2 val=0xad16b6c9
+get_rdseed32u retry=4294967295 -> ret=2 val=0x2722900e
+  module[0] = C:\Users\cires\AppData\Local\Temp\claude\4b8c15632be00fc5\83c2e441-df7a-4c4b-b87f-7c2eddc43692\scratchpad\sec\probe\probe.exe
+  module[1] = C:\WINDOWS\SYSTEM32\ntdll.dll
+  module[2] = C:\WINDOWS\System32\KERNEL32.DLL
+  module[3] = C:\WINDOWS\System32\KERNELBASE.dll
+  module[4] = C:\WINDOWS\System32\ucrtbase.dll
+  module[5] = C:\WINDOWS\SYSTEM32\VCRUNTIME140.dll
+  module[6] = C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\LP64\amdsecrng.dll
+modules_loaded=7 openmp_like_modules=0
+exit_code=0 (0x0)

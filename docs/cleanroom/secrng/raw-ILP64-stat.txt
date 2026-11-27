@@ -1,0 +1,30 @@
+dll=C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\ILP64\amdsecrng.dll case=stat
+rdrand_bytes ret=2
+rdseed_bytes ret=2
+get_rdrand16u: 4096 calls, rets_not_2=0, distinct-values per byte lane (expect ~256 each) = 256 256 
+get_rdrand32u: 4096 calls, rets_not_2=0, distinct-values per byte lane (expect ~256 each) = 256 256 256 256 
+get_rdrand64u: 4096 calls, rets_not_2=0, distinct-values per byte lane (expect ~256 each) = 256 256 256 256 256 256 256 256 
+get_rdseed16u: 4096 calls, rets_not_2=0, distinct-values per byte lane (expect ~256 each) = 256 256 
+get_rdseed32u: 4096 calls, rets_not_2=0, distinct-values per byte lane (expect ~256 each) = 256 256 256 256 
+get_rdseed64u: 4096 calls, rets_not_2=0, distinct-values per byte lane (expect ~256 each) = 256 256 256 256 256 256 256 256 
+source                               chi2  distinct      ones   (65536 bytes; chi2 dof=255: expect 255 +/- 22.6; ones-fraction expect 0.5 +/- 0.0007)
+get_rdrand_bytes_arr(65536)         255.0       256   0.49970
+get_rdseed_bytes_arr(65536)         249.1       256   0.50076
+get_rdrand32u_arr(16384)            251.6       256   0.50019
+get_rdrand64u_arr(8192)             266.6       256   0.49954
+get_rdseed32u_arr(16384)            251.5       256   0.50051
+get_rdseed64u_arr(8192)             243.9       256   0.49886
+CONTROL all-zero               16711680.0         1   0.00000
+CONTROL rdrand_bytes & 0x7f       65759.0       128   0.43750
+CONTROL rdrand_bytes N=0       16711680.0         1   0.00000
+CONTROL rdrand_bytes N=32768 of 65536 (half buffer unwritten)  4175475.5       256   0.24897
+two successive 4096-byte calls: identical_bytes=13 (expect ~16)
+  module[0] = C:\Users\cires\AppData\Local\Temp\claude\4b8c15632be00fc5\83c2e441-df7a-4c4b-b87f-7c2eddc43692\scratchpad\sec\probe\probe.exe
+  module[1] = C:\WINDOWS\SYSTEM32\ntdll.dll
+  module[2] = C:\WINDOWS\System32\KERNEL32.DLL
+  module[3] = C:\WINDOWS\System32\KERNELBASE.dll
+  module[4] = C:\WINDOWS\System32\ucrtbase.dll
+  module[5] = C:\WINDOWS\SYSTEM32\VCRUNTIME140.dll
+  module[6] = C:\Program Files\AMD\AOCL-Windows\amd-rng\lib\ILP64\amdsecrng.dll
+modules_loaded=7 openmp_like_modules=0
+exit_code=0 (0x0)
