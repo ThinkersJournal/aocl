@@ -1,0 +1,9 @@
+# in math_decls.rs but NOT wired: the guide names the type but never defines it (ABI not derivable)
+pub fn amd_nexttowardf(x: c_float, y: long_double) -> c_float;
+pub fn amd_nexttoward(x: c_double, y: long_double) -> c_double;
+pub fn amd_cexpf(y: fc32_t) -> fc32_t;
+pub fn amd_cexp(x: fc64_t) -> fc64_t;
+pub fn amd_clogf(y: fc32_t) -> fc32_t;
+pub fn amd_clog(x: fc64_t) -> fc64_t;
+pub fn amd_cpowf(x: fc32_t, y: fc32_t) -> fc32_t;
+pub fn amd_cpow(x: fc64_t, y: fc64_t) -> fc64_t;

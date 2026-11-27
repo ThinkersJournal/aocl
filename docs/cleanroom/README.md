@@ -38,5 +38,4 @@ as a C prototype. Anything the guide does not state is UNKNOWN and left out.
 - RNG: the 80 lowercase C names match our current lowercase names 80/80 both ways (0 only-ours, 0 only-guide); signatures were NOT compared.
 
 ## Status
-Staging only: nothing here is compiled into a crate, nothing is published, 0.1.0 stays yanked. Wiring the crates and the
-linking tests against an installed AOCL wait for the PM's reading of this table and a ruling on `rng_int_t`.
+Math: `aocl-math-sys` and `aocl-math` are wired from the 218 scalar rows (`MATH-WIRING.md`, with the breaking list). RNG stays UNWIRED and UNPUBLISHED (pm-kernels ruling 2026-11-27: `rng_int_t` width, `fc32_t`/`fc64_t`/`long double` and the two `UINI`/`UGEN` names are not in the guide; a later behavioural probe by a session that has not read headers may settle `rng_int_t`, recorded as a measurement). Nothing is published; 0.1.0 stays yanked.

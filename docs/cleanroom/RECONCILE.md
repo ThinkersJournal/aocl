@@ -16,8 +16,26 @@ our bindings, so the PM saw them as "only ours". They are **guide-declared in th
 does not have the PM's list of 17, so it cannot name them exactly; it can only check the PM's stated categories. All of these
 are DECLARED here, with their guide line (from `math_provenance.csv`):
 - `amd_stablesort_ascend_64f` L111876
-- `*i` variants: `amd_vrda_addi` L111404, `_subi` L111456, `_muli` L111507, `_divi` L111559, `_fmaxi` L110401, `_fmini` L110431; `amd_vrsa_addfi` L111418, `_subfi` L111470, `_mulfi` L111521, `_divfi` L111573, `_fmaxfi` L110387, `_fminfi` L110417
-- linearfrac: `amd_vrd2_linearfrac` L111590, `amd_vrd4_linearfrac` L111623, `amd_vrd8_linearfrac` L111656, `amd_vrda_linearfrac` L111689, `amd_vrs4_linearfracf` L111606, `amd_vrs8_linearfracf` L111639, `amd_vrs16_linearfracf` L111672, `amd_vrsa_linearfracf` L111704
+- `amd_vrda_addi` L111404
+- `amd_vrda_subi` L111456
+- `amd_vrda_muli` L111507
+- `amd_vrda_divi` L111559
+- `amd_vrda_fmaxi` L110401
+- `amd_vrda_fmini` L110431
+- `amd_vrsa_addfi` L111418
+- `amd_vrsa_subfi` L111470
+- `amd_vrsa_mulfi` L111521
+- `amd_vrsa_divfi` L111573
+- `amd_vrsa_fmaxfi` L110387
+- `amd_vrsa_fminfi` L110417
+- `amd_vrd2_linearfrac` L111590
+- `amd_vrd4_linearfrac` L111623
+- `amd_vrd8_linearfrac` L111656
+- `amd_vrda_linearfrac` L111689
+- `amd_vrs4_linearfracf` L111606
+- `amd_vrs8_linearfracf` L111639
+- `amd_vrs16_linearfracf` L111672
+- `amd_vrsa_linearfracf` L111704
 (21 names; the three `linearfracf` rows at L111606/L111639/L111672 are watermark-garbled lines, which may be why a plain-text extraction misses them.)
 To finish the reconciliation the PM intersects its 17 with this list; any of its 17 not on this list is a real discrepancy to report.
 
