@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased (CI only, patch on 0.2.x; pm-assist allocates; no crate is published for it)
+
+- **CI:** the advisory `portfolio` job (reusable workflow `ciresnave/coderipper/.github/workflows/portfolio.yml` pinned to `467fd259d6d062cba4c5683d310f1a6f2b66e763`, `permissions: contents: read`, same syntax as cpufish) in `ci.yml`: not a required check, not in branch protection (CireSnave 2026-10-23). ROADMAP row 12.
+
 ## 0.2.19 - 2026-11-27 (PM-allocated; docs only, patch on 0.2.x: the measured static-link link-line requirements in the sparse, blas, lapack, crypto and data-analytics -sys READMEs)
 
 - **Docs: what each `static-link` build needs on the link line (Windows, measured on AOCL 6.0.68; Linux unmeasured)** in the READMEs of `aocl-sparse-sys`, `aocl-blas-sys`, `aocl-lapack-sys`, `aocl-crypto-sys`, `aocl-data-analytics-sys`: the OpenMP runtime `libiomp5md.lib` (sparse, blas, lapack, data-analytics), the static BLIS (lapack), `bcrypt.lib` and OpenSSL libcrypto (crypto), the Intel oneAPI Fortran runtime and BLAS/LAPACK (data-analytics). These crates do not link them; no code change. `aocl-fft-sys`, `aocl-utils-sys` and `aocl-compression-sys` static builds need nothing extra.
