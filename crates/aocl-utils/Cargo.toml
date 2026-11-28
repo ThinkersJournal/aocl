@@ -12,8 +12,8 @@ categories = ["api-bindings", "hardware-support"]
 keywords = ["aocl", "amd", "cpuid"]
 
 [dependencies]
-aocl-utils-sys = { version = "0.5", path = "../aocl-utils-sys" }
-aocl-error = { version = "0.5", path = "../aocl-error" }
+aocl-utils-sys = { version = "0.6", path = "../aocl-utils-sys" }
+aocl-error = { version = "0.6", path = "../aocl-error" }
 
 [features]
 default = []

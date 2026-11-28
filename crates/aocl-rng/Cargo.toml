@@ -12,8 +12,8 @@ categories = ["api-bindings", "science"]
 keywords = ["aocl", "amd", "rng", "random"]
 
 [dependencies]
-aocl-rng-sys = { version = "0.5", path = "../aocl-rng-sys" }
-aocl-error = { version = "0.5", path = "../aocl-error" }
+aocl-rng-sys = { version = "0.6", path = "../aocl-rng-sys" }
+aocl-error = { version = "0.6", path = "../aocl-error" }
 
 [features]
 default = []
