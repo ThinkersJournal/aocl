@@ -7,3 +7,7 @@ Safe Rust wrappers for AOCL-ScaLAPACK — distributed linear algebra over MPI.
 Built on top of [`aocl-scalapack-sys`](../aocl-scalapack-sys/).
 
 Dual-licensed under MIT or Apache-2.0.
+
+### Affected versions (safe-API memory safety, and one breaking change)
+
+Measured per published version (single MPI rank, f64) with a guard-page harness built against each `.crate`: 18 of 38 cases (the `a`, `b`, `c`, `w`, `z` and `tau` slices of `pdgesv`, `pdgemm`, `pdpotrf`, `pdgetrf`, `pdgetrs`, `pdpotrs`, `pdsyev`, `pdgels`, `pdgeqrf`) faulted in 0.1.0 (source read) through 0.2.54; fixed in 0.4.0 (valid calls re-run on 1, 2 and 4 MPI ranks). `pdgemm` / `psgemm` now return `Result<()>` (BREAKING). NOT MEASURED: the f32 / complex copies, multi-rank guard cases. yank status as read from crates.io on 2026-11-28 (about 15:50 UTC); the yank itself is the maintainer's and the live list moves, crates.io is the authority. Per-family first / last affected version, fixed-in version, the harness, what was NOT MEASURED and the result files: [`docs/safe-api-audit/AFFECTED-VERSIONS.md`](../../docs/safe-api-audit/AFFECTED-VERSIONS.md).
