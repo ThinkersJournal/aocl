@@ -3009,6 +3009,11 @@ pub fn cgeqp3(
 /// triangle, or the value `b'A'` (general full copy) via the alternate
 /// underlying char — pass any non-Upper/non-Lower if you need that
 /// pathway. (`f64`)
+///
+/// **Contract (documented, measured: docs/LACPY-MEASUREMENT.md):** only the *referenced* region of `b` is defined
+/// (the chosen triangle, or the whole `m x n` block for a full copy); the padding beyond the block is untouched. The
+/// *unreferenced* triangle of `b` is **unspecified for row-major** (this wrapper): AOCL 6.0.68, like the reference
+/// LAPACKE 3.12.1, copies through a temporary and may overwrite it. Do not rely on it keeping its old values.
 pub fn dlacpy(uplo: Uplo, m: usize, n: usize, a: &[f64], lda: usize, b: &mut [f64], ldb: usize) {
     unsafe {
         sys::LAPACKE_dlacpy(
