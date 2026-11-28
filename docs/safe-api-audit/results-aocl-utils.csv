@@ -1,0 +1,8 @@
+test,outcome,exit_code,seconds
+current_control,OK-control,0,0.03
+has_flag_cpu_1e6,OK-accepted,0,0.02
+has_flag_cpu_max_minus_1,OK-accepted,0,0.02
+has_flags_all_cpu_1e6,OK-accepted,0,0.03
+has_flags_any_cpu_1e6,OK-accepted,0,0.03
+vendor_info_cpu_1e6,OK-accepted,0,0.03
+vendor_info_cpu_max_minus_1,OK-accepted,0,0.02

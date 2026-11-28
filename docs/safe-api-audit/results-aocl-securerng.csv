@@ -1,0 +1,6 @@
+test,outcome,exit_code,seconds
+rdrand_bytes_exact,OK-accepted,0,0.02
+rdrand_u32_array_exact,OK-accepted,0,0.02
+rdrand_u64_array_exact,OK-accepted,0,0.02
+rdrand_u64_array_odd,OK-accepted,0,0.02
+rdseed_bytes_exact,OK-accepted,0,0.02
