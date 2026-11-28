@@ -100,7 +100,7 @@ refuse!(multinormal_oversized_ldc, {
 refuse!(multinormal_oversized_ldx, {
     let mut mu = MU;
     let mut c = C;
-    at_guard(&vec![0.0f64; N * 3], N * 3, |out| {
+    at_guard(&[0.0f64; N * 3], N * 3, |out| {
         rng().multinormal(3, &mut mu, &mut c, 3, out, (N + 2) as RngInt)
     })
 });
@@ -128,7 +128,7 @@ refuse!(multi_students_t_oversized_ldc, {
 refuse!(multi_students_t_oversized_ldx, {
     let mut mu = MU;
     let mut c = C;
-    at_guard(&vec![0.0f64; N * 3], N * 3, |out| {
+    at_guard(&[0.0f64; N * 3], N * 3, |out| {
         rng().multi_students_t(3, 8, &mut mu, &mut c, 3, out, (N + 2) as RngInt)
     })
 });
@@ -138,7 +138,7 @@ refuse!(multinomial_short_p, {
 });
 refuse!(multinomial_oversized_ldx, {
     let mut p = P;
-    at_guard(&vec![0 as RngInt; N * 3], N * 3, |o| {
+    at_guard(&[0 as RngInt; N * 3], N * 3, |o| {
         rng().multinomial(10, &mut p, 3, o, (N + 2) as RngInt)
     })
 });
