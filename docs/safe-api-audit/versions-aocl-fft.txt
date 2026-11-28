@@ -1,0 +1,24 @@
+0.1.0 guard_lengths aocl-fft/guard_lengths: 40 tests in 1s; HOLE=2, OK-control=10, OK-refused=22, OTHER(rc=101)=6 | 
+0.2.6 guard_lengths aocl-fft/guard_lengths: 40 tests in 1s; HOLE=2, OK-control=10, OK-refused=22, OTHER(rc=101)=6 | 
+0.2.40 guard_lengths aocl-fft/guard_lengths: 40 tests in 1s; HOLE=2, OK-control=10, OK-refused=22, OTHER(rc=101)=6 | 
+0.2.43 guard_lengths aocl-fft/guard_lengths: 40 tests in 1s; HOLE=2, OK-control=10, OK-refused=22, OTHER(rc=101)=6 | 
+0.2.46 guard_lengths aocl-fft/guard_lengths: 40 tests in 1s; HOLE=2, OK-control=10, OK-refused=22, OTHER(rc=101)=6 | 
+0.2.49 guard_lengths aocl-fft/guard_lengths: 40 tests in 1s; HOLE=2, OK-control=10, OK-refused=22, OTHER(rc=101)=6 | 
+
+aocl-fft: function family | versions measured with that family | HOLE in versions
+c2r_short_input present 0.1.0..0.2.49  HOLE in none
+c2r_short_output present 0.1.0..0.2.49  HOLE in none
+dft_2d_short_data present 0.1.0..0.2.49  HOLE in none
+dft_3d_short_data present 0.1.0..0.2.49  HOLE in none
+plan_c2r_misaligned_output present 0.1.0..0.2.49  HOLE in none
+plan_c2r_short_input present 0.1.0..0.2.49  HOLE in none
+plan_c2r_short_output present 0.1.0..0.2.49  HOLE in none
+plan_dft_misaligned_input present 0.1.0..0.2.49  HOLE in ['0.1.0', '0.2.6', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+plan_dft_misaligned_output present 0.1.0..0.2.49  HOLE in ['0.1.0', '0.2.6', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+plan_dft_short_input present 0.1.0..0.2.49  HOLE in none
+plan_dft_short_output present 0.1.0..0.2.49  HOLE in none
+plan_r2c_misaligned_input present 0.1.0..0.2.49  HOLE in none
+plan_r2c_short_input present 0.1.0..0.2.49  HOLE in none
+plan_r2c_short_output present 0.1.0..0.2.49  HOLE in none
+r2c_short_output present 0.1.0..0.2.49  HOLE in none
+exit=0

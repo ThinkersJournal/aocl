@@ -169,6 +169,31 @@ Versions measured: 0.1.0, 0.2.5, 0.2.40, 0.2.43, 0.2.46.
 
 120 families with at least one HOLE.
 
+## aocl-data-analytics
+
+Versions measured: 0.2.2, 0.2.4, 0.2.5, 0.2.28, 0.2.40, 0.2.43, 0.2.46, 0.2.49.
+
+| function family | first affected | last affected (published so far) | holes (short cases) at last affected | fixed in |
+|---|---|---|---|---|
+| linear_kernel | 0.2.2 | 0.2.49 | 6 | PENDING: #71 (kernels, 0.2.53) |
+| pairwise_distances | 0.2.2 | 0.2.49 | 6 | PENDING: #71 (kernels, 0.2.53) |
+| polynomial_kernel | 0.2.2 | 0.2.49 | 6 | PENDING: #71 (kernels, 0.2.53) |
+| rbf_kernel | 0.2.2 | 0.2.49 | 6 | PENDING: #71 (kernels, 0.2.53) |
+| sigmoid_kernel | 0.2.2 | 0.2.49 | 6 | PENDING: #71 (kernels, 0.2.53) |
+
+5 families with at least one HOLE.
+
+## aocl-fft
+
+Versions measured: 0.1.0, 0.2.6, 0.2.40, 0.2.43, 0.2.46, 0.2.49.
+
+| function family | first affected | last affected (published so far) | holes (short cases) at last affected | fixed in |
+|---|---|---|---|---|
+| plan_dft_misaligned_input | 0.1.0 | 0.2.49 | 1 | PENDING: #72 (alignment, 0.2.54) |
+| plan_dft_misaligned_output | 0.1.0 | 0.2.49 | 1 | PENDING: #72 (alignment, 0.2.54) |
+
+2 families with at least one HOLE.
+
 ## Not measured (read pending)
 
 sparse `blkcsrmv` (no safe mask constructor), `create_csc` / `create_tcsr` (raw handle, no safe sink); lapack band `gb*`, `gesvdx`, `orgbr`, `lasrt`, and the trait-level `RealScalar::geev` / `ComplexScalar::geev` called directly (the typed free functions are measured); blas trait methods with explicit `inc`/`ld`, pack/compute/batch/rotm/sdsdot/csrot/zdrot; and the crates data-analytics, crypto, fft, rng, scalapack, math, compression, securerng, utils, openrng. `aocl-sparse` 0.1.0 did not compile with the harness (2 errors in its own lib against current dependencies) and is unmeasured; the functions are present in its source.

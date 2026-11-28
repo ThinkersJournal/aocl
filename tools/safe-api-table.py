@@ -18,6 +18,8 @@ FIXED = {
     ("aocl-lapack", "generic"): "0.2.48 (group A #66, merged; unpublished)",
     ("aocl-lapack", "typed"): "0.2.49 (group B #67, merged; unpublished)",
     ("aocl-lapack", "eigen"): "PENDING: #68 (0.2.50 armed)",
+    ("aocl-data-analytics", "*"): "PENDING: #71 (kernels, 0.2.53)",
+    ("aocl-fft", "*"): "PENDING: #72 (alignment, 0.2.54)",
     ("aocl-lapack", "factor"): "PENDING: #69 (next after #68)",
 }
 EIGEN = {"geev", "syevd", "heevd", "syevr", "heevr", "sygv", "hegv", "gees", "ggev"}
@@ -40,6 +42,9 @@ def load(crate):
 
 
 def family(crate, test):
+    if crate == "aocl-fft":
+        m = re.match(r"(f64s|f32s)::(.+)", test)
+        return m.group(2) if m else None
     if crate == "aocl-sparse":
         m = re.match(r"(real_f64|real_f32|cplx_c64|cplx_c32)::(\w+?)_(short|col|block|rowptr|no_|t_|controls?|nnz_)", test)
         return (m.group(2) if m else None)
@@ -55,7 +60,7 @@ def main():
           "HOLE = the process died with an access violation on a call with one buffer one element short. Result files: `results-*`/`<crate>-<version>*.csv` "
           "in this directory. A family not listed was refused or accepted without fault in every version measured. `gesv` (lapack) is the only measured LAPACK "
           "function that never faults. Yank and GHSA are CireSnave's (board 526 B / 527).\n")
-    for crate in ("aocl-sparse", "aocl-blas", "aocl-lapack"):
+    for crate in ("aocl-sparse", "aocl-blas", "aocl-lapack", "aocl-data-analytics", "aocl-fft"):
         data = load(crate)
         vers = sorted(data, key=vkey)
         fam = {}
@@ -76,6 +81,8 @@ def main():
             n = sum(1 for o in fam[f][last] if o == "HOLE")
             if crate == "aocl-sparse":
                 fx = "PENDING: #70" if f in ("bsrmv", "csr2bsr", "csr2bsr_nnz") else FIXED[(crate, "*")]
+            elif crate in ("aocl-data-analytics", "aocl-fft"):
+                fx = FIXED[(crate, "*")]
             elif crate == "aocl-blas":
                 fx = FIXED[(crate, "gemmt")]
             else:

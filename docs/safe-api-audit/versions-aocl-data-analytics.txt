@@ -1,0 +1,28 @@
+0.1.0 (no output) | error: could not compile `aocl-data-analytics` (lib) due to 6 previous errors; 1 warning emitted
+0.2.2 aocl-data-analytics/generated_guard: 274 tests in 15s; HOLE=30, OK-control=68, OK-refused=176 | 
+0.2.4 aocl-data-analytics/generated_guard: 274 tests in 16s; HOLE=30, OK-control=68, OK-refused=176 | 
+0.2.5 aocl-data-analytics/generated_guard: 274 tests in 14s; HOLE=30, OK-control=68, OK-refused=176 | 
+0.2.28 aocl-data-analytics/generated_guard: 274 tests in 31s; HOLE=30, OK-control=68, OK-refused=176 | 
+0.2.40 aocl-data-analytics/generated_guard: 274 tests in 47s; HOLE=30, OK-control=68, OK-refused=176 | 
+0.2.43 aocl-data-analytics/generated_guard: 274 tests in 17s; HOLE=30, OK-control=68, OK-refused=176 | 
+0.2.46 aocl-data-analytics/generated_guard: 274 tests in 17s; HOLE=30, OK-control=68, OK-refused=176 | 
+0.2.49 aocl-data-analytics/generated_guard: 274 tests in 15s; HOLE=30, OK-control=68, OK-refused=176 | 
+
+aocl-data-analytics: function family | versions measured with that family | HOLE in versions
+correlation_matrix present 0.2.2..0.2.49  HOLE in none
+covariance_matrix present 0.2.2..0.2.49  HOLE in none
+five_point_summary present 0.2.2..0.2.49  HOLE in none
+geometric_mean present 0.2.2..0.2.49  HOLE in none
+harmonic_mean  present 0.2.2..0.2.49  HOLE in none
+kurtosis       present 0.2.2..0.2.49  HOLE in none
+linear_kernel  present 0.2.2..0.2.49  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.28', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+mean           present 0.2.2..0.2.49  HOLE in none
+moment         present 0.2.2..0.2.49  HOLE in none
+pairwise_distances present 0.2.2..0.2.49  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.28', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+polynomial_kernel present 0.2.2..0.2.49  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.28', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+quantile       present 0.2.2..0.2.49  HOLE in none
+rbf_kernel     present 0.2.2..0.2.49  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.28', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+sigmoid_kernel present 0.2.2..0.2.49  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.28', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+skewness       present 0.2.2..0.2.49  HOLE in none
+variance       present 0.2.2..0.2.49  HOLE in none
+exit=0
