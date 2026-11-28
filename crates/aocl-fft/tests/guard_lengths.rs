@@ -2,7 +2,7 @@
 //! LENGTH cases: a buffer one element short, at the end of a committed page before a PAGE_NOACCESS page (a fault = HOLE).
 //! ALIGNMENT cases: `Plan::execute_*` run an FFTW plan on NEW arrays; FFTW requires them to have the alignment the plan was created for
 //! (`FFTW_ESTIMATE` without `FFTW_UNALIGNED`: 16-byte SIMD alignment); a safe `&mut [[f64; 2]]` only guarantees 8. Each alignment case passes
-//! an array 8 bytes off the 16-byte boundary and reports (it never asserts: the outcome is measured). One process per test
+//! an array 8 bytes off the 16-byte boundary and ASSERTS the executor refuses it (before the fix: an access violation in f64). One process per test
 //! (tools/safe-api-harness.py). Windows only; Linux unmeasured.
 #![cfg(windows)]
 use aocl_fft::*;
@@ -54,6 +54,10 @@ fn at_offset<T: Copy, R>(n: usize, off: usize, fill: T, f: impl FnOnce(&mut [T])
         VirtualFree(base, 0, 0x8000);
         r
     }
+}
+
+fn refused(name: &str, r: Result<()>) {
+    assert!(matches!(r, Err(Error::InvalidArgument(_))), "{name}: {r:?}");
 }
 
 fn report(name: &str, r: Result<()>) {

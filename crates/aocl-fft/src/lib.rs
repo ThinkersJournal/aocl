@@ -61,6 +61,53 @@ fn check_n(name: &str, n: usize) -> Result<i32> {
     Ok(n as i32)
 }
 
+/// Alignment every array handed to a plan executor must have. A plan is built on 16-byte-aligned scratch arrays (`AlignedBuf`) and
+/// FFTW requires the arrays it is later executed on (`fftw_execute_dft*`) to have the alignment the plan was created for: its SIMD code
+/// assumes it, and a `&mut [[f64; 2]]` guarantees only 8 bytes (access violation measured on AOCL 6.0.68,
+/// `tests/guard_lengths.rs`). `FFTW_UNALIGNED` would lift the requirement at about +50% run time on aligned data (measured), so the
+/// executors refuse a misaligned array instead.
+const PLAN_ALIGN: usize = 16;
+
+fn check_aligned(name: &str, ptr: usize) -> Result<()> {
+    if ptr % PLAN_ALIGN != 0 {
+        return Err(Error::InvalidArgument(format!(
+            "{name}: array is not {PLAN_ALIGN}-byte aligned (address {ptr:#x}); the plan was made for aligned arrays"
+        )));
+    }
+    Ok(())
+}
+
+/// A zero-initialised heap array aligned to `PLAN_ALIGN`, used only as the arrays a plan is created on.
+struct AlignedBuf<T: Copy> {
+    ptr: *mut T,
+    layout: std::alloc::Layout,
+}
+
+impl<T: Copy> AlignedBuf<T> {
+    fn zeroed(len: usize) -> Self {
+        let layout =
+            std::alloc::Layout::from_size_align(len.max(1) * std::mem::size_of::<T>(), PLAN_ALIGN)
+                .expect("plan scratch layout");
+        // SAFETY: the layout has a non-zero size; all-zero bytes are a valid `f32` / `f64` / `[f32; 2]` / `[f64; 2]`.
+        let ptr = unsafe { std::alloc::alloc_zeroed(layout) } as *mut T;
+        if ptr.is_null() {
+            std::alloc::handle_alloc_error(layout);
+        }
+        Self { ptr, layout }
+    }
+
+    fn as_mut_ptr(&mut self) -> *mut T {
+        self.ptr
+    }
+}
+
+impl<T: Copy> Drop for AlignedBuf<T> {
+    fn drop(&mut self) {
+        // SAFETY: allocated in `zeroed` with this layout.
+        unsafe { std::alloc::dealloc(self.ptr as *mut u8, self.layout) };
+    }
+}
+
 // =========================================================================
 //   One-shot complex DFTs (1-D / 2-D / 3-D)
 // =========================================================================
@@ -279,19 +326,13 @@ impl Plan {
         // Create a scratch buffer for plan-time pointer requirements;
         // FFTW_ESTIMATE does not actually run the transform, so the
         // contents are irrelevant.
-        let mut scratch = vec![[0.0_f64, 0.0_f64]; n];
+        let mut scratch = AlignedBuf::<[f64; 2]>::zeroed(n);
+        let mut scratch_out = AlignedBuf::<[f64; 2]>::zeroed(n);
         let p = scratch.as_mut_ptr() as *mut sys::fftw_complex;
+        let q = scratch_out.as_mut_ptr() as *mut sys::fftw_complex;
         let plan = {
             let _g = PLANNER_LOCK.lock().unwrap_or_else(|e| e.into_inner());
-            unsafe {
-                sys::fftw_plan_dft_1d(
-                    n_i,
-                    p,
-                    p,
-                    direction.raw(),
-                    sys::FFTW_ESTIMATE | sys::FFTW_UNALIGNED,
-                )
-            }
+            unsafe { sys::fftw_plan_dft_1d(n_i, p, q, direction.raw(), sys::FFTW_ESTIMATE) }
         };
         if plan.is_null() {
             return Err(Error::AllocationFailed("fft"));
@@ -312,20 +353,13 @@ impl Plan {
         }
         let n0_i = check_n("dft_2d: n0", n0)?;
         let n1_i = check_n("dft_2d: n1", n1)?;
-        let mut scratch = vec![[0.0_f64, 0.0_f64]; n0 * n1];
+        let mut scratch = AlignedBuf::<[f64; 2]>::zeroed(n0 * n1);
+        let mut scratch_out = AlignedBuf::<[f64; 2]>::zeroed(n0 * n1);
         let p = scratch.as_mut_ptr() as *mut sys::fftw_complex;
+        let q = scratch_out.as_mut_ptr() as *mut sys::fftw_complex;
         let plan = {
             let _g = PLANNER_LOCK.lock().unwrap_or_else(|e| e.into_inner());
-            unsafe {
-                sys::fftw_plan_dft_2d(
-                    n0_i,
-                    n1_i,
-                    p,
-                    p,
-                    direction.raw(),
-                    sys::FFTW_ESTIMATE | sys::FFTW_UNALIGNED,
-                )
-            }
+            unsafe { sys::fftw_plan_dft_2d(n0_i, n1_i, p, q, direction.raw(), sys::FFTW_ESTIMATE) }
         };
         if plan.is_null() {
             return Err(Error::AllocationFailed("fft"));
@@ -347,20 +381,14 @@ impl Plan {
         let n0_i = check_n("dft_3d: n0", n0)?;
         let n1_i = check_n("dft_3d: n1", n1)?;
         let n2_i = check_n("dft_3d: n2", n2)?;
-        let mut scratch = vec![[0.0_f64, 0.0_f64]; n0 * n1 * n2];
+        let mut scratch = AlignedBuf::<[f64; 2]>::zeroed(n0 * n1 * n2);
+        let mut scratch_out = AlignedBuf::<[f64; 2]>::zeroed(n0 * n1 * n2);
         let p = scratch.as_mut_ptr() as *mut sys::fftw_complex;
+        let q = scratch_out.as_mut_ptr() as *mut sys::fftw_complex;
         let plan = {
             let _g = PLANNER_LOCK.lock().unwrap_or_else(|e| e.into_inner());
             unsafe {
-                sys::fftw_plan_dft_3d(
-                    n0_i,
-                    n1_i,
-                    n2_i,
-                    p,
-                    p,
-                    direction.raw(),
-                    sys::FFTW_ESTIMATE | sys::FFTW_UNALIGNED,
-                )
+                sys::fftw_plan_dft_3d(n0_i, n1_i, n2_i, p, q, direction.raw(), sys::FFTW_ESTIMATE)
             }
         };
         if plan.is_null() {
@@ -379,8 +407,8 @@ impl Plan {
             return Err(Error::InvalidArgument("r2c_1d: n must be positive".into()));
         }
         let n_i = check_n("r2c_1d", n)?;
-        let mut in_buf = vec![0.0_f64; n];
-        let mut out_buf = vec![[0.0_f64, 0.0_f64]; n / 2 + 1];
+        let mut in_buf = AlignedBuf::<f64>::zeroed(n);
+        let mut out_buf = AlignedBuf::<[f64; 2]>::zeroed(n / 2 + 1);
         let plan = {
             let _g = PLANNER_LOCK.lock().unwrap_or_else(|e| e.into_inner());
             unsafe {
@@ -388,7 +416,7 @@ impl Plan {
                     n_i,
                     in_buf.as_mut_ptr(),
                     out_buf.as_mut_ptr() as *mut sys::fftw_complex,
-                    sys::FFTW_ESTIMATE | sys::FFTW_UNALIGNED,
+                    sys::FFTW_ESTIMATE,
                 )
             }
         };
@@ -408,8 +436,8 @@ impl Plan {
             return Err(Error::InvalidArgument("c2r_1d: n must be positive".into()));
         }
         let n_i = check_n("c2r_1d", n)?;
-        let mut in_buf = vec![[0.0_f64, 0.0_f64]; n / 2 + 1];
-        let mut out_buf = vec![0.0_f64; n];
+        let mut in_buf = AlignedBuf::<[f64; 2]>::zeroed(n / 2 + 1);
+        let mut out_buf = AlignedBuf::<f64>::zeroed(n);
         let plan = {
             let _g = PLANNER_LOCK.lock().unwrap_or_else(|e| e.into_inner());
             unsafe {
@@ -417,7 +445,7 @@ impl Plan {
                     n_i,
                     in_buf.as_mut_ptr() as *mut sys::fftw_complex,
                     out_buf.as_mut_ptr(),
-                    sys::FFTW_ESTIMATE | sys::FFTW_UNALIGNED,
+                    sys::FFTW_ESTIMATE,
                 )
             }
         };
@@ -446,6 +474,8 @@ impl Plan {
                 self.n_total
             )));
         }
+        check_aligned("execute_dft: input", input.as_ptr() as usize)?;
+        check_aligned("execute_dft: output", output.as_ptr() as usize)?;
         unsafe {
             sys::fftw_execute_dft(
                 self.plan,
@@ -473,6 +503,8 @@ impl Plan {
                 need_out
             )));
         }
+        check_aligned("execute_r2c: input", input.as_ptr() as usize)?;
+        check_aligned("execute_r2c: output", output.as_ptr() as usize)?;
         unsafe {
             sys::fftw_execute_dft_r2c(
                 self.plan,
@@ -500,6 +532,8 @@ impl Plan {
                 self.n_total
             )));
         }
+        check_aligned("execute_c2r: input", input.as_ptr() as usize)?;
+        check_aligned("execute_c2r: output", output.as_ptr() as usize)?;
         unsafe {
             sys::fftw_execute_dft_c2r(
                 self.plan,
@@ -727,19 +761,13 @@ impl PlanF32 {
             return Err(Error::InvalidArgument("dft_1d: n must be positive".into()));
         }
         let n_i = check_n("dft_1d", n)?;
-        let mut scratch = vec![[0.0_f32, 0.0_f32]; n];
+        let mut scratch = AlignedBuf::<[f32; 2]>::zeroed(n);
+        let mut scratch_out = AlignedBuf::<[f32; 2]>::zeroed(n);
         let p = scratch.as_mut_ptr() as *mut sys::fftwf_complex;
+        let q = scratch_out.as_mut_ptr() as *mut sys::fftwf_complex;
         let plan = {
             let _g = PLANNER_LOCK.lock().unwrap_or_else(|e| e.into_inner());
-            unsafe {
-                sys::fftwf_plan_dft_1d(
-                    n_i,
-                    p,
-                    p,
-                    direction.raw(),
-                    sys::FFTW_ESTIMATE | sys::FFTW_UNALIGNED,
-                )
-            }
+            unsafe { sys::fftwf_plan_dft_1d(n_i, p, q, direction.raw(), sys::FFTW_ESTIMATE) }
         };
         if plan.is_null() {
             return Err(Error::AllocationFailed("fft"));
@@ -760,20 +788,13 @@ impl PlanF32 {
         }
         let n0_i = check_n("dft_2d: n0", n0)?;
         let n1_i = check_n("dft_2d: n1", n1)?;
-        let mut scratch = vec![[0.0_f32, 0.0_f32]; n0 * n1];
+        let mut scratch = AlignedBuf::<[f32; 2]>::zeroed(n0 * n1);
+        let mut scratch_out = AlignedBuf::<[f32; 2]>::zeroed(n0 * n1);
         let p = scratch.as_mut_ptr() as *mut sys::fftwf_complex;
+        let q = scratch_out.as_mut_ptr() as *mut sys::fftwf_complex;
         let plan = {
             let _g = PLANNER_LOCK.lock().unwrap_or_else(|e| e.into_inner());
-            unsafe {
-                sys::fftwf_plan_dft_2d(
-                    n0_i,
-                    n1_i,
-                    p,
-                    p,
-                    direction.raw(),
-                    sys::FFTW_ESTIMATE | sys::FFTW_UNALIGNED,
-                )
-            }
+            unsafe { sys::fftwf_plan_dft_2d(n0_i, n1_i, p, q, direction.raw(), sys::FFTW_ESTIMATE) }
         };
         if plan.is_null() {
             return Err(Error::AllocationFailed("fft"));
@@ -795,20 +816,14 @@ impl PlanF32 {
         let n0_i = check_n("dft_3d: n0", n0)?;
         let n1_i = check_n("dft_3d: n1", n1)?;
         let n2_i = check_n("dft_3d: n2", n2)?;
-        let mut scratch = vec![[0.0_f32, 0.0_f32]; n0 * n1 * n2];
+        let mut scratch = AlignedBuf::<[f32; 2]>::zeroed(n0 * n1 * n2);
+        let mut scratch_out = AlignedBuf::<[f32; 2]>::zeroed(n0 * n1 * n2);
         let p = scratch.as_mut_ptr() as *mut sys::fftwf_complex;
+        let q = scratch_out.as_mut_ptr() as *mut sys::fftwf_complex;
         let plan = {
             let _g = PLANNER_LOCK.lock().unwrap_or_else(|e| e.into_inner());
             unsafe {
-                sys::fftwf_plan_dft_3d(
-                    n0_i,
-                    n1_i,
-                    n2_i,
-                    p,
-                    p,
-                    direction.raw(),
-                    sys::FFTW_ESTIMATE | sys::FFTW_UNALIGNED,
-                )
+                sys::fftwf_plan_dft_3d(n0_i, n1_i, n2_i, p, q, direction.raw(), sys::FFTW_ESTIMATE)
             }
         };
         if plan.is_null() {
@@ -827,8 +842,8 @@ impl PlanF32 {
             return Err(Error::InvalidArgument("r2c_1d: n must be positive".into()));
         }
         let n_i = check_n("r2c_1d", n)?;
-        let mut in_buf = vec![0.0_f32; n];
-        let mut out_buf = vec![[0.0_f32, 0.0_f32]; n / 2 + 1];
+        let mut in_buf = AlignedBuf::<f32>::zeroed(n);
+        let mut out_buf = AlignedBuf::<[f32; 2]>::zeroed(n / 2 + 1);
         let plan = {
             let _g = PLANNER_LOCK.lock().unwrap_or_else(|e| e.into_inner());
             unsafe {
@@ -836,7 +851,7 @@ impl PlanF32 {
                     n_i,
                     in_buf.as_mut_ptr(),
                     out_buf.as_mut_ptr() as *mut sys::fftwf_complex,
-                    sys::FFTW_ESTIMATE | sys::FFTW_UNALIGNED,
+                    sys::FFTW_ESTIMATE,
                 )
             }
         };
@@ -856,8 +871,8 @@ impl PlanF32 {
             return Err(Error::InvalidArgument("c2r_1d: n must be positive".into()));
         }
         let n_i = check_n("c2r_1d", n)?;
-        let mut in_buf = vec![[0.0_f32, 0.0_f32]; n / 2 + 1];
-        let mut out_buf = vec![0.0_f32; n];
+        let mut in_buf = AlignedBuf::<[f32; 2]>::zeroed(n / 2 + 1);
+        let mut out_buf = AlignedBuf::<f32>::zeroed(n);
         let plan = {
             let _g = PLANNER_LOCK.lock().unwrap_or_else(|e| e.into_inner());
             unsafe {
@@ -865,7 +880,7 @@ impl PlanF32 {
                     n_i,
                     in_buf.as_mut_ptr() as *mut sys::fftwf_complex,
                     out_buf.as_mut_ptr(),
-                    sys::FFTW_ESTIMATE | sys::FFTW_UNALIGNED,
+                    sys::FFTW_ESTIMATE,
                 )
             }
         };
@@ -894,6 +909,8 @@ impl PlanF32 {
                 self.n_total
             )));
         }
+        check_aligned("execute_dft: input", input.as_ptr() as usize)?;
+        check_aligned("execute_dft: output", output.as_ptr() as usize)?;
         unsafe {
             sys::fftwf_execute_dft(
                 self.plan,
@@ -921,6 +938,8 @@ impl PlanF32 {
                 need_out
             )));
         }
+        check_aligned("execute_r2c: input", input.as_ptr() as usize)?;
+        check_aligned("execute_r2c: output", output.as_ptr() as usize)?;
         unsafe {
             sys::fftwf_execute_dft_r2c(
                 self.plan,
@@ -948,6 +967,8 @@ impl PlanF32 {
                 self.n_total
             )));
         }
+        check_aligned("execute_c2r: input", input.as_ptr() as usize)?;
+        check_aligned("execute_c2r: output", output.as_ptr() as usize)?;
         unsafe {
             sys::fftwf_execute_dft_c2r(
                 self.plan,
