@@ -5307,3 +5307,939 @@ mod tests {
         assert!(ap[0].im.abs() < 1e-12);
     }
 }
+
+/// Reference tests for the banded/packed Level-2, Givens, 3M GEMM, batched and packed GEMM wrappers: every expected
+/// value is computed by a serial complex-f64 loop (or an identity such as `c^2 + |s|^2 = 1`) inside the test.
+#[cfg(test)]
+mod reference_tests {
+    use super::*;
+
+    type C = (f64, f64);
+    const Z: C = (0.0, 0.0);
+    fn cm(a: C, b: C) -> C {
+        (a.0 * b.0 - a.1 * b.1, a.0 * b.1 + a.1 * b.0)
+    }
+    fn ca(a: C, b: C) -> C {
+        (a.0 + b.0, a.1 + b.1)
+    }
+    fn cj(a: C) -> C {
+        (a.0, -a.1)
+    }
+    fn cabs(a: C) -> f64 {
+        a.0.hypot(a.1)
+    }
+
+    trait Num: Scalar + std::fmt::Debug {
+        const TOL: f64;
+        fn mk(re: f64, im: f64) -> Self;
+        fn c(self) -> C;
+    }
+    macro_rules! num_real {
+        ($t:ty, $tol:expr) => {
+            impl Num for $t {
+                const TOL: f64 = $tol;
+                fn mk(re: f64, _im: f64) -> Self {
+                    re as $t
+                }
+                fn c(self) -> C {
+                    (self as f64, 0.0)
+                }
+            }
+        };
+    }
+    macro_rules! num_cx {
+        ($t:ty, $f:ty, $tol:expr) => {
+            impl Num for $t {
+                const TOL: f64 = $tol;
+                fn mk(re: f64, im: f64) -> Self {
+                    <$t>::new(re as $f, im as $f)
+                }
+                fn c(self) -> C {
+                    (self.re as f64, self.im as f64)
+                }
+            }
+        };
+    }
+    num_real!(f32, 2e-4);
+    num_real!(f64, 1e-11);
+    num_cx!(Complex32, f32, 2e-4);
+    num_cx!(Complex64, f64, 1e-11);
+
+    /// Deterministic input in multiples of 1/8 (exact in f32), seeded.
+    fn val<T: Num>(i: usize, seed: usize) -> T {
+        T::mk(
+            ((i * 37 + seed * 11) % 17) as f64 / 8.0 - 1.0,
+            ((i * 23 + seed * 5) % 13) as f64 / 8.0 - 0.75,
+        )
+    }
+    fn vec_of<T: Num>(n: usize, seed: usize) -> Vec<T> {
+        (0..n).map(|i| val::<T>(i, seed)).collect()
+    }
+    fn poison<T: Num>() -> T {
+        T::mk(77.0, -77.0)
+    }
+    fn close<T: Num>(got: &[T], want: &[C], what: &str) {
+        assert_eq!(got.len(), want.len(), "{what}: length");
+        for (i, (g, w)) in got.iter().zip(want).enumerate() {
+            let g = g.c();
+            let d = cabs((g.0 - w.0, g.1 - w.1));
+            assert!(
+                d <= T::TOL * (1.0 + cabs(*w)),
+                "{what}[{i}]: got {g:?} want {w:?}"
+            );
+        }
+    }
+    fn cs<T: Num>(v: &[T]) -> Vec<C> {
+        v.iter().map(|x| x.c()).collect()
+    }
+
+    // ---- storage maps -----------------------------------------------------
+
+    /// Matrix entry used by the Level-2 tests (diagonal boosted so triangular solves are well conditioned).
+    fn ent<T: Num>(i: usize, j: usize) -> C {
+        let v = val::<T>(i * 7 + j, 3).c();
+        if i == j {
+            (2.0 + v.0, v.1)
+        } else {
+            (0.3 * v.0, 0.3 * v.1)
+        }
+    }
+    fn in_tri(uplo: Uplo, k: usize, i: usize, j: usize) -> bool {
+        match uplo {
+            Uplo::Upper => j >= i && j - i <= k,
+            Uplo::Lower => i >= j && i - j <= k,
+        }
+    }
+    /// BLAS band-storage position of (i, j).
+    fn band_idx(l: Layout, uplo: Uplo, k: usize, lda: usize, i: usize, j: usize) -> usize {
+        match (l, uplo) {
+            (Layout::RowMajor, Uplo::Upper) => i * lda + (j - i),
+            (Layout::RowMajor, Uplo::Lower) => i * lda + (k + j - i),
+            (Layout::ColMajor, Uplo::Upper) => j * lda + (k + i - j),
+            (Layout::ColMajor, Uplo::Lower) => j * lda + (i - j),
+        }
+    }
+    fn store_band<T: Num>(
+        l: Layout,
+        uplo: Uplo,
+        n: usize,
+        k: usize,
+        lda: usize,
+        f: &dyn Fn(usize, usize) -> C,
+    ) -> Vec<T> {
+        let mut a = vec![poison::<T>(); n * lda];
+        for i in 0..n {
+            for j in 0..n {
+                if in_tri(uplo, k, i, j) {
+                    let v = f(i, j);
+                    a[band_idx(l, uplo, k, lda, i, j)] = T::mk(v.0, v.1);
+                }
+            }
+        }
+        a
+    }
+    /// Row-major packed position (the free `*pmv`/`*pr2` wrappers are row-major).
+    fn pack_idx(uplo: Uplo, n: usize, i: usize, j: usize) -> usize {
+        match uplo {
+            Uplo::Upper => i * (2 * n - i + 1) / 2 + (j - i),
+            Uplo::Lower => i * (i + 1) / 2 + j,
+        }
+    }
+    fn store_packed<T: Num>(uplo: Uplo, n: usize, f: &dyn Fn(usize, usize) -> C) -> Vec<T> {
+        let mut a = vec![poison::<T>(); n * (n + 1) / 2];
+        for i in 0..n {
+            for j in 0..n {
+                if in_tri(uplo, n, i, j) {
+                    let v = f(i, j);
+                    a[pack_idx(uplo, n, i, j)] = T::mk(v.0, v.1);
+                }
+            }
+        }
+        a
+    }
+    fn matvec(n: usize, a: &dyn Fn(usize, usize) -> C, x: &[C]) -> Vec<C> {
+        (0..n)
+            .map(|i| (0..n).fold(Z, |s, j| ca(s, cm(a(i, j), x[j]))))
+            .collect()
+    }
+    const UPLOS: [Uplo; 2] = [Uplo::Upper, Uplo::Lower];
+    const LAYOUTS: [Layout; 2] = [Layout::RowMajor, Layout::ColMajor];
+    const TRANS: [Trans; 3] = [Trans::No, Trans::T, Trans::C];
+
+    // ---- triangular banded: tbmv / tbsv ----------------------------------
+
+    fn tri_dense<T: Num>(
+        uplo: Uplo,
+        diag: Diag,
+        k: usize,
+        trans: Trans,
+    ) -> impl Fn(usize, usize) -> C {
+        move |i, j| {
+            let (r, c) = if trans == Trans::No { (i, j) } else { (j, i) };
+            if !in_tri(uplo, k, r, c) {
+                return Z;
+            }
+            let e = if r == c && diag == Diag::Unit {
+                (1.0, 0.0)
+            } else {
+                ent::<T>(r, c)
+            };
+            if trans == Trans::C {
+                cj(e)
+            } else {
+                e
+            }
+        }
+    }
+
+    fn tbmv_tbsv_ref<T: Num>() {
+        let (n, k, lda) = (6usize, 2usize, 4usize);
+        let x0: Vec<T> = vec_of(n, 9);
+        for l in LAYOUTS {
+            for uplo in UPLOS {
+                for diag in [Diag::NonUnit, Diag::Unit] {
+                    for trans in TRANS {
+                        let a = store_band::<T>(l, uplo, n, k, lda, &|i, j| ent::<T>(i, j));
+                        let dense = tri_dense::<T>(uplo, diag, k, trans);
+                        let what = format!("{l:?} {uplo:?} {diag:?} {trans:?}");
+                        let mut x = x0.clone();
+                        tbmv(l, uplo, trans, diag, n, k, &a, lda, &mut x).unwrap();
+                        close(&x, &matvec(n, &dense, &cs(&x0)), &format!("tbmv {what}"));
+                        // tbsv: op(A) * solution must reproduce the right-hand side
+                        let mut s = x0.clone();
+                        tbsv(l, uplo, trans, diag, n, k, &a, lda, &mut s).unwrap();
+                        close(
+                            &x0,
+                            &matvec(n, &dense, &cs(&s)),
+                            &format!("tbsv residual {what}"),
+                        );
+                    }
+                }
+            }
+        }
+        // lda < k + 1 is rejected
+        let mut x = x0.clone();
+        assert!(tbmv(
+            Layout::RowMajor,
+            Uplo::Upper,
+            Trans::No,
+            Diag::NonUnit,
+            n,
+            k,
+            &[T::mk(1.0, 0.0); 36],
+            2,
+            &mut x
+        )
+        .is_err());
+    }
+    #[test]
+    fn tbmv_tbsv_match_dense_f32() {
+        tbmv_tbsv_ref::<f32>()
+    }
+    #[test]
+    fn tbmv_tbsv_match_dense_f64() {
+        tbmv_tbsv_ref::<f64>()
+    }
+    #[test]
+    fn tbmv_tbsv_match_dense_c32() {
+        tbmv_tbsv_ref::<Complex32>()
+    }
+    #[test]
+    fn tbmv_tbsv_match_dense_c64() {
+        tbmv_tbsv_ref::<Complex64>()
+    }
+
+    // ---- symmetric / Hermitian banded and packed mat-vec ------------------
+
+    fn sym<T: Num>(i: usize, j: usize) -> C {
+        ent::<T>(i.min(j), i.max(j))
+    }
+    /// Hermitian entry: conjugate below the diagonal, real diagonal.
+    fn herm<T: Num>(i: usize, j: usize) -> C {
+        if i == j {
+            (ent::<T>(i, i).0, 0.0)
+        } else if i < j {
+            ent::<T>(i, j)
+        } else {
+            cj(ent::<T>(j, i))
+        }
+    }
+    fn gemv_ref(
+        n: usize,
+        a: &dyn Fn(usize, usize) -> C,
+        x: &[C],
+        alpha: C,
+        beta: C,
+        y0: &[C],
+    ) -> Vec<C> {
+        let ax = matvec(n, a, x);
+        (0..n)
+            .map(|i| ca(cm(alpha, ax[i]), cm(beta, y0[i])))
+            .collect()
+    }
+    /// Banded matrix as a dense function (zero outside |i-j| <= k).
+    fn banded(f: impl Fn(usize, usize) -> C, k: usize) -> impl Fn(usize, usize) -> C {
+        move |i, j| if i.abs_diff(j) <= k { f(i, j) } else { Z }
+    }
+
+    fn sym_ref<T: Num + RealScalar>() {
+        let (n, k, lda) = (6usize, 2usize, 4usize);
+        let (x, y0): (Vec<T>, Vec<T>) = (vec_of(n, 4), vec_of(n, 6));
+        let (alpha, beta) = (T::mk(1.5, 0.0), T::mk(-0.5, 0.0));
+        for uplo in UPLOS {
+            let want = gemv_ref(
+                n,
+                &banded(sym::<T>, k),
+                &cs(&x),
+                alpha.c(),
+                beta.c(),
+                &cs(&y0),
+            );
+            let a = store_band::<T>(Layout::RowMajor, uplo, n, k, lda, &|i, j| sym::<T>(i, j));
+            let mut y = y0.clone();
+            sbmv(uplo, n, k, alpha, &a, lda, &x, beta, &mut y).unwrap();
+            close(&y, &want, &format!("sbmv {uplo:?}"));
+
+            let want = gemv_ref(n, &sym::<T>, &cs(&x), alpha.c(), beta.c(), &cs(&y0));
+            let ap = store_packed::<T>(uplo, n, &|i, j| sym::<T>(i, j));
+            let mut y = y0.clone();
+            spmv(uplo, n, alpha, &ap, &x, beta, &mut y).unwrap();
+            close(&y, &want, &format!("spmv {uplo:?}"));
+
+            // spr2: Ap += alpha (x y^T + y x^T) on the referenced triangle
+            let mut ap = store_packed::<T>(uplo, n, &|i, j| sym::<T>(i, j));
+            spr2(uplo, n, alpha, &x, &y0, &mut ap).unwrap();
+            let want: Vec<C> = {
+                let mut w = vec![Z; n * (n + 1) / 2];
+                for i in 0..n {
+                    for j in 0..n {
+                        if in_tri(uplo, n, i, j) {
+                            let (xi, xj, yi, yj) = (x[i].c(), x[j].c(), y0[i].c(), y0[j].c());
+                            let upd = cm(alpha.c(), ca(cm(xi, yj), cm(yi, xj)));
+                            w[pack_idx(uplo, n, i, j)] = ca(sym::<T>(i, j), upd);
+                        }
+                    }
+                }
+                w
+            };
+            close(&ap, &want, &format!("spr2 {uplo:?}"));
+        }
+    }
+    #[test]
+    fn sbmv_spmv_spr2_match_dense_f32() {
+        sym_ref::<f32>()
+    }
+    #[test]
+    fn sbmv_spmv_spr2_match_dense_f64() {
+        sym_ref::<f64>()
+    }
+
+    fn herm_ref<T: Num + ComplexScalar>() {
+        let (n, k, lda) = (6usize, 2usize, 4usize);
+        let (x, y0): (Vec<T>, Vec<T>) = (vec_of(n, 4), vec_of(n, 6));
+        let (alpha, beta) = (T::mk(1.5, -0.5), T::mk(-0.5, 0.25));
+        for uplo in UPLOS {
+            let want = gemv_ref(
+                n,
+                &banded(herm::<T>, k),
+                &cs(&x),
+                alpha.c(),
+                beta.c(),
+                &cs(&y0),
+            );
+            // diagonal storage carries a poison imaginary part that BLAS must ignore
+            let a = store_band::<T>(Layout::RowMajor, uplo, n, k, lda, &|i, j| {
+                let h = herm::<T>(i, j);
+                if i == j {
+                    (h.0, 9.0)
+                } else {
+                    h
+                }
+            });
+            let mut y = y0.clone();
+            hbmv(uplo, n, k, alpha, &a, lda, &x, beta, &mut y).unwrap();
+            close(&y, &want, &format!("hbmv {uplo:?}"));
+
+            let want = gemv_ref(n, &herm::<T>, &cs(&x), alpha.c(), beta.c(), &cs(&y0));
+            let ap = store_packed::<T>(uplo, n, &|i, j| {
+                let h = herm::<T>(i, j);
+                if i == j {
+                    (h.0, 9.0)
+                } else {
+                    h
+                }
+            });
+            let mut y = y0.clone();
+            hpmv(uplo, n, alpha, &ap, &x, beta, &mut y).unwrap();
+            close(&y, &want, &format!("hpmv {uplo:?}"));
+
+            // hpr2: Ap += alpha x y^H + conj(alpha) y x^H
+            let mut ap = store_packed::<T>(uplo, n, &|i, j| herm::<T>(i, j));
+            hpr2(uplo, n, alpha, &x, &y0, &mut ap).unwrap();
+            let mut want = vec![Z; n * (n + 1) / 2];
+            for i in 0..n {
+                for j in 0..n {
+                    if in_tri(uplo, n, i, j) {
+                        let t1 = cm(alpha.c(), cm(x[i].c(), cj(y0[j].c())));
+                        let t2 = cm(cj(alpha.c()), cm(y0[i].c(), cj(x[j].c())));
+                        want[pack_idx(uplo, n, i, j)] = ca(herm::<T>(i, j), ca(t1, t2));
+                    }
+                }
+            }
+            close(&ap, &want, &format!("hpr2 {uplo:?}"));
+        }
+    }
+    #[test]
+    fn hbmv_hpmv_hpr2_match_dense_c32() {
+        herm_ref::<Complex32>()
+    }
+    #[test]
+    fn hbmv_hpmv_hpr2_match_dense_c64() {
+        herm_ref::<Complex64>()
+    }
+
+    // ---- modified Givens: rotmg / rotm ------------------------------------
+
+    macro_rules! rotm_tests {
+        ($name:ident, $T:ty, $tol:expr, $rotmg:ident, $rotm:ident) => {
+            #[test]
+            fn $name() {
+                // rotm against the written-out 2x2 definition, one P per flag
+                // P = [flag, h11, h21, h12, h22]
+                let x0: [$T; 4] = [1.0, -2.0, 0.5, 3.0];
+                let y0: [$T; 4] = [4.0, 0.25, -1.0, 2.0];
+                let cases: [([$T; 5], [$T; 4]); 4] = [
+                    ([-1.0, 2.0, -1.0, 0.5, 3.0], [2.0, -1.0, 0.5, 3.0]),
+                    ([0.0, 1.0, -0.5, 0.25, 1.0], [1.0, -0.5, 0.25, 1.0]),
+                    ([1.0, 2.0, 9.0, 9.0, 0.5], [2.0, -1.0, 1.0, 0.5]), // flag 1: h12 = 1, h21 = -1 implied
+                    ([-2.0, 9.0, 9.0, 9.0, 9.0], [1.0, 0.0, 0.0, 1.0]),
+                ];
+                for (p, [h11, h21, h12, h22]) in cases {
+                    let (mut x, mut y) = (x0, y0);
+                    $rotm(&mut x, &mut y, &p).unwrap();
+                    for i in 0..4 {
+                        let (ex, ey) = (h11 * x0[i] + h12 * y0[i], h21 * x0[i] + h22 * y0[i]);
+                        assert!(
+                            (x[i] - ex).abs() < $tol && (y[i] - ey).abs() < $tol,
+                            "flag {} i={i}",
+                            p[0]
+                        );
+                    }
+                }
+                // rotmg: the rotation zeroes the second component and preserves d1 x^2 + d2 y^2 for every pair
+                for (d1, d2, b1, b2) in [
+                    (2.0, 3.0, 4.0, 5.0),
+                    (1.0, 1.0, 1.0, 0.0),
+                    (0.5, 4.0, -3.0, 0.25),
+                    (3.0, 0.5, 0.2, 6.0),
+                ] {
+                    let (mut nd1, mut nd2, mut nb1): ($T, $T, $T) = (d1, d2, b1);
+                    let p = $rotmg(&mut nd1, &mut nd2, &mut nb1, b2);
+                    let (mut x, mut y) = ([b1, 1.0, -2.0, 0.5], [b2, 0.5, 3.0, -1.0]);
+                    let (xs, ys) = (x, y);
+                    $rotm(&mut x, &mut y, &p).unwrap();
+                    assert!(
+                        y[0].abs() < $tol * 10.0,
+                        "second component {} (P={p:?})",
+                        y[0]
+                    );
+                    assert!(
+                        (x[0] - nb1).abs() < $tol * 10.0,
+                        "first component {} vs b1 {nb1}",
+                        x[0]
+                    );
+                    for i in 0..4 {
+                        let before = d1 * xs[i] * xs[i] + d2 * ys[i] * ys[i];
+                        let after = nd1 * x[i] * x[i] + nd2 * y[i] * y[i];
+                        assert!(
+                            (before - after).abs() < $tol * 100.0 * before.abs().max(1.0),
+                            "invariant i={i}: {before} vs {after}"
+                        );
+                    }
+                }
+            }
+        };
+    }
+    rotm_tests!(rotmg_rotm_f32, f32, 1e-4, srotmg, srotm);
+    rotm_tests!(rotmg_drotm_f64, f64, 1e-11, drotmg, drotm);
+
+    // ---- complex Givens: crotg/zrotg, csrot/zdrot, cabs1 ------------------
+
+    fn rotg_ref<T: Num>(rotg: impl Fn(&mut T, &mut T) -> (f64, C)) {
+        for (a0, b0) in [
+            ((3.0, 1.0), (-1.0, 2.0)),
+            ((0.5, -2.0), (4.0, 0.25)),
+            ((1.0, 0.0), (0.0, 0.0)),
+        ] {
+            let (mut a, mut b) = (T::mk(a0.0, a0.1), T::mk(b0.0, b0.1));
+            let (a0, b0) = (a.c(), b.c());
+            let (c, s) = rotg(&mut a, &mut b);
+            let r = a.c();
+            // [c s; -conj(s) c] [a; b] = [r; 0], c real, c^2 + |s|^2 = 1
+            close(&[T::mk(r.0, r.1)], &[ca(cm((c, 0.0), a0), cm(s, b0))], "r");
+            let zero = ca(cm(cj((-s.0, -s.1)), a0), cm((c, 0.0), b0));
+            assert!(cabs(zero) < T::TOL * 10.0, "second row {zero:?}");
+            assert!((c * c + s.0 * s.0 + s.1 * s.1 - 1.0).abs() < T::TOL * 10.0);
+            assert!((cabs(r) - cabs(a0).hypot(cabs(b0))).abs() < T::TOL * 10.0 * (1.0 + cabs(r)));
+        }
+    }
+    #[test]
+    fn crotg_zrotg_zero_the_second_component() {
+        rotg_ref::<Complex32>(|a, b| {
+            let (c, s) = crotg(a, b);
+            (c as f64, s.c())
+        });
+        rotg_ref::<Complex64>(|a, b| {
+            let (c, s) = zrotg(a, b);
+            (c, s.c())
+        });
+    }
+
+    macro_rules! csrot_test {
+        ($name:ident, $T:ty, $F:ty, $rot:ident, $abs1:ident, $tol:expr) => {
+            #[test]
+            fn $name() {
+                let (c, s): ($F, $F) = (0.8, 0.6);
+                let x0: Vec<$T> = vec_of(5, 1);
+                let y0: Vec<$T> = vec_of(5, 2);
+                let (mut x, mut y) = (x0.clone(), y0.clone());
+                $rot(&mut x, &mut y, c, s).unwrap();
+                let (cc, ss) = (c as f64, s as f64);
+                let wx: Vec<C> = (0..5)
+                    .map(|i| ca(cm((cc, 0.0), x0[i].c()), cm((ss, 0.0), y0[i].c())))
+                    .collect();
+                let wy: Vec<C> = (0..5)
+                    .map(|i| ca(cm((cc, 0.0), y0[i].c()), cm((-ss, 0.0), x0[i].c())))
+                    .collect();
+                close(&x, &wx, "x");
+                close(&y, &wy, "y");
+                // |.|_1 of z = |re| + |im|
+                for z in &x0 {
+                    let v = z.c();
+                    assert!(($abs1(*z) as f64 - (v.0.abs() + v.1.abs())).abs() < $tol);
+                }
+                assert_eq!($abs1(<$T>::mk(-3.0, 4.0)) as f64, 7.0);
+            }
+        };
+    }
+    csrot_test!(csrot_and_scabs1_c32, Complex32, f32, csrot, scabs1, 1e-6);
+    csrot_test!(zdrot_and_dcabs1_c64, Complex64, f64, zdrot, dcabs1, 1e-14);
+
+    // ---- GEMM references ----------------------------------------------------
+
+    fn ld_idx(l: Layout, ld: usize, i: usize, j: usize) -> usize {
+        match l {
+            Layout::RowMajor => i * ld + j,
+            Layout::ColMajor => j * ld + i,
+        }
+    }
+    /// `rows x cols` matrix with leading dimension `ld` (padded with poison), entries seeded.
+    fn mat<T: Num>(l: Layout, rows: usize, cols: usize, ld: usize, seed: usize) -> Vec<T> {
+        let len = if l == Layout::RowMajor {
+            rows * ld
+        } else {
+            cols * ld
+        };
+        let mut a = vec![poison::<T>(); len];
+        for i in 0..rows {
+            for j in 0..cols {
+                a[ld_idx(l, ld, i, j)] = val::<T>(i * cols + j, seed);
+            }
+        }
+        a
+    }
+    /// op(A)(i, j) where A is stored with `a_rows x a_cols`.
+    fn op_at<T: Num>(a: &[T], l: Layout, ld: usize, t: Trans, i: usize, j: usize) -> C {
+        match t {
+            Trans::No => a[ld_idx(l, ld, i, j)].c(),
+            Trans::T => a[ld_idx(l, ld, j, i)].c(),
+            Trans::C => cj(a[ld_idx(l, ld, j, i)].c()),
+        }
+    }
+    fn dims(t: Trans, rows: usize, cols: usize) -> (usize, usize) {
+        if t == Trans::No {
+            (rows, cols)
+        } else {
+            (cols, rows)
+        }
+    }
+    /// Reference `alpha op(A) op(B) + beta C0`, returned in the layout of `c0`.
+    fn gemm_ref<T: Num>(
+        l: Layout,
+        ta: Trans,
+        tb: Trans,
+        (m, n, k): (usize, usize, usize),
+        alpha: C,
+        a: &[T],
+        lda: usize,
+        b: &[T],
+        ldb: usize,
+        beta: C,
+        c0: &[T],
+        ldc: usize,
+    ) -> Vec<C> {
+        let mut out = cs(c0);
+        for i in 0..m {
+            for j in 0..n {
+                let s = (0..k).fold(Z, |s, p| {
+                    ca(
+                        s,
+                        cm(op_at(a, l, lda, ta, i, p), op_at(b, l, ldb, tb, p, j)),
+                    )
+                });
+                out[ld_idx(l, ldc, i, j)] =
+                    ca(cm(alpha, s), cm(beta, c0[ld_idx(l, ldc, i, j)].c()));
+            }
+        }
+        out
+    }
+    /// Only the logical (i < rows, j < cols) entries of C are defined results; mask the padding.
+    fn mask<T: Num>(
+        l: Layout,
+        ld: usize,
+        (m, n): (usize, usize),
+        got: &[T],
+        want: &[C],
+    ) -> (Vec<T>, Vec<C>) {
+        let (mut g, mut w) = (Vec::new(), Vec::new());
+        for i in 0..m {
+            for j in 0..n {
+                g.push(got[ld_idx(l, ld, i, j)]);
+                w.push(want[ld_idx(l, ld, i, j)]);
+            }
+        }
+        (g, w)
+    }
+
+    fn gemm3m_ref<T: Num>(
+        f: impl Fn(
+            Layout,
+            Trans,
+            Trans,
+            usize,
+            usize,
+            usize,
+            T,
+            &[T],
+            usize,
+            &[T],
+            usize,
+            T,
+            &mut [T],
+            usize,
+        ),
+    ) {
+        let (m, n, k) = (5usize, 4usize, 3usize);
+        let (alpha, beta) = (T::mk(1.5, -0.5), T::mk(0.5, 0.25));
+        for l in LAYOUTS {
+            for ta in TRANS {
+                for tb in TRANS {
+                    let (ar, ac) = dims(ta, m, k);
+                    let (br, bc) = dims(tb, k, n);
+                    let lda = if l == Layout::RowMajor {
+                        ac + 1
+                    } else {
+                        ar + 1
+                    };
+                    let ldb = if l == Layout::RowMajor {
+                        bc + 2
+                    } else {
+                        br + 2
+                    };
+                    let ldc = if l == Layout::RowMajor { n + 1 } else { m + 1 };
+                    let a = mat::<T>(l, ar, ac, lda, 1);
+                    let b = mat::<T>(l, br, bc, ldb, 2);
+                    let c0 = mat::<T>(l, m, n, ldc, 3);
+                    let want = gemm_ref(
+                        l,
+                        ta,
+                        tb,
+                        (m, n, k),
+                        alpha.c(),
+                        &a,
+                        lda,
+                        &b,
+                        ldb,
+                        beta.c(),
+                        &c0,
+                        ldc,
+                    );
+                    let mut c = c0.clone();
+                    f(
+                        l, ta, tb, m, n, k, alpha, &a, lda, &b, ldb, beta, &mut c, ldc,
+                    );
+                    let (g, w) = mask(l, ldc, (m, n), &c, &want);
+                    close(&g, &w, &format!("gemm3m {l:?} {ta:?} {tb:?}"));
+                }
+            }
+        }
+    }
+    #[test]
+    fn cgemm3m_matches_reference() {
+        gemm3m_ref::<Complex32>(cgemm3m)
+    }
+    #[test]
+    fn zgemm3m_matches_reference() {
+        gemm3m_ref::<Complex64>(zgemm3m)
+    }
+
+    // ---- batched GEMM -----------------------------------------------------
+
+    /// Two groups: group 0 has 2 matrices (3x2x4, NoTrans/NoTrans), group 1 has 1 (2x3x2, Trans/Trans); column-major.
+    /// `run` receives the raw descriptor arrays.
+    type BatchFn<T> = dyn Fn(
+        &mut [sys::CBLAS_TRANSPOSE],
+        &mut [sys::CBLAS_TRANSPOSE],
+        &mut [sys::f77_int],
+        &mut [sys::f77_int],
+        &mut [sys::f77_int],
+        &[T],
+        &mut [*const T],
+        &mut [sys::f77_int],
+        &mut [*const T],
+        &mut [sys::f77_int],
+        &[T],
+        &mut [*mut T],
+        &mut [sys::f77_int],
+        &mut [sys::f77_int],
+    );
+    fn batch_ref<T: Num>(run: &BatchFn<T>) {
+        let l = Layout::ColMajor;
+        let groups: [(usize, usize, usize, Trans, usize); 2] =
+            [(3, 2, 4, Trans::No, 2), (2, 3, 2, Trans::T, 1)];
+        let alphas = [T::mk(1.5, -0.5), T::mk(-1.0, 0.5)];
+        let betas = [T::mk(0.5, 0.25), T::mk(0.0, 0.0)];
+        let (mut ta, mut m, mut n, mut k, mut lda, mut ldb, mut ldc, mut gs) = (
+            vec![],
+            vec![],
+            vec![],
+            vec![],
+            vec![],
+            vec![],
+            vec![],
+            vec![],
+        );
+        let (mut a_all, mut b_all, mut c_all, mut want) = (vec![], vec![], vec![], vec![]);
+        let mut seed = 1;
+        for (g, &(gm, gn, gk, t, size)) in groups.iter().enumerate() {
+            let (ar, ac) = dims(t, gm, gk);
+            let (br, bc) = dims(t, gk, gn);
+            let (la, lb, lc) = (ar + 1, br + 2, gm + 1);
+            ta.push(trans_raw(t));
+            m.push(gm as sys::f77_int);
+            n.push(gn as sys::f77_int);
+            k.push(gk as sys::f77_int);
+            lda.push(la as sys::f77_int);
+            ldb.push(lb as sys::f77_int);
+            ldc.push(lc as sys::f77_int);
+            gs.push(size as sys::f77_int);
+            for _ in 0..size {
+                let a = mat::<T>(l, ar, ac, la, seed);
+                let b = mat::<T>(l, br, bc, lb, seed + 1);
+                let c = mat::<T>(l, gm, gn, lc, seed + 2);
+                seed += 3;
+                want.push(gemm_ref(
+                    l,
+                    t,
+                    t,
+                    (gm, gn, gk),
+                    alphas[g].c(),
+                    &a,
+                    la,
+                    &b,
+                    lb,
+                    betas[g].c(),
+                    &c,
+                    lc,
+                ));
+                a_all.push(a);
+                b_all.push(b);
+                c_all.push(c);
+            }
+        }
+        let mut tb = ta.clone();
+        let mut a_ptr: Vec<*const T> = a_all.iter().map(|v| v.as_ptr()).collect();
+        let mut b_ptr: Vec<*const T> = b_all.iter().map(|v| v.as_ptr()).collect();
+        let mut c_ptr: Vec<*mut T> = c_all.iter_mut().map(|v| v.as_mut_ptr()).collect();
+        run(
+            &mut ta, &mut tb, &mut m, &mut n, &mut k, &alphas, &mut a_ptr, &mut lda, &mut b_ptr,
+            &mut ldb, &betas, &mut c_ptr, &mut ldc, &mut gs,
+        );
+        let mut idx = 0;
+        for (g, &(gm, gn, ..)) in groups.iter().enumerate() {
+            for _ in 0..groups[g].4 {
+                let (gv, wv) = mask(l, gm + 1, (gm, gn), &c_all[idx], &want[idx]);
+                close(&gv, &wv, &format!("batch group {g} matrix {idx}"));
+                idx += 1;
+            }
+        }
+    }
+    macro_rules! batch_real_test {
+        ($name:ident, $T:ty, $f:ident) => {
+            #[test]
+            fn $name() {
+                batch_ref::<$T>(
+                    &|ta, tb, m, n, k, al, a, lda, b, ldb, be, c, ldc, gs| unsafe {
+                        $f(
+                            Layout::ColMajor,
+                            ta,
+                            tb,
+                            m,
+                            n,
+                            k,
+                            al,
+                            a,
+                            lda,
+                            b,
+                            ldb,
+                            be,
+                            c,
+                            ldc,
+                            gs.len(),
+                            gs,
+                        )
+                    },
+                );
+            }
+        };
+    }
+    macro_rules! batch_cx_test {
+        ($name:ident, $T:ty, $f:ident) => {
+            #[test]
+            fn $name() {
+                batch_ref::<$T>(
+                    &|ta, tb, m, n, k, al, a, lda, b, ldb, be, c, ldc, gs| unsafe {
+                        $f(
+                            Layout::ColMajor,
+                            ta,
+                            tb,
+                            m,
+                            n,
+                            k,
+                            al.as_ptr() as *const _,
+                            a.as_mut_ptr() as *mut _,
+                            lda,
+                            b.as_mut_ptr() as *mut _,
+                            ldb,
+                            be.as_ptr() as *const _,
+                            c.as_mut_ptr() as *mut _,
+                            ldc,
+                            gs.len(),
+                            gs,
+                        )
+                    },
+                );
+            }
+        };
+    }
+    batch_real_test!(sgemm_batch_matches_reference, f32, sgemm_batch);
+    batch_real_test!(dgemm_batch_matches_reference, f64, dgemm_batch);
+    batch_cx_test!(cgemm_batch_matches_reference, Complex32, cgemm_batch);
+    batch_cx_test!(zgemm_batch_matches_reference, Complex64, zgemm_batch);
+
+    // ---- packed GEMM -------------------------------------------------------
+
+    const PACKED: sys::f77_int = 151; // CblasPacked in cblas.h
+    macro_rules! pack_test {
+        ($name:ident, $T:ty, $size:ident, $pack:ident, $compute:ident) => {
+            #[test]
+            fn $name() {
+                let (m, n, k) = (5usize, 4usize, 3usize);
+                let (alpha_a, beta) = (2.0_f64, 0.5_f64);
+                // sizes are positive and at least one entry per matrix element, whether counted in bytes or elements
+                assert!($size(PackId::A, m, n, k) >= m * k);
+                assert!($size(PackId::B, m, n, k) >= k * n);
+                for l in LAYOUTS {
+                    for ta in [Trans::No, Trans::T] {
+                        let (ar, ac) = dims(ta, m, k);
+                        let (lda, ldb, ldc) = if l == Layout::RowMajor {
+                            (ac + 1, n + 2, n + 1)
+                        } else {
+                            (ar + 1, k + 2, m + 1)
+                        };
+                        let a = mat::<$T>(l, ar, ac, lda, 1);
+                        let b = mat::<$T>(l, k, n, ldb, 2);
+                        let c0 = mat::<$T>(l, m, n, ldc, 3);
+                        // Packed buffers are allocated generously: the unit of get_size (bytes vs elements) is not relied on.
+                        let mut pa = vec![poison::<$T>(); $size(PackId::A, m, n, k) + 64];
+                        let mut pb = vec![poison::<$T>(); $size(PackId::B, m, n, k) + 64];
+                        let tr = if ta == Trans::No {
+                            sys::CBLAS_TRANSPOSE_CblasNoTrans
+                        } else {
+                            sys::CBLAS_TRANSPOSE_CblasTrans
+                        } as sys::f77_int;
+                        // alpha is applied when packing A; B is packed with alpha = 1
+                        $pack(l, PackId::A, ta, m, n, k, alpha_a as $T, &a, lda, &mut pa);
+                        $pack(l, PackId::B, Trans::No, m, n, k, 1.0, &b, ldb, &mut pb);
+                        let want = gemm_ref(
+                            l,
+                            ta,
+                            Trans::No,
+                            (m, n, k),
+                            (alpha_a, 0.0),
+                            &a,
+                            lda,
+                            &b,
+                            ldb,
+                            (beta, 0.0),
+                            &c0,
+                            ldc,
+                        );
+                        let no = sys::CBLAS_TRANSPOSE_CblasNoTrans as sys::f77_int;
+                        let _ = tr;
+                        // (A packed, B plain), (both packed)
+                        let mut c = c0.clone();
+                        $compute(
+                            l, PACKED, no, m, n, k, &pa, lda, &b, ldb, beta as $T, &mut c, ldc,
+                        );
+                        let (g, w) = mask(l, ldc, (m, n), &c, &want);
+                        close(&g, &w, &format!("compute(A packed) {l:?} {ta:?}"));
+                        let mut c = c0.clone();
+                        $compute(
+                            l, PACKED, PACKED, m, n, k, &pa, lda, &pb, ldb, beta as $T, &mut c, ldc,
+                        );
+                        let (g, w) = mask(l, ldc, (m, n), &c, &want);
+                        close(&g, &w, &format!("compute(both packed) {l:?} {ta:?}"));
+                        // (A plain, B packed): alpha is not in the product, so compare with alpha = 1
+                        if ta == Trans::No {
+                            let want1 = gemm_ref(
+                                l,
+                                ta,
+                                Trans::No,
+                                (m, n, k),
+                                (1.0, 0.0),
+                                &a,
+                                lda,
+                                &b,
+                                ldb,
+                                (beta, 0.0),
+                                &c0,
+                                ldc,
+                            );
+                            let mut c = c0.clone();
+                            $compute(
+                                l, no, PACKED, m, n, k, &a, lda, &pb, ldb, beta as $T, &mut c, ldc,
+                            );
+                            let (g, w) = mask(l, ldc, (m, n), &c, &want1);
+                            close(&g, &w, &format!("compute(B packed) {l:?}"));
+                        }
+                    }
+                }
+            }
+        };
+    }
+    pack_test!(
+        sgemm_pack_and_compute_match_reference,
+        f32,
+        sgemm_pack_get_size,
+        sgemm_pack,
+        sgemm_compute
+    );
+    pack_test!(
+        dgemm_pack_and_compute_match_reference,
+        f64,
+        dgemm_pack_get_size,
+        dgemm_pack,
+        dgemm_compute
+    );
+}

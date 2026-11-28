@@ -260,8 +260,9 @@ impl Rng {
         })
     }
 
-    /// Negative-binomial: number of failures before `m` successes, each
-    /// with success probability `p`.
+    /// Negative-binomial as AOCL defines it (header `rng.h`, measured on AOCL 6.0.68): the number of **successes** before the
+    /// `m`-th **failure**, each trial succeeding with probability `p` (mean `m·p/(1−p)`; `m = 4`, `p = 0.4` gives about 2.67).
+    /// This is the reverse of the usual "failures before the m-th success" convention.
     pub fn negative_binomial(&mut self, m: RngInt, p: f64, out: &mut [RngInt]) -> Result<()> {
         self.fill_int("negative_binomial", out, |n, st, ptr, info| unsafe {
             sys::drandnegativebinomial(n, m, p, st, ptr, info)
@@ -302,9 +303,9 @@ impl Rng {
         })
     }
 
-    /// General discrete distribution. `ref_dist` is the cumulative
-    /// probability vector (sorted, with `ref_dist[k-1] == 1.0`); `out`
-    /// receives integer indices into it.
+    /// General discrete distribution. `ref_dist` must be the reference array produced by one of AOCL's `drand*reference`
+    /// routines (header `rng.h`); a plain cumulative probability vector is rejected (`info = -2`, measured on AOCL 6.0.68).
+    /// `out` receives integer indices.
     pub fn general_discrete(&mut self, ref_dist: &mut [f64], out: &mut [RngInt]) -> Result<()> {
         let n = out.len();
         if n == 0 {
@@ -445,8 +446,10 @@ impl Rng {
     }
 
     /// Leapfrog: split this stream into `n` substreams and advance
-    /// this state to substream `k` (0-based). Each `leapfrog(n, _)`
-    /// call subselects every `n`-th sample.
+    /// this state to substream `k`, with `0 < k <= n` (`k = 0` is rejected). Each `leapfrog(n, _)` call subselects every
+    /// `n`-th sample. Measured on AOCL 6.0.68 (LinearCongruential, WichmannHill, n = 3): stream `k` starts at base index
+    /// `k + 1`, not at `k − 1` as the header says; only the stride, disjointness and coverage are guaranteed here.
+    /// Not supported by every generator (Mersenne Twister returns an error).
     pub fn leapfrog(&mut self, n: RngInt, k: RngInt) -> Result<()> {
         let mut info: RngInt = 0;
         unsafe {
@@ -525,7 +528,17 @@ pub struct BlumBlumShub {
 impl BlumBlumShub {
     /// Initialise BBS from prime factors `p` and `q` (must each be
     /// `≡ 3 (mod 4)`) and a seed `s` coprime to `p · q`. `nbits`
-    /// controls how many bits per call to extract.
+    /// controls how many bits per call to extract (1..=15; clamped).
+    ///
+    /// `p` and `q` must be primes congruent to 3 mod 4. **This call may not return for large primes; no bound is known** (measured on
+    /// AOCL 6.0.68 Windows: see docs/RNG-BBS-HANG-20261127.md).
+    ///
+    /// **Detail (measured on AOCL 6.0.68 Windows, docs/RNG-BBS-HANG-20261127.md):** for some prime pairs this call never returns
+    /// (100 % CPU). Every pair with both primes <= 99 991 returned at once; above about 200 000 some pairs hang and some work
+    /// (not monotonic in size; e.g. `225307/225299` hangs, `541271/541267` and `812527/812519` work; one hanging prime is
+    /// enough). The seed and `nbits` are not involved. The library documents no bound and the cause is not known, so the
+    /// wrapper cannot validate it; keep `p` and `q` below 100 000 unless you have tested the pair. AMD deprecates this
+    /// generator in favour of SecureRNG.
     pub fn new(
         nbits: RngInt,
         p: &mut [RngInt],
@@ -559,7 +572,8 @@ impl BlumBlumShub {
         Ok(BlumBlumShub { state })
     }
 
-    /// Fill `out` with BBS-generated `f64` values in `[0, 1)`.
+    /// Fill `out` with BBS-generated `f64` values. Per the header the least-significant 30 bits of each double carry the
+    /// output: the values are integer-valued in `[0, 2^30)` (measured), **not** in `[0, 1)`.
     pub fn sample(&mut self, out: &mut [f64]) -> Result<()> {
         let n = out.len();
         if n == 0 {
@@ -762,5 +776,490 @@ mod tests {
         let mut out = [0.0_f64; 4];
         let err = rng.uniform(1.0, 0.5, &mut out).unwrap_err();
         matches!(err, Error::InvalidArgument(_));
+    }
+}
+
+/// Statistical and stream-consistency tests for the distribution wrappers. Every expected value is a closed form
+/// (moments, CDFs, support) or the base stream itself; every random test uses a fixed seed and a 5-sigma bound.
+#[cfg(test)]
+mod distribution_tests {
+    use super::*;
+
+    const N: usize = 20_000;
+    const MT: BaseGenerator = BaseGenerator::MersenneTwister;
+
+    fn rng(seed: i32) -> Rng {
+        Rng::new(MT, seed).unwrap()
+    }
+    fn mean(xs: &[f64]) -> f64 {
+        xs.iter().sum::<f64>() / xs.len() as f64
+    }
+    fn ints(xs: &[RngInt]) -> Vec<f64> {
+        xs.iter().map(|&x| x as f64).collect()
+    }
+    fn uniform_stream(r: &mut Rng, n: usize) -> Vec<f64> {
+        let mut v = vec![0.0; n];
+        r.uniform(0.0, 1.0, &mut v).unwrap();
+        v
+    }
+
+    /// Sample mean within 5 standard errors of `mu` (true variance `var`), and sample variance within 5 standard errors
+    /// of `var` (the s^2 standard error is var * sqrt((excess_kurtosis + 2) / n)).
+    fn check_moments(what: &str, xs: &[f64], mu: f64, var: f64, excess_kurtosis: f64) {
+        let n = xs.len() as f64;
+        let m = mean(xs);
+        assert!(
+            (m - mu).abs() < 5.0 * (var / n).sqrt(),
+            "{what}: mean {m} vs {mu}"
+        );
+        let s2 = xs.iter().map(|x| (x - m).powi(2)).sum::<f64>() / n;
+        let se = var * ((excess_kurtosis + 2.0) / n).sqrt();
+        assert!(
+            (s2 - var).abs() < 5.0 * se,
+            "{what}: variance {s2} vs {var}"
+        );
+    }
+
+    /// Empirical CDF at each point `x` within 5 binomial standard errors of `cdf(x)`.
+    fn check_cdf(what: &str, xs: &[f64], points: &[f64], cdf: impl Fn(f64) -> f64) {
+        let n = xs.len() as f64;
+        for &x in points {
+            let f = cdf(x);
+            let emp = xs.iter().filter(|&&v| v <= x).count() as f64 / n;
+            assert!(
+                (emp - f).abs() < 5.0 * (f * (1.0 - f) / n).sqrt(),
+                "{what}: F({x}) emp {emp} vs {f}"
+            );
+        }
+    }
+
+    fn fill(f: impl FnOnce(&mut Rng, &mut [f64]) -> Result<()>, seed: i32) -> Vec<f64> {
+        let mut r = rng(seed);
+        let mut v = vec![0.0; N];
+        f(&mut r, &mut v).unwrap();
+        v
+    }
+    fn fill_int(f: impl FnOnce(&mut Rng, &mut [RngInt]) -> Result<()>, seed: i32) -> Vec<RngInt> {
+        let mut r = rng(seed);
+        let mut v = vec![0 as RngInt; N];
+        f(&mut r, &mut v).unwrap();
+        v
+    }
+
+    #[test]
+    fn exponential_cdf_and_moments() {
+        let xs = fill(|r, o| r.exponential(2.5, o), 101);
+        assert!(xs.iter().all(|&x| x >= 0.0));
+        check_moments("exponential", &xs, 2.5, 6.25, 6.0);
+        check_cdf("exponential", &xs, &[0.5, 1.0, 2.5, 5.0, 8.0], |x| {
+            1.0 - (-x / 2.5).exp()
+        });
+        let mut r = rng(1);
+        assert!(matches!(
+            r.exponential(0.0, &mut [0.0; 4]),
+            Err(Error::InvalidArgument(_))
+        ));
+    }
+
+    #[test]
+    fn cauchy_cdf() {
+        let xs = fill(|r, o| r.cauchy(1.0, 2.0, o), 102);
+        check_cdf("cauchy", &xs, &[-8.0, -2.0, 0.0, 1.0, 3.0, 10.0], |x| {
+            0.5 + ((x - 1.0) / 2.0).atan() / std::f64::consts::PI
+        });
+    }
+
+    #[test]
+    fn logistic_cdf_and_moments() {
+        let (a, b) = (1.0_f64, 0.5_f64);
+        let xs = fill(|r, o| r.logistic(a, b, o), 103);
+        check_moments(
+            "logistic",
+            &xs,
+            a,
+            std::f64::consts::PI.powi(2) * b * b / 3.0,
+            1.2,
+        );
+        check_cdf("logistic", &xs, &[-0.5, 0.5, 1.0, 1.5, 2.5], |x| {
+            1.0 / (1.0 + (-(x - a) / b).exp())
+        });
+    }
+
+    #[test]
+    fn chi_squared_moments() {
+        let df = 6;
+        let xs = fill(|r, o| r.chi_squared(df, o), 104);
+        assert!(xs.iter().all(|&x| x >= 0.0));
+        check_moments("chi_squared", &xs, 6.0, 12.0, 12.0 / 6.0);
+    }
+
+    #[test]
+    fn f_dist_mean_and_support() {
+        let (d1, d2) = (8, 30);
+        let xs = fill(|r, o| r.f_dist(d1, d2, o), 105);
+        assert!(xs.iter().all(|&x| x > 0.0));
+        // mean d2/(d2-2); var 2 d2^2 (d1+d2-2) / (d1 (d2-2)^2 (d2-4))
+        let (a, b) = (d1 as f64, d2 as f64);
+        let var = 2.0 * b * b * (a + b - 2.0) / (a * (b - 2.0).powi(2) * (b - 4.0));
+        let m = mean(&xs);
+        assert!(
+            (m - b / (b - 2.0)).abs() < 5.0 * (var / N as f64).sqrt(),
+            "mean {m}"
+        );
+    }
+
+    #[test]
+    fn lognormal_moments_and_median() {
+        let (mu, s2) = (0.3_f64, 0.25_f64);
+        let xs = fill(|r, o| r.lognormal(mu, s2, o), 106);
+        assert!(xs.iter().all(|&x| x > 0.0));
+        let mean_t = (mu + s2 / 2.0).exp();
+        let var_t = (s2.exp() - 1.0) * (2.0 * mu + s2).exp();
+        let exk = (4.0 * s2).exp() + 2.0 * (3.0 * s2).exp() + 3.0 * (2.0 * s2).exp() - 6.0;
+        check_moments("lognormal", &xs, mean_t, var_t, exk);
+        // median exp(mu): F = 0.5
+        check_cdf("lognormal", &xs, &[mu.exp()], |_| 0.5);
+    }
+
+    #[test]
+    fn students_t_moments_and_symmetry() {
+        let df = 10;
+        let xs = fill(|r, o| r.students_t(df, o), 107);
+        check_moments("students_t", &xs, 0.0, 10.0 / 8.0, 6.0 / 6.0);
+        check_cdf("students_t", &xs, &[0.0], |_| 0.5);
+    }
+
+    /// Modified Bessel I_nu(k) for nu = 0, 1, 2 by power series.
+    fn bessel_i(nu: i32, k: f64) -> f64 {
+        let mut term = (k / 2.0).powi(nu) / (1..=nu).map(|i| i as f64).product::<f64>().max(1.0);
+        let mut sum = term;
+        for j in 1..60 {
+            term *= (k / 2.0).powi(2) / (j as f64 * (j + nu) as f64);
+            sum += term;
+        }
+        sum
+    }
+
+    #[test]
+    fn von_mises_support_and_circular_moment() {
+        let kappa = 2.0;
+        let xs = fill(|r, o| r.von_mises(kappa, o), 108);
+        let pi = std::f64::consts::PI;
+        assert!(xs.iter().all(|&x| (-pi..=pi).contains(&x)));
+        // E cos(x) = I1/I0, E cos^2(x) = (1 + I2/I0) / 2
+        let (i0, i1, i2) = (bessel_i(0, kappa), bessel_i(1, kappa), bessel_i(2, kappa));
+        let ec = i1 / i0;
+        let var = (1.0 + i2 / i0) / 2.0 - ec * ec;
+        let cs: Vec<f64> = xs.iter().map(|x| x.cos()).collect();
+        assert!(
+            (mean(&cs) - ec).abs() < 5.0 * (var / N as f64).sqrt(),
+            "E cos = {} vs {ec}",
+            mean(&cs)
+        );
+        // symmetric about 0
+        check_cdf("von_mises", &xs, &[0.0], |_| 0.5);
+        let mut r = rng(1);
+        assert!(r.von_mises(-1.0, &mut [0.0; 4]).is_err());
+    }
+
+    #[test]
+    fn geometric_moments_and_support() {
+        // failures before the first success: P(X=k) = (1-p)^k p, mean (1-p)/p, var (1-p)/p^2
+        let p = 0.3;
+        let xs = ints(&fill_int(|r, o| r.geometric(p, o), 109));
+        assert!(xs.iter().all(|&x| x >= 0.0));
+        check_moments("geometric", &xs, 0.7 / 0.3, 0.7 / 0.09, 6.0 + p * p / 0.7);
+        let mut r = rng(1);
+        assert!(r.geometric(0.0, &mut [0 as RngInt; 4]).is_err());
+    }
+
+    #[test]
+    fn negative_binomial_moments() {
+        // AOCL header (drandnegativebinomial): m = number of failures that stops the count, p = probability of
+        // success; X counts the successes before the m-th failure: mean m p/(1-p), var m p/(1-p)^2. (The wrapper's
+        // doc comment states the roles the other way round: see the FINDING in the lane report.)
+        let (m, p) = (4 as RngInt, 0.4);
+        let xs = ints(&fill_int(|r, o| r.negative_binomial(m, p, o), 110));
+        assert!(xs.iter().all(|&x| x >= 0.0));
+        let (q, r) = (1.0 - p, 4.0); // q = per-trial stopping probability
+        let exk = 6.0 / r + q * q / (r * (1.0 - q));
+        check_moments("negative_binomial", &xs, r * p / q, r * p / (q * q), exk);
+    }
+
+    #[test]
+    fn hypergeometric_moments_and_support() {
+        // population 50, 20 specified, 10 drawn: mean 10*20/50, var n p (1-p) (N-n)/(N-1)
+        let (np, ns, m) = (50 as RngInt, 20 as RngInt, 10 as RngInt);
+        let v = fill_int(|r, o| r.hypergeometric(np, ns, m, o), 111);
+        assert!(v.iter().all(|&x| (0..=10).contains(&x)));
+        let var = 10.0 * 0.4 * 0.6 * 40.0 / 49.0;
+        let xs = ints(&v);
+        let mu = mean(&xs);
+        assert!(
+            (mu - 4.0).abs() < 5.0 * (var / N as f64).sqrt(),
+            "mean {mu}"
+        );
+        let s2 = xs.iter().map(|x| (x - mu).powi(2)).sum::<f64>() / N as f64;
+        assert!((s2 - var).abs() < 0.15, "variance {s2} vs {var}");
+    }
+
+    /// Reference vector for `general_discrete`, built by the library's own `*reference` set-up routine: `setup`
+    /// is called first with lref = -1 (query the recommended length), then with the allocated vector.
+    fn reference(setup: impl Fn(*mut f64, *mut RngInt, *mut RngInt)) -> Vec<f64> {
+        let (mut lref, mut info): (RngInt, RngInt) = (-1, 0);
+        setup(std::ptr::null_mut(), &mut lref, &mut info);
+        assert!(lref > 0, "recommended lref {lref}, info {info}");
+        let mut r = vec![0.0; lref as usize];
+        setup(r.as_mut_ptr(), &mut lref, &mut info);
+        assert_eq!(info, 0);
+        r
+    }
+
+    #[test]
+    fn general_discrete_with_binomial_and_geometric_references() {
+        // The AOCL header requires `ref` to come from a drand*reference routine (the wrapper's "cumulative
+        // probability vector" doc is rejected with info=-2: see the FINDING in the lane report).
+        let (m, p) = (12 as RngInt, 0.35);
+        let mut r = reference(|v, l, i| unsafe { sys::drandbinomialreference(m, p, v, l, i) });
+        let v = fill_int(|g, o| g.general_discrete(&mut r, o), 112);
+        assert!(v.iter().all(|&x| (0..=12).contains(&x)));
+        let var = 12.0 * 0.35 * 0.65;
+        check_moments(
+            "general_discrete(binomial)",
+            &ints(&v),
+            12.0 * 0.35,
+            var,
+            (1.0 - 6.0 * 0.35 * 0.65) / var,
+        );
+
+        let pg = 0.4;
+        let mut r = reference(|v, l, i| unsafe { sys::drandgeometricreference(pg, v, l, i) });
+        let v = fill_int(|g, o| g.general_discrete(&mut r, o), 113);
+        assert!(v.iter().all(|&x| x >= 0));
+        // geometric (failures before the first success), same convention as Rng::geometric
+        check_moments(
+            "general_discrete(geometric)",
+            &ints(&v),
+            0.6 / 0.4,
+            0.6 / 0.16,
+            6.0 + pg * pg / 0.6,
+        );
+    }
+
+    #[test]
+    fn multinomial_rows_sum_to_trials_and_match_probabilities() {
+        let (m, k) = (10 as RngInt, 3 as RngInt);
+        let mut p = vec![0.2, 0.3, 0.5];
+        let mut out = vec![0 as RngInt; N * 3];
+        rng(113)
+            .multinomial(m, &mut p, k, &mut out, N as RngInt)
+            .unwrap();
+        // x(ldx, k) column-major: column j holds category j
+        for i in 0..N {
+            let s: RngInt = (0..3).map(|j| out[i + j * N]).sum();
+            assert_eq!(s, 10, "row {i}");
+        }
+        for (j, &pj) in [0.2, 0.3, 0.5].iter().enumerate() {
+            let col = ints(&out[j * N..(j + 1) * N]);
+            let var = 10.0 * pj * (1.0 - pj);
+            assert!(
+                (mean(&col) - 10.0 * pj).abs() < 5.0 * (var / N as f64).sqrt(),
+                "category {j}"
+            );
+        }
+        // fewer than 2 outcomes is rejected
+        let mut one = vec![1.0];
+        assert!(rng(1)
+            .multinomial(5, &mut one, 1, &mut out, N as RngInt)
+            .is_err());
+    }
+
+    /// Sample mean of column `j` and sample covariance of columns `a`, `b` of a column-major `n x m` block.
+    fn col_stats(out: &[f64], n: usize, a: usize, b: usize) -> (f64, f64, f64) {
+        let ca = &out[a * n..(a + 1) * n];
+        let cb = &out[b * n..(b + 1) * n];
+        let (ma, mb) = (mean(ca), mean(cb));
+        let cov = ca
+            .iter()
+            .zip(cb)
+            .map(|(x, y)| (x - ma) * (y - mb))
+            .sum::<f64>()
+            / n as f64;
+        (ma, mb, cov)
+    }
+
+    #[test]
+    fn multinormal_mean_and_covariance() {
+        // C = [[4, 1.2], [1.2, 1]] column-major, mean (1, -2)
+        let mut c = vec![4.0, 1.2, 1.2, 1.0];
+        let mut mu = vec![1.0, -2.0];
+        let mut out = vec![0.0; N * 2];
+        rng(114)
+            .multinormal(2, &mut mu, &mut c, 2, &mut out, N as RngInt)
+            .unwrap();
+        let (m0, m1, c01) = col_stats(&out, N, 0, 1);
+        let (_, _, c00) = col_stats(&out, N, 0, 0);
+        let (_, _, c11) = col_stats(&out, N, 1, 1);
+        let n = N as f64;
+        assert!((m0 - 1.0).abs() < 5.0 * (4.0 / n).sqrt(), "m0={m0}");
+        assert!((m1 + 2.0).abs() < 5.0 * (1.0 / n).sqrt(), "m1={m1}");
+        // Gaussian: var(s_ij) = (s_ii s_jj + s_ij^2) / n
+        assert!((c00 - 4.0).abs() < 5.0 * ((32.0) / n).sqrt(), "c00={c00}");
+        assert!((c11 - 1.0).abs() < 5.0 * (2.0 / n).sqrt(), "c11={c11}");
+        assert!(
+            (c01 - 1.2).abs() < 5.0 * ((4.0 + 1.44) / n).sqrt(),
+            "c01={c01}"
+        );
+        // covariance matrix with ldc < m is rejected
+        assert!(rng(1)
+            .multinormal(2, &mut mu, &mut c, 1, &mut out, N as RngInt)
+            .is_err());
+    }
+
+    #[test]
+    fn multi_students_t_mean_and_correlation() {
+        // The correlation of a multivariate t equals the correlation of its scale matrix (here 0.5).
+        let mut c = vec![2.0, 1.0, 1.0, 2.0];
+        let mut mu = vec![3.0, -1.0];
+        let mut out = vec![0.0; N * 2];
+        rng(115)
+            .multi_students_t(2, 8, &mut mu, &mut c, 2, &mut out, N as RngInt)
+            .unwrap();
+        let (m0, m1, c01) = col_stats(&out, N, 0, 1);
+        let (_, _, c00) = col_stats(&out, N, 0, 0);
+        let (_, _, c11) = col_stats(&out, N, 1, 1);
+        let n = N as f64;
+        // tolerance from the sample variance (df/(df-2) scaling is the library's convention, not asserted)
+        assert!((m0 - 3.0).abs() < 5.0 * (c00 / n).sqrt(), "m0={m0}");
+        assert!((m1 + 1.0).abs() < 5.0 * (c11 / n).sqrt(), "m1={m1}");
+        let corr = c01 / (c00 * c11).sqrt();
+        assert!((corr - 0.5).abs() < 0.05, "corr={corr}");
+        // df < 2 is rejected
+        assert!(rng(1)
+            .multi_students_t(2, 1, &mut mu, &mut c, 2, &mut out, N as RngInt)
+            .is_err());
+    }
+
+    /// Fixed-seed streams of `n` uniforms from a fresh generator.
+    fn base_stream(g: BaseGenerator, n: usize) -> Vec<f64> {
+        uniform_stream(&mut Rng::new(g, 77).unwrap(), n)
+    }
+
+    const STREAMS: [BaseGenerator; 2] = [
+        BaseGenerator::LinearCongruential,
+        BaseGenerator::WichmannHill,
+    ];
+
+    #[test]
+    fn skip_ahead_matches_base_stream() {
+        for g in STREAMS {
+            let base = base_stream(g, 200);
+            for skip in [0usize, 1, 17, 100] {
+                let mut r = Rng::new(g, 77).unwrap();
+                r.skip_ahead(skip as u64).unwrap();
+                assert_eq!(
+                    uniform_stream(&mut r, 100),
+                    base[skip..skip + 100],
+                    "{g:?} skip {skip}"
+                );
+            }
+        }
+        // a generator that cannot skip ahead reports it (header: info = -2)
+        assert!(rng(77).skip_ahead(10).is_err());
+        assert!(rng(77).skip_ahead(u64::MAX).is_err());
+    }
+
+    #[test]
+    fn leapfrog_streams_partition_the_base_stream() {
+        // Each leapfrog stream is every n-th value of the base stream, and the n streams k = 1..=n (1-based, per the
+        // AOCL header) are disjoint and together tile it. The header also says stream k starts at base[k-1]; the
+        // installed library starts it elsewhere (see the FINDING in the lane report), so only the offset-free
+        // properties are asserted here.
+        for g in STREAMS {
+            let (n, len) = (3usize, 20usize);
+            let base = base_stream(g, 200);
+            let mut starts = Vec::new();
+            for k in 1..=n {
+                let mut r = Rng::new(g, 77).unwrap();
+                r.leapfrog(n as RngInt, k as RngInt).unwrap();
+                let got = uniform_stream(&mut r, len);
+                let c = base
+                    .iter()
+                    .position(|&b| b == got[0])
+                    .expect("first value is in the base stream");
+                for (i, v) in got.iter().enumerate() {
+                    assert_eq!(*v, base[c + i * n], "{g:?} stream {k}/{n} element {i}");
+                }
+                starts.push(c % n);
+            }
+            starts.sort_unstable();
+            assert_eq!(
+                starts,
+                vec![0, 1, 2],
+                "{g:?}: streams must hit each residue once"
+            );
+        }
+    }
+
+    #[test]
+    fn leapfrog_rejects_bad_arguments() {
+        // header: 0 < k <= n, and generators that cannot be leapfrogged return info = -3
+        for (k, n) in [(0, 3), (4, 3)] {
+            let mut r = Rng::new(BaseGenerator::LinearCongruential, 77).unwrap();
+            assert!(r.leapfrog(n, k).is_err(), "k={k} n={n}");
+        }
+        assert!(rng(77).leapfrog(3, 1).is_err());
+    }
+
+    #[test]
+    fn with_subid_selects_wichmann_hill_substream() {
+        let g = BaseGenerator::WichmannHill;
+        let a = uniform_stream(&mut Rng::with_subid(g, 1, 5).unwrap(), 50);
+        // new() is subid 1
+        assert_eq!(a, uniform_stream(&mut Rng::new(g, 5).unwrap(), 50));
+        let b = uniform_stream(&mut Rng::with_subid(g, 2, 5).unwrap(), 50);
+        assert_ne!(a, b);
+        assert_eq!(
+            b,
+            uniform_stream(&mut Rng::with_subid(g, 2, 5).unwrap(), 50)
+        );
+        // valid range is 1..=273
+        assert!(Rng::with_subid(g, 0, 5).is_err());
+        assert!(Rng::with_subid(g, 274, 5).is_err());
+        assert!(Rng::with_subid(g, 273, 5).is_ok());
+        // subid is not referenced by other generators
+        assert_eq!(
+            uniform_stream(&mut Rng::with_subid(MT, 9, 5).unwrap(), 20),
+            uniform_stream(&mut Rng::new(MT, 5).unwrap(), 20)
+        );
+    }
+
+    fn bbs(s0: RngInt) -> Result<BlumBlumShub> {
+        // primes 30011 and 40031, both = 3 (mod 4), one base-2^30 digit each. (A single-digit prime near 1e6, e.g.
+        // 999983, makes drandinitializebbs spin forever on AOCL 6.0.68: see the FINDING in the lane report.)
+        let mut p = [30_011 as RngInt];
+        let mut q = [40_031 as RngInt];
+        let mut s = [s0];
+        BlumBlumShub::new(8, &mut p, &mut q, &mut s)
+    }
+
+    #[test]
+    fn blum_blum_shub_sample_is_reproducible_and_in_30_bit_range() {
+        // AOCL header: the least-significant 30 bits of each returned double are BBS output, i.e. non-negative
+        // integers below 2^30 (not the [0,1) the wrapper doc claims).
+        let draw = |s0| {
+            let mut v = vec![0.0; 2_000];
+            bbs(s0).unwrap().sample(&mut v).unwrap();
+            v
+        };
+        let a = draw(12_345);
+        assert!(a
+            .iter()
+            .all(|&x| x >= 0.0 && x < (1u64 << 30) as f64 && x.fract() == 0.0));
+        assert!(a.iter().any(|&x| x > 1.0));
+        assert_eq!(a, draw(12_345));
+        assert_ne!(a, draw(12_347));
+        // an empty buffer is a no-op
+        bbs(12_345).unwrap().sample(&mut []).unwrap();
     }
 }
