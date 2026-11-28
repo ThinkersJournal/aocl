@@ -1,0 +1,13 @@
+test,outcome,exit_code,seconds
+blk_bci_negative,OTHER(rc=101),101,0.07
+blk_bci_past_x,HOLE,3221225477,0.07
+blk_brp_decreasing,OTHER(rc=101),101,0.05
+blk_brp_past_nnz,HOLE,3221225477,0.06
+blk_control,OK-control,0,0.04
+blk_short_bci,HOLE,3221225477,0.03
+blk_short_brp,OTHER(rc=101),101,0.04
+blk_short_bv,HOLE,3221225477,0.04
+blk_short_masks,HOLE,3221225477,0.03
+blk_short_x,HOLE,3221225477,0.04
+blk_short_y,HOLE,3221225477,0.03
+blk_valid_shapes_are_accepted_and_correct,OK-refused(asserted),0,0.03
