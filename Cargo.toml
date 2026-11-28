@@ -48,6 +48,5 @@ repository = "https://github.com/ThinkersJournal/aocl"
 authors = ["Eric Evans <ciresnave@gmail.com>"]
 
 [workspace.dependencies]
-libc = "0.2"
 thiserror = "2"
 bindgen = "0.73"
