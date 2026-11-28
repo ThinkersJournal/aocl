@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.39 - 2026-11-27 (PM-allocated; selfhosted.yml: two step names quoted (invalid YAML since #35: every push showed a failed selfhosted run); workflow file only, dispatch-only, no code change; patch on 0.2.x)
 
 - **`.github/workflows/selfhosted.yml` was invalid YAML since #35 (83904ed): two step names of the `wrappers` job contained an unquoted `: `** (`...KMP_DUPLICATE_LIB_OK=TRUE: AMD issue 2`, `Control: the same tests...`), so GitHub could not parse the file and recorded a failed `selfhosted` run ("workflow file issue", no job started) on every push, main included. Quoted both names (workflow-file change only; version: pm-assist to allocate; patch). Measured: PyYAML rejects the file at 83904ed (line 154 col 101) and accepts every earlier version I tried (a5c71f1, 857ef5e, f260f80, d6f7db2) and the fixed file; `ci.yml` parses. The runner-side jobs themselves are still unrun (no runner): this only makes the file valid.
 
