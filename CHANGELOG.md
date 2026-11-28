@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- **`.github/workflows/selfhosted.yml` was invalid YAML since #35 (83904ed): two step names of the `wrappers` job contained an unquoted `: `** (`...KMP_DUPLICATE_LIB_OK=TRUE: AMD issue 2`, `Control: the same tests...`), so GitHub could not parse the file and recorded a failed `selfhosted` run ("workflow file issue", no job started) on every push, main included. Quoted both names (workflow-file change only; version: pm-assist to allocate; patch). Measured: PyYAML rejects the file at 83904ed (line 154 col 101) and accepts every earlier version I tried (a5c71f1, 857ef5e, f260f80, d6f7db2) and the fixed file; `ci.yml` parses. The runner-side jobs themselves are still unrun (no runner): this only makes the file valid.
+
 ## 0.2.38 - 2026-11-27 (PM-allocated; tools/wrapper-coverage.py also recognises cfg(all(test, ...)) test modules: tools only; patch on 0.2.x)
 
 - **`tools/wrapper-coverage.py`: also recognises `#[cfg(all(test, ...))]` test modules** (tools only; version: pm-assist to allocate; patch). It saw only `#[cfg(test)]`, so `aocl-utils`' two thread-pinning functions, tested under `#[cfg(all(test, windows))]` (real OS affinity read-back), were counted as 2 gaps. Measured on main 6.0.68 Windows: before TOTAL 639 exposed / 637 mentioned / 2 gaps; after 639 / 639 / 0 (every wrapper 0: sparse, lapack, math reached 0 once #41-#43 merged). "Mentioned" is a name count, not a verdict that each test asserts anything. Linux unmeasured.

@@ -151,10 +151,10 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
-      - name: Wrapper tests, every safe wrapper (aocl-data-analytics needs KMP_DUPLICATE_LIB_OK=TRUE: AMD issue 2)
+      - name: "Wrapper tests, every safe wrapper (aocl-data-analytics needs KMP_DUPLICATE_LIB_OK=TRUE, AMD issue 2)"
         shell: powershell
         run: python tools/wrapper-tests.py --env=KMP_DUPLICATE_LIB_OK=TRUE
-      - name: Control: the same tests must FAIL without the AOCL DLLs on PATH
+      - name: "Control - the same tests must FAIL without the AOCL DLLs on PATH"
         shell: powershell
         run: python tools/wrapper-tests.py --control-no-aocl
 
