@@ -1941,6 +1941,9 @@ pub fn csrmm<T: Scalar>(
     c: &mut [T],
     ldc: usize,
 ) -> Result<()> {
+    let (ar, ac) = opdims(op, a.m, a.n);
+    check_dense("csrmm", "B", order, ac, n, ldb, b.len())?;
+    check_dense("csrmm", "C", order, ar, n, ldc, c.len())?;
     T::csrmm(op, alpha, a.as_raw(), descr, order, b, n, ldb, beta, c, ldc)
 }
 
@@ -1954,6 +1957,8 @@ pub fn spmmd<T: Scalar>(
     c: &mut [T],
     ldc: usize,
 ) -> Result<()> {
+    let (ar, _) = opdims(op, a.m, a.n);
+    check_dense("spmmd", "C", layout, ar, b.n, ldc, c.len())?;
     T::spmmd(op, a.as_raw(), b.as_raw(), layout, c, ldc)
 }
 
@@ -1972,6 +1977,9 @@ pub fn sp2md<T: Scalar>(
     layout: Order,
     ldc: usize,
 ) -> Result<()> {
+    let (ar, _) = opdims(op_a, a.m, a.n);
+    let (_, bc) = opdims(op_b, b.m, b.n);
+    check_dense("sp2md", "C", layout, ar, bc, ldc, c.len())?;
     T::sp2md(
         op_a,
         descr_a,
@@ -2156,6 +2164,8 @@ pub fn trsm_f64(
     x: &mut [f64],
     ldx: usize,
 ) -> Result<()> {
+    check_dense("trsm", "B", order, a.m, n_rhs, ldb, b.len())?;
+    check_dense("trsm", "X", order, a.m, n_rhs, ldx, x.len())?;
     let status = unsafe {
         sys::aoclsparse_dtrsm(
             trans_raw(op),
@@ -2186,6 +2196,8 @@ pub fn trsm_f32(
     x: &mut [f32],
     ldx: usize,
 ) -> Result<()> {
+    check_dense("trsm", "B", order, a.m, n_rhs, ldb, b.len())?;
+    check_dense("trsm", "X", order, a.m, n_rhs, ldx, x.len())?;
     let status = unsafe {
         sys::aoclsparse_strsm(
             trans_raw(op),
@@ -2790,6 +2802,8 @@ pub fn syrkd_f64(
     order_c: Order,
     ldc: usize,
 ) -> Result<()> {
+    let (r, _) = opdims(op_a, a.m, a.n);
+    check_dense("syrkd", "C", order_c, r, r, ldc, c.len())?;
     let status = unsafe {
         sys::aoclsparse_dsyrkd(
             trans_raw(op_a),
@@ -2814,6 +2828,8 @@ pub fn syrkd_f32(
     order_c: Order,
     ldc: usize,
 ) -> Result<()> {
+    let (r, _) = opdims(op_a, a.m, a.n);
+    check_dense("syrkd", "C", order_c, r, r, ldc, c.len())?;
     let status = unsafe {
         sys::aoclsparse_ssyrkd(
             trans_raw(op_a),
@@ -2842,6 +2858,13 @@ pub fn syprd_f64(
     order_c: Order,
     ldc: usize,
 ) -> Result<()> {
+    let (bd, cd) = if op_a == Trans::No {
+        (a.n, a.m)
+    } else {
+        (a.m, a.n)
+    };
+    check_dense("syprd", "B", order_b, bd, bd, ldb, b.len())?;
+    check_dense("syprd", "C", order_c, cd, cd, ldc, c.len())?;
     let status = unsafe {
         sys::aoclsparse_dsyprd(
             trans_raw(op_a),
@@ -2872,6 +2895,13 @@ pub fn syprd_f32(
     order_c: Order,
     ldc: usize,
 ) -> Result<()> {
+    let (bd, cd) = if op_a == Trans::No {
+        (a.n, a.m)
+    } else {
+        (a.m, a.n)
+    };
+    check_dense("syprd", "B", order_b, bd, bd, ldb, b.len())?;
+    check_dense("syprd", "C", order_c, cd, cd, ldc, c.len())?;
     let status = unsafe {
         sys::aoclsparse_ssyprd(
             trans_raw(op_a),
@@ -2961,6 +2991,47 @@ pub(crate) fn check_csr_arrays(
                 b + n as i64
             )));
         }
+    }
+    Ok(())
+}
+
+/// Shape of `op(A)` for an `m x n` matrix: `(rows, cols)`.
+pub(crate) fn opdims(op: Trans, m: usize, n: usize) -> (usize, usize) {
+    match op {
+        Trans::No => (m, n),
+        Trans::T | Trans::C => (n, m),
+    }
+}
+
+/// Validate a dense `rows x cols` matrix argument with leading dimension `ld` in `order`: `ld` must be at least the minor extent and the
+/// buffer must hold `(major - 1) * ld + minor` elements. The library does not check this (a buffer one element short is an access
+/// violation on AOCL 6.0.68, `tests/dense_lengths.rs`). An empty matrix reads nothing.
+pub(crate) fn check_dense(
+    name: &str,
+    what: &str,
+    order: Order,
+    rows: usize,
+    cols: usize,
+    ld: usize,
+    len: usize,
+) -> Result<()> {
+    if rows == 0 || cols == 0 {
+        return Ok(());
+    }
+    let (major, minor) = match order {
+        Order::ColMajor => (cols, rows),
+        Order::RowMajor => (rows, cols),
+    };
+    if ld < minor {
+        return Err(Error::InvalidArgument(format!(
+            "{name}: {what} has ld={ld}, the {rows}x{cols} {order:?} matrix needs at least {minor}"
+        )));
+    }
+    let need = (major - 1) * ld + minor;
+    if len < need {
+        return Err(Error::InvalidArgument(format!(
+            "{name}: {what}.len()={len}, the {rows}x{cols} {order:?} matrix with ld={ld} needs {need}"
+        )));
     }
     Ok(())
 }
