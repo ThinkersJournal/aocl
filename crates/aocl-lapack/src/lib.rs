@@ -78,6 +78,17 @@ fn map_info(component: &'static str, info: Int) -> Result<()> {
     }
 }
 
+/// Check that a vector argument has at least `need` elements: LAPACKE does not (a pivot, tau or eigenvalue buffer one element short is
+/// read or written past its end; access violation on AOCL 6.0.68, `tests/generic_lengths.rs`).
+fn check_vec(what: &str, len: usize, need: usize) -> Result<()> {
+    if len < need {
+        return Err(Error::InvalidArgument(format!(
+            "{what}: length {len} < {need}"
+        )));
+    }
+    Ok(())
+}
+
 fn check_matrix(
     name: &str,
     layout: Layout,
@@ -587,6 +598,9 @@ macro_rules! impl_real {
             ) -> Result<()> {
                 check_matrix("gesv: A", layout, n, n, lda, a.len())?;
                 check_matrix("gesv: B", layout, n, nrhs, ldb, b.len())?;
+                check_vec("gesv: ipiv", ipiv.len(), n)?;
+                check_matrix("gesv: A", layout, n, n, lda, a.len())?;
+                check_matrix("gesv: B", layout, n, nrhs, ldb, b.len())?;
                 if ipiv.len() < n {
                     return Err(Error::InvalidArgument(format!(
                         "gesv: ipiv length {} < n={n}",
@@ -616,6 +630,8 @@ macro_rules! impl_real {
                 lda: usize,
                 ipiv: &mut [Int],
             ) -> Result<()> {
+                check_matrix("getrf: A", layout, m, n, lda, a.len())?;
+                check_vec("getrf: ipiv", ipiv.len(), m.min(n))?;
                 check_matrix("getrf: A", layout, m, n, lda, a.len())?;
                 if ipiv.len() < m.min(n) {
                     return Err(Error::InvalidArgument(format!(
@@ -650,6 +666,9 @@ macro_rules! impl_real {
             ) -> Result<()> {
                 check_matrix("getrs: A", layout, n, n, lda, a.len())?;
                 check_matrix("getrs: B", layout, n, nrhs, ldb, b.len())?;
+                check_vec("getrs: ipiv", ipiv.len(), n)?;
+                check_matrix("getrs: A", layout, n, n, lda, a.len())?;
+                check_matrix("getrs: B", layout, n, nrhs, ldb, b.len())?;
                 let info = unsafe {
                     sys::$getrs(
                         layout_raw(layout),
@@ -673,6 +692,8 @@ macro_rules! impl_real {
                 lda: usize,
                 ipiv: &[Int],
             ) -> Result<()> {
+                check_matrix("getri: A", layout, n, n, lda, a.len())?;
+                check_vec("getri: ipiv", ipiv.len(), n)?;
                 check_matrix("getri: A", layout, n, n, lda, a.len())?;
                 let info = unsafe {
                     sys::$getri(
@@ -698,6 +719,8 @@ macro_rules! impl_real {
             ) -> Result<()> {
                 check_matrix("posv: A", layout, n, n, lda, a.len())?;
                 check_matrix("posv: B", layout, n, nrhs, ldb, b.len())?;
+                check_matrix("posv: A", layout, n, n, lda, a.len())?;
+                check_matrix("posv: B", layout, n, nrhs, ldb, b.len())?;
                 let info = unsafe {
                     sys::$posv(
                         layout_raw(layout),
@@ -720,6 +743,7 @@ macro_rules! impl_real {
                 a: &mut [Self],
                 lda: usize,
             ) -> Result<()> {
+                check_matrix("potrf: A", layout, n, n, lda, a.len())?;
                 check_matrix("potrf: A", layout, n, n, lda, a.len())?;
                 let info = unsafe {
                     sys::$potrf(
@@ -745,6 +769,8 @@ macro_rules! impl_real {
             ) -> Result<()> {
                 check_matrix("potrs: A", layout, n, n, lda, a.len())?;
                 check_matrix("potrs: B", layout, n, nrhs, ldb, b.len())?;
+                check_matrix("potrs: A", layout, n, n, lda, a.len())?;
+                check_matrix("potrs: B", layout, n, nrhs, ldb, b.len())?;
                 let info = unsafe {
                     sys::$potrs(
                         layout_raw(layout),
@@ -767,6 +793,7 @@ macro_rules! impl_real {
                 a: &mut [Self],
                 lda: usize,
             ) -> Result<()> {
+                check_matrix("potri: A", layout, n, n, lda, a.len())?;
                 check_matrix("potri: A", layout, n, n, lda, a.len())?;
                 let info = unsafe {
                     sys::$potri(
@@ -793,6 +820,9 @@ macro_rules! impl_real {
             ) -> Result<()> {
                 check_matrix("sysv: A", layout, n, n, lda, a.len())?;
                 check_matrix("sysv: B", layout, n, nrhs, ldb, b.len())?;
+                check_vec("sysv: ipiv", ipiv.len(), n)?;
+                check_matrix("sysv: A", layout, n, n, lda, a.len())?;
+                check_matrix("sysv: B", layout, n, nrhs, ldb, b.len())?;
                 let info = unsafe {
                     sys::$sysv(
                         layout_raw(layout),
@@ -817,6 +847,8 @@ macro_rules! impl_real {
                 lda: usize,
                 ipiv: &mut [Int],
             ) -> Result<()> {
+                check_matrix("sytrf: A", layout, n, n, lda, a.len())?;
+                check_vec("sytrf: ipiv", ipiv.len(), n)?;
                 let info = unsafe {
                     sys::$sytrf(
                         layout_raw(layout),
@@ -841,6 +873,9 @@ macro_rules! impl_real {
                 b: &mut [Self],
                 ldb: usize,
             ) -> Result<()> {
+                check_matrix("sytrs: A", layout, n, n, lda, a.len())?;
+                check_matrix("sytrs: B", layout, n, nrhs, ldb, b.len())?;
+                check_vec("sytrs: ipiv", ipiv.len(), n)?;
                 let info = unsafe {
                     sys::$sytrs(
                         layout_raw(layout),
@@ -952,6 +987,10 @@ macro_rules! impl_real {
                 b: &mut [Self],
                 ldb: usize,
             ) -> Result<()> {
+                check_vec("gtsv: dl", dl.len(), n.saturating_sub(1))?;
+                check_vec("gtsv: d", d.len(), n)?;
+                check_vec("gtsv: du", du.len(), n.saturating_sub(1))?;
+                check_matrix("gtsv: B", layout, n, nrhs, ldb, b.len())?;
                 if n > 0 {
                     if d.len() < n {
                         return Err(Error::InvalidArgument(format!(
@@ -990,6 +1029,9 @@ macro_rules! impl_real {
                 b: &mut [Self],
                 ldb: usize,
             ) -> Result<()> {
+                check_vec("ptsv: d", d.len(), n)?;
+                check_vec("ptsv: e", e.len(), n.saturating_sub(1))?;
+                check_matrix("ptsv: B", layout, n, nrhs, ldb, b.len())?;
                 let info = unsafe {
                     sys::$ptsv(
                         layout_raw(layout),
@@ -1015,6 +1057,8 @@ macro_rules! impl_real {
                 b: &mut [Self],
                 ldb: usize,
             ) -> Result<()> {
+                check_matrix("gels: A", layout, m, n, lda, a.len())?;
+                check_matrix("gels: B", layout, m.max(n), nrhs, ldb, b.len())?;
                 let info = unsafe {
                     sys::$gels(
                         layout_raw(layout),
@@ -1039,6 +1083,8 @@ macro_rules! impl_real {
                 lda: usize,
                 tau: &mut [Self],
             ) -> Result<()> {
+                check_matrix("geqrf: A", layout, m, n, lda, a.len())?;
+                check_vec("geqrf: tau", tau.len(), m.min(n))?;
                 check_matrix("geqrf: A", layout, m, n, lda, a.len())?;
                 if tau.len() < m.min(n) {
                     return Err(Error::InvalidArgument(format!(
@@ -1068,6 +1114,8 @@ macro_rules! impl_real {
                 lda: usize,
                 tau: &mut [Self],
             ) -> Result<()> {
+                check_matrix("gelqf: A", layout, m, n, lda, a.len())?;
+                check_vec("gelqf: tau", tau.len(), m.min(n))?;
                 check_matrix("gelqf: A", layout, m, n, lda, a.len())?;
                 if tau.len() < m.min(n) {
                     return Err(Error::InvalidArgument(format!(
@@ -1228,6 +1276,8 @@ macro_rules! impl_real {
                 lda: usize,
                 w: &mut [Self],
             ) -> Result<()> {
+                check_matrix("syev: A", layout, n, n, lda, a.len())?;
+                check_vec("syev: w", w.len(), n)?;
                 let info = unsafe {
                     sys::$syev(
                         layout_raw(layout),
@@ -1372,6 +1422,9 @@ macro_rules! impl_complex {
             ) -> Result<()> {
                 check_matrix("gesv: A", layout, n, n, lda, a.len())?;
                 check_matrix("gesv: B", layout, n, nrhs, ldb, b.len())?;
+                check_vec("gesv: ipiv", ipiv.len(), n)?;
+                check_matrix("gesv: A", layout, n, n, lda, a.len())?;
+                check_matrix("gesv: B", layout, n, nrhs, ldb, b.len())?;
                 if ipiv.len() < n {
                     return Err(Error::InvalidArgument(format!(
                         "gesv: ipiv length {} < n={n}",
@@ -1402,6 +1455,8 @@ macro_rules! impl_complex {
                 ipiv: &mut [Int],
             ) -> Result<()> {
                 check_matrix("getrf: A", layout, m, n, lda, a.len())?;
+                check_vec("getrf: ipiv", ipiv.len(), m.min(n))?;
+                check_matrix("getrf: A", layout, m, n, lda, a.len())?;
                 let info = unsafe {
                     sys::$getrf(
                         layout_raw(layout),
@@ -1426,6 +1481,9 @@ macro_rules! impl_complex {
                 b: &mut [Self],
                 ldb: usize,
             ) -> Result<()> {
+                check_matrix("getrs: A", layout, n, n, lda, a.len())?;
+                check_matrix("getrs: B", layout, n, nrhs, ldb, b.len())?;
+                check_vec("getrs: ipiv", ipiv.len(), n)?;
                 let info = unsafe {
                     sys::$getrs(
                         layout_raw(layout),
@@ -1449,6 +1507,8 @@ macro_rules! impl_complex {
                 lda: usize,
                 ipiv: &[Int],
             ) -> Result<()> {
+                check_matrix("getri: A", layout, n, n, lda, a.len())?;
+                check_vec("getri: ipiv", ipiv.len(), n)?;
                 let info = unsafe {
                     sys::$getri(
                         layout_raw(layout),
@@ -1471,6 +1531,8 @@ macro_rules! impl_complex {
                 b: &mut [Self],
                 ldb: usize,
             ) -> Result<()> {
+                check_matrix("posv: A", layout, n, n, lda, a.len())?;
+                check_matrix("posv: B", layout, n, nrhs, ldb, b.len())?;
                 let info = unsafe {
                     sys::$posv(
                         layout_raw(layout),
@@ -1493,6 +1555,7 @@ macro_rules! impl_complex {
                 a: &mut [Self],
                 lda: usize,
             ) -> Result<()> {
+                check_matrix("potrf: A", layout, n, n, lda, a.len())?;
                 let info = unsafe {
                     sys::$potrf(
                         layout_raw(layout),
@@ -1515,6 +1578,8 @@ macro_rules! impl_complex {
                 b: &mut [Self],
                 ldb: usize,
             ) -> Result<()> {
+                check_matrix("potrs: A", layout, n, n, lda, a.len())?;
+                check_matrix("potrs: B", layout, n, nrhs, ldb, b.len())?;
                 let info = unsafe {
                     sys::$potrs(
                         layout_raw(layout),
@@ -1537,6 +1602,7 @@ macro_rules! impl_complex {
                 a: &mut [Self],
                 lda: usize,
             ) -> Result<()> {
+                check_matrix("potri: A", layout, n, n, lda, a.len())?;
                 let info = unsafe {
                     sys::$potri(
                         layout_raw(layout),
@@ -1560,6 +1626,9 @@ macro_rules! impl_complex {
                 b: &mut [Self],
                 ldb: usize,
             ) -> Result<()> {
+                check_matrix("sysv: A", layout, n, n, lda, a.len())?;
+                check_matrix("sysv: B", layout, n, nrhs, ldb, b.len())?;
+                check_vec("sysv: ipiv", ipiv.len(), n)?;
                 let info = unsafe {
                     sys::$sysv(
                         layout_raw(layout),
@@ -1584,6 +1653,8 @@ macro_rules! impl_complex {
                 lda: usize,
                 ipiv: &mut [Int],
             ) -> Result<()> {
+                check_matrix("sytrf: A", layout, n, n, lda, a.len())?;
+                check_vec("sytrf: ipiv", ipiv.len(), n)?;
                 let info = unsafe {
                     sys::$sytrf(
                         layout_raw(layout),
@@ -1608,6 +1679,9 @@ macro_rules! impl_complex {
                 b: &mut [Self],
                 ldb: usize,
             ) -> Result<()> {
+                check_matrix("sytrs: A", layout, n, n, lda, a.len())?;
+                check_matrix("sytrs: B", layout, n, nrhs, ldb, b.len())?;
+                check_vec("sytrs: ipiv", ipiv.len(), n)?;
                 let info = unsafe {
                     sys::$sytrs(
                         layout_raw(layout),
@@ -1719,6 +1793,10 @@ macro_rules! impl_complex {
                 b: &mut [Self],
                 ldb: usize,
             ) -> Result<()> {
+                check_vec("gtsv: dl", dl.len(), n.saturating_sub(1))?;
+                check_vec("gtsv: d", d.len(), n)?;
+                check_vec("gtsv: du", du.len(), n.saturating_sub(1))?;
+                check_matrix("gtsv: B", layout, n, nrhs, ldb, b.len())?;
                 let info = unsafe {
                     sys::$gtsv(
                         layout_raw(layout),
@@ -1743,6 +1821,9 @@ macro_rules! impl_complex {
                 b: &mut [Self],
                 ldb: usize,
             ) -> Result<()> {
+                check_vec("ptsv: d", d.len(), n)?;
+                check_vec("ptsv: e", e.len(), n.saturating_sub(1))?;
+                check_matrix("ptsv: B", layout, n, nrhs, ldb, b.len())?;
                 let info = unsafe {
                     sys::$ptsv(
                         layout_raw(layout),
@@ -1768,6 +1849,8 @@ macro_rules! impl_complex {
                 b: &mut [Self],
                 ldb: usize,
             ) -> Result<()> {
+                check_matrix("gels: A", layout, m, n, lda, a.len())?;
+                check_matrix("gels: B", layout, m.max(n), nrhs, ldb, b.len())?;
                 let info = unsafe {
                     sys::$gels(
                         layout_raw(layout),
@@ -1792,6 +1875,8 @@ macro_rules! impl_complex {
                 lda: usize,
                 tau: &mut [Self],
             ) -> Result<()> {
+                check_matrix("geqrf: A", layout, m, n, lda, a.len())?;
+                check_vec("geqrf: tau", tau.len(), m.min(n))?;
                 let info = unsafe {
                     sys::$geqrf(
                         layout_raw(layout),
@@ -1813,6 +1898,8 @@ macro_rules! impl_complex {
                 lda: usize,
                 tau: &mut [Self],
             ) -> Result<()> {
+                check_matrix("gelqf: A", layout, m, n, lda, a.len())?;
+                check_vec("gelqf: tau", tau.len(), m.min(n))?;
                 let info = unsafe {
                     sys::$gelqf(
                         layout_raw(layout),
@@ -1967,6 +2054,9 @@ macro_rules! impl_complex {
                 b: &mut [Self],
                 ldb: usize,
             ) -> Result<()> {
+                check_matrix("hesv: A", layout, n, n, lda, a.len())?;
+                check_matrix("hesv: B", layout, n, nrhs, ldb, b.len())?;
+                check_vec("hesv: ipiv", ipiv.len(), n)?;
                 let info = unsafe {
                     sys::$hesv(
                         layout_raw(layout),
@@ -1991,6 +2081,8 @@ macro_rules! impl_complex {
                 lda: usize,
                 ipiv: &mut [Int],
             ) -> Result<()> {
+                check_matrix("hetrf: A", layout, n, n, lda, a.len())?;
+                check_vec("hetrf: ipiv", ipiv.len(), n)?;
                 let info = unsafe {
                     sys::$hetrf(
                         layout_raw(layout),
@@ -2015,6 +2107,9 @@ macro_rules! impl_complex {
                 b: &mut [Self],
                 ldb: usize,
             ) -> Result<()> {
+                check_matrix("hetrs: A", layout, n, n, lda, a.len())?;
+                check_matrix("hetrs: B", layout, n, nrhs, ldb, b.len())?;
+                check_vec("hetrs: ipiv", ipiv.len(), n)?;
                 let info = unsafe {
                     sys::$hetrs(
                         layout_raw(layout),
@@ -2040,6 +2135,8 @@ macro_rules! impl_complex {
                 lda: usize,
                 w: &mut [Self::Real],
             ) -> Result<()> {
+                check_matrix("heev: A", layout, n, n, lda, a.len())?;
+                check_vec("heev: w", w.len(), n)?;
                 let info = unsafe {
                     sys::$heev(
                         layout_raw(layout),
@@ -2255,7 +2352,7 @@ pub fn ptsv<T: Scalar>(n: usize, d: &mut [T::Real], e: &mut [T], b: &mut [T]) ->
 
 pub fn gels<T: Scalar>(trans: Trans, m: usize, n: usize, a: &mut [T], b: &mut [T]) -> Result<()> {
     let max_mn = m.max(n);
-    let nrhs = if max_mn == 0 { 0 } else { b.len() / max_mn };
+    let nrhs = b.len().checked_div(max_mn).unwrap_or(0);
     T::gels(Layout::RowMajor, trans, m, n, nrhs, a, n, b, nrhs.max(1))
 }
 
@@ -2348,7 +2445,7 @@ pub fn gelsd<T: Scalar>(
     rcond: T::Real,
 ) -> Result<Int> {
     let max_mn = m.max(n);
-    let nrhs = if max_mn == 0 { 0 } else { b.len() / max_mn };
+    let nrhs = b.len().checked_div(max_mn).unwrap_or(0);
     let mut rank: Int = 0;
     T::gelsd(
         Layout::RowMajor,
@@ -2376,7 +2473,7 @@ pub fn gelsy<T: Scalar>(
     rcond: T::Real,
 ) -> Result<Int> {
     let max_mn = m.max(n);
-    let nrhs = if max_mn == 0 { 0 } else { b.len() / max_mn };
+    let nrhs = b.len().checked_div(max_mn).unwrap_or(0);
     let mut rank: Int = 0;
     T::gelsy(
         Layout::RowMajor,
