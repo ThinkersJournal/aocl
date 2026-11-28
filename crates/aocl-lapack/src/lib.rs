@@ -1152,6 +1152,29 @@ macro_rules! impl_real {
                 ldvt: usize,
                 superb: &mut [Self::Real],
             ) -> Result<()> {
+                check_matrix("gesvd: A", layout, m, n, lda, a.len())?;
+                check_vec("gesvd: s", s.len(), m.min(n))?;
+                {
+                    let c = (match jobu {
+                        SvdJob::All => m,
+                        SvdJob::Singular => m.min(n),
+                        _ => 0,
+                    });
+                    if c > 0 {
+                        check_matrix("gesvd: U", layout, m, c, ldu, u.len())?;
+                    }
+                }
+                {
+                    let r = (match jobvt {
+                        SvdJob::All => n,
+                        SvdJob::Singular => m.min(n),
+                        _ => 0,
+                    });
+                    if r > 0 {
+                        check_matrix("gesvd: VT", layout, r, n, ldvt, vt.len())?;
+                    }
+                }
+                check_vec("gesvd: superb", superb.len(), m.min(n).saturating_sub(1))?;
                 let info = unsafe {
                     sys::$gesvd(
                         layout_raw(layout),
@@ -1185,6 +1208,28 @@ macro_rules! impl_real {
                 vt: &mut [Self],
                 ldvt: usize,
             ) -> Result<()> {
+                check_matrix("gesdd: A", layout, m, n, lda, a.len())?;
+                check_vec("gesdd: s", s.len(), m.min(n))?;
+                {
+                    let c = (match jobz {
+                        SvdJob::All => m,
+                        SvdJob::Singular => m.min(n),
+                        _ => 0,
+                    });
+                    if c > 0 {
+                        check_matrix("gesdd: U", layout, m, c, ldu, u.len())?;
+                    }
+                }
+                {
+                    let r = (match jobz {
+                        SvdJob::All => n,
+                        SvdJob::Singular => m.min(n),
+                        _ => 0,
+                    });
+                    if r > 0 {
+                        check_matrix("gesdd: VT", layout, r, n, ldvt, vt.len())?;
+                    }
+                }
                 let info = unsafe {
                     sys::$gesdd(
                         layout_raw(layout),
@@ -1216,6 +1261,9 @@ macro_rules! impl_real {
                 rcond: Self::Real,
                 rank: &mut Int,
             ) -> Result<()> {
+                check_matrix("gelsd: A", layout, m, n, lda, a.len())?;
+                check_matrix("gelsd: B", layout, m.max(n), nrhs, ldb, b.len())?;
+                check_vec("gelsd: s", s.len(), m.min(n))?;
                 let info = unsafe {
                     sys::$gelsd(
                         layout_raw(layout),
@@ -1247,6 +1295,9 @@ macro_rules! impl_real {
                 rcond: Self::Real,
                 rank: &mut Int,
             ) -> Result<()> {
+                check_matrix("gelsy: A", layout, m, n, lda, a.len())?;
+                check_matrix("gelsy: B", layout, m.max(n), nrhs, ldb, b.len())?;
+                check_vec("gelsy: jpvt", jpvt.len(), n)?;
                 let info = unsafe {
                     sys::$gelsy(
                         layout_raw(layout),
@@ -1928,6 +1979,29 @@ macro_rules! impl_complex {
                 ldvt: usize,
                 superb: &mut [Self::Real],
             ) -> Result<()> {
+                check_matrix("gesvd: A", layout, m, n, lda, a.len())?;
+                check_vec("gesvd: s", s.len(), m.min(n))?;
+                {
+                    let c = (match jobu {
+                        SvdJob::All => m,
+                        SvdJob::Singular => m.min(n),
+                        _ => 0,
+                    });
+                    if c > 0 {
+                        check_matrix("gesvd: U", layout, m, c, ldu, u.len())?;
+                    }
+                }
+                {
+                    let r = (match jobvt {
+                        SvdJob::All => n,
+                        SvdJob::Singular => m.min(n),
+                        _ => 0,
+                    });
+                    if r > 0 {
+                        check_matrix("gesvd: VT", layout, r, n, ldvt, vt.len())?;
+                    }
+                }
+                check_vec("gesvd: superb", superb.len(), m.min(n).saturating_sub(1))?;
                 let info = unsafe {
                     sys::$gesvd(
                         layout_raw(layout),
@@ -1961,6 +2035,28 @@ macro_rules! impl_complex {
                 vt: &mut [Self],
                 ldvt: usize,
             ) -> Result<()> {
+                check_matrix("gesdd: A", layout, m, n, lda, a.len())?;
+                check_vec("gesdd: s", s.len(), m.min(n))?;
+                {
+                    let c = (match jobz {
+                        SvdJob::All => m,
+                        SvdJob::Singular => m.min(n),
+                        _ => 0,
+                    });
+                    if c > 0 {
+                        check_matrix("gesdd: U", layout, m, c, ldu, u.len())?;
+                    }
+                }
+                {
+                    let r = (match jobz {
+                        SvdJob::All => n,
+                        SvdJob::Singular => m.min(n),
+                        _ => 0,
+                    });
+                    if r > 0 {
+                        check_matrix("gesdd: VT", layout, r, n, ldvt, vt.len())?;
+                    }
+                }
                 let info = unsafe {
                     sys::$gesdd(
                         layout_raw(layout),
@@ -1992,6 +2088,9 @@ macro_rules! impl_complex {
                 rcond: Self::Real,
                 rank: &mut Int,
             ) -> Result<()> {
+                check_matrix("gelsd: A", layout, m, n, lda, a.len())?;
+                check_matrix("gelsd: B", layout, m.max(n), nrhs, ldb, b.len())?;
+                check_vec("gelsd: s", s.len(), m.min(n))?;
                 let info = unsafe {
                     sys::$gelsd(
                         layout_raw(layout),
@@ -2023,6 +2122,9 @@ macro_rules! impl_complex {
                 rcond: Self::Real,
                 rank: &mut Int,
             ) -> Result<()> {
+                check_matrix("gelsy: A", layout, m, n, lda, a.len())?;
+                check_matrix("gelsy: B", layout, m.max(n), nrhs, ldb, b.len())?;
+                check_vec("gelsy: jpvt", jpvt.len(), n)?;
                 let info = unsafe {
                     sys::$gelsy(
                         layout_raw(layout),
@@ -4620,6 +4722,16 @@ pub fn dormqr(
     c: &mut [f64],
     ldc: usize,
 ) -> Result<()> {
+    check_matrix(
+        "ormqr: A",
+        Layout::RowMajor,
+        if side_l { m } else { n },
+        k,
+        lda,
+        a.len(),
+    )?;
+    check_vec("ormqr: tau", tau.len(), k)?;
+    check_matrix("ormqr: C", Layout::RowMajor, m, n, ldc, c.len())?;
     let side = if side_l { b'L' } else { b'R' } as c_char;
     lapack_call!(
         "lapack",
@@ -4650,6 +4762,16 @@ pub fn sormqr(
     c: &mut [f32],
     ldc: usize,
 ) -> Result<()> {
+    check_matrix(
+        "ormqr: A",
+        Layout::RowMajor,
+        if side_l { m } else { n },
+        k,
+        lda,
+        a.len(),
+    )?;
+    check_vec("ormqr: tau", tau.len(), k)?;
+    check_matrix("ormqr: C", Layout::RowMajor, m, n, ldc, c.len())?;
     let side = if side_l { b'L' } else { b'R' } as c_char;
     lapack_call!(
         "lapack",
@@ -4680,6 +4802,16 @@ pub fn zunmqr(
     c: &mut [Complex64],
     ldc: usize,
 ) -> Result<()> {
+    check_matrix(
+        "unmqr: A",
+        Layout::RowMajor,
+        if side_l { m } else { n },
+        k,
+        lda,
+        a.len(),
+    )?;
+    check_vec("unmqr: tau", tau.len(), k)?;
+    check_matrix("unmqr: C", Layout::RowMajor, m, n, ldc, c.len())?;
     let side = if side_l { b'L' } else { b'R' } as c_char;
     lapack_call!(
         "lapack",
@@ -4710,6 +4842,16 @@ pub fn cunmqr(
     c: &mut [Complex32],
     ldc: usize,
 ) -> Result<()> {
+    check_matrix(
+        "unmqr: A",
+        Layout::RowMajor,
+        if side_l { m } else { n },
+        k,
+        lda,
+        a.len(),
+    )?;
+    check_vec("unmqr: tau", tau.len(), k)?;
+    check_matrix("unmqr: C", Layout::RowMajor, m, n, ldc, c.len())?;
     let side = if side_l { b'L' } else { b'R' } as c_char;
     lapack_call!(
         "lapack",
@@ -4732,6 +4874,8 @@ pub fn cunmqr(
 
 /// Form `Q` from [`gelqf`]. See [`dorgqr`] for analogous QR. (`f64`)
 pub fn dorglq(m: usize, n: usize, k: usize, a: &mut [f64], lda: usize, tau: &[f64]) -> Result<()> {
+    check_matrix("orglq: A", Layout::RowMajor, m, n, lda, a.len())?;
+    check_vec("orglq: tau", tau.len(), k)?;
     lapack_call!(
         "lapack",
         LAPACKE_dorglq,
@@ -4746,6 +4890,8 @@ pub fn dorglq(m: usize, n: usize, k: usize, a: &mut [f64], lda: usize, tau: &[f6
 }
 /// `f32` form Q from LQ. See [`dorglq`].
 pub fn sorglq(m: usize, n: usize, k: usize, a: &mut [f32], lda: usize, tau: &[f32]) -> Result<()> {
+    check_matrix("orglq: A", Layout::RowMajor, m, n, lda, a.len())?;
+    check_vec("orglq: tau", tau.len(), k)?;
     lapack_call!(
         "lapack",
         LAPACKE_sorglq,
@@ -4767,6 +4913,8 @@ pub fn zunglq(
     lda: usize,
     tau: &[Complex64],
 ) -> Result<()> {
+    check_matrix("unglq: A", Layout::RowMajor, m, n, lda, a.len())?;
+    check_vec("unglq: tau", tau.len(), k)?;
     lapack_call!(
         "lapack",
         LAPACKE_zunglq,
@@ -4788,6 +4936,8 @@ pub fn cunglq(
     lda: usize,
     tau: &[Complex32],
 ) -> Result<()> {
+    check_matrix("unglq: A", Layout::RowMajor, m, n, lda, a.len())?;
+    check_vec("unglq: tau", tau.len(), k)?;
     lapack_call!(
         "lapack",
         LAPACKE_cunglq,
@@ -4814,6 +4964,16 @@ pub fn dormlq(
     c: &mut [f64],
     ldc: usize,
 ) -> Result<()> {
+    check_matrix(
+        "ormlq: A",
+        Layout::RowMajor,
+        k,
+        if side_l { m } else { n },
+        lda,
+        a.len(),
+    )?;
+    check_vec("ormlq: tau", tau.len(), k)?;
+    check_matrix("ormlq: C", Layout::RowMajor, m, n, ldc, c.len())?;
     let side = if side_l { b'L' } else { b'R' } as c_char;
     lapack_call!(
         "lapack",
@@ -4844,6 +5004,16 @@ pub fn sormlq(
     c: &mut [f32],
     ldc: usize,
 ) -> Result<()> {
+    check_matrix(
+        "ormlq: A",
+        Layout::RowMajor,
+        k,
+        if side_l { m } else { n },
+        lda,
+        a.len(),
+    )?;
+    check_vec("ormlq: tau", tau.len(), k)?;
+    check_matrix("ormlq: C", Layout::RowMajor, m, n, ldc, c.len())?;
     let side = if side_l { b'L' } else { b'R' } as c_char;
     lapack_call!(
         "lapack",
@@ -4874,6 +5044,16 @@ pub fn zunmlq(
     c: &mut [Complex64],
     ldc: usize,
 ) -> Result<()> {
+    check_matrix(
+        "unmlq: A",
+        Layout::RowMajor,
+        k,
+        if side_l { m } else { n },
+        lda,
+        a.len(),
+    )?;
+    check_vec("unmlq: tau", tau.len(), k)?;
+    check_matrix("unmlq: C", Layout::RowMajor, m, n, ldc, c.len())?;
     let side = if side_l { b'L' } else { b'R' } as c_char;
     lapack_call!(
         "lapack",
@@ -4904,6 +5084,16 @@ pub fn cunmlq(
     c: &mut [Complex32],
     ldc: usize,
 ) -> Result<()> {
+    check_matrix(
+        "unmlq: A",
+        Layout::RowMajor,
+        k,
+        if side_l { m } else { n },
+        lda,
+        a.len(),
+    )?;
+    check_vec("unmlq: tau", tau.len(), k)?;
+    check_matrix("unmlq: C", Layout::RowMajor, m, n, ldc, c.len())?;
     let side = if side_l { b'L' } else { b'R' } as c_char;
     lapack_call!(
         "lapack",
@@ -5028,6 +5218,11 @@ pub fn dgebrd(
     tauq: &mut [f64],
     taup: &mut [f64],
 ) -> Result<()> {
+    check_matrix("gebrd: A", Layout::RowMajor, m, n, lda, a.len())?;
+    check_vec("gebrd: d", d.len(), m.min(n))?;
+    check_vec("gebrd: e", e.len(), m.min(n).saturating_sub(1))?;
+    check_vec("gebrd: tauq", tauq.len(), m.min(n))?;
+    check_vec("gebrd: taup", taup.len(), m.min(n))?;
     lapack_call!(
         "lapack",
         LAPACKE_dgebrd,
@@ -5053,6 +5248,11 @@ pub fn sgebrd(
     tauq: &mut [f32],
     taup: &mut [f32],
 ) -> Result<()> {
+    check_matrix("gebrd: A", Layout::RowMajor, m, n, lda, a.len())?;
+    check_vec("gebrd: d", d.len(), m.min(n))?;
+    check_vec("gebrd: e", e.len(), m.min(n).saturating_sub(1))?;
+    check_vec("gebrd: tauq", tauq.len(), m.min(n))?;
+    check_vec("gebrd: taup", taup.len(), m.min(n))?;
     lapack_call!(
         "lapack",
         LAPACKE_sgebrd,
@@ -5078,6 +5278,11 @@ pub fn zgebrd(
     tauq: &mut [Complex64],
     taup: &mut [Complex64],
 ) -> Result<()> {
+    check_matrix("gebrd: A", Layout::RowMajor, m, n, lda, a.len())?;
+    check_vec("gebrd: d", d.len(), m.min(n))?;
+    check_vec("gebrd: e", e.len(), m.min(n).saturating_sub(1))?;
+    check_vec("gebrd: tauq", tauq.len(), m.min(n))?;
+    check_vec("gebrd: taup", taup.len(), m.min(n))?;
     lapack_call!(
         "lapack",
         LAPACKE_zgebrd,
@@ -5103,6 +5308,11 @@ pub fn cgebrd(
     tauq: &mut [Complex32],
     taup: &mut [Complex32],
 ) -> Result<()> {
+    check_matrix("gebrd: A", Layout::RowMajor, m, n, lda, a.len())?;
+    check_vec("gebrd: d", d.len(), m.min(n))?;
+    check_vec("gebrd: e", e.len(), m.min(n).saturating_sub(1))?;
+    check_vec("gebrd: tauq", tauq.len(), m.min(n))?;
+    check_vec("gebrd: taup", taup.len(), m.min(n))?;
     lapack_call!(
         "lapack",
         LAPACKE_cgebrd,
@@ -5122,6 +5332,8 @@ pub fn cgebrd(
 
 /// Form `Q` from a tridiagonal reduction. (`f64`)
 pub fn dorgtr(uplo: Uplo, n: usize, a: &mut [f64], lda: usize, tau: &[f64]) -> Result<()> {
+    check_matrix("orgtr: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_vec("orgtr: tau", tau.len(), n.saturating_sub(1))?;
     lapack_call!(
         "lapack",
         LAPACKE_dorgtr,
@@ -5135,6 +5347,8 @@ pub fn dorgtr(uplo: Uplo, n: usize, a: &mut [f64], lda: usize, tau: &[f64]) -> R
 }
 /// `f32` form Q from tridiag reduction.
 pub fn sorgtr(uplo: Uplo, n: usize, a: &mut [f32], lda: usize, tau: &[f32]) -> Result<()> {
+    check_matrix("orgtr: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_vec("orgtr: tau", tau.len(), n.saturating_sub(1))?;
     lapack_call!(
         "lapack",
         LAPACKE_sorgtr,
@@ -5154,6 +5368,8 @@ pub fn zungtr(
     lda: usize,
     tau: &[Complex64],
 ) -> Result<()> {
+    check_matrix("ungtr: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_vec("ungtr: tau", tau.len(), n.saturating_sub(1))?;
     lapack_call!(
         "lapack",
         LAPACKE_zungtr,
@@ -5173,6 +5389,8 @@ pub fn cungtr(
     lda: usize,
     tau: &[Complex32],
 ) -> Result<()> {
+    check_matrix("ungtr: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_vec("ungtr: tau", tau.len(), n.saturating_sub(1))?;
     lapack_call!(
         "lapack",
         LAPACKE_cungtr,
@@ -5451,6 +5669,15 @@ pub fn cpocon(uplo: Uplo, n: usize, a: &[Complex32], lda: usize, anorm: f32) -> 
 /// that `H · (α, x)ᵀ = (β, 0…0)ᵀ`. On exit `*alpha = β` and `tau` is
 /// returned. (`f64`)
 pub fn dlarfg(n: usize, alpha: &mut f64, x: &mut [f64], incx: Int) -> Result<f64> {
+    check_vec(
+        "larfg: x",
+        x.len(),
+        if n < 2 {
+            0
+        } else {
+            (n - 2) * (incx.unsigned_abs() as usize) + 1
+        },
+    )?;
     let mut tau: f64 = 0.0;
     let info = unsafe { sys::LAPACKE_dlarfg(n as Int, alpha, x.as_mut_ptr(), incx, &mut tau) };
     map_info("lapack", info)?;
@@ -5458,6 +5685,15 @@ pub fn dlarfg(n: usize, alpha: &mut f64, x: &mut [f64], incx: Int) -> Result<f64
 }
 /// `f32` Householder generator. See [`dlarfg`].
 pub fn slarfg(n: usize, alpha: &mut f32, x: &mut [f32], incx: Int) -> Result<f32> {
+    check_vec(
+        "larfg: x",
+        x.len(),
+        if n < 2 {
+            0
+        } else {
+            (n - 2) * (incx.unsigned_abs() as usize) + 1
+        },
+    )?;
     let mut tau: f32 = 0.0;
     let info = unsafe { sys::LAPACKE_slarfg(n as Int, alpha, x.as_mut_ptr(), incx, &mut tau) };
     map_info("lapack", info)?;
@@ -5470,6 +5706,15 @@ pub fn zlarfg(
     x: &mut [Complex64],
     incx: Int,
 ) -> Result<Complex64> {
+    check_vec(
+        "larfg: x",
+        x.len(),
+        if n < 2 {
+            0
+        } else {
+            (n - 2) * (incx.unsigned_abs() as usize) + 1
+        },
+    )?;
     let mut tau = Complex64::ZERO;
     let info = unsafe {
         sys::LAPACKE_zlarfg(
@@ -5490,6 +5735,15 @@ pub fn clarfg(
     x: &mut [Complex32],
     incx: Int,
 ) -> Result<Complex32> {
+    check_vec(
+        "larfg: x",
+        x.len(),
+        if n < 2 {
+            0
+        } else {
+            (n - 2) * (incx.unsigned_abs() as usize) + 1
+        },
+    )?;
     let mut tau = Complex32::ZERO;
     let info = unsafe {
         sys::LAPACKE_clarfg(
