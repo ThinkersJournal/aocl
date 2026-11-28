@@ -1,0 +1,285 @@
+### aocl-sparse sparse
+0.2.54 vector_lengths aocl-sparse/vector_lengths: 48 tests in 1s; OK-refused(asserted)=48 | 
+0.2.54 dense_lengths aocl-sparse/dense_lengths: 152 tests in 5s; OK-refused(asserted)=152 | 
+0.2.54 raw_array_lengths aocl-sparse/raw_array_lengths: 72 tests in 2s; OK-control=10, OK-refused(asserted)=62 | 
+0.2.54 remaining_lengths aocl-sparse/remaining_lengths: 41 tests in 1s; OK-control=7, OK-refused(asserted)=34 | 
+
+aocl-sparse: function family | versions measured with that family | HOLE in versions
+bsrmv (real_f32) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+bsrmv (real_f64) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+bsrmv_block (real_f32) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+bsrmv_block (real_f64) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+csr2bsr (real_f32) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+csr2bsr (real_f64) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+csr2bsr_nnz (real_f32) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+csr2bsr_nnz (real_f64) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+csr2dia (real_f32) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+csr2dia (real_f64) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+csr2ell (real_f32) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+csr2ell (real_f64) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+csrmm (cplx_c32) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+csrmm (cplx_c64) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+csrmm (real_f32) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+csrmm (real_f64) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+csrmv (real_f32) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+csrmv (real_f64) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+csrsv (real_f32) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+csrsv (real_f64) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+dotmv (cplx_c32) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+dotmv (cplx_c64) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+dotmv (real_f32) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+dotmv (real_f64) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+ellmv (real_f32) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+ellmv (real_f64) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+mv (cplx_c32)  present 0.2.2..0.2.54  HOLE in none
+mv (cplx_c64)  present 0.2.2..0.2.54  HOLE in none
+mv (real_f32)  present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+mv (real_f64)  present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+sp2md (cplx_c32) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+sp2md (cplx_c64) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+sp2md (real_f32) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+sp2md (real_f64) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+spmmd (cplx_c32) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+spmmd (cplx_c64) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+spmmd (real_f32) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+spmmd (real_f64) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+symgs (cplx_c32) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+symgs (cplx_c64) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+symgs (real_f32) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+symgs (real_f64) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+symgs_mv (cplx_c32) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+symgs_mv (cplx_c64) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+symgs_mv (real_f32) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+symgs_mv (real_f64) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+syprd (cplx_c32) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+syprd (cplx_c64) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+syprd (real_f32) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+syprd (real_f64) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+syrkd (cplx_c32) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+syrkd (cplx_c64) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+syrkd (real_f32) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+syrkd (real_f64) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+trsm (cplx_c32) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+trsm (cplx_c64) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+trsm (real_f32) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+trsm (real_f64) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+trsm_row (cplx_c32) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+trsm_row (cplx_c64) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+trsm_row (real_f32) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+trsm_row (real_f64) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+trsv (cplx_c32) present 0.2.2..0.2.54  HOLE in none
+trsv (cplx_c64) present 0.2.2..0.2.54  HOLE in none
+trsv (real_f32) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+trsv (real_f64) present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+### aocl-blas blas
+0.2.54 aocl-blas/generated_guard: 506 tests in 18s; OK-accepted=20, OK-control=146, OK-refused=340 | 
+
+aocl-blas: function family | versions measured with that family | HOLE in versions
+axpby          present 0.1.0..0.2.54  HOLE in none
+axpy           present 0.1.0..0.2.54  HOLE in none
+copy           present 0.1.0..0.2.54  HOLE in none
+dot            present 0.1.0..0.2.54  HOLE in none
+dotu           present 0.1.0..0.2.54  HOLE in none
+gbmv           present 0.1.0..0.2.54  HOLE in none
+gemm           present 0.1.0..0.2.54  HOLE in none
+gemmt          present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+gemv           present 0.1.0..0.2.54  HOLE in none
+ger            present 0.1.0..0.2.54  HOLE in none
+gerc           present 0.1.0..0.2.54  HOLE in none
+geru           present 0.1.0..0.2.54  HOLE in none
+hbmv           present 0.1.0..0.2.54  HOLE in none
+hemm           present 0.1.0..0.2.54  HOLE in none
+hemv           present 0.1.0..0.2.54  HOLE in none
+her            present 0.1.0..0.2.54  HOLE in none
+her2           present 0.1.0..0.2.54  HOLE in none
+her2k          present 0.1.0..0.2.54  HOLE in none
+herk           present 0.1.0..0.2.54  HOLE in none
+hpmv           present 0.1.0..0.2.54  HOLE in none
+hpr            present 0.1.0..0.2.54  HOLE in none
+hpr2           present 0.1.0..0.2.54  HOLE in none
+rot            present 0.1.0..0.2.54  HOLE in none
+sbmv           present 0.1.0..0.2.54  HOLE in none
+spmv           present 0.1.0..0.2.54  HOLE in none
+spr            present 0.1.0..0.2.54  HOLE in none
+spr2           present 0.1.0..0.2.54  HOLE in none
+swap           present 0.1.0..0.2.54  HOLE in none
+symm           present 0.1.0..0.2.54  HOLE in none
+symv           present 0.1.0..0.2.54  HOLE in none
+syr            present 0.1.0..0.2.54  HOLE in none
+syr2           present 0.1.0..0.2.54  HOLE in none
+syr2k          present 0.1.0..0.2.54  HOLE in none
+syrk           present 0.1.0..0.2.54  HOLE in none
+tbmv           present 0.1.0..0.2.54  HOLE in none
+tbsv           present 0.1.0..0.2.54  HOLE in none
+tpmv           present 0.1.0..0.2.54  HOLE in none
+tpsv           present 0.1.0..0.2.54  HOLE in none
+trmm           present 0.1.0..0.2.54  HOLE in none
+trmv           present 0.1.0..0.2.54  HOLE in none
+trsm           present 0.1.0..0.2.54  HOLE in none
+trsv           present 0.1.0..0.2.54  HOLE in none
+### aocl-fft fft
+0.2.54 guard_lengths aocl-fft/guard_lengths: 40 tests in 1s; OK-control=10, OK-refused=22, OK-refused(asserted)=8 | 
+
+aocl-fft: function family | versions measured with that family | HOLE in versions
+c2r_short_input present 0.1.0..0.2.54  HOLE in none
+c2r_short_output present 0.1.0..0.2.54  HOLE in none
+dft_2d_short_data present 0.1.0..0.2.54  HOLE in none
+dft_3d_short_data present 0.1.0..0.2.54  HOLE in none
+plan_c2r_misaligned_output present 0.1.0..0.2.54  HOLE in none
+plan_c2r_short_input present 0.1.0..0.2.54  HOLE in none
+plan_c2r_short_output present 0.1.0..0.2.54  HOLE in none
+plan_dft_misaligned_input present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.6', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+plan_dft_misaligned_output present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.6', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+plan_dft_short_input present 0.1.0..0.2.54  HOLE in none
+plan_dft_short_output present 0.1.0..0.2.54  HOLE in none
+plan_r2c_misaligned_input present 0.1.0..0.2.54  HOLE in none
+plan_r2c_short_input present 0.1.0..0.2.54  HOLE in none
+plan_r2c_short_output present 0.1.0..0.2.54  HOLE in none
+r2c_short_output present 0.1.0..0.2.54  HOLE in none
+### aocl-data-analytics da
+0.1.0 (no output) | error: could not compile `aocl-data-analytics` (lib) due to 6 previous errors; 1 warning emitted
+0.2.54 aocl-data-analytics/generated_guard: 274 tests in 11s; OK-control=68, OK-refused=206 | 
+
+aocl-data-analytics: function family | versions measured with that family | HOLE in versions
+correlation_matrix present 0.2.2..0.2.54  HOLE in none
+covariance_matrix present 0.2.2..0.2.54  HOLE in none
+five_point_summary present 0.2.2..0.2.54  HOLE in none
+geometric_mean present 0.2.2..0.2.54  HOLE in none
+harmonic_mean  present 0.2.2..0.2.54  HOLE in none
+kurtosis       present 0.2.2..0.2.54  HOLE in none
+linear_kernel  present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.28', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+mean           present 0.2.2..0.2.54  HOLE in none
+moment         present 0.2.2..0.2.54  HOLE in none
+pairwise_distances present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.28', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+polynomial_kernel present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.28', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+quantile       present 0.2.2..0.2.54  HOLE in none
+rbf_kernel     present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.28', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+sigmoid_kernel present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.28', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+skewness       present 0.2.2..0.2.54  HOLE in none
+variance       present 0.2.2..0.2.54  HOLE in none
+### aocl-lapack lapack
+0.2.54 aocl-lapack/generated_guard: 586 tests in 18s; OK-control=172, OK-refused=402, OTHER(rc=101)=12 | 
+
+aocl-lapack: function family | versions measured with that family | HOLE in versions
+cgebrd         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+cgecon         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+cgeev          present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+cgehrd         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+cgelss         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+cgeqp3         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+cggev          present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+cheevd         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+cheevr         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+chegv          present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+chetrf         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+chetri         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+chetrs         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+clacpy         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+clange         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+clarfg         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+cpocon         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+csytrf         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+csytri         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+csytrs         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+cunglq         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+cungqr         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+cungtr         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+cunmlq         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+cunmqr         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+dgebrd         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+dgecon         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+dgees          present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+dgeev          present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+dgehrd         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+dgelss         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+dgeqp3         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+dggev          present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+dlacpy         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+dlange         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+dlarfg         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+dorglq         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+dorgqr         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+dorgtr         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+dormlq         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+dormqr         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+dpocon         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+dpotri         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+dsyevd         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+dsyevr         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+dsygv          present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+dsytrf         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+dsytri         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+dsytrs         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+dtrtri         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+dtrtrs         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+gelqf          present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+gelsd          present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+gelsy          present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+geqrf          present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+gesdd          present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+gesv           present 0.1.0..0.2.54  HOLE in none
+gesvd          present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+getrf          present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+getri          present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+getrs          present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+gtsv           present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+heev           present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+hesv           present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+posv           present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+potrf          present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+potrs          present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+ptsv           present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+sgebrd         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+sgecon         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+sgees          present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+sgeev          present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+sgehrd         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+sgelss         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+sgeqp3         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+sggev          present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+slacpy         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+slange         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+slarfg         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+sorglq         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+sorgqr         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+sorgtr         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+sormlq         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+sormqr         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+spocon         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+spotri         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+ssyevd         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+ssyevr         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+ssygv          present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+ssytrf         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+ssytri         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+ssytrs         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+strtri         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+strtrs         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+syev           present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+sysv           present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+zgebrd         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+zgecon         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+zgeev          present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+zgehrd         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+zgelss         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+zgeqp3         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+zggev          present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+zheevd         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+zheevr         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+zhegv          present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+zhetrf         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+zhetri         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+zhetrs         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+zlacpy         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+zlange         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+zlarfg         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+zpocon         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+zsytrf         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+zsytri         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+zsytrs         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+zunglq         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+zungqr         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+zungtr         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+zunmlq         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+zunmqr         present 0.1.0..0.2.54  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+exit=0

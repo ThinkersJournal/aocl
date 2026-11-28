@@ -79,15 +79,15 @@ def main():
                 continue
             last = hv[-1]
             n = sum(1 for o in fam[f][last] if o == "HOLE")
-            if crate == "aocl-sparse":
-                fx = "PENDING: #70" if f in ("bsrmv", "csr2bsr", "csr2bsr_nnz") else FIXED[(crate, "*")]
-            elif crate in ("aocl-data-analytics", "aocl-fft"):
-                fx = FIXED[(crate, "*")]
-            elif crate == "aocl-blas":
-                fx = FIXED[(crate, "gemmt")]
+            # fixed-in is MEASURED: the first published version after the last affected one in which the harness shows 0 holes for the family
+            later = [v for v in vers if vkey(v) > vkey(last) and v in fam[f]]
+            clean = [v for v in later if "HOLE" not in fam[f][v]]
+            if clean:
+                fx = f"{clean[0]} (measured 0 holes)"
+            elif last == vers[-1]:
+                fx = f"STILL FAULTING at {vers[-1]} (finding)"
             else:
-                base = f[1:] if f[0] in "dszc" and f[1:] in EIGEN | FACTOR else f
-                fx = FIXED[(crate, "generic" if f in GENERIC else "eigen" if base in EIGEN else "factor" if (base in FACTOR or f in FACTOR) else "typed")]
+                fx = "not measured"
             print(f"| {f} | {hv[0]} | {hv[-1]} | {n} | {fx} |")
             rows += 1
         print(f"\n{rows} families with at least one HOLE.\n")
