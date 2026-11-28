@@ -31,6 +31,96 @@ pub enum BaseGenerator {
 const STATE_LEN: usize = 633;
 const SEED_LEN: usize = 1;
 
+/// The reference vector [`Rng::general_discrete`] samples from. It can only be produced by the library's own set-up routines
+/// ([`DiscreteReference::binomial`] etc.), which size and fill it, so a safe call can never pass the library a vector of the wrong
+/// length or origin (`drandgeneraldiscrete` does not check one: it trusts a length encoded inside it).
+///
+/// ```compile_fail
+/// use aocl_rng::{BaseGenerator, DiscreteReference, Rng};
+/// let mut rng = Rng::new(BaseGenerator::MersenneTwister, 1).unwrap();
+/// let mut out = [0; 4];
+/// // the data field is private: a hand-built vector is not a DiscreteReference
+/// let mut fake = DiscreteReference { data: vec![0.0; 3] };
+/// rng.general_discrete(&mut fake, &mut out).unwrap();
+/// ```
+#[derive(Debug, Clone)]
+pub struct DiscreteReference {
+    data: Vec<f64>,
+}
+
+impl DiscreteReference {
+    /// Query the recommended length (`lref = -1`), allocate it, then let the library fill it.
+    fn build(setup: impl Fn(*mut f64, *mut RngInt, *mut RngInt), what: &str) -> Result<Self> {
+        let (mut lref, mut info): (RngInt, RngInt) = (-1, 0);
+        setup(std::ptr::null_mut(), &mut lref, &mut info);
+        // the query answers info = 1 ("length returned", measured on AOCL 6.0.68) with the recommended length in lref
+        if !(0..=1).contains(&info) || lref <= 0 {
+            return Err(Error::Status {
+                component: "rng",
+                code: info as i64,
+                message: format!("{what}: length query returned info={info}, lref={lref}"),
+            });
+        }
+        let full = lref;
+        info = 0;
+        let mut data = vec![0.0f64; full as usize];
+        setup(data.as_mut_ptr(), &mut lref, &mut info);
+        if info != 0 || lref != full {
+            return Err(Error::Status {
+                component: "rng",
+                code: info as i64,
+                message: format!("{what}: set-up returned info={info}, lref={lref} (asked {full})"),
+            });
+        }
+        Ok(Self { data })
+    }
+
+    /// Binomial(`m`, `p`) reference.
+    pub fn binomial(m: RngInt, p: f64) -> Result<Self> {
+        // SAFETY: `build` passes a null pointer only for the length query and a vector of the queried length for the fill.
+        Self::build(
+            |v, l, i| unsafe { sys::drandbinomialreference(m, p, v, l, i) },
+            "binomial reference",
+        )
+    }
+
+    /// Geometric(`p`) reference.
+    pub fn geometric(p: f64) -> Result<Self> {
+        // SAFETY: as in `binomial`.
+        Self::build(
+            |v, l, i| unsafe { sys::drandgeometricreference(p, v, l, i) },
+            "geometric reference",
+        )
+    }
+
+    /// Hypergeometric(`np`, `ns`, `m`) reference.
+    pub fn hypergeometric(np: RngInt, ns: RngInt, m: RngInt) -> Result<Self> {
+        // SAFETY: as in `binomial`.
+        Self::build(
+            |v, l, i| unsafe { sys::drandhypergeometricreference(np, ns, m, v, l, i) },
+            "hypergeometric reference",
+        )
+    }
+
+    /// Negative binomial(`m`, `p`) reference.
+    pub fn negative_binomial(m: RngInt, p: f64) -> Result<Self> {
+        // SAFETY: as in `binomial`.
+        Self::build(
+            |v, l, i| unsafe { sys::drandnegativebinomialreference(m, p, v, l, i) },
+            "negative binomial reference",
+        )
+    }
+
+    /// Poisson(`lambda`) reference.
+    pub fn poisson(lambda: f64) -> Result<Self> {
+        // SAFETY: as in `binomial`.
+        Self::build(
+            |v, l, i| unsafe { sys::drandpoissonreference(lambda, v, l, i) },
+            "poisson reference",
+        )
+    }
+}
+
 /// AOCL pseudo-random number generator.
 pub struct Rng {
     state: Box<[sys::rng_int_t; STATE_LEN]>,
@@ -303,10 +393,29 @@ impl Rng {
         })
     }
 
-    /// General discrete distribution. `ref_dist` must be the reference array produced by one of AOCL's `drand*reference`
-    /// routines (header `rng.h`); a plain cumulative probability vector is rejected (`info = -2`, measured on AOCL 6.0.68).
-    /// `out` receives integer indices.
-    pub fn general_discrete(&mut self, ref_dist: &mut [f64], out: &mut [RngInt]) -> Result<()> {
+    /// General discrete distribution from a [`DiscreteReference`] (built only by the library's own `*reference` set-up routines, so
+    /// no caller can hand the library a buffer it does not understand). `out` receives integer indices.
+    pub fn general_discrete(
+        &mut self,
+        reference: &mut DiscreteReference,
+        out: &mut [RngInt],
+    ) -> Result<()> {
+        // SAFETY: `reference` holds exactly the vector a `drand*reference` routine wrote (see `DiscreteReference::build`).
+        unsafe { self.general_discrete_raw(&mut reference.data, out) }
+    }
+
+    /// General discrete distribution from a raw reference slice (the entry point before [`DiscreteReference`], kept for callers that
+    /// hold a reference vector from the C API).
+    ///
+    /// # Safety
+    /// `ref_dist` must be the unmodified vector that one of AOCL's `drand{binomial,geometric,hypergeometric,negativebinomial,poisson}
+    /// reference` routines (header `rng.h`) wrote, as `f64`, with its full recommended length: the library trusts a length encoded
+    /// inside that vector, not the slice length, so any other array can be read out of bounds.
+    pub unsafe fn general_discrete_raw(
+        &mut self,
+        ref_dist: &mut [f64],
+        out: &mut [RngInt],
+    ) -> Result<()> {
         let n = out.len();
         if n == 0 {
             return Ok(());
@@ -315,6 +424,7 @@ impl Rng {
             Error::InvalidArgument(format!("general_discrete: n={n} exceeds rng_int_t range"))
         })?;
         let mut info: RngInt = 0;
+        // SAFETY: the caller's contract (the `# Safety` section).
         unsafe {
             sys::drandgeneraldiscrete(
                 n_int,
@@ -1020,7 +1130,7 @@ mod distribution_tests {
         // The AOCL header requires `ref` to come from a drand*reference routine (the wrapper's "cumulative
         // probability vector" doc is rejected with info=-2: see the FINDING in the lane report).
         let (m, p) = (12 as RngInt, 0.35);
-        let mut r = reference(|v, l, i| unsafe { sys::drandbinomialreference(m, p, v, l, i) });
+        let mut r = DiscreteReference::binomial(m, p).unwrap();
         let v = fill_int(|g, o| g.general_discrete(&mut r, o), 112);
         assert!(v.iter().all(|&x| (0..=12).contains(&x)));
         let var = 12.0 * 0.35 * 0.65;
@@ -1033,7 +1143,7 @@ mod distribution_tests {
         );
 
         let pg = 0.4;
-        let mut r = reference(|v, l, i| unsafe { sys::drandgeometricreference(pg, v, l, i) });
+        let mut r = DiscreteReference::geometric(pg).unwrap();
         let v = fill_int(|g, o| g.general_discrete(&mut r, o), 113);
         assert!(v.iter().all(|&x| x >= 0));
         // geometric (failures before the first success), same convention as Rng::geometric
@@ -1044,6 +1154,32 @@ mod distribution_tests {
             0.6 / 0.16,
             6.0 + pg * pg / 0.6,
         );
+    }
+
+    #[test]
+    fn discrete_reference_constructors_validate_and_all_five_sample() {
+        // the library's own info code is surfaced for an invalid parameter instead of a garbage vector
+        assert!(DiscreteReference::binomial(10, 1.5).is_err());
+        assert!(DiscreteReference::geometric(0.0).is_err());
+        assert!(DiscreteReference::poisson(-1.0).is_err());
+        for mut r in [
+            DiscreteReference::hypergeometric(20, 8, 5).unwrap(),
+            DiscreteReference::negative_binomial(3, 0.4).unwrap(),
+            DiscreteReference::poisson(2.5).unwrap(),
+        ] {
+            let v = fill_int(|g, o| g.general_discrete(&mut r, o), 5);
+            assert!(v.iter().all(|&x| x >= 0));
+        }
+    }
+
+    #[test]
+    fn general_discrete_raw_matches_the_typed_path() {
+        let mut typed = DiscreteReference::binomial(12, 0.35).unwrap();
+        let mut raw =
+            reference(|v, l, i| unsafe { sys::drandbinomialreference(12, 0.35, v, l, i) });
+        let a = fill_int(|g, o| g.general_discrete(&mut typed, o), 7);
+        let b = fill_int(|g, o| unsafe { g.general_discrete_raw(&mut raw, o) }, 7);
+        assert_eq!(a, b);
     }
 
     #[test]
