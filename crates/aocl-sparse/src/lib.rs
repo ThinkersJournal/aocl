@@ -2017,6 +2017,9 @@ pub fn mv_f64(
     beta: f64,
     y: &mut [f64],
 ) -> Result<()> {
+    let (xl, yl) = mv_lens(op, a.m, a.n);
+    check_len("mv_f64", "x", x.len(), xl)?;
+    check_len("mv_f64", "y", y.len(), yl)?;
     let status = unsafe {
         sys::aoclsparse_dmv(
             trans_raw(op),
@@ -2041,6 +2044,9 @@ pub fn mv_f32(
     beta: f32,
     y: &mut [f32],
 ) -> Result<()> {
+    let (xl, yl) = mv_lens(op, a.m, a.n);
+    check_len("mv_f32", "x", x.len(), xl)?;
+    check_len("mv_f32", "y", y.len(), yl)?;
     let status = unsafe {
         sys::aoclsparse_smv(
             trans_raw(op),
@@ -2066,6 +2072,8 @@ pub fn trsv_f64(
     b: &[f64],
     x: &mut [f64],
 ) -> Result<()> {
+    check_len("trsv_f64", "b", b.len(), a.m)?;
+    check_len("trsv_f64", "x", x.len(), a.m)?;
     let status = unsafe {
         sys::aoclsparse_dtrsv(
             trans_raw(op),
@@ -2088,6 +2096,8 @@ pub fn trsv_f32(
     b: &[f32],
     x: &mut [f32],
 ) -> Result<()> {
+    check_len("trsv_f32", "b", b.len(), a.m)?;
+    check_len("trsv_f32", "x", x.len(), a.m)?;
     let status = unsafe {
         sys::aoclsparse_strsv(
             trans_raw(op),
@@ -2471,6 +2481,8 @@ pub fn symgs_f64(
     b: &[f64],
     x: &mut [f64],
 ) -> Result<()> {
+    check_len("symgs_f64", "b", b.len(), a.m)?;
+    check_len("symgs_f64", "x", x.len(), a.n)?;
     let status = unsafe {
         sys::aoclsparse_dsymgs(
             trans_raw(op),
@@ -2493,6 +2505,8 @@ pub fn symgs_f32(
     b: &[f32],
     x: &mut [f32],
 ) -> Result<()> {
+    check_len("symgs_f32", "b", b.len(), a.m)?;
+    check_len("symgs_f32", "x", x.len(), a.n)?;
     let status = unsafe {
         sys::aoclsparse_ssymgs(
             trans_raw(op),
@@ -2517,6 +2531,9 @@ pub fn symgs_mv_f64(
     x: &mut [f64],
     y: &mut [f64],
 ) -> Result<()> {
+    check_len("symgs_mv_f64", "b", b.len(), a.m)?;
+    check_len("symgs_mv_f64", "x", x.len(), a.n)?;
+    check_len("symgs_mv_f64", "y", y.len(), a.m)?;
     let status = unsafe {
         sys::aoclsparse_dsymgs_mv(
             trans_raw(op),
@@ -2541,6 +2558,9 @@ pub fn symgs_mv_f32(
     x: &mut [f32],
     y: &mut [f32],
 ) -> Result<()> {
+    check_len("symgs_mv_f32", "b", b.len(), a.m)?;
+    check_len("symgs_mv_f32", "x", x.len(), a.n)?;
+    check_len("symgs_mv_f32", "y", y.len(), a.m)?;
     let status = unsafe {
         sys::aoclsparse_ssymgs_mv(
             trans_raw(op),
@@ -2636,6 +2656,9 @@ pub fn dotmv_f64(
     y: &mut [f64],
     d: &mut f64,
 ) -> Result<()> {
+    let (xl, yl) = mv_lens(op, a.m, a.n);
+    check_len("dotmv_f64", "x", x.len(), xl)?;
+    check_len("dotmv_f64", "y", y.len(), yl)?;
     let status = unsafe {
         sys::aoclsparse_ddotmv(
             trans_raw(op),
@@ -2662,6 +2685,9 @@ pub fn dotmv_f32(
     y: &mut [f32],
     d: &mut f32,
 ) -> Result<()> {
+    let (xl, yl) = mv_lens(op, a.m, a.n);
+    check_len("dotmv_f32", "x", x.len(), xl)?;
+    check_len("dotmv_f32", "y", y.len(), yl)?;
     let status = unsafe {
         sys::aoclsparse_sdotmv(
             trans_raw(op),
@@ -2786,6 +2812,25 @@ pub fn syprd_f32(
         )
     };
     check_status("sparse", status)
+}
+
+/// Length of `x` and `y` that `op(A)` (`m x n`) needs for a mat-vec: `y := op(A) x` has `m` rows for `op = No` and `n` for `T`/`C`.
+pub(crate) fn mv_lens(op: Trans, m: usize, n: usize) -> (usize, usize) {
+    match op {
+        Trans::No => (n, m),
+        Trans::T | Trans::C => (m, n),
+    }
+}
+
+/// The library does not check the length of the dense vectors it is handed (found in review of #45: a short `x` or `y` is read or
+/// written past its end; access violation on AOCL 6.0.68, `tests/vector_lengths.rs`). `Err` unless `have >= need`.
+pub(crate) fn check_len(name: &str, what: &str, have: usize, need: usize) -> Result<()> {
+    if have < need {
+        return Err(Error::InvalidArgument(format!(
+            "{name}: {what}.len()={have}, the matrix needs {need}"
+        )));
+    }
+    Ok(())
 }
 
 /// Validate an index array before the library sees it (found in review of #45: only `roti` was checked). The library does not
