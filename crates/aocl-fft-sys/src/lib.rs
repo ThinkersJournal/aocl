@@ -13,10 +13,21 @@
     non_upper_case_globals,
     non_camel_case_types,
     non_snake_case,
-    dead_code,
     improper_ctypes,
     clippy::all,
     reason = "bindgen output mirrors the C headers: names, unused items and C-only types are not ours to change"
 )]
 
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
+
+// Compile-time guard: `fftw_iodim` is `{ int n, is, os; }` and `fftw_iodim64` is `{ ptrdiff_t n, is, os; }` (fftw3.h), passed
+// as arrays (`const fftw_iodim *dims`); no alignment attribute (docs/SYS-LAYOUT-AUDIT-20261127.md).
+const _: () = {
+    assert!(core::mem::size_of::<fftw_iodim>() == 12);
+    assert!(core::mem::align_of::<fftw_iodim>() == 4);
+    #[cfg(target_pointer_width = "64")]
+    {
+        assert!(core::mem::size_of::<fftw_iodim64>() == 24);
+        assert!(core::mem::align_of::<fftw_iodim64>() == 8);
+    }
+};
