@@ -1,0 +1,76 @@
+### aocl-crypto crypto
+0.4.0 guard_lengths aocl-crypto/guard_lengths: 25 tests in 1s; OK-accepted=3, OK-refused=21, OK-refused(asserted)=1 | 
+
+aocl-crypto: function family | versions measured with that family | HOLE in versions
+rsa_decrypt_oaep_short_ciphertext present 0.4.0..0.4.0  HOLE in none
+rsa_decrypt_oaep_short_output present 0.4.0..0.4.0  HOLE in none
+rsa_decrypt_pkcs1v15_short_ciphertext present 0.4.0..0.4.0  HOLE in none
+rsa_decrypt_pkcs1v15_short_output present 0.4.0..0.4.0  HOLE in none
+rsa_decrypt_short_ciphertext present 0.4.0..0.4.0  HOLE in none
+rsa_decrypt_short_output present 0.4.0..0.4.0  HOLE in none
+rsa_encrypt_oaep_short_output present 0.4.0..0.4.0  HOLE in none
+rsa_encrypt_oaep_short_seed present 0.4.0..0.4.0  HOLE in none
+rsa_encrypt_pkcs1v15_short_output present 0.4.0..0.4.0  HOLE in none
+rsa_encrypt_pkcs1v15_short_pad present 0.4.0..0.4.0  HOLE in none
+rsa_encrypt_short_output present 0.4.0..0.4.0  HOLE in none
+rsa_encrypt_short_plaintext present 0.4.0..0.4.0  HOLE in none
+rsa_sign_hash_pkcs1v15_short_hash present 0.4.0..0.4.0  HOLE in none
+rsa_sign_hash_pkcs1v15_short_signature present 0.4.0..0.4.0  HOLE in none
+rsa_sign_hash_pss_short_hash present 0.4.0..0.4.0  HOLE in none
+rsa_sign_hash_pss_short_signature present 0.4.0..0.4.0  HOLE in none
+rsa_sign_pkcs1v15_short_signature present 0.4.0..0.4.0  HOLE in none
+rsa_sign_pss_short_signature present 0.4.0..0.4.0  HOLE in none
+rsa_verify_hash_pkcs1v15_short_hash present 0.4.0..0.4.0  HOLE in none
+rsa_verify_hash_pkcs1v15_short_signature present 0.4.0..0.4.0  HOLE in none
+rsa_verify_hash_pss_short_hash present 0.4.0..0.4.0  HOLE in none
+rsa_verify_hash_pss_short_signature present 0.4.0..0.4.0  HOLE in none
+rsa_verify_pkcs1v15_short_signature present 0.4.0..0.4.0  HOLE in none
+rsa_verify_pss_short_signature present 0.4.0..0.4.0  HOLE in none
+### aocl-rng rng
+0.4.0 guard_lengths aocl-rng/guard_lengths: 11 tests in 0s; OK-control=1, OK-refused(asserted)=10 | 
+
+aocl-rng: function family | versions measured with that family | HOLE in versions
+multi_students_t_oversized_ldc present 0.4.0..0.4.0  HOLE in none
+multi_students_t_oversized_ldx present 0.4.0..0.4.0  HOLE in none
+multi_students_t_short_c present 0.4.0..0.4.0  HOLE in none
+multi_students_t_short_mu present 0.4.0..0.4.0  HOLE in none
+multinomial_oversized_ldx present 0.4.0..0.4.0  HOLE in none
+multinomial_short_p present 0.4.0..0.4.0  HOLE in none
+multinormal_oversized_ldc present 0.4.0..0.4.0  HOLE in none
+multinormal_oversized_ldx present 0.4.0..0.4.0  HOLE in none
+multinormal_short_c present 0.4.0..0.4.0  HOLE in none
+multinormal_short_mu present 0.4.0..0.4.0  HOLE in none
+### aocl-scalapack scalapack
+0.4.0 guard_lengths aocl-scalapack/guard_lengths: 38 tests in 2s; OK-accepted=4, OK-control=9, OK-refused=25 | 
+
+aocl-scalapack: function family | versions measured with that family | HOLE in versions
+pdgels_short_a present 0.4.0..0.4.0  HOLE in none
+pdgels_short_b present 0.4.0..0.4.0  HOLE in none
+pdgels_short_work present 0.4.0..0.4.0  HOLE in none
+pdgemm_n_exceeds_desc present 0.4.0..0.4.0  HOLE in none
+pdgemm_short_a present 0.4.0..0.4.0  HOLE in none
+pdgemm_short_b present 0.4.0..0.4.0  HOLE in none
+pdgemm_short_c present 0.4.0..0.4.0  HOLE in none
+pdgeqrf_short_a present 0.4.0..0.4.0  HOLE in none
+pdgeqrf_short_tau present 0.4.0..0.4.0  HOLE in none
+pdgeqrf_short_work present 0.4.0..0.4.0  HOLE in none
+pdgesv_ia_past_desc present 0.4.0..0.4.0  HOLE in none
+pdgesv_n_exceeds_desc present 0.4.0..0.4.0  HOLE in none
+pdgesv_short_a present 0.4.0..0.4.0  HOLE in none
+pdgesv_short_b present 0.4.0..0.4.0  HOLE in none
+pdgesv_short_ipiv present 0.4.0..0.4.0  HOLE in none
+pdgetrf_n_exceeds_desc present 0.4.0..0.4.0  HOLE in none
+pdgetrf_short_a present 0.4.0..0.4.0  HOLE in none
+pdgetrf_short_ipiv present 0.4.0..0.4.0  HOLE in none
+pdgetrs_short_a present 0.4.0..0.4.0  HOLE in none
+pdgetrs_short_b present 0.4.0..0.4.0  HOLE in none
+pdgetrs_short_ipiv present 0.4.0..0.4.0  HOLE in none
+pdpotrf_n_exceeds_desc present 0.4.0..0.4.0  HOLE in none
+pdpotrf_short_a present 0.4.0..0.4.0  HOLE in none
+pdpotrs_short_a present 0.4.0..0.4.0  HOLE in none
+pdpotrs_short_b present 0.4.0..0.4.0  HOLE in none
+pdsyev_short_a present 0.4.0..0.4.0  HOLE in none
+pdsyev_short_w present 0.4.0..0.4.0  HOLE in none
+pdsyev_short_work present 0.4.0..0.4.0  HOLE in none
+pdsyev_short_z present 0.4.0..0.4.0  HOLE in none
+exit=0

@@ -1,0 +1,12 @@
+test,outcome,exit_code,seconds
+multi_students_t_oversized_ldc,OK-refused(asserted),0,0.03
+multi_students_t_oversized_ldx,OK-refused(asserted),0,0.03
+multi_students_t_short_c,OK-refused(asserted),0,0.03
+multi_students_t_short_mu,OK-refused(asserted),0,0.03
+multinomial_oversized_ldx,OK-refused(asserted),0,0.03
+multinomial_short_p,OK-refused(asserted),0,0.03
+multinormal_oversized_ldc,OK-refused(asserted),0,0.03
+multinormal_oversized_ldx,OK-refused(asserted),0,0.03
+multinormal_short_c,OK-refused(asserted),0,0.03
+multinormal_short_mu,OK-refused(asserted),0,0.03
+multivariate_controls_control,OK-control,0,0.04

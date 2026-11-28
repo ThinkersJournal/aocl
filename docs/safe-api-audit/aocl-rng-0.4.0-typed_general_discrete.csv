@@ -1,0 +1,7 @@
+test,outcome,exit_code,seconds
+typed_binomial_control,OK-control,0,0.03
+typed_geometric_control,OK-control,0,0.04
+typed_hypergeometric_control,OK-control,0,0.03
+typed_invalid_parameters_are_refused,OK-refused(asserted),0,0.03
+typed_negative_binomial_control,OK-control,0,0.03
+typed_poisson_control,OK-control,0,0.03
