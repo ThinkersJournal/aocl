@@ -190,7 +190,7 @@ macro_rules! family {
             fn plan_dft_misaligned_input() {
                 let p = $plan::dft_1d(8, Direction::Forward).unwrap();
                 let mut o = vec![Z; 8];
-                report(
+                refused(
                     "plan_dft_misaligned_input",
                     at_offset(8, 8, Z, |i| p.execute_dft(i, &mut o)),
                 );
@@ -199,7 +199,7 @@ macro_rules! family {
             fn plan_dft_misaligned_output() {
                 let p = $plan::dft_1d(8, Direction::Forward).unwrap();
                 let mut i = vec![Z; 8];
-                report(
+                refused(
                     "plan_dft_misaligned_output",
                     at_offset(8, 8, Z, |o| p.execute_dft(&mut i, o)),
                 );
@@ -208,7 +208,7 @@ macro_rules! family {
             fn plan_r2c_misaligned_input() {
                 let p = $plan::r2c_1d(64).unwrap();
                 let mut o = vec![Z; 33];
-                report(
+                refused(
                     "plan_r2c_misaligned_input",
                     at_offset(64, 8, 1.0 as $F, |i| p.execute_r2c(i, &mut o)),
                 );
@@ -217,7 +217,7 @@ macro_rules! family {
             fn plan_c2r_misaligned_output() {
                 let p = $plan::c2r_1d(64).unwrap();
                 let mut i = vec![Z; 33];
-                report(
+                refused(
                     "plan_c2r_misaligned_output",
                     at_offset(64, 8, 0.0 as $F, |o| p.execute_c2r(&mut i, o)),
                 );
