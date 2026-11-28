@@ -1,0 +1,41 @@
+0.1.0 guard_lengths (no output) | error: could not compile `aocl-scalapack` (test "guard_lengths") due to 28 previous errors
+0.2.2 guard_lengths aocl-scalapack/guard_lengths: 38 tests in 2s; HOLE=18, OK-accepted=6, OK-control=9, OK-refused=4, OTHER(rc=4294967283)=1 | 
+0.2.4 guard_lengths aocl-scalapack/guard_lengths: 38 tests in 2s; HOLE=18, OK-accepted=6, OK-control=9, OK-refused=4, OTHER(rc=4294967283)=1 | 
+0.2.5 guard_lengths aocl-scalapack/guard_lengths: 38 tests in 3s; HOLE=18, OK-accepted=6, OK-control=9, OK-refused=4, OTHER(rc=4294967283)=1 | 
+0.2.40 guard_lengths aocl-scalapack/guard_lengths: 38 tests in 3s; HOLE=18, OK-accepted=6, OK-control=9, OK-refused=4, OTHER(rc=4294967283)=1 | 
+0.2.43 guard_lengths aocl-scalapack/guard_lengths: 38 tests in 3s; HOLE=18, OK-accepted=6, OK-control=9, OK-refused=4, OTHER(rc=4294967283)=1 | 
+0.2.46 guard_lengths aocl-scalapack/guard_lengths: 38 tests in 3s; HOLE=18, OK-accepted=6, OK-control=9, OK-refused=4, OTHER(rc=4294967283)=1 | 
+0.2.49 guard_lengths aocl-scalapack/guard_lengths: 38 tests in 3s; HOLE=18, OK-accepted=6, OK-control=9, OK-refused=4, OTHER(rc=4294967283)=1 | 
+0.2.54 guard_lengths aocl-scalapack/guard_lengths: 38 tests in 2s; HOLE=18, OK-accepted=6, OK-control=9, OK-refused=4, OTHER(rc=4294967283)=1 | 
+
+aocl-scalapack: function family | versions measured with that family | HOLE in versions
+pdgels_short_a present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49', '0.2.54']
+pdgels_short_b present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49', '0.2.54']
+pdgels_short_work present 0.2.2..0.2.54  HOLE in none
+pdgemm_n_exceeds_desc present 0.2.2..0.2.54  HOLE in none
+pdgemm_short_a present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49', '0.2.54']
+pdgemm_short_b present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49', '0.2.54']
+pdgemm_short_c present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49', '0.2.54']
+pdgeqrf_short_a present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49', '0.2.54']
+pdgeqrf_short_tau present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49', '0.2.54']
+pdgeqrf_short_work present 0.2.2..0.2.54  HOLE in none
+pdgesv_ia_past_desc present 0.2.2..0.2.54  HOLE in none
+pdgesv_n_exceeds_desc present 0.2.2..0.2.54  HOLE in none
+pdgesv_short_a present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49', '0.2.54']
+pdgesv_short_b present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49', '0.2.54']
+pdgesv_short_ipiv present 0.2.2..0.2.54  HOLE in none
+pdgetrf_n_exceeds_desc present 0.2.2..0.2.54  HOLE in none
+pdgetrf_short_a present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49', '0.2.54']
+pdgetrf_short_ipiv present 0.2.2..0.2.54  HOLE in none
+pdgetrs_short_a present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49', '0.2.54']
+pdgetrs_short_b present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49', '0.2.54']
+pdgetrs_short_ipiv present 0.2.2..0.2.54  HOLE in none
+pdpotrf_n_exceeds_desc present 0.2.2..0.2.54  HOLE in none
+pdpotrf_short_a present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49', '0.2.54']
+pdpotrs_short_a present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49', '0.2.54']
+pdpotrs_short_b present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49', '0.2.54']
+pdsyev_short_a present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49', '0.2.54']
+pdsyev_short_w present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49', '0.2.54']
+pdsyev_short_work present 0.2.2..0.2.54  HOLE in none
+pdsyev_short_z present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49', '0.2.54']
+exit=0

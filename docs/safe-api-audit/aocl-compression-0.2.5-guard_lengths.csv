@@ -1,0 +1,11 @@
+test,outcome,exit_code,seconds
+decompress_bzip2_corrupt,HOLE,3221225477,0.06
+decompress_lz4_corrupt,OK-accepted,0,0.05
+decompress_lzma_corrupt,OK-accepted,0,0.06
+decompress_snappy_corrupt,OK-accepted,0,0.05
+decompress_zlib_corrupt,OK-accepted,0,0.06
+decompress_zstd_corrupt,OK-accepted,0,0.07
+lz4_native_decompress_corrupt,OK-accepted,0,0.03
+lz4_native_short_dst,OK-accepted,0,0.05
+roundtrip_control,OK-control,0,0.03
+snappy_native_short_dst,OK-accepted,0,0.04

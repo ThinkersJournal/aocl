@@ -1,0 +1,21 @@
+0.1.0 guard_lengths (no output) |   note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+0.2.2 guard_lengths aocl-compression/guard_lengths: 10 tests in 0s; HOLE=1, OK-accepted=8, OK-control=1 | 
+0.2.4 guard_lengths aocl-compression/guard_lengths: 10 tests in 0s; HOLE=1, OK-accepted=8, OK-control=1 | 
+0.2.5 guard_lengths aocl-compression/guard_lengths: 10 tests in 1s; HOLE=1, OK-accepted=8, OK-control=1 | 
+0.2.40 guard_lengths aocl-compression/guard_lengths: 10 tests in 1s; HOLE=1, OK-accepted=8, OK-control=1 | 
+0.2.43 guard_lengths aocl-compression/guard_lengths: 10 tests in 0s; HOLE=1, OK-accepted=8, OK-control=1 | 
+0.2.46 guard_lengths aocl-compression/guard_lengths: 10 tests in 0s; HOLE=1, OK-accepted=8, OK-control=1 | 
+0.2.49 guard_lengths aocl-compression/guard_lengths: 10 tests in 1s; HOLE=1, OK-accepted=8, OK-control=1 | 
+0.2.54 guard_lengths aocl-compression/guard_lengths: 10 tests in 0s; HOLE=1, OK-accepted=8, OK-control=1 | 
+
+aocl-compression: function family | versions measured with that family | HOLE in versions
+decompress_bzip2_corrupt present 0.2.2..0.2.54  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.40', '0.2.43', '0.2.46', '0.2.49', '0.2.54']
+decompress_lz4_corrupt present 0.2.2..0.2.54  HOLE in none
+decompress_lzma_corrupt present 0.2.2..0.2.54  HOLE in none
+decompress_snappy_corrupt present 0.2.2..0.2.54  HOLE in none
+decompress_zlib_corrupt present 0.2.2..0.2.54  HOLE in none
+decompress_zstd_corrupt present 0.2.2..0.2.54  HOLE in none
+lz4_native_decompress_corrupt present 0.2.2..0.2.54  HOLE in none
+lz4_native_short_dst present 0.2.2..0.2.54  HOLE in none
+snappy_native_short_dst present 0.2.2..0.2.54  HOLE in none
+exit=0
