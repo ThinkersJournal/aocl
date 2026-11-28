@@ -2542,6 +2542,8 @@ pub fn dtrtrs(
     b: &mut [f64],
     ldb: usize,
 ) -> Result<()> {
+    check_matrix("trtrs: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_matrix("trtrs: B", Layout::RowMajor, n, nrhs, ldb, b.len())?;
     let info = unsafe {
         sys::LAPACKE_dtrtrs(
             ROW_MAJOR,
@@ -2571,6 +2573,8 @@ pub fn strtrs(
     b: &mut [f32],
     ldb: usize,
 ) -> Result<()> {
+    check_matrix("trtrs: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_matrix("trtrs: B", Layout::RowMajor, n, nrhs, ldb, b.len())?;
     let info = unsafe {
         sys::LAPACKE_strtrs(
             ROW_MAJOR,
@@ -2596,6 +2600,7 @@ pub fn dtrtri(
     a: &mut [f64],
     lda: usize,
 ) -> Result<()> {
+    check_matrix("trtri: A", Layout::RowMajor, n, n, lda, a.len())?;
     let info = unsafe {
         sys::LAPACKE_dtrtri(
             ROW_MAJOR,
@@ -2617,6 +2622,7 @@ pub fn strtri(
     a: &mut [f32],
     lda: usize,
 ) -> Result<()> {
+    check_matrix("trtri: A", Layout::RowMajor, n, n, lda, a.len())?;
     let info = unsafe {
         sys::LAPACKE_strtri(
             ROW_MAJOR,
@@ -2633,6 +2639,7 @@ pub fn strtri(
 /// Compute the inverse of a positive-definite matrix from its Cholesky
 /// factor (already produced by [`potrf`]). (`f64`)
 pub fn dpotri(uplo: Uplo, n: usize, a: &mut [f64], lda: usize) -> Result<()> {
+    check_matrix("potri: A", Layout::RowMajor, n, n, lda, a.len())?;
     let info = unsafe {
         sys::LAPACKE_dpotri(
             ROW_MAJOR,
@@ -2647,6 +2654,7 @@ pub fn dpotri(uplo: Uplo, n: usize, a: &mut [f64], lda: usize) -> Result<()> {
 
 /// `f32` Cholesky inverse. See [`dpotri`].
 pub fn spotri(uplo: Uplo, n: usize, a: &mut [f32], lda: usize) -> Result<()> {
+    check_matrix("potri: A", Layout::RowMajor, n, n, lda, a.len())?;
     let info = unsafe {
         sys::LAPACKE_spotri(
             ROW_MAJOR,
@@ -2664,6 +2672,8 @@ pub fn spotri(uplo: Uplo, n: usize, a: &mut [f32], lda: usize) -> Result<()> {
 /// Form the explicit `Q` factor from elementary reflectors produced by
 /// [`geqrf`]. `m × n` with `n ≤ m`, `tau` of length `k = min(m, n)`. (`f64`)
 pub fn dorgqr(m: usize, n: usize, k: usize, a: &mut [f64], lda: usize, tau: &[f64]) -> Result<()> {
+    check_matrix("orgqr: A", Layout::RowMajor, m, n, lda, a.len())?;
+    check_vec("orgqr: tau", tau.len(), k)?;
     let info = unsafe {
         sys::LAPACKE_dorgqr(
             ROW_MAJOR,
@@ -2680,6 +2690,8 @@ pub fn dorgqr(m: usize, n: usize, k: usize, a: &mut [f64], lda: usize, tau: &[f6
 
 /// `f32` `Q` formation. See [`dorgqr`].
 pub fn sorgqr(m: usize, n: usize, k: usize, a: &mut [f32], lda: usize, tau: &[f32]) -> Result<()> {
+    check_matrix("orgqr: A", Layout::RowMajor, m, n, lda, a.len())?;
+    check_vec("orgqr: tau", tau.len(), k)?;
     let info = unsafe {
         sys::LAPACKE_sorgqr(
             ROW_MAJOR,
@@ -2703,6 +2715,8 @@ pub fn zungqr(
     lda: usize,
     tau: &[Complex64],
 ) -> Result<()> {
+    check_matrix("ungqr: A", Layout::RowMajor, m, n, lda, a.len())?;
+    check_vec("ungqr: tau", tau.len(), k)?;
     let info = unsafe {
         sys::LAPACKE_zungqr(
             ROW_MAJOR,
@@ -2726,6 +2740,8 @@ pub fn cungqr(
     lda: usize,
     tau: &[Complex32],
 ) -> Result<()> {
+    check_matrix("ungqr: A", Layout::RowMajor, m, n, lda, a.len())?;
+    check_vec("ungqr: tau", tau.len(), k)?;
     let info = unsafe {
         sys::LAPACKE_cungqr(
             ROW_MAJOR,
@@ -3016,6 +3032,9 @@ pub fn dgeqp3(
     jpvt: &mut [Int],
     tau: &mut [f64],
 ) -> Result<()> {
+    check_matrix("geqp3: A", Layout::RowMajor, m, n, lda, a.len())?;
+    check_vec("geqp3: jpvt", jpvt.len(), n)?;
+    check_vec("geqp3: tau", tau.len(), m.min(n))?;
     let info = unsafe {
         sys::LAPACKE_dgeqp3(
             ROW_MAJOR,
@@ -3039,6 +3058,9 @@ pub fn sgeqp3(
     jpvt: &mut [Int],
     tau: &mut [f32],
 ) -> Result<()> {
+    check_matrix("geqp3: A", Layout::RowMajor, m, n, lda, a.len())?;
+    check_vec("geqp3: jpvt", jpvt.len(), n)?;
+    check_vec("geqp3: tau", tau.len(), m.min(n))?;
     let info = unsafe {
         sys::LAPACKE_sgeqp3(
             ROW_MAJOR,
@@ -3062,6 +3084,9 @@ pub fn zgeqp3(
     jpvt: &mut [Int],
     tau: &mut [Complex64],
 ) -> Result<()> {
+    check_matrix("geqp3: A", Layout::RowMajor, m, n, lda, a.len())?;
+    check_vec("geqp3: jpvt", jpvt.len(), n)?;
+    check_vec("geqp3: tau", tau.len(), m.min(n))?;
     let info = unsafe {
         sys::LAPACKE_zgeqp3(
             ROW_MAJOR,
@@ -3085,6 +3110,9 @@ pub fn cgeqp3(
     jpvt: &mut [Int],
     tau: &mut [Complex32],
 ) -> Result<()> {
+    check_matrix("geqp3: A", Layout::RowMajor, m, n, lda, a.len())?;
+    check_vec("geqp3: jpvt", jpvt.len(), n)?;
+    check_vec("geqp3: tau", tau.len(), m.min(n))?;
     let info = unsafe {
         sys::LAPACKE_cgeqp3(
             ROW_MAJOR,
@@ -3111,7 +3139,17 @@ pub fn cgeqp3(
 /// (the chosen triangle, or the whole `m x n` block for a full copy); the padding beyond the block is untouched. The
 /// *unreferenced* triangle of `b` is **unspecified for row-major** (this wrapper): AOCL 6.0.68, like the reference
 /// LAPACKE 3.12.1, copies through a temporary and may overwrite it. Do not rely on it keeping its old values.
+/// # Panics
+///
+/// If a buffer is shorter than the shape and leading dimension require: LAPACKE does not check, and the call would read or write
+/// past the slice (this function returns a plain value, so it cannot report an error).
 pub fn dlacpy(uplo: Uplo, m: usize, n: usize, a: &[f64], lda: usize, b: &mut [f64], ldb: usize) {
+    if let Err(e) = check_matrix("lacpy: A", Layout::RowMajor, m, n, lda, a.len()) {
+        panic!("{e}");
+    }
+    if let Err(e) = check_matrix("lacpy: B", Layout::RowMajor, m, n, ldb, b.len()) {
+        panic!("{e}");
+    }
     unsafe {
         sys::LAPACKE_dlacpy(
             ROW_MAJOR,
@@ -3127,7 +3165,17 @@ pub fn dlacpy(uplo: Uplo, m: usize, n: usize, a: &[f64], lda: usize, b: &mut [f6
 }
 
 /// `f32` matrix copy. See [`dlacpy`].
+/// # Panics
+///
+/// If a buffer is shorter than the shape and leading dimension require: LAPACKE does not check, and the call would read or write
+/// past the slice (this function returns a plain value, so it cannot report an error).
 pub fn slacpy(uplo: Uplo, m: usize, n: usize, a: &[f32], lda: usize, b: &mut [f32], ldb: usize) {
+    if let Err(e) = check_matrix("lacpy: A", Layout::RowMajor, m, n, lda, a.len()) {
+        panic!("{e}");
+    }
+    if let Err(e) = check_matrix("lacpy: B", Layout::RowMajor, m, n, ldb, b.len()) {
+        panic!("{e}");
+    }
     unsafe {
         sys::LAPACKE_slacpy(
             ROW_MAJOR,
@@ -3143,6 +3191,10 @@ pub fn slacpy(uplo: Uplo, m: usize, n: usize, a: &[f32], lda: usize, b: &mut [f3
 }
 
 /// `Complex64` matrix copy. See [`dlacpy`].
+/// # Panics
+///
+/// If a buffer is shorter than the shape and leading dimension require: LAPACKE does not check, and the call would read or write
+/// past the slice (this function returns a plain value, so it cannot report an error).
 pub fn zlacpy(
     uplo: Uplo,
     m: usize,
@@ -3152,6 +3204,12 @@ pub fn zlacpy(
     b: &mut [Complex64],
     ldb: usize,
 ) {
+    if let Err(e) = check_matrix("lacpy: A", Layout::RowMajor, m, n, lda, a.len()) {
+        panic!("{e}");
+    }
+    if let Err(e) = check_matrix("lacpy: B", Layout::RowMajor, m, n, ldb, b.len()) {
+        panic!("{e}");
+    }
     unsafe {
         sys::LAPACKE_zlacpy(
             ROW_MAJOR,
@@ -3167,6 +3225,10 @@ pub fn zlacpy(
 }
 
 /// `Complex32` matrix copy. See [`dlacpy`].
+/// # Panics
+///
+/// If a buffer is shorter than the shape and leading dimension require: LAPACKE does not check, and the call would read or write
+/// past the slice (this function returns a plain value, so it cannot report an error).
 pub fn clacpy(
     uplo: Uplo,
     m: usize,
@@ -3176,6 +3238,12 @@ pub fn clacpy(
     b: &mut [Complex32],
     ldb: usize,
 ) {
+    if let Err(e) = check_matrix("lacpy: A", Layout::RowMajor, m, n, lda, a.len()) {
+        panic!("{e}");
+    }
+    if let Err(e) = check_matrix("lacpy: B", Layout::RowMajor, m, n, ldb, b.len()) {
+        panic!("{e}");
+    }
     unsafe {
         sys::LAPACKE_clacpy(
             ROW_MAJOR,
@@ -3191,7 +3259,14 @@ pub fn clacpy(
 }
 
 /// Compute a matrix norm (`Norm::Max`, `One`, `Inf`, `Frobenius`). (`f64`)
+/// # Panics
+///
+/// If a buffer is shorter than the shape and leading dimension require: LAPACKE does not check, and the call would read or write
+/// past the slice (this function returns a plain value, so it cannot report an error).
 pub fn dlange(norm: Norm, m: usize, n: usize, a: &[f64], lda: usize) -> f64 {
+    if let Err(e) = check_matrix("lange: A", Layout::RowMajor, m, n, lda, a.len()) {
+        panic!("{e}");
+    }
     unsafe {
         sys::LAPACKE_dlange(
             ROW_MAJOR,
@@ -3205,7 +3280,14 @@ pub fn dlange(norm: Norm, m: usize, n: usize, a: &[f64], lda: usize) -> f64 {
 }
 
 /// `f32` matrix norm. See [`dlange`].
+/// # Panics
+///
+/// If a buffer is shorter than the shape and leading dimension require: LAPACKE does not check, and the call would read or write
+/// past the slice (this function returns a plain value, so it cannot report an error).
 pub fn slange(norm: Norm, m: usize, n: usize, a: &[f32], lda: usize) -> f32 {
+    if let Err(e) = check_matrix("lange: A", Layout::RowMajor, m, n, lda, a.len()) {
+        panic!("{e}");
+    }
     unsafe {
         sys::LAPACKE_slange(
             ROW_MAJOR,
@@ -3219,7 +3301,14 @@ pub fn slange(norm: Norm, m: usize, n: usize, a: &[f32], lda: usize) -> f32 {
 }
 
 /// `Complex64` matrix norm (returns the underlying real). See [`dlange`].
+/// # Panics
+///
+/// If a buffer is shorter than the shape and leading dimension require: LAPACKE does not check, and the call would read or write
+/// past the slice (this function returns a plain value, so it cannot report an error).
 pub fn zlange(norm: Norm, m: usize, n: usize, a: &[Complex64], lda: usize) -> f64 {
+    if let Err(e) = check_matrix("lange: A", Layout::RowMajor, m, n, lda, a.len()) {
+        panic!("{e}");
+    }
     unsafe {
         sys::LAPACKE_zlange(
             ROW_MAJOR,
@@ -3233,7 +3322,14 @@ pub fn zlange(norm: Norm, m: usize, n: usize, a: &[Complex64], lda: usize) -> f6
 }
 
 /// `Complex32` matrix norm (returns the underlying real). See [`dlange`].
+/// # Panics
+///
+/// If a buffer is shorter than the shape and leading dimension require: LAPACKE does not check, and the call would read or write
+/// past the slice (this function returns a plain value, so it cannot report an error).
 pub fn clange(norm: Norm, m: usize, n: usize, a: &[Complex32], lda: usize) -> f32 {
+    if let Err(e) = check_matrix("lange: A", Layout::RowMajor, m, n, lda, a.len()) {
+        panic!("{e}");
+    }
     unsafe {
         sys::LAPACKE_clange(
             ROW_MAJOR,
@@ -3993,6 +4089,8 @@ pub fn sgees(
 
 /// Bunch-Kaufman factorisation `A = L·D·Lᵀ` for symmetric indefinite. (`f64`)
 pub fn dsytrf(uplo: Uplo, n: usize, a: &mut [f64], lda: usize, ipiv: &mut [Int]) -> Result<()> {
+    check_matrix("sytrf: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_vec("sytrf: ipiv", ipiv.len(), n)?;
     lapack_call!(
         "lapack",
         LAPACKE_dsytrf,
@@ -4006,6 +4104,8 @@ pub fn dsytrf(uplo: Uplo, n: usize, a: &mut [f64], lda: usize, ipiv: &mut [Int])
 }
 /// `f32` Bunch-Kaufman factorisation. See [`dsytrf`].
 pub fn ssytrf(uplo: Uplo, n: usize, a: &mut [f32], lda: usize, ipiv: &mut [Int]) -> Result<()> {
+    check_matrix("sytrf: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_vec("sytrf: ipiv", ipiv.len(), n)?;
     lapack_call!(
         "lapack",
         LAPACKE_ssytrf,
@@ -4025,6 +4125,8 @@ pub fn zsytrf(
     lda: usize,
     ipiv: &mut [Int],
 ) -> Result<()> {
+    check_matrix("sytrf: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_vec("sytrf: ipiv", ipiv.len(), n)?;
     lapack_call!(
         "lapack",
         LAPACKE_zsytrf,
@@ -4044,6 +4146,8 @@ pub fn csytrf(
     lda: usize,
     ipiv: &mut [Int],
 ) -> Result<()> {
+    check_matrix("sytrf: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_vec("sytrf: ipiv", ipiv.len(), n)?;
     lapack_call!(
         "lapack",
         LAPACKE_csytrf,
@@ -4067,6 +4171,9 @@ pub fn dsytrs(
     b: &mut [f64],
     ldb: usize,
 ) -> Result<()> {
+    check_matrix("sytrs: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_matrix("sytrs: B", Layout::RowMajor, n, nrhs, ldb, b.len())?;
+    check_vec("sytrs: ipiv", ipiv.len(), n)?;
     lapack_call!(
         "lapack",
         LAPACKE_dsytrs,
@@ -4092,6 +4199,9 @@ pub fn ssytrs(
     b: &mut [f32],
     ldb: usize,
 ) -> Result<()> {
+    check_matrix("sytrs: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_matrix("sytrs: B", Layout::RowMajor, n, nrhs, ldb, b.len())?;
+    check_vec("sytrs: ipiv", ipiv.len(), n)?;
     lapack_call!(
         "lapack",
         LAPACKE_ssytrs,
@@ -4117,6 +4227,9 @@ pub fn zsytrs(
     b: &mut [Complex64],
     ldb: usize,
 ) -> Result<()> {
+    check_matrix("sytrs: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_matrix("sytrs: B", Layout::RowMajor, n, nrhs, ldb, b.len())?;
+    check_vec("sytrs: ipiv", ipiv.len(), n)?;
     lapack_call!(
         "lapack",
         LAPACKE_zsytrs,
@@ -4142,6 +4255,9 @@ pub fn csytrs(
     b: &mut [Complex32],
     ldb: usize,
 ) -> Result<()> {
+    check_matrix("sytrs: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_matrix("sytrs: B", Layout::RowMajor, n, nrhs, ldb, b.len())?;
+    check_vec("sytrs: ipiv", ipiv.len(), n)?;
     lapack_call!(
         "lapack",
         LAPACKE_csytrs,
@@ -4159,6 +4275,8 @@ pub fn csytrs(
 
 /// Inverse from [`dsytrf`].
 pub fn dsytri(uplo: Uplo, n: usize, a: &mut [f64], lda: usize, ipiv: &[Int]) -> Result<()> {
+    check_matrix("sytri: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_vec("sytri: ipiv", ipiv.len(), n)?;
     lapack_call!(
         "lapack",
         LAPACKE_dsytri,
@@ -4172,6 +4290,8 @@ pub fn dsytri(uplo: Uplo, n: usize, a: &mut [f64], lda: usize, ipiv: &[Int]) -> 
 }
 /// `f32` inverse from [`ssytrf`].
 pub fn ssytri(uplo: Uplo, n: usize, a: &mut [f32], lda: usize, ipiv: &[Int]) -> Result<()> {
+    check_matrix("sytri: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_vec("sytri: ipiv", ipiv.len(), n)?;
     lapack_call!(
         "lapack",
         LAPACKE_ssytri,
@@ -4185,6 +4305,8 @@ pub fn ssytri(uplo: Uplo, n: usize, a: &mut [f32], lda: usize, ipiv: &[Int]) -> 
 }
 /// `Complex64` inverse from [`zsytrf`].
 pub fn zsytri(uplo: Uplo, n: usize, a: &mut [Complex64], lda: usize, ipiv: &[Int]) -> Result<()> {
+    check_matrix("sytri: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_vec("sytri: ipiv", ipiv.len(), n)?;
     lapack_call!(
         "lapack",
         LAPACKE_zsytri,
@@ -4198,6 +4320,8 @@ pub fn zsytri(uplo: Uplo, n: usize, a: &mut [Complex64], lda: usize, ipiv: &[Int
 }
 /// `Complex32` inverse from [`csytrf`].
 pub fn csytri(uplo: Uplo, n: usize, a: &mut [Complex32], lda: usize, ipiv: &[Int]) -> Result<()> {
+    check_matrix("sytri: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_vec("sytri: ipiv", ipiv.len(), n)?;
     lapack_call!(
         "lapack",
         LAPACKE_csytri,
@@ -4220,6 +4344,8 @@ pub fn zhetrf(
     lda: usize,
     ipiv: &mut [Int],
 ) -> Result<()> {
+    check_matrix("hetrf: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_vec("hetrf: ipiv", ipiv.len(), n)?;
     lapack_call!(
         "lapack",
         LAPACKE_zhetrf,
@@ -4239,6 +4365,8 @@ pub fn chetrf(
     lda: usize,
     ipiv: &mut [Int],
 ) -> Result<()> {
+    check_matrix("hetrf: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_vec("hetrf: ipiv", ipiv.len(), n)?;
     lapack_call!(
         "lapack",
         LAPACKE_chetrf,
@@ -4261,6 +4389,9 @@ pub fn zhetrs(
     b: &mut [Complex64],
     ldb: usize,
 ) -> Result<()> {
+    check_matrix("hetrs: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_matrix("hetrs: B", Layout::RowMajor, n, nrhs, ldb, b.len())?;
+    check_vec("hetrs: ipiv", ipiv.len(), n)?;
     lapack_call!(
         "lapack",
         LAPACKE_zhetrs,
@@ -4286,6 +4417,9 @@ pub fn chetrs(
     b: &mut [Complex32],
     ldb: usize,
 ) -> Result<()> {
+    check_matrix("hetrs: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_matrix("hetrs: B", Layout::RowMajor, n, nrhs, ldb, b.len())?;
+    check_vec("hetrs: ipiv", ipiv.len(), n)?;
     lapack_call!(
         "lapack",
         LAPACKE_chetrs,
@@ -4302,6 +4436,8 @@ pub fn chetrs(
 }
 /// `Complex64` inverse from [`zhetrf`].
 pub fn zhetri(uplo: Uplo, n: usize, a: &mut [Complex64], lda: usize, ipiv: &[Int]) -> Result<()> {
+    check_matrix("hetri: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_vec("hetri: ipiv", ipiv.len(), n)?;
     lapack_call!(
         "lapack",
         LAPACKE_zhetri,
@@ -4315,6 +4451,8 @@ pub fn zhetri(uplo: Uplo, n: usize, a: &mut [Complex64], lda: usize, ipiv: &[Int
 }
 /// `Complex32` inverse from [`chetrf`].
 pub fn chetri(uplo: Uplo, n: usize, a: &mut [Complex32], lda: usize, ipiv: &[Int]) -> Result<()> {
+    check_matrix("hetri: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_vec("hetri: ipiv", ipiv.len(), n)?;
     lapack_call!(
         "lapack",
         LAPACKE_chetri,
@@ -4341,6 +4479,9 @@ pub fn dgelss(
     s: &mut [f64],
     rcond: f64,
 ) -> Result<usize> {
+    check_matrix("gelss: A", Layout::RowMajor, m, n, lda, a.len())?;
+    check_matrix("gelss: B", Layout::RowMajor, m.max(n), nrhs, ldb, b.len())?;
+    check_vec("gelss: s", s.len(), m.min(n))?;
     let mut rank: Int = 0;
     let info = unsafe {
         sys::LAPACKE_dgelss(
@@ -4372,6 +4513,9 @@ pub fn sgelss(
     s: &mut [f32],
     rcond: f32,
 ) -> Result<usize> {
+    check_matrix("gelss: A", Layout::RowMajor, m, n, lda, a.len())?;
+    check_matrix("gelss: B", Layout::RowMajor, m.max(n), nrhs, ldb, b.len())?;
+    check_vec("gelss: s", s.len(), m.min(n))?;
     let mut rank: Int = 0;
     let info = unsafe {
         sys::LAPACKE_sgelss(
@@ -4403,6 +4547,9 @@ pub fn zgelss(
     s: &mut [f64],
     rcond: f64,
 ) -> Result<usize> {
+    check_matrix("gelss: A", Layout::RowMajor, m, n, lda, a.len())?;
+    check_matrix("gelss: B", Layout::RowMajor, m.max(n), nrhs, ldb, b.len())?;
+    check_vec("gelss: s", s.len(), m.min(n))?;
     let mut rank: Int = 0;
     let info = unsafe {
         sys::LAPACKE_zgelss(
@@ -4434,6 +4581,9 @@ pub fn cgelss(
     s: &mut [f32],
     rcond: f32,
 ) -> Result<usize> {
+    check_matrix("gelss: A", Layout::RowMajor, m, n, lda, a.len())?;
+    check_matrix("gelss: B", Layout::RowMajor, m.max(n), nrhs, ldb, b.len())?;
+    check_vec("gelss: s", s.len(), m.min(n))?;
     let mut rank: Int = 0;
     let info = unsafe {
         sys::LAPACKE_cgelss(
@@ -4783,6 +4933,8 @@ pub fn dgehrd(
     lda: usize,
     tau: &mut [f64],
 ) -> Result<()> {
+    check_matrix("gehrd: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_vec("gehrd: tau", tau.len(), n.saturating_sub(1))?;
     lapack_call!(
         "lapack",
         LAPACKE_dgehrd,
@@ -4804,6 +4956,8 @@ pub fn sgehrd(
     lda: usize,
     tau: &mut [f32],
 ) -> Result<()> {
+    check_matrix("gehrd: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_vec("gehrd: tau", tau.len(), n.saturating_sub(1))?;
     lapack_call!(
         "lapack",
         LAPACKE_sgehrd,
@@ -4825,6 +4979,8 @@ pub fn zgehrd(
     lda: usize,
     tau: &mut [Complex64],
 ) -> Result<()> {
+    check_matrix("gehrd: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_vec("gehrd: tau", tau.len(), n.saturating_sub(1))?;
     lapack_call!(
         "lapack",
         LAPACKE_zgehrd,
@@ -4846,6 +5002,8 @@ pub fn cgehrd(
     lda: usize,
     tau: &mut [Complex32],
 ) -> Result<()> {
+    check_matrix("gehrd: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_vec("gehrd: tau", tau.len(), n.saturating_sub(1))?;
     lapack_call!(
         "lapack",
         LAPACKE_cgehrd,
@@ -5143,6 +5301,7 @@ pub fn cungbr(
 /// `anorm` is the input matrix's `Norm::One` or `Norm::Inf` value
 /// (compute via [`dlange`]). (`f64`)
 pub fn dgecon(norm: Norm, n: usize, a: &[f64], lda: usize, anorm: f64) -> Result<f64> {
+    check_matrix("gecon: A", Layout::RowMajor, n, n, lda, a.len())?;
     let mut rcond: f64 = 0.0;
     let info = unsafe {
         sys::LAPACKE_dgecon(
@@ -5160,6 +5319,7 @@ pub fn dgecon(norm: Norm, n: usize, a: &[f64], lda: usize, anorm: f64) -> Result
 }
 /// `f32` general condition number. See [`dgecon`].
 pub fn sgecon(norm: Norm, n: usize, a: &[f32], lda: usize, anorm: f32) -> Result<f32> {
+    check_matrix("gecon: A", Layout::RowMajor, n, n, lda, a.len())?;
     let mut rcond: f32 = 0.0;
     let info = unsafe {
         sys::LAPACKE_sgecon(
@@ -5177,6 +5337,7 @@ pub fn sgecon(norm: Norm, n: usize, a: &[f32], lda: usize, anorm: f32) -> Result
 }
 /// `Complex64` general condition number. See [`dgecon`].
 pub fn zgecon(norm: Norm, n: usize, a: &[Complex64], lda: usize, anorm: f64) -> Result<f64> {
+    check_matrix("gecon: A", Layout::RowMajor, n, n, lda, a.len())?;
     let mut rcond: f64 = 0.0;
     let info = unsafe {
         sys::LAPACKE_zgecon(
@@ -5194,6 +5355,7 @@ pub fn zgecon(norm: Norm, n: usize, a: &[Complex64], lda: usize, anorm: f64) -> 
 }
 /// `Complex32` general condition number. See [`dgecon`].
 pub fn cgecon(norm: Norm, n: usize, a: &[Complex32], lda: usize, anorm: f32) -> Result<f32> {
+    check_matrix("gecon: A", Layout::RowMajor, n, n, lda, a.len())?;
     let mut rcond: f32 = 0.0;
     let info = unsafe {
         sys::LAPACKE_cgecon(
@@ -5212,6 +5374,7 @@ pub fn cgecon(norm: Norm, n: usize, a: &[Complex32], lda: usize, anorm: f32) -> 
 
 /// Reciprocal condition number of a SPD matrix (after [`potrf`]). (`f64`)
 pub fn dpocon(uplo: Uplo, n: usize, a: &[f64], lda: usize, anorm: f64) -> Result<f64> {
+    check_matrix("pocon: A", Layout::RowMajor, n, n, lda, a.len())?;
     let mut rcond: f64 = 0.0;
     let info = unsafe {
         sys::LAPACKE_dpocon(
@@ -5229,6 +5392,7 @@ pub fn dpocon(uplo: Uplo, n: usize, a: &[f64], lda: usize, anorm: f64) -> Result
 }
 /// `f32` SPD condition number. See [`dpocon`].
 pub fn spocon(uplo: Uplo, n: usize, a: &[f32], lda: usize, anorm: f32) -> Result<f32> {
+    check_matrix("pocon: A", Layout::RowMajor, n, n, lda, a.len())?;
     let mut rcond: f32 = 0.0;
     let info = unsafe {
         sys::LAPACKE_spocon(
@@ -5246,6 +5410,7 @@ pub fn spocon(uplo: Uplo, n: usize, a: &[f32], lda: usize, anorm: f32) -> Result
 }
 /// `Complex64` SPD/Hermitian condition number. See [`dpocon`].
 pub fn zpocon(uplo: Uplo, n: usize, a: &[Complex64], lda: usize, anorm: f64) -> Result<f64> {
+    check_matrix("pocon: A", Layout::RowMajor, n, n, lda, a.len())?;
     let mut rcond: f64 = 0.0;
     let info = unsafe {
         sys::LAPACKE_zpocon(
@@ -5263,6 +5428,7 @@ pub fn zpocon(uplo: Uplo, n: usize, a: &[Complex64], lda: usize, anorm: f64) -> 
 }
 /// `Complex32` SPD/Hermitian condition number. See [`dpocon`].
 pub fn cpocon(uplo: Uplo, n: usize, a: &[Complex32], lda: usize, anorm: f32) -> Result<f32> {
+    check_matrix("pocon: A", Layout::RowMajor, n, n, lda, a.len())?;
     let mut rcond: f32 = 0.0;
     let info = unsafe {
         sys::LAPACKE_cpocon(
