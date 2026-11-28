@@ -70,6 +70,45 @@ rule("{p}gelss", "rc", [S("a", "M*N", 1, "id"), S("b", "N*R"), S("s", "M", 1, "o
 rule("{p}orgqr", "r", [S("a", "((M-1)*N+M)", 1, "id"), S("tau", "M", 0)], "{p}orgqr(M, M, M, {a}, N, {tau})", typed=True)
 rule("{p}ungqr", "c", [S("a", "((M-1)*N+M)", 1, "id"), S("tau", "M", 0)], "{p}ungqr(M, M, M, {a}, N, {tau})", typed=True)
 
+
+BATCH2_FROM = len(RULES)
+# ---- eigen / SVD / orthogonal-factor families (second batch) ----
+RL = lambda a, size, mut=1, init="one": S(a, size, mut, init, "real")
+rule("{p}geev", "r", [S("a", "N*N", 1, "id"), S("wr", "N"), S("wi", "N"), S("vl", "N*N"), S("vr", "N*N")],
+     "{p}geev(true, true, N, {a}, N, {wr}, {wi}, {vl}, N, {vr}, N)", typed=True)
+rule("{p}geev", "c", [S("a", "N*N", 1, "id"), S("w", "N"), S("vl", "N*N"), S("vr", "N*N")],
+     "{p}geev(true, true, N, {a}, N, {w}, {vl}, N, {vr}, N)", typed=True)
+rule("{p}syevd", "r", [S("a", "N*N", 1, "id"), S("w", "N")], "{p}syevd(true, Uplo::Upper, N, {a}, N, {w})", typed=True)
+rule("{p}heevd", "c", [S("a", "N*N", 1, "id"), RL("w", "N")], "{p}heevd(true, Uplo::Upper, N, {a}, N, {w})", typed=True)
+rule("{p}syevr", "r", [S("a", "N*N", 1, "id"), S("w", "N"), S("z", "N*N"), S("isuppz", "(2*N)", 1, "piv", "i32")],
+     "{p}syevr(true, Range::All, Uplo::Upper, N, {a}, N, ZERO_RL, ZERO_RL, 1, N as i32, ZERO_RL, {w}, {z}, N, {isuppz})", typed=True)
+rule("{p}heevr", "c", [S("a", "N*N", 1, "id"), RL("w", "N"), S("z", "N*N"), S("isuppz", "(2*N)", 1, "piv", "i32")],
+     "{p}heevr(true, Range::All, Uplo::Upper, N, {a}, N, ZERO_RL, ZERO_RL, 1, N as i32, ZERO_RL, {w}, {z}, N, {isuppz})", typed=True)
+rule("{p}sygv", "r", [S("a", "N*N", 1, "id"), S("b", "N*N", 1, "id"), S("w", "N")], "{p}sygv(1, true, Uplo::Upper, N, {a}, N, {b}, N, {w})", typed=True)
+rule("{p}hegv", "c", [S("a", "N*N", 1, "id"), S("b", "N*N", 1, "id"), RL("w", "N")], "{p}hegv(1, true, Uplo::Upper, N, {a}, N, {b}, N, {w})", typed=True)
+rule("{p}gebrd", "rc", [S("a", "M*N", 1, "id"), RL("d", "M"), RL("e", "(M-1)"), S("tauq", "M"), S("taup", "M")],
+     "{p}gebrd(M, N, {a}, N, {d}, {e}, {tauq}, {taup})", typed=True)
+rule("{p}larfg", "rc", [S("x", "(N-1)")], "{p}larfg(N, &mut alpha_v, {x}, 1)", typed=True)
+rule("{p}orgtr", "r", [S("a", "N*N", 1, "id"), S("tau", "(N-1)", 0)], "{p}orgtr(Uplo::Upper, N, {a}, N, {tau})", typed=True)
+rule("{p}ungtr", "c", [S("a", "N*N", 1, "id"), S("tau", "(N-1)", 0)], "{p}ungtr(Uplo::Upper, N, {a}, N, {tau})", typed=True)
+rule("{p}orglq", "r", [S("a", "M*N", 1, "id"), S("tau", "M", 0)], "{p}orglq(M, N, M, {a}, N, {tau})", typed=True)
+rule("{p}unglq", "c", [S("a", "M*N", 1, "id"), S("tau", "M", 0)], "{p}unglq(M, N, M, {a}, N, {tau})", typed=True)
+rule("{p}ormqr", "r", [S("a", "M*M", 0, "id"), S("tau", "M", 0), S("c", "M*N")], "{p}ormqr(true, Trans::No, M, N, M, {a}, M, {tau}, {c}, N)", typed=True)
+rule("{p}unmqr", "c", [S("a", "M*M", 0, "id"), S("tau", "M", 0), S("c", "M*N")], "{p}unmqr(true, Trans::No, M, N, M, {a}, M, {tau}, {c}, N)", typed=True)
+rule("{p}ormlq", "r", [S("a", "M*M", 0, "id"), S("tau", "M", 0), S("c", "M*N")], "{p}ormlq(true, Trans::No, M, N, M, {a}, M, {tau}, {c}, N)", typed=True)
+rule("{p}unmlq", "c", [S("a", "M*M", 0, "id"), S("tau", "M", 0), S("c", "M*N")], "{p}unmlq(true, Trans::No, M, N, M, {a}, M, {tau}, {c}, N)", typed=True)
+rule("gesvd", "rc", [S("a", "M*N", 1, "id"), RL("s", "M"), S("u", "M*M"), S("vt", "N*N"), RL("superb", "(M-1)")],
+     "gesvd::<T>(SvdJob::All, SvdJob::All, M, N, {a}, {s}, {u}, M, {vt}, N, {superb})")
+rule("gesdd", "rc", [S("a", "M*N", 1, "id"), RL("s", "M"), S("u", "M*M"), S("vt", "N*N")],
+     "gesdd::<T>(SvdJob::All, M, N, {a}, {s}, {u}, M, {vt}, N)")
+rule("gelsd", "rc", [S("a", "M*N", 1, "id"), S("b", "N*R", 1, "one", None, True), RL("s", "M")], "gelsd::<T>(M, N, {a}, {b}, {s}, ONE_RL).map(|_| ())")
+rule("gelsy", "rc", [S("a", "M*N", 1, "id"), S("b", "N*R", 1, "one", None, True), S("jpvt", "N", 1, "piv", "i32")], "gelsy::<T>(M, N, {a}, {b}, {jpvt}, ONE_RL).map(|_| ())")
+rule("{p}gees", "r", [S("a", "N*N", 1, "id"), S("wr", "N"), S("wi", "N"), S("vs", "N*N")], "{p}gees(true, N, {a}, N, {wr}, {wi}, {vs}, N)", typed=True)
+rule("{p}ggev", "r", [S("a", "N*N", 1, "id"), S("b", "N*N", 1, "id"), S("alphar", "N"), S("alphai", "N"), S("beta", "N"), S("vl", "N*N"), S("vr", "N*N")],
+     "{p}ggev(true, true, N, {a}, N, {b}, N, {alphar}, {alphai}, {beta}, {vl}, N, {vr}, N)", typed=True)
+rule("{p}ggev", "c", [S("a", "N*N", 1, "id"), S("b", "N*N", 1, "id"), S("alpha", "N"), S("beta", "N"), S("vl", "N*N"), S("vr", "N*N")],
+     "{p}ggev(true, true, N, {a}, N, {b}, N, {alpha}, {beta}, {vl}, N, {vr}, N)", typed=True)
+
 KIND = {
     "f64": ("f64", "d", "1.0", "0.0"), "f32": ("f32", "s", "1.0f32", "0.0f32"),
     "c64": ("Complex64", "z", "Complex64::new(1.0, 0.0)", "Complex64::new(0.0, 0.0)"),
@@ -120,7 +159,13 @@ fn report<T: core::fmt::Debug>(name: &str, r: core::result::Result<T, aocl_error
 }
 """)
     count = 0
-    for name, kinds, slices, call, variants, typed in RULES:
+    batch2 = "--batch2" in sys.argv
+    bases = set(sys.argv[sys.argv.index("--bases") + 1].split(",")) if "--bases" in sys.argv else None
+    for ridx, (name, kinds, slices, call, variants, typed) in enumerate(RULES):
+        if batch2 and ridx < BATCH2_FROM:
+            continue
+        if bases is not None and name.replace("{p}", "") not in bases:
+            continue
         if only and name.replace("{p}", "") != only and name != only:
             continue
         if fns is not None and not any(name.replace("{p}", pre) in fns for pre in "dszc"):
@@ -153,7 +198,7 @@ fn report<T: core::fmt::Debug>(name: &str, r: core::result::Result<T, aocl_error
                     return f"|_| {one}"
 
                 def call_with(short):
-                    c = call.replace("{p}", p).replace("::<T>", f"::<{t}>").replace("ONE_RL", one_rl)
+                    c = call.replace("{p}", p).replace("::<T>", f"::<{t}>").replace("ONE_RL", one_rl).replace("ZERO_RL", "0.0" if kind in ("f64", "c64") else "0.0f32")
                     for a, size, mut, init, ty, _d in slices:
                         c = c.replace("{" + a + "}", a if a == short else ("&mut " if mut else "&") + "v_" + a)
                     if c.startswith("NR:"):
@@ -163,7 +208,7 @@ fn report<T: core::fmt::Debug>(name: &str, r: core::result::Result<T, aocl_error
                             c = "{ " + c[3:] + "; Ok::<(), aocl_error::Error>(()) }"
                     return c
 
-                lets = lambda skip: "".join(
+                lets = lambda skip: (f"let mut alpha_v = {one}; " if "alpha_v" in call else "") + "".join(
                     f"let {'mut ' if s[2] else ''}v_{s[0]}: Vec<{ty_of(s)}> = (0..({s[1]})).map({initexpr(s, 1)}).collect(); " for s in slices if s[0] != skip)
                 ctl = (f'assert!(r.is_ok(), "{tag}_control: {{:?}}", r.as_ref().err());' if assert_mode else f'report("{tag}_control", r.map(|_| ()));')
                 w("#[test]" + NL + f"fn {tag}_control() {{ {lets(None)}let r = {call_with(None)}; {ctl} }}")
