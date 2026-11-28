@@ -1,0 +1,13 @@
+test,outcome,exit_code,seconds
+blk_bci_negative,OK-refused(asserted),0,0.38
+blk_bci_past_x,OK-refused(asserted),0,0.40
+blk_brp_decreasing,OK-refused(asserted),0,0.22
+blk_brp_past_nnz,OK-refused(asserted),0,1.19
+blk_control,OK-control,0,0.20
+blk_short_bci,OK-refused(asserted),0,0.76
+blk_short_brp,OK-refused(asserted),0,0.35
+blk_short_bv,OK-refused(asserted),0,0.24
+blk_short_masks,OK-refused(asserted),0,0.21
+blk_short_x,OK-refused(asserted),0,0.22
+blk_short_y,OK-refused(asserted),0,0.21
+blk_valid_shapes_are_accepted_and_correct,OK-refused(asserted),0,0.25
