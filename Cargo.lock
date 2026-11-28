@@ -158,8 +158,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "aocl-openrng"
+version = "0.2.37"
+dependencies = [
+ "aocl-error",
+ "aocl-openrng-sys",
+]
+
+[[package]]
 name = "aocl-openrng-sys"
-version = "0.2.19"
+version = "0.2.37"
 
 [[package]]
 name = "aocl-rng"

@@ -28,6 +28,7 @@ members = [
     "crates/aocl-math",
     "crates/aocl-sparse",
     "crates/aocl-rng",
+    "crates/aocl-openrng",
     "crates/aocl-securerng",
     "crates/aocl-utils",
     "crates/aocl-compression",

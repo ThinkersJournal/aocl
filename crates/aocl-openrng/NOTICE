@@ -1,0 +1,11 @@
+NOTICE for aocl-openrng
+
+This crate is a safe wrapper written for this repository (MIT OR Apache-2.0, see Cargo `license`). It contains NO text or code of
+AMD's or Arm's OpenRNG. It calls the library through `aocl-openrng-sys`, whose declarations are generated from the public header
+`include/openrng.h` of https://github.com/amd/openrng (tag 6.0.0), Copyright 2024-2026 Arm Limited and/or its affiliates and
+Copyright (c) 2026 Advanced Micro Devices, Inc., licensed MIT OR Apache-2.0 WITH LLVM-exception. The licence texts and the full
+provenance statement are in `aocl-openrng-sys` (its `NOTICE`, `LICENSE-AMD-OPENRNG`, `LICENSE-ARM-OPENRNG`).
+
+The Philox4x32-10 known answer used in the tests is the published Random123 vector (github.com/DEShawResearch/random123, kat_vectors).
+AOCL-OpenRNG is not shipped: this crate links a library the user has built or installed. The AOCL and AMD names are trademarks of
+Advanced Micro Devices, Inc.; this project is not affiliated with or endorsed by AMD or Arm.

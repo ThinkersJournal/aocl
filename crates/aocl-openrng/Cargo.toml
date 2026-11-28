@@ -1,0 +1,29 @@
+[package]
+name = "aocl-openrng"
+description = "Safe Rust wrappers for AOCL-OpenRNG (AMD's fork of Arm's OpenRNG; VSL-compatible RNG API)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+readme = "README.md"
+build = "build.rs"
+# `publish = false` while its `-sys` crate is unpublished (the PM reads and decides); `cargo publish` must refuse.
+publish = false
+categories = ["api-bindings", "science"]
+keywords = ["aocl", "amd", "openrng", "rng", "random"]
+
+[dependencies]
+aocl-openrng-sys = { version = "0.2", path = "../aocl-openrng-sys" }
+aocl-error = { version = "0.2", path = "../aocl-error" }
+
+[features]
+default = []
+# MUST match the library build (see aocl-openrng-sys): `openrng_int_t` is 4 bytes in the LP64 build, 8 in the ILP64 build.
+ilp64 = ["aocl-openrng-sys/ilp64"]
+static-link = ["aocl-openrng-sys/static-link"]
+
+[package.metadata.docs.rs]
+default-target = "x86_64-unknown-linux-gnu"
+rustdoc-args = ["--cfg", "docsrs"]
