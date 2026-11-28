@@ -73,9 +73,9 @@ def main():
                     for r in audit.parse(open(os.path.join(root, f), encoding="utf8", errors="replace").read(), f):
                         names.add(r["fn"].split("::")[-1])
         os.makedirs(os.path.join(d, "tests"), exist_ok=True)
-        if gen in ("sparse", "fft"):
-            targets = ["vector_lengths", "dense_lengths", "raw_array_lengths", "remaining_lengths"] if gen == "sparse" else ["guard_lengths"]
-            repo_tests = os.path.join(os.path.dirname(HERE), "crates", "aocl-sparse", "tests") if gen == "sparse" else os.environ.get("FFT_TESTS_DIR", "C:/Projects/aocl-wt-fft/crates/aocl-fft/tests")
+        if gen in ("sparse", "fft", "crypto", "rng"):
+            targets = ["vector_lengths", "dense_lengths", "raw_array_lengths", "remaining_lengths"] if gen == "sparse" else ["guard_lengths"]  # crypto / rng: hand-written guard_lengths.rs
+            repo_tests = os.path.join(os.path.dirname(HERE), "crates", "aocl-sparse", "tests") if gen == "sparse" else {"sparse": None, "fft": os.environ.get("FFT_TESTS_DIR", "C:/Projects/aocl-wt-fft/crates/aocl-fft/tests"), "crypto": os.environ.get("CRYPTO_TESTS_DIR", "C:/Projects/aocl-wt-audit2/crates/aocl-crypto/tests"), "rng": os.environ.get("RNG_TESTS_DIR", "C:/Projects/aocl-wt-rng/crates/aocl-rng/tests")}[gen]
             man = os.path.join(d, "Cargo.toml")
             t = open(man, encoding="utf8").read()
             for tg in targets:
@@ -112,6 +112,11 @@ def main():
         if not os.path.exists(p):
             continue
         for row in csv.DictReader(open(p, encoding="utf8")):
+            if gen in ("crypto", "rng"):
+                if "control" in row["test"]:
+                    continue
+                fam.setdefault(row["test"], {}).setdefault(ver, []).append(row["outcome"])
+                continue
             if gen == "fft":
                 m = re.match(r"(f64s|f32s)::(.+)", row["test"])
                 if not m or "control" in row["test"]:

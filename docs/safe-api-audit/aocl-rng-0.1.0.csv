@@ -1,0 +1,12 @@
+test,outcome,exit_code,seconds
+multi_students_t_oversized_ldc,HOLE,3221225477,0.03
+multi_students_t_oversized_ldx,HOLE,3221225477,0.03
+multi_students_t_short_c,HOLE,3221225477,0.03
+multi_students_t_short_mu,HOLE,3221225477,0.03
+multinomial_oversized_ldx,HOLE,3221225477,0.03
+multinomial_short_p,HOLE,3221225477,0.03
+multinormal_oversized_ldc,HOLE,3221225477,0.03
+multinormal_oversized_ldx,HOLE,3221225477,0.03
+multinormal_short_c,HOLE,3221225477,0.03
+multinormal_short_mu,HOLE,3221225477,0.03
+multivariate_controls_control,OK-control,0,0.03

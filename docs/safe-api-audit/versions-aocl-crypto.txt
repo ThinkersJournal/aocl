@@ -1,0 +1,35 @@
+0.1.0 guard_lengths (no output) | error: could not compile `aocl-crypto` (lib) due to 45 previous errors; 1 warning emitted
+0.2.2 guard_lengths aocl-crypto/guard_lengths: 25 tests in 1s; HOLE=7, OK-accepted=1, OK-refused=10, OTHER(rc=101)=7 | 
+0.2.4 guard_lengths aocl-crypto/guard_lengths: 25 tests in 1s; HOLE=7, OK-refused=10, OTHER(rc=101)=6, OTHER(rc=3221226356)=1, OTHER(rc=3221226505)=1 | 
+0.2.5 guard_lengths aocl-crypto/guard_lengths: 25 tests in 1s; HOLE=7, OK-accepted=1, OK-refused=10, OTHER(rc=101)=7 | 
+0.2.28 guard_lengths aocl-crypto/guard_lengths: 25 tests in 1s; HOLE=10, OK-accepted=3, OK-refused=11, OK-refused(asserted)=1 | 
+0.2.40 guard_lengths aocl-crypto/guard_lengths: 25 tests in 1s; HOLE=10, OK-accepted=3, OK-refused=11, OK-refused(asserted)=1 | 
+0.2.43 guard_lengths aocl-crypto/guard_lengths: 25 tests in 1s; HOLE=10, OK-accepted=3, OK-refused=11, OK-refused(asserted)=1 | 
+0.2.46 guard_lengths aocl-crypto/guard_lengths: 25 tests in 1s; HOLE=10, OK-accepted=3, OK-refused=11, OK-refused(asserted)=1 | 
+0.2.49 guard_lengths aocl-crypto/guard_lengths: 25 tests in 1s; HOLE=10, OK-accepted=3, OK-refused=11, OK-refused(asserted)=1 | 
+
+aocl-crypto: function family | versions measured with that family | HOLE in versions
+rsa_decrypt_oaep_short_ciphertext present 0.2.2..0.2.49  HOLE in none
+rsa_decrypt_oaep_short_output present 0.2.2..0.2.49  HOLE in none
+rsa_decrypt_pkcs1v15_short_ciphertext present 0.2.2..0.2.49  HOLE in none
+rsa_decrypt_pkcs1v15_short_output present 0.2.2..0.2.49  HOLE in none
+rsa_decrypt_short_ciphertext present 0.2.2..0.2.49  HOLE in none
+rsa_decrypt_short_output present 0.2.2..0.2.49  HOLE in ['0.2.28', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+rsa_encrypt_oaep_short_output present 0.2.2..0.2.49  HOLE in ['0.2.28', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+rsa_encrypt_oaep_short_seed present 0.2.2..0.2.49  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.28', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+rsa_encrypt_pkcs1v15_short_output present 0.2.2..0.2.49  HOLE in ['0.2.28', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+rsa_encrypt_pkcs1v15_short_pad present 0.2.2..0.2.49  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.28', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+rsa_encrypt_short_output present 0.2.2..0.2.49  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.28', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+rsa_encrypt_short_plaintext present 0.2.2..0.2.49  HOLE in none
+rsa_sign_hash_pkcs1v15_short_hash present 0.2.2..0.2.49  HOLE in none
+rsa_sign_hash_pkcs1v15_short_signature present 0.2.2..0.2.49  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.28', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+rsa_sign_hash_pss_short_hash present 0.2.2..0.2.49  HOLE in none
+rsa_sign_hash_pss_short_signature present 0.2.2..0.2.49  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.28', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+rsa_sign_pkcs1v15_short_signature present 0.2.2..0.2.49  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.28', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+rsa_sign_pss_short_signature present 0.2.2..0.2.49  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.28', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+rsa_verify_hash_pkcs1v15_short_hash present 0.2.2..0.2.49  HOLE in none
+rsa_verify_hash_pkcs1v15_short_signature present 0.2.2..0.2.49  HOLE in none
+rsa_verify_hash_pss_short_hash present 0.2.2..0.2.49  HOLE in none
+rsa_verify_hash_pss_short_signature present 0.2.2..0.2.49  HOLE in none
+rsa_verify_pkcs1v15_short_signature present 0.2.2..0.2.49  HOLE in none
+rsa_verify_pss_short_signature present 0.2.2..0.2.49  HOLE in none

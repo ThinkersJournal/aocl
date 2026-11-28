@@ -1,0 +1,18 @@
+0.1.0 guard_lengths aocl-rng/guard_lengths: 11 tests in 0s; HOLE=10, OK-control=1 | 
+0.2.40 guard_lengths aocl-rng/guard_lengths: 11 tests in 0s; HOLE=10, OK-control=1 | 
+0.2.43 guard_lengths aocl-rng/guard_lengths: 11 tests in 0s; HOLE=10, OK-control=1 | 
+0.2.46 guard_lengths aocl-rng/guard_lengths: 11 tests in 0s; HOLE=10, OK-control=1 | 
+0.2.49 guard_lengths aocl-rng/guard_lengths: 11 tests in 0s; HOLE=10, OK-control=1 | 
+
+aocl-rng: function family | versions measured with that family | HOLE in versions
+multi_students_t_oversized_ldc present 0.1.0..0.2.49  HOLE in ['0.1.0', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+multi_students_t_oversized_ldx present 0.1.0..0.2.49  HOLE in ['0.1.0', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+multi_students_t_short_c present 0.1.0..0.2.49  HOLE in ['0.1.0', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+multi_students_t_short_mu present 0.1.0..0.2.49  HOLE in ['0.1.0', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+multinomial_oversized_ldx present 0.1.0..0.2.49  HOLE in ['0.1.0', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+multinomial_short_p present 0.1.0..0.2.49  HOLE in ['0.1.0', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+multinormal_oversized_ldc present 0.1.0..0.2.49  HOLE in ['0.1.0', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+multinormal_oversized_ldx present 0.1.0..0.2.49  HOLE in ['0.1.0', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+multinormal_short_c present 0.1.0..0.2.49  HOLE in ['0.1.0', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+multinormal_short_mu present 0.1.0..0.2.49  HOLE in ['0.1.0', '0.2.40', '0.2.43', '0.2.46', '0.2.49']
+exit=0
