@@ -75,6 +75,7 @@
 
 ## Unreleased (new crate, NOT for publish; patch on 0.2.x; pm-assist allocates)
 
+- `aocl-openrng-sys` carries no crate-wide `dead_code` allow (same rule as the other `-sys` crates since #54: it blinds CodeRipper MOD-011's own control). `cargo check` has 0 warnings with and without OPENRNG_LIB_DIR; Windows measured, Linux unmeasured.
 - **NEW `aocl-openrng-sys` (skeleton, UNMEASURED, `publish = false`):** declarations for AOCL-OpenRNG generated mechanically from the licensed public header `include/openrng.h` of `amd/openrng` tag `6.0.0` (commit `5c05f2ee`, MIT OR Apache-2.0 WITH LLVM-exception; read through the GitHub API, nothing cloned): 60 functions, 74 constants, the types and `VSLBRngProperties`. Nothing is linked or measured (integer width, known answer): its tests compile only with `OPENRNG_LIB_DIR` set (cfg `openrng_linked`).
 
 ## 0.2.19 - 2026-11-27 (PM-allocated; docs only, patch on 0.2.x: the measured static-link link-line requirements in the sparse, blas, lapack, crypto and data-analytics -sys READMEs)

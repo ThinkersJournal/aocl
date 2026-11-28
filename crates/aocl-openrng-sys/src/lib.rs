@@ -13,7 +13,7 @@
 //! PHILOX4X32X10 outputs recorded. **The `ilp64` feature must match the library build** (a mismatch is silent; see
 //! `build.rs`). Not measured: Linux, other compilers, OpenRNG's own tests, bit-reproducibility vs oneMKL.
 
-#![allow(non_camel_case_types, non_snake_case, dead_code)]
+#![allow(non_camel_case_types, non_snake_case)]
 
 /// Header: `typedef int32_t openrng_int_t;` (or `long long` under `OPENRNG_ILP64` / `INTEGER64`).
 #[cfg(not(feature = "ilp64"))]
