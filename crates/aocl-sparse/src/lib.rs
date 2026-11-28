@@ -2624,6 +2624,20 @@ pub fn blkcsrmv_f64(
     y: &mut [f64],
     n_rows_blk: usize,
 ) -> Result<()> {
+    let (xl, yl) = mv_lens(op, m, n);
+    check_len("blkcsrmv", "x", x.len(), xl)?;
+    check_len("blkcsrmv", "y", y.len(), yl)?;
+    check_blkcsr_arrays(
+        "blkcsrmv",
+        descr.index_base(),
+        m,
+        n,
+        n_rows_blk,
+        masks,
+        csr_val.len(),
+        csr_col_ind,
+        csr_row_ptr,
+    )?;
     let nnz = csr_val.len();
     let status = unsafe {
         sys::aoclsparse_dblkcsrmv(
@@ -3035,6 +3049,69 @@ fn base_offset(base: IndexBase) -> i64 {
         IndexBase::Zero => 0,
         IndexBase::One => 1,
     }
+}
+
+/// Validate the block-CSR arrays of `blkcsrmv` (made by `aoclsparse_csr2blkcsr`; structure MEASURED on AOCL 6.0.68 with `n_rows_blk` = 4: the
+/// block row pointer `brp` has `m + 1` entries and `brp[m] - brp[0]` is the number of 8-column blocks; `bci[k]` is the first column of
+/// block `k` (any column, e.g. 9 or 12, not a multiple of 8); `masks` holds `n_rows_blk` bytes per block, one per row, bit `j` set when the
+/// row has a value in column `bci[k] + j`; `bv` holds one value per set bit). The library trusts all of it: a short `x`, `y`, `masks`, `bv` or
+/// `bci`, a block column that puts a set bit past `n` and a `brp` entry past the arrays read or write outside them (access violation,
+/// `tests/blk_lengths.rs`).
+pub(crate) fn check_blkcsr_arrays(
+    name: &str,
+    base: IndexBase,
+    m: usize,
+    n: usize,
+    n_rows_blk: usize,
+    masks: &[u8],
+    bv_len: usize,
+    bci: &[sys::aoclsparse_int],
+    brp: &[sys::aoclsparse_int],
+) -> Result<()> {
+    if n_rows_blk == 0 {
+        return Err(Error::InvalidArgument(format!("{name}: n_rows_blk is 0")));
+    }
+    check_len(name, "brp", brp.len(), m + 1)?;
+    let b = base_offset(base);
+    if i64::from(brp[0]) != b {
+        return Err(Error::InvalidArgument(format!(
+            "{name}: brp[0] = {} but the index base is {b}",
+            brp[0]
+        )));
+    }
+    let mut prev = i64::from(brp[0]);
+    for &p in &brp[1..=m] {
+        if i64::from(p) < prev {
+            return Err(Error::InvalidArgument(format!(
+                "{name}: brp is not non-decreasing"
+            )));
+        }
+        prev = i64::from(p);
+    }
+    let nb = (i64::from(brp[m]) - b) as usize;
+    check_len(name, "bci", bci.len(), nb)?;
+    let need_masks = nb
+        .checked_mul(n_rows_blk)
+        .ok_or_else(|| Error::InvalidArgument(format!("{name}: block count overflows")))?;
+    check_len(name, "masks", masks.len(), need_masks)?;
+    let mut bits = 0usize;
+    for k in 0..nb {
+        let c0 = i64::from(bci[k]) - b;
+        for row in 0..n_rows_blk {
+            let mask = masks[k * n_rows_blk + row];
+            bits += mask.count_ones() as usize;
+            if mask != 0 {
+                let top = 7 - mask.leading_zeros() as i64; // highest set bit
+                let low = mask.trailing_zeros() as i64;
+                if c0 + low < 0 || c0 + top >= n as i64 {
+                    return Err(Error::InvalidArgument(format!(
+                        "{name}: block {k} row {row}: mask {mask:#04x} at column {c0} reaches outside [0, {n})"
+                    )));
+                }
+            }
+        }
+    }
+    check_len(name, "bv", bv_len, bits)
 }
 
 /// Validate the CSR arrays handed straight to a raw-array routine (no handle: `create_csr` is what refuses a malformed matrix, and
