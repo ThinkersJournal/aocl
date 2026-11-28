@@ -17,4 +17,4 @@ use aocl_sys::blas;
 
 For the safe wrappers, see the [`aocl`](../aocl/) umbrella.
 
-Dual-licensed under MIT or Apache-2.0.
+Dual-licensed under MIT or Apache-2.0. Provenance of the re-exported declarations: see `NOTICE` and the `NOTICE` of each `aocl-*-sys` crate.
