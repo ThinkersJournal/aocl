@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- **`tools/wrapper-coverage.py`: also recognises `#[cfg(all(test, ...))]` test modules** (tools only; version: pm-assist to allocate; patch). It saw only `#[cfg(test)]`, so `aocl-utils`' two thread-pinning functions, tested under `#[cfg(all(test, windows))]` (real OS affinity read-back), were counted as 2 gaps. Measured on main 6.0.68 Windows: before TOTAL 639 exposed / 637 mentioned / 2 gaps; after 639 / 639 / 0 (every wrapper 0: sparse, lapack, math reached 0 once #41-#43 merged). "Mentioned" is a name count, not a verdict that each test asserts anything. Linux unmeasured.
+
 ## 0.2.35 - 2026-11-27 (PM-allocated; aocl-*-sys: drop the crate-wide dead_code allow so CodeRipper MOD-011's own control can run: lint-attribute removal only, no behaviour change; patch on 0.2.x)
 
 - **All 12 `-sys` crates: removed the crate-wide `dead_code` allow from `src/lib.rs`** (version: pm-assist to allocate; patch). It hid nothing today (bindgen items are `pub`; `cargo check --workspace --lib` has 0 warnings without it, Windows measured, Linux unmeasured) but it blinded CodeRipper's MOD-011 reachability check: its own per-run known-dead-sentinel control was not detected, so the check reported "failed to run" on every `-sys` crate (portfolio sweep red on main). Measured on `aocl-fft-sys` with coderipper 0.48.1: before, `coderipper check MOD-011` could not run; after, it ran clean. Size: 12 one-line deletions.
