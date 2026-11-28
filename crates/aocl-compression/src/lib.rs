@@ -94,6 +94,29 @@ pub fn compress(codec: Codec, src: &[u8], level: u32) -> Result<Vec<u8>> {
 
 /// Decompress `src` into a buffer of at least `dst_len` bytes.
 pub fn decompress(codec: Codec, src: &[u8], dst_len: usize) -> Result<Vec<u8>> {
+    if matches!(codec, Codec::Bzip2) {
+        return Err(Error::InvalidArgument(
+            "unsupported: AOCL's bzip2 decoder faults on some corrupt streams (a crafted stream crashes the process with an access violation inside the decoder; memory corruption is not excluded): use `decompress_bzip2_trusted` (unsafe) on a stream from a trusted source"
+                .into(),
+        ));
+    }
+    decompress_impl(codec, src, dst_len)
+}
+
+/// Decompress a bzip2 stream with AOCL's decoder.
+///
+/// This is the only way to decode bzip2 here: [`decompress`] refuses [`Codec::Bzip2`] because AOCL's bzip2 decoder crashes on some corrupt
+/// streams (measured on AOCL 6.0.68, Windows: 3 of 218 single-bit flips of a valid 109-byte stream fault inside the decoder; see
+/// `tests/bzip2_upstream_defect.rs`). The bzip2 *encoder* ([`compress`] with [`Codec::Bzip2`]) is not affected by what was measured.
+///
+/// # Safety
+/// `src` must be a valid bzip2 stream produced by a trusted source (for example by [`compress`] in this process). A stream an attacker
+/// could have modified is not acceptable input: the decoder can crash the process, and memory corruption is not excluded.
+pub unsafe fn decompress_bzip2_trusted(src: &[u8], dst_len: usize) -> Result<Vec<u8>> {
+    decompress_impl(Codec::Bzip2, src, dst_len)
+}
+
+fn decompress_impl(codec: Codec, src: &[u8], dst_len: usize) -> Result<Vec<u8>> {
     let mut out = vec![0u8; dst_len];
     let mut desc = empty_desc();
     desc.inBuf = src.as_ptr() as *mut std::os::raw::c_char;
