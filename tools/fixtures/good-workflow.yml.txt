@@ -1,0 +1,10 @@
+# CONTROL FIXTURE for tools/check-workflows.py: a minimal valid workflow the checker must ACCEPT (so a checker that rejects everything fails its control).
+name: good
+on:
+  workflow_dispatch:
+jobs:
+  j:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Quoted: fine"
+        run: echo hi

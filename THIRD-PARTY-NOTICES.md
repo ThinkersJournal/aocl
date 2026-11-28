@@ -52,7 +52,7 @@ BSD-style headers the licence text is the standard 3-clause one (not compared wo
 `aocl-scalapack-sys` is hand-written: AOCL ships no public ScaLAPACK headers, and the declarations follow the published
 ScaLAPACK / BLACS conventions; nothing was copied.
 
-## 1b. Held crates re-read against AOCL 6.0.68 (2026-11-26)
+## 1b. Crates re-read against AOCL 6.0.68 (2026-11-26; they were held on that date, see 2a for what is published now)
 
 Headers read from `C:\Program Files\AMD\AOCL-Windows` (ILP64 and LP64 copies: `blis.h` and `cblas.h` differ by width, `lapack.h` and
 `lapacke.h` are byte-identical across widths, both widths carry no copyright text in blis/cblas). No header is
@@ -63,8 +63,8 @@ vendored in this repo: `wrapper/*.h` are our own include lines; the AMD headers 
 | `aocl-blas-sys` | `blis.h`, `cblas.h`: no copyright or licence text at all (0 hits for "copyright"); component NOTICE.txt: `flame-blis` BSD-3-Clause, Copyright 2017/2018 AMD, 2014 UT Austin | 5704 `pub fn`, types, constants | yes: both `flame-blis` blocks verbatim vs 6.0 NOTICE.txt; link header-to-NOTICE is an inference |
 | `aocl-lapack-sys` | `lapack.h`, `lapacke_mangling.h`: none; `lapacke.h`: three Intel BSD-3-Clause blocks (2014 twice, 2010 once, "Author: Intel Corporation") | 3848 `pub fn` | yes after this change: the 2010 block was missing and is now added; libFLAME / reference-LAPACK blocks match 6.0 NOTICE.txt |
 | `aocl-fft-sys` | `fftw3.h`: BSD-2-Clause, Frigo/MIT 2003, 2007-14 and AMD 2020-21, "applies only to this header file"; unchanged from 5.3 | 216 `pub fn` | yes: leading comment verbatim in NOTICE |
-| `aocl-math-sys` | `amdlibm.h` (and `amdlibm_vec.h`): AMD "Software License Agreement", (C) 2008-2026; licence is to the "object code version only", no source or derivative grant; unchanged from 5.3 apart from the year | 313 `pub fn` | no NOTICE file (held); agreement text not copied |
-| `aocl-rng-sys` | `rng.h`: `Copyright AMD,NAG 2003-2023`, no grant; unchanged from 5.3 | 238 `pub fn` | no NOTICE file (held) |
+| `aocl-math-sys` | `amdlibm.h` (and `amdlibm_vec.h`): AMD "Software License Agreement", (C) 2008-2026; licence is to the "object code version only", no source or derivative grant; unchanged from 5.3 apart from the year | 313 `pub fn` | at 2026-11-26: no NOTICE file (then held); a clean-room NOTICE since 2026-11-27; agreement text not copied |
+| `aocl-rng-sys` | `rng.h`: `Copyright AMD,NAG 2003-2023`, no grant; unchanged from 5.3 | 238 `pub fn` | at 2026-11-26: no NOTICE file (then held); a NOTICE since 0.2.12 (2026-11-27) |
 
 The 6.0 `EULA.txt` is unchanged in kind (section 2, item 3). For `aocl-math-sys` and `aocl-rng-sys` the open questions of
 section 2 stand: no header read grants a licence to derive from it.
@@ -107,20 +107,22 @@ crate directories (the published 0.1.0 packages carry neither), and a `NOTICE` f
 `aocl-fft-sys` holding the verbatim leading notice blocks of every header in the include closure of that crate's
 `wrapper/*.h` (plus, for compression, the bzip2 and LZ4 texts from the AOCL-Compression NOTICE). `aocl-blas-sys` and
 `aocl-lapack-sys` carry a `NOTICE` with the BLIS and libFLAME/LAPACK entries from the component NOTICE files.
-`aocl-rng-sys` has no `NOTICE` because its publication is held (below); `aocl-math-sys` gained one on 2026-11-27 (clean-room declarations).
+`aocl-rng-sys` had no `NOTICE` while its publication was held; it ships one since 0.2.12, and `aocl-math-sys` gained one on 2026-11-27 (clean-room declarations).
 Checked with `cargo package --list` (`aocl-sparse-sys` lists `NOTICE`, `LICENSE-MIT`, `LICENSE-APACHE`; control:
 `aocl-math-sys` lists the two licences and no `NOTICE`).
 
-## 2a. Publication status (CireSnave's cluster PM, 2026-11-22)
+## 2a. Publication status
 
-Publish is **held** for every crate whose bindings derive from a header with no licence grant: `aocl-math-sys`
-(`amdlibm.h`), `aocl-rng-sys` (`rng.h`), and `aocl-blas-sys` / `aocl-lapack-sys` until the NOTICE terms above are
-accepted as covering the headers; and for `aocl-fft-sys` until the GPL question is answered. Crates whose headers state
-a BSD/MIT notice (`sparse`, `securerng`, `utils`, `crypto`, `data-analytics`, `compression` AMD/lz4/snappy parts) may
-publish once each published crate contains its own copy of the notice text.
-Already published: crates.io holds 0.1.0 of the `*-sys` crates with their `bindings/bindings.rs` and **no licence or
-notice file at all** (checked by downloading `aocl-math-sys`, `-rng-sys`, `-blas-sys`, `-lapack-sys`, `-fft-sys`
-0.1.0; `aocl-math-sys` 0.1.0 contains `bindings/bindings.rs`, 377 lines from `amdlibm.h`, and no `LICENSE*`).
+**Current state (crates.io read 2026-11-28 ~04:00Z; ROADMAP row 1 has the per-crate list; the PM publishes, lanes never do).** Nothing in this repository is held any more. Published at 0.2.x: every crate except `aocl` (umbrella), `aocl-sys` and `aocl-rng` (the RNG safe wrapper), which are at 0.1.0 only (no ruling in this repo explains why: PM decision). Yanked: the 0.1.0 of `aocl-math-sys` and `aocl-rng-sys` (CireSnave board 494) and 17 intermediate versions (CHANGELOG yank notes). Not published on purpose: `aocl-openrng-sys` and `aocl-openrng` (`publish = false`, awaiting the PM's read). The word "held" below this paragraph is history.
+
+How each hold below was lifted (the ruling is quoted by its date and id as recorded in this repo; a lifting I could not find in writing says so):
+- **`aocl-math-sys`**: replaced by clean-room declarations from the AOCL API Guide 6.0 (pm-kernels 2026-11-27, board 518 B + 520); published 0.2.7, 0.2.8 (hotfix), 0.2.9 (section 2 item 1 is the question about the YANKED 0.1.0 and the old bindgen output, not about the current crate).
+- **`aocl-rng-sys`**: rewritten link-only from the guide (pm-kernels rng-rulings 2026-11-27); published 0.2.11 and 0.2.13, NOTICE in the package since 0.2.12.
+- **`aocl-fft-sys` / `aocl-fft`**: pm-kernels ruling 2026-11-26 (Q2), conditions in section 2 item 5; published from 0.2.6.
+- **`aocl-blas-sys` / `aocl-lapack-sys`**: published 0.2.5 and 0.2.17 with their NOTICE files. A separate written acceptance of "the NOTICE terms" is NOT in this repository (it may be on the board); the PM's uploads are the only record here.
+- The crates whose headers state a BSD/MIT notice (`sparse`, `securerng`, `utils`, `crypto`, `data-analytics`, `compression`): published with their per-crate NOTICE (the original condition).
+
+**Original text (CireSnave's cluster PM, 2026-11-22; HISTORICAL, superseded as above):** "Publish is held for every crate whose bindings derive from a header with no licence grant: `aocl-math-sys` (`amdlibm.h`), `aocl-rng-sys` (`rng.h`), and `aocl-blas-sys` / `aocl-lapack-sys` until the NOTICE terms above are accepted as covering the headers; and for `aocl-fft-sys` until the GPL question is answered." At that date crates.io held 0.1.0 of the `*-sys` crates with their `bindings/bindings.rs` and no licence or notice file at all (checked by downloading `aocl-math-sys`, `-rng-sys`, `-blas-sys`, `-lapack-sys`, `-fft-sys` 0.1.0; `aocl-math-sys` 0.1.0 contained `bindings/bindings.rs`, 377 lines from `amdlibm.h`, and no `LICENSE*`).
 
 ## 3. `lz4frame.h` guard (`crates/aocl-compression-sys/wrapper/compression.h`)
 

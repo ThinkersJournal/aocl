@@ -4,6 +4,8 @@ Written 2026-11-22 by lane aocl for the cluster PM, to become board items. I am 
 consulted one (the owner's 2026-11-05 rule is self-serve). Every statement is either quoted from a file I read on this
 machine or from a download I read today, or it is marked **[GUESS]**. Nothing was published or posted.
 
+> **Historical (written 2026-11-22).** The "hold publish" lines below were this lane's proposals; the later written rulings and the crates.io state are in `THIRD-PARTY-NOTICES.md` 2a and ROADMAP row 1. Nothing below is a hold in force.
+
 ## Read this first: the exposure already exists
 
 crates.io already holds 0.1.0 of every crate in this repo. I downloaded `aocl-math-sys`, `aocl-rng-sys`,
