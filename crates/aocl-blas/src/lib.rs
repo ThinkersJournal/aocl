@@ -3793,6 +3793,20 @@ impl BlasExt for f32 {
         c: &mut [Self],
         ldc: usize,
     ) -> Result<()> {
+        check_gemm_shapes(
+            layout,
+            trans_a,
+            trans_b,
+            n,
+            n,
+            k,
+            a.len(),
+            lda,
+            b.len(),
+            ldb,
+            c.len(),
+            ldc,
+        )?;
         unsafe {
             sys::cblas_sgemmt(
                 layout_raw(layout),
@@ -3855,6 +3869,20 @@ impl BlasExt for f64 {
         c: &mut [Self],
         ldc: usize,
     ) -> Result<()> {
+        check_gemm_shapes(
+            layout,
+            trans_a,
+            trans_b,
+            n,
+            n,
+            k,
+            a.len(),
+            lda,
+            b.len(),
+            ldb,
+            c.len(),
+            ldc,
+        )?;
         unsafe {
             sys::cblas_dgemmt(
                 layout_raw(layout),
@@ -3917,6 +3945,20 @@ impl BlasExt for Complex32 {
         c: &mut [Self],
         ldc: usize,
     ) -> Result<()> {
+        check_gemm_shapes(
+            layout,
+            trans_a,
+            trans_b,
+            n,
+            n,
+            k,
+            a.len(),
+            lda,
+            b.len(),
+            ldb,
+            c.len(),
+            ldc,
+        )?;
         unsafe {
             sys::cblas_cgemmt(
                 layout_raw(layout),
@@ -3979,6 +4021,20 @@ impl BlasExt for Complex64 {
         c: &mut [Self],
         ldc: usize,
     ) -> Result<()> {
+        check_gemm_shapes(
+            layout,
+            trans_a,
+            trans_b,
+            n,
+            n,
+            k,
+            a.len(),
+            lda,
+            b.len(),
+            ldb,
+            c.len(),
+            ldc,
+        )?;
         unsafe {
             sys::cblas_zgemmt(
                 layout_raw(layout),
