@@ -27,7 +27,7 @@ mpi = []
 [dependencies]
 
 [build-dependencies]
-aocl-build = { version = "0.2", path = "../aocl-build" }
+aocl-build = { version = "0.5", path = "../aocl-build" }
 
 [package.metadata.docs.rs]
 default-target = "x86_64-unknown-linux-gnu"
