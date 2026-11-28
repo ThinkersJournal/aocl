@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.38 - 2026-11-27 (PM-allocated; tools/wrapper-coverage.py also recognises cfg(all(test, ...)) test modules: tools only; patch on 0.2.x)
 
 - **`tools/wrapper-coverage.py`: also recognises `#[cfg(all(test, ...))]` test modules** (tools only; version: pm-assist to allocate; patch). It saw only `#[cfg(test)]`, so `aocl-utils`' two thread-pinning functions, tested under `#[cfg(all(test, windows))]` (real OS affinity read-back), were counted as 2 gaps. Measured on main 6.0.68 Windows: before TOTAL 639 exposed / 637 mentioned / 2 gaps; after 639 / 639 / 0 (every wrapper 0: sparse, lapack, math reached 0 once #41-#43 merged). "Mentioned" is a name count, not a verdict that each test asserts anything. Linux unmeasured.
 
