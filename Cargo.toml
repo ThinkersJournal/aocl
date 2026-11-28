@@ -13,6 +13,7 @@ members = [
     "crates/aocl-math-sys",
     "crates/aocl-sparse-sys",
     "crates/aocl-rng-sys",
+    "crates/aocl-openrng-sys",
     "crates/aocl-securerng-sys",
     "crates/aocl-utils-sys",
     "crates/aocl-compression-sys",

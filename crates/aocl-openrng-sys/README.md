@@ -1,0 +1,9 @@
+# aocl-openrng-sys
+
+Raw FFI declarations for AOCL-OpenRNG (AMD's fork of Arm's OpenRNG; VSL-compatible RNG: streams, 15+ base generators, continuous and discrete distributions).
+
+**Status: MEASURED on Windows x64 (docs/cleanroom/openrng/MEASUREMENT.md; run by the PM session on CireSnave's 524: A, openrng built at 5c05f2ee, AOCL-LibM from AOCL 6.0.68); not published (`publish = false`).** 60 functions, 74 constants, the types and the `VSLBRngProperties` struct are generated mechanically from `include/openrng.h` of `amd/openrng` tag `6.0.0` (commit `5c05f2ee...`, header sha256 `ee3a48fc...`): see `NOTICE` (licence: header `MIT OR Apache-2.0 WITH LLVM-exception`; the repository's board-523-A legal line does NOT apply here) and `docs/cleanroom/openrng/provenance.csv` (per item: header line, tag, commit, sha256, whether guide chapter 10 names it: 59 of 60 do; `openRngGetVersion` is in the header and not in the guide).
+
+**Measured** (docs/cleanroom/openrng/MEASUREMENT.md): the library name `openrng` (`static-link`: `openrng_static`, hashed, not linked) and all 60 symbols link against the Windows LP64 and ILP64 builds; `openrng_int_t` is **4 bytes in the LP64 build and 8 in the ILP64 build**; PHILOX4X32X10 outputs are recorded and identical across the two builds, and seed 0's first four words equal the published Random123 Philox4x32-10 counter-0/key-0 vector. **The `ilp64` feature MUST match the library build**: a mismatch is silent (an LP64 library reads only the low half of a 64-bit `n`); `build.rs` warns when `OPENRNG_LIB_DIR` names the other width. **Not measured:** Linux, other compilers, OpenRNG's own tests, bit-reproducibility vs oneMKL, any distribution beyond Philox uniform.
+
+Licence: `MIT OR Apache-2.0 WITH LLVM-exception`; texts in `LICENSE-AMD-OPENRNG` and `LICENSE-ARM-OPENRNG`.

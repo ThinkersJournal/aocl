@@ -1,0 +1,7 @@
+# AOCL-OpenRNG: guide chapter 10 names vs include/openrng.h@6.0.0 (commit 5c05f2ee, header sha256 ee3a48fc...), NAMES ONLY.
+# CORRECTION (2026-11-27): the first scan (regex limited to vsl*/v?Rng* prefixes) reported 59 = 59, 0 differences. The generator
+# (docs/cleanroom/openrng/provenance.csv) finds 60 functions in the header: all 59 guide names, PLUS `openRngGetVersion`
+# (`void openRngGetVersion(int32_t *major, int32_t *minor, int32_t *patch);`, header L3929), which the guide does not name.
+guide_names=59  header_functions=60
+in_guide_not_in_header: (none)
+in_header_not_in_guide: openRngGetVersion

@@ -1,0 +1,31 @@
+NOTICE for aocl-openrng-sys
+
+THE LEGAL LINE THAT COVERS THIS REPOSITORY'S OTHER AOCL CRATES (board 523 A: declarations taken from AMD's proprietary guide; "no
+licence granted") DOES **NOT** APPLY TO THIS CRATE. This crate is derived from a PUBLIC, LICENSED header: `include/openrng.h` of
+https://github.com/amd/openrng at tag `6.0.0`, commit `5c05f2eeb6effc696b0df6ce8be1fcbe855b631b`, file sha256
+`ee3a48fcb50a9a3ded3300bfd342b8a7c7bf8b534f38233be93b26ced577386b`, read through the GitHub API (read-only; nothing cloned or built).
+No AMD proprietary text (no part of AMD's AOCL API Guide) is in this crate.
+
+Header notice (verbatim, from `include/openrng.h` lines 1-6):
+
+    SPDX-FileCopyrightText: <text>Copyright 2024-2026 Arm Limited and/or its
+    affiliates <open-source-office@arm.com></text>
+    SPDX-License-Identifier: MIT OR Apache-2.0 WITH LLVM-exception
+
+AMD's statement (verbatim, from `LICENSE` "AOCL-OpenRNG - LICENSE, Version: v6.0.0, Copyright (c) 2026 Advanced Micro Devices, Inc."):
+"AMD elects to rely on the MIT License for OpenRNG components included in this distribution, where applicable. AMD contributed code
+in this distribution is licensed under the MIT License set forth below." and "This distribution includes components derived from the
+OpenRNG project, originally developed by Arm Limited. OpenRNG is made available under a dual-license: (i) MIT License, or (ii) Apache
+License 2.0 with LLVM exception." and "Nothing in this LICENSE limits or modifies the rights granted under the applicable third-party
+licenses." AMD's `NOTICE` says: "OpenRNG is provided by Arm Limited under a dual license: MIT OR Apache-2.0 WITH LLVM exception."
+
+The full licence texts are in this crate: `LICENSE-AMD-OPENRNG` (AMD's LICENSE, containing the MIT text for AMD contributions; sha256
+`df0b80fc5f37049909e009919457c660b185ffeb8c67e2c334ece4b1970634b0`) and `LICENSE-ARM-OPENRNG` (Arm's LICENSE: the MIT text,
+Copyright (c) 2024, Arm Limited, and Apache-2.0 WITH LLVM-exception; read from github.com/arm/openrng main, sha256
+`532e978ab194cf1fadc0137e4755724b13cc1feb25b1350a13ee2e043018f037`). The generated files `src/decls.rs`, `src/consts.rs` and the
+types in `src/lib.rs` are derived from the header and carry its SPDX lines. This crate's own wrapper-free glue is offered under the
+same `MIT OR Apache-2.0 WITH LLVM-exception` terms (Cargo `license` field).
+
+AOCL-OpenRNG is not shipped: this crate contains no library. It links an OpenRNG library the user has built or installed
+(measured against the PM's Windows builds of 5c05f2ee: docs/cleanroom/openrng/MEASUREMENT.md). The AOCL-OpenRNG name and AMD marks are trademarks of Advanced
+Micro Devices, Inc.; their use here is for identification only. Not legal advice.
