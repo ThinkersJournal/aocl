@@ -18,7 +18,6 @@
 
 #![allow(
     non_camel_case_types,
-    dead_code,
     unused_imports,
     improper_ctypes,
     reason = "declarations mirror the guide's C names and signatures"
