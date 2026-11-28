@@ -5,6 +5,14 @@
 //! output. Each generic checker runs once per exposed precision (`f32`, `f64`, `Complex32`, `Complex64`) through the
 //! `Lib` trait, which carries the handle type, the tolerance and the conversion to the reference's complex scalar `Cx`.
 
+// The generic checkers take the wrapper under test as a `fn` pointer (`f: fn(Trans, T, &T::M, &MatDescr, ...) -> Result<()>`); each
+// signature is the wrapper's own and is written once, at the one function that takes it, so naming every one with a `type` alias
+// would add ~20 one-use aliases that restate the wrapper signatures.
+#![allow(
+    clippy::type_complexity,
+    reason = "test helpers take the wrapper under test as a fn pointer whose signature is the wrapper's own, used once each"
+)]
+
 use aocl_sparse as s;
 use aocl_sparse::complex as cxm;
 use aocl_sparse::{
@@ -277,7 +285,7 @@ fn herm<T: Lib>(re: &[&[f64]]) -> D {
         .map(|i| {
             (0..n)
                 .map(|j| match (re[i][j], i.cmp(&j)) {
-                    (x, _) if x == 0.0 => ZERO,
+                    (0.0, _) => ZERO,
                     (x, std::cmp::Ordering::Equal) => c(x, 0.0),
                     (x, std::cmp::Ordering::Less) => c(x, im_of::<T>(i, j)),
                     (x, std::cmp::Ordering::Greater) => c(x, -im_of::<T>(j, i)),
@@ -1574,14 +1582,14 @@ fn t_create_tcsr<T: Lib>(f: Tcsr<T>) {
         // L part per row: strictly-lower entries then the diagonal; U part per row: the diagonal then the strictly-upper entries
         let (mut rl, mut ru, mut cl, mut cu, mut vl, mut vu) =
             (vec![o], vec![o], vec![], vec![], vec![], vec![]);
-        for i in 0..4 {
-            for j in (0..=i).filter(|&j| a[i][j] != ZERO) {
+        for (i, ai) in a.iter().enumerate().take(4) {
+            for j in (0..=i).filter(|&j| ai[j] != ZERO) {
                 cl.push(j as I + o);
-                vl.push(a[i][j]);
+                vl.push(ai[j]);
             }
-            for j in (i..4).filter(|&j| a[i][j] != ZERO) {
+            for j in (i..4).filter(|&j| ai[j] != ZERO) {
                 cu.push(j as I + o);
-                vu.push(a[i][j]);
+                vu.push(ai[j]);
             }
             rl.push(cl.len() as I + o);
             ru.push(cu.len() as I + o);
