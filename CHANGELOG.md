@@ -2,6 +2,8 @@
 
 ## 0.2.42 - 2026-11-27 (PM-allocated; aocl-sys: NOTICE added (0.2.40 was published without one; check-package-files.py was BAD for aocl-sys on main) and its README, ROADMAP and THIRD-PARTY-NOTICES read-back of the 0.2.40 publish; docs and package files only; patch on 0.2.x)
 
+- **aocl-sys 0.2.40 shipped without NOTICE; added.** No yank and no republish (PM ruling 2026-11-28: licences and README shipped, the umbrella carries no AMD text; a packaging gap only); the fix ships in 0.2.42.
+
 - **`aocl-sys`: add the `NOTICE` the 0.2.40 package lacks** (patch; version: pm-assist to allocate). `tools/check-package-files.py` fails `aocl-sys` on main (it depends on `-sys` crates that have a NOTICE, the wrapper rule of #50): 0.2.40 shipped licences and README but no NOTICE (PM's package read). The NOTICE points at each `aocl-<component>-sys` NOTICE (the umbrella has no declarations); README says so. Measured: `python tools/check-package-files.py aocl-sys` BAD before, OK after; the full run has no BAD. `aocl` passes unchanged (it re-exports wrappers that carry their own NOTICE). Docs: ROADMAP row 1 and THIRD-PARTY-NOTICES 2a record the PM's read-back of the 2026-11-28 03:46Z publish of all 29 crates at 0.2.40.
 
 ## 0.2.41 - 2026-11-27 (PM-allocated; drops the unused libc dependency from aocl-blas-sys, aocl-fft-sys and aocl-lapack-sys (before: unused-dependency warning x3; after: 0 warnings), records pm-kernels' written rulings, rng-sys NOTICE wording per the review: manifests and docs; patch on 0.2.x)
