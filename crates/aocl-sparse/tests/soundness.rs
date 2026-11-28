@@ -80,6 +80,28 @@ fn roti_valid_call_still_rotates() {
     );
 }
 
+#[test]
+fn roti_is_zero_based_one_based_indices_are_rejected_at_the_end_of_y() {
+    // roti has no index-base argument (AOCL guide): indx counts from 0. Positive: [0, 1, 2] rotates y[0..3] on the real library.
+    let (c, s) = (0.6, 0.8);
+    let mut x = [1.0f64, 2.0, 3.0];
+    let mut y = [10.0f64, 20.0, 30.0];
+    roti_f64(&mut x, &[0, 1, 2], &mut y, c, s).unwrap();
+    for i in 0..3 {
+        let (xi, yi) = ((i + 1) as f64, 10.0 * (i + 1) as f64);
+        assert!(
+            (x[i] - (c * xi + s * yi)).abs() < 1e-12 && (y[i] - (c * yi - s * xi)).abs() < 1e-12,
+            "i={i}: {x:?} {y:?}"
+        );
+    }
+    // Negative: the same vector written one-based ([1, 2, 3]) reaches index 3 = y.len() and is refused, y untouched.
+    let mut x = [1.0f64, 2.0, 3.0];
+    let mut y = [10.0f64, 20.0, 30.0];
+    let r = roti_f64(&mut x, &[1, 2, 3], &mut y, c, s);
+    assert!(matches!(r, Err(Error::InvalidArgument(_))), "{r:?}");
+    assert_eq!(y, [10.0, 20.0, 30.0]);
+}
+
 // ---- the sibling index-array functions (found in review of #45: only `roti` validated the index RANGE) ----
 // Each function below takes an index array into a dense vector. Out-of-range indices wrote (or read) outside the dense vector inside
 // the library. Every case is a safe call; it must be refused with `InvalidArgument` and leave the dense vector untouched.

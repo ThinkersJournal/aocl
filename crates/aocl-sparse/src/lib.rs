@@ -2837,6 +2837,11 @@ fn check_roti(name: &str, nnz: usize, indx: &[sys::aoclsparse_int], y_len: usize
 
 /// Sparse rotation: simultaneously rotate `(x, y)` at indices `indx`
 /// by `(c, s)`. `x` is sparse with `indx` indices into the dense `y`. (`f64`)
+///
+/// **Index base: zero-based, always.** `aoclsparse_?roti` takes no index-base argument and no descriptor (AOCL guide,
+/// `aoclsparse_?roti()`: signature `(nnz, x, indx, y, c, s)`; its example uses `indx = {0, 3, 6, 7, 9}`), and the real library
+/// rotates `y[indx[i]]` with `indx[i]` counted from 0 (measured on AOCL 6.0.68). A one-based vector (indices `1..=len`) is
+/// therefore rejected with `InvalidArgument` when it reaches index `y.len()`; subtract 1 first.
 pub fn roti_f64(
     x: &mut [f64],
     indx: &[sys::aoclsparse_int],
