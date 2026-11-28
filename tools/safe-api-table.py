@@ -22,6 +22,13 @@ FIXED = {
     ("aocl-fft", "*"): "PENDING: #72 (alignment, 0.2.54)",
     ("aocl-lapack", "factor"): "PENDING: #69 (next after #68)",
 }
+HEADERS = {
+    "aocl-sparse": "MEASURED families (313 tests: vector_lengths 48, dense_lengths 152, raw_array_lengths 72, remaining_lengths 41): the safe CSR/CSC/ELL/DIA/BSR level-2/3 kernels, conversions and solvers of real f32/f64 and complex c32/c64. NOT MEASURED: `blkcsrmv`, `create_csc`, `create_tcsr` (no safe constructor / sink), anything not named above.",
+    "aocl-blas": "MEASURED families (506 tests, generated): the level-1/2/3 free functions of f32/f64/c32/c64 including gemmt. NOT MEASURED: the trait methods with explicit `inc`/`ld`, pack/compute/batch, `rotm`, `sdsdot`, `csrot`, `zdrot`.",
+    "aocl-lapack": "MEASURED families (586 tests, generated): the typed d/s/z/c free functions and the generic `Scalar` trait methods listed below (370 holes in 120 families before the fixes). NOT MEASURED: the band functions `gb*`, `gesvdx`, `orgbr`, `lasrt`, the trait-level `RealScalar::geev` / `ComplexScalar::geev` called directly. `?lacpy` / `?lange` panic by documented contract (12 of the 586 tests exit with a panic, no fault).",
+    "aocl-data-analytics": "MEASURED families (kernels and statistics 274 tests; handle models 58 tests in the section below): the free statistics functions, the five kernel / distance functions, KMeans, Pca, KNearestNeighbours, Linmod, Dbscan, DecisionTree, DecisionForest, Svm. NOT MEASURED: `Nlls` (callback-driven), `Nlls::set_weights`, `Datastore::extract_f64`, `Handle` options.",
+    "aocl-fft": "MEASURED families (40 tests): `Plan` DFT / r2c / c2r length checks and the plan-time alignment rule (f64 and f32). NOT MEASURED: plan creation flags other than the defaults, the 2-D / 3-D plan constructors beyond the length cases listed.",
+}
 EIGEN = {"geev", "syevd", "heevd", "syevr", "heevr", "sygv", "hegv", "gees", "ggev"}
 FACTOR = {"gebrd", "larfg", "orgtr", "ungtr", "orglq", "unglq", "ormqr", "unmqr", "ormlq", "unmlq", "gesvd", "gesdd", "gelsd", "gelsy"}
 GENERIC = {"gesv", "getrf", "getrs", "getri", "posv", "potrf", "potrs", "potri", "sysv", "sytrf", "sytrs", "hesv", "hetrf", "hetrs", "gtsv", "ptsv", "gels", "geqrf", "gelqf", "syev", "heev"}
@@ -70,8 +77,8 @@ def main():
                 if not f or "control" in r["test"]:
                     continue
                 fam.setdefault(f, {}).setdefault(v, []).append(r["outcome"])
-        print(f"## {crate}\n\nVersions measured: {', '.join(vers)}.\n")
-        print("| function family | first affected | last affected (published so far) | holes (short cases) at last affected | fixed in |\n|---|---|---|---|---|")
+        print(f"## {crate}\n\nVersions measured: {', '.join(vers)}.\n\n**{HEADERS[crate]}** \"0 holes\" means 0 holes in the measured families only: it is NOT a statement that the crate is clean.\n")
+        print("| function family | first affected | last affected (published so far) | holes (short cases) at last affected | family fixed in (first published version with 0 holes for this family) |\n|---|---|---|---|---|")
         rows = 0
         for f in sorted(fam):
             hv = [v for v in vers if v in fam[f] and "HOLE" in fam[f][v]]
@@ -126,6 +133,16 @@ Measured per published version (`tests/handle_models_lengths.rs`, 58 tests = 7 c
 - **aocl-utils** (`tests/guard_lengths.rs`, 6 cases: `Cpu::Specific(1_000_000)` and `Specific(u32::MAX - 1)` into `has_flag`, `has_flags_all`, `has_flags_any`, `vendor_info`): 0 faults (the library tolerates an out-of-range CPU index). `has_flags_*` build NUL-terminated strings and pass the pointer count.
 - **aocl-math** (`ldexp`, `ldexpf`, `scalbn`, `scalbnf`, `scalbln`, `scalblnf`): value in, value out, no pointer or slice argument: nothing to fault by source read.
 - **aocl-compression** other codecs and **aocl-crypto** cipher / AEAD / EC: see the sections above.
+""")
+    print("""## Coverage of the crates described in sections above (MEASURED / NOT MEASURED)
+
+"0 holes" in any row means 0 holes in the measured families only; it is not a statement that the crate is clean.
+
+- **aocl-crypto**: MEASURED RSA (25 tests: 24 one-byte-short cases + control; encrypt, decrypt, OAEP, PSS, PKCS#1 v1.5, hash variants), cipher and AEAD constructors / buffers (19 tests: CBC, CTR, OFB, CFB, ChaCha20 iv / key / partial block; GCM iv / key / tag; CCM nonce). NOT MEASURED: digest, mac, EC (read by source only: EC validates before the FFI call), `set_aad`, `Rsa::set_public_key` / `set_private_key` beyond the length checks already present.
+- **aocl-rng**: MEASURED `multinormal`, `multi_students_t`, `multinomial` (11 tests). NOT MEASURED: `BlumBlumShub::new`, the univariate generators (read by source: `n = out.len()`), the typed `general_discrete` path (type-enforced; harness row owed), `leapfrog` / `skip_ahead`.
+- **aocl-scalapack**: MEASURED f64 `pdgesv pdgemm pdgetrf pdgetrs pdpotrf pdpotrs pdsyev pdgels pdgeqrf` on a single rank, 1 x 1 grid (38 tests); fixed-version multi-rank runs are valid-call checks only. NOT MEASURED: the f32 / complex copies, multi-rank guard cases, `Grid`, `BlockCyclic::new`.
+- **aocl-compression**: MEASURED corrupt-input decode of all six codecs (truncation + bit flips) and the native lz4 / snappy short-destination paths (10 tests). NOT MEASURED: the bzip2 / lzma / others' `compress` with extreme levels, `lz4::compress_bound` (returns the source length, not the bound: a logic defect, not a memory one).
+- **aocl-securerng**, **aocl-utils**, **aocl-math**: see "Cleared" below; **aocl-openrng**: NOT MEASURED (waiting on its PRs).
 """)
     print("## Not measured (read pending)\n\nsparse `blkcsrmv` (no safe mask constructor), `create_csc` / `create_tcsr` (raw handle, no safe sink); lapack band `gb*`, `gesvdx`, `orgbr`, `lasrt`, and the trait-level `RealScalar::geev` / `ComplexScalar::geev` called directly (the typed free functions are measured); blas trait methods with explicit `inc`/`ld`, pack/compute/batch/rotm/sdsdot/csrot/zdrot; and the rows data-analytics handle models (kmeans/pca/knn/linear/rf, set_weights, extract_f64), crypto digest/mac (value+len, source only), aocl-openrng (after its PRs merge). `aocl-sparse` 0.1.0 did not compile with the harness (2 errors in its own lib against current dependencies) and is unmeasured; the functions are present in its source.\n")
 

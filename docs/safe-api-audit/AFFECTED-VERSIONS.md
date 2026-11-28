@@ -6,7 +6,9 @@ Measured, not read: for every published version of the crate the guard-page harn
 
 Versions measured: 0.1.0, 0.2.2, 0.2.4, 0.2.5, 0.2.26, 0.2.40, 0.2.43, 0.2.46, 0.2.49, 0.2.54.
 
-| function family | first affected | last affected (published so far) | holes (short cases) at last affected | fixed in |
+**MEASURED families (313 tests: vector_lengths 48, dense_lengths 152, raw_array_lengths 72, remaining_lengths 41): the safe CSR/CSC/ELL/DIA/BSR level-2/3 kernels, conversions and solvers of real f32/f64 and complex c32/c64. NOT MEASURED: `blkcsrmv`, `create_csc`, `create_tcsr` (no safe constructor / sink), anything not named above.** "0 holes" means 0 holes in the measured families only: it is NOT a statement that the crate is clean.
+
+| function family | first affected | last affected (published so far) | holes (short cases) at last affected | family fixed in (first published version with 0 holes for this family) |
 |---|---|---|---|---|
 | bsrmv | 0.2.2 | 0.2.49 | 6 | 0.2.54 (measured 0 holes) |
 | csr2bsr | 0.2.2 | 0.2.49 | 14 | 0.2.54 (measured 0 holes) |
@@ -34,7 +36,9 @@ Versions measured: 0.1.0, 0.2.2, 0.2.4, 0.2.5, 0.2.26, 0.2.40, 0.2.43, 0.2.46, 0
 
 Versions measured: 0.1.0, 0.2.5, 0.2.40, 0.2.43, 0.2.46, 0.2.49, 0.2.54.
 
-| function family | first affected | last affected (published so far) | holes (short cases) at last affected | fixed in |
+**MEASURED families (506 tests, generated): the level-1/2/3 free functions of f32/f64/c32/c64 including gemmt. NOT MEASURED: the trait methods with explicit `inc`/`ld`, pack/compute/batch, `rotm`, `sdsdot`, `csrot`, `zdrot`.** "0 holes" means 0 holes in the measured families only: it is NOT a statement that the crate is clean.
+
+| function family | first affected | last affected (published so far) | holes (short cases) at last affected | family fixed in (first published version with 0 holes for this family) |
 |---|---|---|---|---|
 | gemmt | 0.1.0 | 0.2.46 | 12 | 0.2.49 (measured 0 holes) |
 
@@ -44,7 +48,9 @@ Versions measured: 0.1.0, 0.2.5, 0.2.40, 0.2.43, 0.2.46, 0.2.49, 0.2.54.
 
 Versions measured: 0.1.0, 0.2.5, 0.2.40, 0.2.43, 0.2.46, 0.2.49, 0.2.54.
 
-| function family | first affected | last affected (published so far) | holes (short cases) at last affected | fixed in |
+**MEASURED families (586 tests, generated): the typed d/s/z/c free functions and the generic `Scalar` trait methods listed below (370 holes in 120 families before the fixes). NOT MEASURED: the band functions `gb*`, `gesvdx`, `orgbr`, `lasrt`, the trait-level `RealScalar::geev` / `ComplexScalar::geev` called directly. `?lacpy` / `?lange` panic by documented contract (12 of the 586 tests exit with a panic, no fault).** "0 holes" means 0 holes in the measured families only: it is NOT a statement that the crate is clean.
+
+| function family | first affected | last affected (published so far) | holes (short cases) at last affected | family fixed in (first published version with 0 holes for this family) |
 |---|---|---|---|---|
 | cgebrd | 0.1.0 | 0.2.49 | 5 | 0.2.54 (measured 0 holes) |
 | cgecon | 0.1.0 | 0.2.46 | 1 | 0.2.49 (measured 0 holes) |
@@ -173,7 +179,9 @@ Versions measured: 0.1.0, 0.2.5, 0.2.40, 0.2.43, 0.2.46, 0.2.49, 0.2.54.
 
 Versions measured: 0.2.2, 0.2.4, 0.2.5, 0.2.28, 0.2.40, 0.2.43, 0.2.46, 0.2.49, 0.2.54.
 
-| function family | first affected | last affected (published so far) | holes (short cases) at last affected | fixed in |
+**MEASURED families (kernels and statistics 274 tests; handle models 58 tests in the section below): the free statistics functions, the five kernel / distance functions, KMeans, Pca, KNearestNeighbours, Linmod, Dbscan, DecisionTree, DecisionForest, Svm. NOT MEASURED: `Nlls` (callback-driven), `Nlls::set_weights`, `Datastore::extract_f64`, `Handle` options.** "0 holes" means 0 holes in the measured families only: it is NOT a statement that the crate is clean.
+
+| function family | first affected | last affected (published so far) | holes (short cases) at last affected | family fixed in (first published version with 0 holes for this family) |
 |---|---|---|---|---|
 | linear_kernel | 0.2.2 | 0.2.49 | 6 | 0.2.54 (measured 0 holes) |
 | pairwise_distances | 0.2.2 | 0.2.49 | 6 | 0.2.54 (measured 0 holes) |
@@ -187,7 +195,9 @@ Versions measured: 0.2.2, 0.2.4, 0.2.5, 0.2.28, 0.2.40, 0.2.43, 0.2.46, 0.2.49, 
 
 Versions measured: 0.1.0, 0.2.6, 0.2.40, 0.2.43, 0.2.46, 0.2.49, 0.2.54.
 
-| function family | first affected | last affected (published so far) | holes (short cases) at last affected | fixed in |
+**MEASURED families (40 tests): `Plan` DFT / r2c / c2r length checks and the plan-time alignment rule (f64 and f32). NOT MEASURED: plan creation flags other than the defaults, the 2-D / 3-D plan constructors beyond the length cases listed.** "0 holes" means 0 holes in the measured families only: it is NOT a statement that the crate is clean.
+
+| function family | first affected | last affected (published so far) | holes (short cases) at last affected | family fixed in (first published version with 0 holes for this family) |
 |---|---|---|---|---|
 | plan_dft_misaligned_input | 0.1.0 | 0.2.49 | 1 | 0.2.54 (measured 0 holes) |
 | plan_dft_misaligned_output | 0.1.0 | 0.2.49 | 1 | 0.2.54 (measured 0 holes) |
@@ -229,6 +239,16 @@ Measured per published version (`tests/handle_models_lengths.rs`, 58 tests = 7 c
 - **aocl-utils** (`tests/guard_lengths.rs`, 6 cases: `Cpu::Specific(1_000_000)` and `Specific(u32::MAX - 1)` into `has_flag`, `has_flags_all`, `has_flags_any`, `vendor_info`): 0 faults (the library tolerates an out-of-range CPU index). `has_flags_*` build NUL-terminated strings and pass the pointer count.
 - **aocl-math** (`ldexp`, `ldexpf`, `scalbn`, `scalbnf`, `scalbln`, `scalblnf`): value in, value out, no pointer or slice argument: nothing to fault by source read.
 - **aocl-compression** other codecs and **aocl-crypto** cipher / AEAD / EC: see the sections above.
+
+## Coverage of the crates described in sections above (MEASURED / NOT MEASURED)
+
+"0 holes" in any row means 0 holes in the measured families only; it is not a statement that the crate is clean.
+
+- **aocl-crypto**: MEASURED RSA (25 tests: 24 one-byte-short cases + control; encrypt, decrypt, OAEP, PSS, PKCS#1 v1.5, hash variants), cipher and AEAD constructors / buffers (19 tests: CBC, CTR, OFB, CFB, ChaCha20 iv / key / partial block; GCM iv / key / tag; CCM nonce). NOT MEASURED: digest, mac, EC (read by source only: EC validates before the FFI call), `set_aad`, `Rsa::set_public_key` / `set_private_key` beyond the length checks already present.
+- **aocl-rng**: MEASURED `multinormal`, `multi_students_t`, `multinomial` (11 tests). NOT MEASURED: `BlumBlumShub::new`, the univariate generators (read by source: `n = out.len()`), the typed `general_discrete` path (type-enforced; harness row owed), `leapfrog` / `skip_ahead`.
+- **aocl-scalapack**: MEASURED f64 `pdgesv pdgemm pdgetrf pdgetrs pdpotrf pdpotrs pdsyev pdgels pdgeqrf` on a single rank, 1 x 1 grid (38 tests); fixed-version multi-rank runs are valid-call checks only. NOT MEASURED: the f32 / complex copies, multi-rank guard cases, `Grid`, `BlockCyclic::new`.
+- **aocl-compression**: MEASURED corrupt-input decode of all six codecs (truncation + bit flips) and the native lz4 / snappy short-destination paths (10 tests). NOT MEASURED: the bzip2 / lzma / others' `compress` with extreme levels, `lz4::compress_bound` (returns the source length, not the bound: a logic defect, not a memory one).
+- **aocl-securerng**, **aocl-utils**, **aocl-math**: see "Cleared" below; **aocl-openrng**: NOT MEASURED (waiting on its PRs).
 
 ## Not measured (read pending)
 
