@@ -85,3 +85,25 @@ Result, both builds exit 0 (`measurement-raw/CRATE-TESTS-lp64-20261127-153643.tx
 
 **Not exercised:** the *mismatch fails* case of `width_match` (the `ilp64` feature ON against the LP64 library, which must make `ilp64_feature_matches_an_ilp64_library` fail): both runs used the MATCHING feature, so the
 guard's failure path was not demonstrated; only the pass paths were. The build-time warning for a mismatched `OPENRNG_LIB_DIR` was seen once on this lane's machine (ILP64 dir, feature off), not in the PM runs.
+
+## The safe wrapper `aocl-openrng` (PR #55) run on both builds (run by the PM session; the lane does not run the DLLs)
+
+Commit `776758a4c5c48ed9ef04052ea7221ea5710f1272` (clean tree), `C:/openrng-measure/run_wrapper_tests.py`, records `C:/Projects/.lane-state/wrapper-tests-{lp64,ilp64}.out`. Build hashes = the build record: LP64 `openrng.dll` sha256 `1a4034467ca6399e9449f81cf31e8f3c712594e3f3973516f8f4e7da94340ba1`, ILP64 `openrng.dll` sha256 `1d3fd3a49fad0cf4b8ac62fd7583d5f77f5a9688d23ec30681bfc4fd3726b771` (`openrng.lib` sha256 `1d534f3e2b7dd87032a0cbad9e0d17ec8ad82189cbbc8d5a50f6355c6a84ab56` on both). Result on both widths, identical: `tests/wrapper.rs` 12/12, `domain` ok, `threads` ok, `params_guard` 16/16 and `out_guard` 4/4 each exit 0 (no access violation). `openRngGetVersion` = (6, 0, 0). A first run of the first commit failed 3 of 12 because the tests unwrapped the refusals below (kept in `.lane-state/wrap1/`).
+
+**What this 6.0.0 build REFUSES (every call returns the status; the wrapper surfaces it as `Err`; no panic, no undefined behaviour seen):**
+
+| Call (wrapper method) | Status | Both widths |
+|---|---|---|
+| `vdRngBeta`, `vsRngBeta` (`beta`, `beta_f32`) | -1 feature not implemented | yes |
+| `vdRngChiSquare`, `vsRngChiSquare` (`chi_square`, `chi_square_f32`) | -1 | yes |
+| `viRngHypergeometric` (`hypergeometric`) | -1 | yes |
+| `viRngNegBinomial`, `viRngNegbinomial` (`neg_binomial`, `negbinomial`; the two spellings agree) | -1 | yes |
+| `viRngPoissonV` (`poisson_v`) | -1 | yes |
+| `viRngUniformBits32` on MCG31, R250, MRG32K3A (save/restore for those) | -4103 basic generator not supported | yes |
+| `vslLeapfrogStream` on PHILOX4X32X10 and MT19937 | -4097 leapfrog unsupported | yes |
+| `vslNewStreamEx` NIEDERR n=1 (the `unsafe from_params` probe) | -1 | yes |
+| `vslCopyStreamState` across different generators | -4100 generators incompatible | yes |
+
+Accepted (value ranges checked): uniform, exponential, gamma, weibull, rayleigh, Gaussian (BoxMuller, BoxMuller2, Icdf), lognormal (Icdf, BoxMuller2), Cauchy, Gumbel, Laplace, `uniform_f32`, `gaussian_f32`, uniform_int, Bernoulli, binomial, geometric, Poisson (PTPE, POISNORM), multinomial, Gaussian-MV in Full/Packed/Diagonal storage; save/restore round trip for MCG59, MT19937, SFMT19937, ARS5, PHILOX4X32X10 (5 of 10 `Brng` variants; Sobol and Niederr are refused by the wrapper itself: they need a dimension). Skip-ahead of 8 on PHILOX equals 8 draws. Domain probes (`domain.rs`): most out-of-domain scalars give -2 bad arguments; `uniform` with NaN, Gaussian sigma 0 and Cauchy beta <= 0 return OK; multinomial with p not summing to 1 gives -4109 (not in the header's list of statuses).
+
+**Not measured:** any distribution or generator not listed; `from_params` for n=0 or counts other than those probed (n=1..3 Philox, 1-2 MT19937, 1 and 3 MRG32K3A, 1 MCG31/R250/SFMT/Sobol, 1-2 ARS5 all returned normally on a guard page); thread-safety of the library alone (the wrapper serialises every call); Linux; what the guide says about the refused functions (not read for this table).
