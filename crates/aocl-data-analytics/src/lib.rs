@@ -1292,6 +1292,9 @@ impl<'a> std::fmt::Debug for Nlls<'a> {
 /// caller-provided buffers.
 pub struct Datastore {
     raw: sys::da_datastore,
+    /// Extent (rows, columns) of every selection made through this wrapper, by key: the library cannot be asked for it, and
+    /// `extract_f64` writes exactly that block into a caller buffer it does not check.
+    selections: std::collections::HashMap<String, (usize, usize)>,
 }
 
 unsafe impl Send for Datastore {}
@@ -1305,7 +1308,10 @@ impl Datastore {
         if raw.is_null() {
             return Err(Error::AllocationFailed("data-analytics"));
         }
-        Ok(Self { raw })
+        Ok(Self {
+            raw,
+            selections: std::collections::HashMap::new(),
+        })
     }
 
     /// Set an integer-valued datastore option (e.g.
@@ -1338,7 +1344,10 @@ impl Datastore {
         let cs = std::ffi::CString::new(path)
             .map_err(|e| Error::InvalidArgument(format!("load_csv: {e}")))?;
         let status = unsafe { sys::da_data_load_from_csv(self.raw, cs.as_ptr()) };
-        check_status("data-analytics", status)
+        check_status("data-analytics", status)?;
+        // a new table: earlier selections no longer describe it
+        self.selections.clear();
+        Ok(())
     }
 
     /// Number of rows currently held by the store.
@@ -1376,7 +1385,11 @@ impl Datastore {
                 ubound as sys::da_int,
             )
         };
-        check_status("data-analytics", status)
+        check_status("data-analytics", status)?;
+        let rows = self.n_rows()?;
+        self.selections
+            .insert(key.to_string(), (rows, ubound - lbound + 1));
+        Ok(())
     }
 
     /// Select a contiguous range of rows into the named selection `key`.
@@ -1391,7 +1404,11 @@ impl Datastore {
                 ubound as sys::da_int,
             )
         };
-        check_status("data-analytics", status)
+        check_status("data-analytics", status)?;
+        let cols = self.n_cols()?;
+        self.selections
+            .insert(key.to_string(), (ubound - lbound + 1, cols));
+        Ok(())
     }
 
     /// Extract the named selection into `data` as `f64` values, in the
@@ -1406,6 +1423,20 @@ impl Datastore {
     ) -> Result<()> {
         let cs = std::ffi::CString::new(key)
             .map_err(|e| Error::InvalidArgument(format!("extract_f64: {e}")))?;
+        let Some(&(rows, cols)) = self.selections.get(key) else {
+            return Err(Error::InvalidArgument(format!(
+                "extract_f64: no selection named {key:?} was made through select_columns / select_rows"
+            )));
+        };
+        check_dense(
+            "extract_f64",
+            "data",
+            layout,
+            rows,
+            cols,
+            lddata,
+            data.len(),
+        )?;
         let status = unsafe {
             sys::da_data_extract_selection_real_d(
                 self.raw,
