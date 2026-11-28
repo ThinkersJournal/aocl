@@ -4461,7 +4461,10 @@ fn check_packed_len<T>(name: &str, bytes_needed: usize, len: usize) -> Result<()
 
 /// One `?gemm_compute` operand: unpacked (`CblasNoTrans` 111 / `CblasTrans` 112 / `CblasConjTrans` 113: an `rows x cols` matrix) or
 /// `CblasPacked` (151: a buffer made by `?gemm_pack`).
-#[allow(clippy::too_many_arguments)]
+#[allow(
+    clippy::too_many_arguments,
+    reason = "mirrors the CBLAS argument list of one ?gemm_compute operand"
+)]
 fn check_compute_operand<T>(
     name: &str,
     layout: Layout,
