@@ -1216,6 +1216,15 @@ pub fn csrmv<T: Scalar>(
     beta: T,
     y: &mut [T],
 ) -> Result<()> {
+    check_csr_arrays(
+        "csrmv",
+        m,
+        Some(n),
+        descr.index_base(),
+        csr_row_ptr,
+        csr_col_ind,
+        csr_val.len(),
+    )?;
     T::csrmv(
         Trans::No,
         alpha,
@@ -1300,6 +1309,15 @@ pub fn csrsv<T: Scalar>(
     x: &[T],
     y: &mut [T],
 ) -> Result<()> {
+    check_csr_arrays(
+        "csrsv",
+        m,
+        Some(m),
+        descr.index_base(),
+        csr_row_ptr,
+        csr_col_ind,
+        csr_val.len(),
+    )?;
     T::csrsv(op, alpha, m, csr_val, csr_col_ind, csr_row_ptr, descr, x, y)
 }
 
@@ -1442,6 +1460,19 @@ pub fn ellmv<T: Scalar>(
     beta: T,
     y: &mut [T],
 ) -> Result<()> {
+    let slots = m * ell_width;
+    check_len("ellmv", "ell_val", ell_val.len(), slots)?;
+    check_len("ellmv", "ell_col_ind", ell_col_ind.len(), slots)?;
+    let b = base_offset(descr.index_base());
+    if let Some(&bad) = ell_col_ind[..slots].iter().find(|&&c| {
+        let q = i64::from(c) - b;
+        q != -1 && (q < 0 || q as usize >= n) // -1 relative to the base is the padding slot of `csr2ell`
+    }) {
+        return Err(Error::InvalidArgument(format!(
+            "ellmv: column index {bad} outside the matrix (n = {n}, base {:?})",
+            descr.index_base()
+        )));
+    }
     T::ellmv(
         op,
         alpha,
@@ -2233,6 +2264,17 @@ pub fn csr2ell_f64(
     ell_val: &mut [f64],
     ell_width: usize,
 ) -> Result<()> {
+    check_csr_arrays(
+        "csr2ell",
+        m,
+        None,
+        descr.index_base(),
+        csr_row_ptr,
+        csr_col_ind,
+        csr_val.len(),
+    )?;
+    check_len("csr2ell", "ell_col_ind", ell_col_ind.len(), m * ell_width)?;
+    check_len("csr2ell", "ell_val", ell_val.len(), m * ell_width)?;
     let status = unsafe {
         sys::aoclsparse_dcsr2ell(
             m as sys::aoclsparse_int,
@@ -2259,6 +2301,17 @@ pub fn csr2ell_f32(
     ell_val: &mut [f32],
     ell_width: usize,
 ) -> Result<()> {
+    check_csr_arrays(
+        "csr2ell",
+        m,
+        None,
+        descr.index_base(),
+        csr_row_ptr,
+        csr_col_ind,
+        csr_val.len(),
+    )?;
+    check_len("csr2ell", "ell_col_ind", ell_col_ind.len(), m * ell_width)?;
+    check_len("csr2ell", "ell_val", ell_val.len(), m * ell_width)?;
     let status = unsafe {
         sys::aoclsparse_scsr2ell(
             m as sys::aoclsparse_int,
@@ -2288,6 +2341,17 @@ pub fn csr2dia_f64(
     dia_offset: &mut [sys::aoclsparse_int],
     dia_val: &mut [f64],
 ) -> Result<()> {
+    check_csr_arrays(
+        "csr2dia",
+        m,
+        Some(n),
+        descr.index_base(),
+        csr_row_ptr,
+        csr_col_ind,
+        csr_val.len(),
+    )?;
+    check_len("csr2dia", "dia_offset", dia_offset.len(), dia_num_diag)?;
+    check_len("csr2dia", "dia_val", dia_val.len(), m * dia_num_diag)?;
     let status = unsafe {
         sys::aoclsparse_dcsr2dia(
             m as sys::aoclsparse_int,
@@ -2316,6 +2380,17 @@ pub fn csr2dia_f32(
     dia_offset: &mut [sys::aoclsparse_int],
     dia_val: &mut [f32],
 ) -> Result<()> {
+    check_csr_arrays(
+        "csr2dia",
+        m,
+        Some(n),
+        descr.index_base(),
+        csr_row_ptr,
+        csr_col_ind,
+        csr_val.len(),
+    )?;
+    check_len("csr2dia", "dia_offset", dia_offset.len(), dia_num_diag)?;
+    check_len("csr2dia", "dia_val", dia_val.len(), m * dia_num_diag)?;
     let status = unsafe {
         sys::aoclsparse_scsr2dia(
             m as sys::aoclsparse_int,
@@ -2829,6 +2904,63 @@ pub(crate) fn check_len(name: &str, what: &str, have: usize, need: usize) -> Res
         return Err(Error::InvalidArgument(format!(
             "{name}: {what}.len()={have}, the matrix needs {need}"
         )));
+    }
+    Ok(())
+}
+
+fn base_offset(base: IndexBase) -> i64 {
+    match base {
+        IndexBase::Zero => 0,
+        IndexBase::One => 1,
+    }
+}
+
+/// Validate the CSR arrays handed straight to a raw-array routine (no handle: `create_csr` is what refuses a malformed matrix, and
+/// these routines bypass it): `row_ptr` has `m + 1` entries, is non-decreasing from a non-negative start, its last entry does not
+/// exceed `col_ind` or `val`, and every column index of a stored entry lies in `[base, base + n)`. The library trusts all of this: a
+/// column index past `n` or a `row_ptr` entry past the arrays reads outside them (access violation on AOCL 6.0.68,
+/// `tests/raw_array_lengths.rs`).
+pub(crate) fn check_csr_arrays(
+    name: &str,
+    m: usize,
+    n: Option<usize>,
+    base: IndexBase,
+    row_ptr: &[sys::aoclsparse_int],
+    col_ind: &[sys::aoclsparse_int],
+    val_len: usize,
+) -> Result<()> {
+    check_len(name, "csr_row_ptr", row_ptr.len(), m + 1)?;
+    let b = base_offset(base);
+    let mut prev = i64::MIN;
+    for &p in &row_ptr[..=m] {
+        let q = i64::from(p) - b;
+        if q < 0 || q < prev {
+            return Err(Error::InvalidArgument(format!(
+                "{name}: csr_row_ptr is not non-decreasing from the index base ({base:?}): entry {p}"
+            )));
+        }
+        prev = q;
+    }
+    let (first, last) = (
+        (i64::from(row_ptr[0]) - b) as usize,
+        (i64::from(row_ptr[m]) - b) as usize,
+    );
+    if last > col_ind.len() || last > val_len {
+        return Err(Error::InvalidArgument(format!(
+            "{name}: csr_row_ptr says {last} stored entries, csr_col_ind has {} and csr_val has {val_len}",
+            col_ind.len()
+        )));
+    }
+    if let Some(n) = n {
+        if let Some(&bad) = col_ind[first..last].iter().find(|&&c| {
+            let q = i64::from(c) - b;
+            q < 0 || q as usize >= n
+        }) {
+            return Err(Error::InvalidArgument(format!(
+                "{name}: column index {bad} outside [{b}, {}) (n = {n}, base {base:?})",
+                b + n as i64
+            )));
+        }
     }
     Ok(())
 }
