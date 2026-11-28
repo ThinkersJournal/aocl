@@ -1368,6 +1368,8 @@ pub fn symgs_c64(
     b: &[Complex64],
     x: &mut [Complex64],
 ) -> Result<()> {
+    crate::check_len("symgs_c64", "b", b.len(), a.m)?;
+    crate::check_len("symgs_c64", "x", x.len(), a.n)?;
     let alpha_raw = sys::aoclsparse_double_complex_ {
         real: alpha.re,
         imag: alpha.im,
@@ -1394,6 +1396,8 @@ pub fn symgs_c32(
     b: &[Complex32],
     x: &mut [Complex32],
 ) -> Result<()> {
+    crate::check_len("symgs_c32", "b", b.len(), a.m)?;
+    crate::check_len("symgs_c32", "x", x.len(), a.n)?;
     let alpha_raw = sys::aoclsparse_float_complex {
         real: alpha.re,
         imag: alpha.im,
@@ -1421,6 +1425,9 @@ pub fn symgs_mv_c64(
     x: &mut [Complex64],
     y: &mut [Complex64],
 ) -> Result<()> {
+    crate::check_len("symgs_mv_c64", "b", b.len(), a.m)?;
+    crate::check_len("symgs_mv_c64", "x", x.len(), a.n)?;
+    crate::check_len("symgs_mv_c64", "y", y.len(), a.m)?;
     let alpha_raw = sys::aoclsparse_double_complex_ {
         real: alpha.re,
         imag: alpha.im,
@@ -1449,6 +1456,9 @@ pub fn symgs_mv_c32(
     x: &mut [Complex32],
     y: &mut [Complex32],
 ) -> Result<()> {
+    crate::check_len("symgs_mv_c32", "b", b.len(), a.m)?;
+    crate::check_len("symgs_mv_c32", "x", x.len(), a.n)?;
+    crate::check_len("symgs_mv_c32", "y", y.len(), a.m)?;
     let alpha_raw = sys::aoclsparse_float_complex {
         real: alpha.re,
         imag: alpha.im,
@@ -1623,6 +1633,9 @@ pub fn dotmv_c64(
     y: &mut [Complex64],
     d: &mut Complex64,
 ) -> Result<()> {
+    let (xl, yl) = crate::mv_lens(op, a.m, a.n);
+    crate::check_len("dotmv_c64", "x", x.len(), xl)?;
+    crate::check_len("dotmv_c64", "y", y.len(), yl)?;
     let alpha_raw = sys::aoclsparse_double_complex_ {
         real: alpha.re,
         imag: alpha.im,
@@ -1657,6 +1670,9 @@ pub fn dotmv_c32(
     y: &mut [Complex32],
     d: &mut Complex32,
 ) -> Result<()> {
+    let (xl, yl) = crate::mv_lens(op, a.m, a.n);
+    crate::check_len("dotmv_c32", "x", x.len(), xl)?;
+    crate::check_len("dotmv_c32", "y", y.len(), yl)?;
     let alpha_raw = sys::aoclsparse_float_complex {
         real: alpha.re,
         imag: alpha.im,
