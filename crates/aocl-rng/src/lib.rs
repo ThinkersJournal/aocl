@@ -15,6 +15,43 @@ use aocl_rng_sys as sys;
 /// `ilp64` Cargo-feature build.
 pub type RngInt = sys::rng_int_t;
 
+/// `len` must hold a column-major `rows x cols` block with leading dimension `ld`: `ld >= rows` and `(cols - 1) * ld + rows` elements (the
+/// library does not check any of the arrays; each too-short buffer here is an access violation, `tests/guard_lengths.rs`).
+fn check_block(
+    name: &str,
+    what: &str,
+    rows: usize,
+    cols: usize,
+    ld: RngInt,
+    len: usize,
+) -> Result<()> {
+    if ld < 0 || (ld as usize) < rows {
+        return Err(Error::InvalidArgument(format!(
+            "{name}: {what} leading dimension {ld} is less than {rows}"
+        )));
+    }
+    let need = if rows == 0 || cols == 0 {
+        0
+    } else {
+        (cols - 1) * ld as usize + rows
+    };
+    if len < need {
+        return Err(Error::InvalidArgument(format!(
+            "{name}: {what} has {len} elements, {need} are needed"
+        )));
+    }
+    Ok(())
+}
+
+fn check_len(name: &str, what: &str, len: usize, need: usize) -> Result<()> {
+    if len < need {
+        return Err(Error::InvalidArgument(format!(
+            "{name}: {what} has {len} elements, {need} are needed"
+        )));
+    }
+    Ok(())
+}
+
 /// Base generator algorithm. The numeric values follow the NAG-style
 /// `genid` convention used by AOCL-RNG.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -355,6 +392,8 @@ impl Rng {
                 "multinomial: n={n_samples} exceeds rng_int_t range"
             ))
         })?;
+        check_len("multinomial", "p", p.len(), k as usize)?;
+        check_block("multinomial", "out", n_samples, k as usize, ldx, out.len())?;
         let mut info: RngInt = 0;
         unsafe {
             sys::drandmultinomial(
@@ -400,6 +439,9 @@ impl Rng {
                 "multinormal: n={n_samples} exceeds rng_int_t range"
             ))
         })?;
+        check_len("multinormal", "xmu", xmu.len(), m as usize)?;
+        check_block("multinormal", "c", m as usize, m as usize, ldc, c.len())?;
+        check_block("multinormal", "out", n_samples, m as usize, ldx, out.len())?;
         let mut info: RngInt = 0;
         unsafe {
             sys::drandmultinormal(
@@ -488,6 +530,23 @@ impl Rng {
                 "multi_students_t: n={n_samples} exceeds rng_int_t range"
             ))
         })?;
+        check_len("multi_students_t", "xmu", xmu.len(), m as usize)?;
+        check_block(
+            "multi_students_t",
+            "c",
+            m as usize,
+            m as usize,
+            ldc,
+            c.len(),
+        )?;
+        check_block(
+            "multi_students_t",
+            "out",
+            n_samples,
+            m as usize,
+            ldx,
+            out.len(),
+        )?;
         let mut info: RngInt = 0;
         unsafe {
             sys::drandmultistudentst(
