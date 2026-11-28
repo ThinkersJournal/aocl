@@ -1,0 +1,50 @@
+0.1.0 aocl-blas/generated_guard: 506 tests in 28s; HOLE=12, OK-accepted=20, OK-control=146, OK-refused=328 | 
+0.2.5 aocl-blas/generated_guard: 506 tests in 24s; HOLE=12, OK-accepted=20, OK-control=146, OK-refused=328 | 
+0.2.40 aocl-blas/generated_guard: 506 tests in 39s; HOLE=12, OK-accepted=20, OK-control=146, OK-refused=328 | 
+0.2.43 aocl-blas/generated_guard: 506 tests in 28s; HOLE=12, OK-accepted=20, OK-control=146, OK-refused=328 | 
+0.2.46 aocl-blas/generated_guard: 506 tests in 30s; HOLE=12, OK-accepted=20, OK-control=146, OK-refused=328 | 
+
+aocl-blas: function family | versions measured with that family | HOLE in versions
+axpby          present 0.1.0..0.2.46  HOLE in none
+axpy           present 0.1.0..0.2.46  HOLE in none
+copy           present 0.1.0..0.2.46  HOLE in none
+dot            present 0.1.0..0.2.46  HOLE in none
+dotu           present 0.1.0..0.2.46  HOLE in none
+gbmv           present 0.1.0..0.2.46  HOLE in none
+gemm           present 0.1.0..0.2.46  HOLE in none
+gemmt          present 0.1.0..0.2.46  HOLE in ['0.1.0', '0.2.5', '0.2.40', '0.2.43', '0.2.46']
+gemv           present 0.1.0..0.2.46  HOLE in none
+ger            present 0.1.0..0.2.46  HOLE in none
+gerc           present 0.1.0..0.2.46  HOLE in none
+geru           present 0.1.0..0.2.46  HOLE in none
+hbmv           present 0.1.0..0.2.46  HOLE in none
+hemm           present 0.1.0..0.2.46  HOLE in none
+hemv           present 0.1.0..0.2.46  HOLE in none
+her            present 0.1.0..0.2.46  HOLE in none
+her2           present 0.1.0..0.2.46  HOLE in none
+her2k          present 0.1.0..0.2.46  HOLE in none
+herk           present 0.1.0..0.2.46  HOLE in none
+hpmv           present 0.1.0..0.2.46  HOLE in none
+hpr            present 0.1.0..0.2.46  HOLE in none
+hpr2           present 0.1.0..0.2.46  HOLE in none
+rot            present 0.1.0..0.2.46  HOLE in none
+sbmv           present 0.1.0..0.2.46  HOLE in none
+spmv           present 0.1.0..0.2.46  HOLE in none
+spr            present 0.1.0..0.2.46  HOLE in none
+spr2           present 0.1.0..0.2.46  HOLE in none
+swap           present 0.1.0..0.2.46  HOLE in none
+symm           present 0.1.0..0.2.46  HOLE in none
+symv           present 0.1.0..0.2.46  HOLE in none
+syr            present 0.1.0..0.2.46  HOLE in none
+syr2           present 0.1.0..0.2.46  HOLE in none
+syr2k          present 0.1.0..0.2.46  HOLE in none
+syrk           present 0.1.0..0.2.46  HOLE in none
+tbmv           present 0.1.0..0.2.46  HOLE in none
+tbsv           present 0.1.0..0.2.46  HOLE in none
+tpmv           present 0.1.0..0.2.46  HOLE in none
+tpsv           present 0.1.0..0.2.46  HOLE in none
+trmm           present 0.1.0..0.2.46  HOLE in none
+trmv           present 0.1.0..0.2.46  HOLE in none
+trsm           present 0.1.0..0.2.46  HOLE in none
+trsv           present 0.1.0..0.2.46  HOLE in none
+exit=0

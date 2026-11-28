@@ -80,6 +80,7 @@ KIND = {
 def main():
     only = sys.argv[sys.argv.index("--only") + 1] if "--only" in sys.argv else None
     assert_mode = "--assert" in sys.argv
+    fns = set(sys.argv[sys.argv.index("--fns") + 1].split(",")) if "--fns" in sys.argv else None
     group = sys.argv[sys.argv.index("--group") + 1] if "--group" in sys.argv else None
     out = []
     w = out.append
@@ -121,6 +122,8 @@ fn report<T: core::fmt::Debug>(name: &str, r: core::result::Result<T, aocl_error
     count = 0
     for name, kinds, slices, call, variants, typed in RULES:
         if only and name.replace("{p}", "") != only and name != only:
+            continue
+        if fns is not None and not any(name.replace("{p}", pre) in fns for pre in "dszc"):
             continue
         if (group == "generic" and typed) or (group == "typed" and not typed):
             continue

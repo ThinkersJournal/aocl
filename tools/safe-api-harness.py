@@ -45,9 +45,10 @@ def main():
     timeout = int(arg("--timeout", "60"))
     out = arg("--out", f"docs/safe-api-audit/results-{pkg}.csv")
     feats = arg("--features")
+    cwd = arg("--cwd")
     env = child_env()
-    cmd = ["cargo", "test", "-p", pkg, "--test", target, "--offline", "--no-run", "--message-format=json"] + (["--features", feats] if feats else [])
-    r = subprocess.run(cmd, capture_output=True, text=True, env=env)
+    cmd = ["cargo", "test", "-p", pkg, "--test", target] + ([] if "--online" in sys.argv else ["--offline"]) + ["--no-run", "--message-format=json"] + (["--features", feats] if feats else [])
+    r = subprocess.run(cmd, capture_output=True, text=True, env=env, cwd=cwd)
     exe = None
     for line in r.stdout.splitlines():
         try:
