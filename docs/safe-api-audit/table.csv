@@ -1,61 +1,61 @@
 crate,file,line,fn,kind,trait_method,slice_args,ptr_args,size_args,handle_args,in_scope,check_before_ffi_heuristic,guard_page_test,verdict
-aocl-blas,crates/aocl-blas/src/lib.rs,2972,scal,safe,,x,,,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,2977,copy,safe,,x y,,,,yes,yes,,checks present: read pending
-aocl-blas,crates/aocl-blas/src/lib.rs,2989,swap,safe,,x y,,,,yes,yes,,checks present: read pending
-aocl-blas,crates/aocl-blas/src/lib.rs,3001,axpy,safe,,x y,,,,yes,yes,,checks present: read pending
-aocl-blas,crates/aocl-blas/src/lib.rs,3013,dot,safe,,x y,,,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3018,dotu,safe,,x y,,,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3023,nrm2,safe,,x,,,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3028,asum,safe,,x,,,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3033,iamax,safe,,x,,,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3038,iamin,safe,,x,,,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3043,gemm,safe,,a b c,,n k,,yes,NO,,REVIEW
+aocl-blas,crates/aocl-blas/src/lib.rs,2972,scal,safe,,x,,,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,2977,copy,safe,,x y,,,,yes,direct,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,2989,swap,safe,,x y,,,,yes,direct,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3001,axpy,safe,,x y,,,,yes,direct,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3013,dot,safe,,x y,,,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3018,dotu,safe,,x y,,,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3023,nrm2,safe,,x,,,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3028,asum,safe,,x,,,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3033,iamax,safe,,x,,,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3038,iamin,safe,,x,,,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3043,gemm,safe,,a b c,,n k,,yes,via callee,,checks present: read pending
 aocl-blas,crates/aocl-blas/src/lib.rs,3084,rotg,safe,,,,,a b,no,NO,,n/a
-aocl-blas,crates/aocl-blas/src/lib.rs,3092,rot,safe,,x y,,,,yes,yes,,checks present: read pending
-aocl-blas,crates/aocl-blas/src/lib.rs,3111,gemv,safe,,a x y,,n,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3138,trmv,safe,,a x,,n,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3150,trsv,safe,,a x,,n,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3162,symv,safe,,a x y,,n,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3175,syr,safe,,x a,,n,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3180,syr2,safe,,x y a,,n,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3192,ger,safe,,x y a,,n,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3204,hemv,safe,,a x y,,n,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3217,her,safe,,x a,,n,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3228,her2,safe,,x y a,,n,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3240,geru,safe,,x y a,,n,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3252,gerc,safe,,x y a,,n,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3269,symm,safe,,a b c,,n,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3300,syrk,safe,,a c,,n k,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3330,syr2k,safe,,a b c,,n k,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3365,trmm,safe,,a b,,n,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3394,trsm,safe,,a b,,n,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3423,hemm,safe,,a b c,,n,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3454,herk,safe,,a c,,n k,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3484,her2k,safe,,a b c,,n k,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3523,gbmv,safe,,a x y,,n kl ku lda,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3543,tbmv,safe,,a x,,n k lda,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3558,tbsv,safe,,a x,,n k lda,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3573,tpmv,safe,,ap x,,n,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3585,tpsv,safe,,ap x,,n,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3597,sbmv,safe,,a x y,,n k lda,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3625,spmv,safe,,ap x y,,n,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3638,spr,safe,,x ap,,n,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3643,spr2,safe,,x y ap,,n,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3655,hbmv,safe,,a x y,,n k lda,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3683,hpmv,safe,,ap x y,,n,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3696,hpr,safe,,x ap,,n,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,3707,hpr2,safe,,x y ap,,n,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,4005,axpby,safe,,x y,,,,yes,NO,,REVIEW
+aocl-blas,crates/aocl-blas/src/lib.rs,3092,rot,safe,,x y,,,,yes,direct,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3111,gemv,safe,,a x y,,n,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3138,trmv,safe,,a x,,n,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3150,trsv,safe,,a x,,n,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3162,symv,safe,,a x y,,n,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3175,syr,safe,,x a,,n,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3180,syr2,safe,,x y a,,n,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3192,ger,safe,,x y a,,n,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3204,hemv,safe,,a x y,,n,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3217,her,safe,,x a,,n,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3228,her2,safe,,x y a,,n,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3240,geru,safe,,x y a,,n,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3252,gerc,safe,,x y a,,n,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3269,symm,safe,,a b c,,n,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3300,syrk,safe,,a c,,n k,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3330,syr2k,safe,,a b c,,n k,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3365,trmm,safe,,a b,,n,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3394,trsm,safe,,a b,,n,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3423,hemm,safe,,a b c,,n,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3454,herk,safe,,a c,,n k,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3484,her2k,safe,,a b c,,n k,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3523,gbmv,safe,,a x y,,n kl ku lda,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3543,tbmv,safe,,a x,,n k lda,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3558,tbsv,safe,,a x,,n k lda,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3573,tpmv,safe,,ap x,,n,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3585,tpsv,safe,,ap x,,n,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3597,sbmv,safe,,a x y,,n k lda,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3625,spmv,safe,,ap x y,,n,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3638,spr,safe,,x ap,,n,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3643,spr2,safe,,x y ap,,n,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3655,hbmv,safe,,a x y,,n k lda,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3683,hpmv,safe,,ap x y,,n,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3696,hpr,safe,,x ap,,n,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,3707,hpr2,safe,,x y ap,,n,,yes,via callee,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,4005,axpby,safe,,x y,,,,yes,via callee,,checks present: read pending
 aocl-blas,crates/aocl-blas/src/lib.rs,4011,gemmt,safe,,a b c,,n k lda ldb ldc,,yes,NO,,REVIEW
 aocl-blas,crates/aocl-blas/src/lib.rs,4049,srotmg,safe,,,,,,no,NO,,n/a
 aocl-blas,crates/aocl-blas/src/lib.rs,4058,drotmg,safe,,,,,,no,NO,,n/a
-aocl-blas,crates/aocl-blas/src/lib.rs,4067,srotm,safe,,x y p,,,,yes,yes,,checks present: read pending
-aocl-blas,crates/aocl-blas/src/lib.rs,4083,drotm,safe,,x y p,,,,yes,yes,,checks present: read pending
-aocl-blas,crates/aocl-blas/src/lib.rs,4101,sdsdot,safe,,x y,,,,yes,yes,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,4067,srotm,safe,,x y p,,,,yes,direct,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,4083,drotm,safe,,x y p,,,,yes,direct,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,4101,sdsdot,safe,,x y,,,,yes,direct,,checks present: read pending
 aocl-blas,crates/aocl-blas/src/lib.rs,4110,crotg,safe,,,,,a b,no,NO,,n/a
 aocl-blas,crates/aocl-blas/src/lib.rs,4125,zrotg,safe,,,,,a b,no,NO,,n/a
-aocl-blas,crates/aocl-blas/src/lib.rs,4140,csrot,safe,,x y,,,,yes,yes,,checks present: read pending
-aocl-blas,crates/aocl-blas/src/lib.rs,4157,zdrot,safe,,x y,,,,yes,yes,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,4140,csrot,safe,,x y,,,,yes,direct,,checks present: read pending
+aocl-blas,crates/aocl-blas/src/lib.rs,4157,zdrot,safe,,x y,,,,yes,direct,,checks present: read pending
 aocl-blas,crates/aocl-blas/src/lib.rs,4190,sgemm_batch,unsafe,,rans_a rans_b  n k alpha a_array lda b_array ldb beta c_array ldc group_size,,group_count,,no,NO,,n/a
 aocl-blas,crates/aocl-blas/src/lib.rs,4232,dgemm_batch,unsafe,,rans_a rans_b  n k alpha a_array lda b_array ldb beta c_array ldc group_size,,group_count,,no,NO,,n/a
 aocl-blas,crates/aocl-blas/src/lib.rs,4275,cgemm_batch,unsafe,,rans_a rans_b  n k lda ldb ldc group_size,alpha a_array b_array beta c_array,group_count,,no,NO,,n/a
@@ -70,76 +70,76 @@ aocl-blas,crates/aocl-blas/src/lib.rs,4536,zgemm3m,safe,,a b c,,n k lda ldb ldc,
 aocl-blas,crates/aocl-blas/src/lib.rs,4574,scabs1,safe,,,,,,no,NO,,n/a
 aocl-blas,crates/aocl-blas/src/lib.rs,4579,dcabs1,safe,,,,,,no,NO,,n/a
 aocl-blas,crates/aocl-blas/src/lib.rs,4584,dgemm_compute,safe,,a b c,,n k lda ldb ldc,,yes,NO,,REVIEW
-aocl-blas,crates/aocl-blas/src/lib.rs,509,Scalar::scal,safe,yes,x,,inc,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,514,Scalar::scal_real,safe,yes,x,,inc,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,517,Scalar::copy,safe,yes,x y,,,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,520,Scalar::swap,safe,yes,x y,,,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,523,Scalar::axpy,safe,yes,x y,,,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,528,Scalar::dot,safe,yes,x y,,,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,532,Scalar::dotu,safe,yes,x y,,,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,535,Scalar::nrm2,safe,yes,x,,inc,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,539,Scalar::asum,safe,yes,x,,inc,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,543,Scalar::iamax,safe,yes,x,,inc,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,546,Scalar::iamin,safe,yes,x,,inc,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,551,Scalar::gemv,safe,yes,a x y,,n lda,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,567,Scalar::trmv,safe,yes,a x,,n lda,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,581,Scalar::trsv,safe,yes,a x,,n lda,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,596,Scalar::gemm,safe,yes,a b c,,n k lda ldb ldc,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,616,Scalar::symm,safe,yes,a b c,,n lda ldb ldc,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,634,Scalar::syrk,safe,yes,a c,,n k lda ldc,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,650,Scalar::syr2k,safe,yes,a b c,,n k lda ldb ldc,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,669,Scalar::gbmv,safe,yes,a x y,,n kl ku lda,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,688,Scalar::tbmv,safe,yes,a x,,n k lda,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,702,Scalar::tbsv,safe,yes,a x,,n k lda,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,717,Scalar::tpmv,safe,yes,ap x,,n,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,729,Scalar::tpsv,safe,yes,ap x,,n,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,742,Scalar::trmm,safe,yes,a b,,n lda ldb,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,759,Scalar::trsm,safe,yes,a b,,n lda ldb,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,779,RealScalar::rotg,safe,yes,,,,a b c s,no,n/a (trait decl),,n/a
-aocl-blas,crates/aocl-blas/src/lib.rs,783,RealScalar::rot,safe,yes,x y,,,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,794,RealScalar::dsdot,safe,yes,x y,,,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,798,RealScalar::symv,safe,yes,a x y,,n lda,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,814,RealScalar::syr,safe,yes,x a,,n lda,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,826,RealScalar::syr2,safe,yes,x y a,,n lda,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,840,RealScalar::ger,safe,yes,x y a,,n lda,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,855,RealScalar::sbmv,safe,yes,a x y,,n k lda,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,871,RealScalar::spmv,safe,yes,ap x y,,n,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,885,RealScalar::spr,safe,yes,x ap,,n,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,896,RealScalar::spr2,safe,yes,x y ap,,n,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,914,ComplexScalar::hemv,safe,yes,a x y,,n lda,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,932,ComplexScalar::her,safe,yes,x a,,n lda,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,944,ComplexScalar::her2,safe,yes,x y a,,n lda,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,958,ComplexScalar::geru,safe,yes,x y a,,n lda,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,972,ComplexScalar::gerc,safe,yes,x y a,,n lda,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,989,ComplexScalar::hemm,safe,yes,a b c,,n lda ldb ldc,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,1009,ComplexScalar::herk,safe,yes,a c,,n k lda ldc,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,1026,ComplexScalar::her2k,safe,yes,a b c,,n k lda ldb ldc,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,1043,ComplexScalar::hbmv,safe,yes,a x y,,n k lda,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,1059,ComplexScalar::hpmv,safe,yes,ap x y,,n,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,1073,ComplexScalar::hpr,safe,yes,x ap,,n,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,1084,ComplexScalar::hpr2,safe,yes,x y ap,,n,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,3727,BlasExt::axpby,safe,yes,x y,,,,yes,n/a (trait decl),,READ (trait method)
-aocl-blas,crates/aocl-blas/src/lib.rs,3738,BlasExt::gemmt,safe,yes,a b c,,n k lda ldb ldc,,yes,n/a (trait decl),,READ (trait method)
-aocl-lapack,crates/aocl-lapack/src/lib.rs,2162,gesv,safe,,a ipiv b,,n,,yes,yes,,checks present: read pending
-aocl-lapack,crates/aocl-lapack/src/lib.rs,2170,getrf,safe,,a ipiv,,n,,yes,NO,,REVIEW
-aocl-lapack,crates/aocl-lapack/src/lib.rs,2174,getrs,safe,,a ipiv b,,n,,yes,yes,,checks present: read pending
-aocl-lapack,crates/aocl-lapack/src/lib.rs,2182,getri,safe,,a ipiv,,n,,yes,NO,,REVIEW
-aocl-lapack,crates/aocl-lapack/src/lib.rs,2186,posv,safe,,a b,,n,,yes,yes,,checks present: read pending
-aocl-lapack,crates/aocl-lapack/src/lib.rs,2194,potrf,safe,,a,,n,,yes,NO,,REVIEW
-aocl-lapack,crates/aocl-lapack/src/lib.rs,2198,potrs,safe,,a b,,n,,yes,yes,,checks present: read pending
-aocl-lapack,crates/aocl-lapack/src/lib.rs,2206,sysv,safe,,a ipiv b,,n,,yes,yes,,checks present: read pending
-aocl-lapack,crates/aocl-lapack/src/lib.rs,2220,hesv,safe,,a ipiv b,,n,,yes,yes,,checks present: read pending
-aocl-lapack,crates/aocl-lapack/src/lib.rs,2234,gtsv,safe,,dl d du b,,n,,yes,yes,,checks present: read pending
-aocl-lapack,crates/aocl-lapack/src/lib.rs,2248,ptsv,safe,,d e b,,n,,yes,yes,,checks present: read pending
-aocl-lapack,crates/aocl-lapack/src/lib.rs,2256,gels,safe,,a b,,n,,yes,yes,,checks present: read pending
-aocl-lapack,crates/aocl-lapack/src/lib.rs,2262,geqrf,safe,,a au,,n,,yes,NO,,REVIEW
-aocl-lapack,crates/aocl-lapack/src/lib.rs,2266,gelqf,safe,,a au,,n,,yes,NO,,REVIEW
+aocl-blas,crates/aocl-blas/src/lib.rs,509,Scalar::scal,safe,yes,x,,inc,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,514,Scalar::scal_real,safe,yes,x,,inc,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,517,Scalar::copy,safe,yes,x y,,,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,520,Scalar::swap,safe,yes,x y,,,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,523,Scalar::axpy,safe,yes,x y,,,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,528,Scalar::dot,safe,yes,x y,,,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,532,Scalar::dotu,safe,yes,x y,,,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,535,Scalar::nrm2,safe,yes,x,,inc,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,539,Scalar::asum,safe,yes,x,,inc,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,543,Scalar::iamax,safe,yes,x,,inc,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,546,Scalar::iamin,safe,yes,x,,inc,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,551,Scalar::gemv,safe,yes,a x y,,n lda,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,567,Scalar::trmv,safe,yes,a x,,n lda,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,581,Scalar::trsv,safe,yes,a x,,n lda,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,596,Scalar::gemm,safe,yes,a b c,,n k lda ldb ldc,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,616,Scalar::symm,safe,yes,a b c,,n lda ldb ldc,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,634,Scalar::syrk,safe,yes,a c,,n k lda ldc,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,650,Scalar::syr2k,safe,yes,a b c,,n k lda ldb ldc,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,669,Scalar::gbmv,safe,yes,a x y,,n kl ku lda,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,688,Scalar::tbmv,safe,yes,a x,,n k lda,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,702,Scalar::tbsv,safe,yes,a x,,n k lda,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,717,Scalar::tpmv,safe,yes,ap x,,n,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,729,Scalar::tpsv,safe,yes,ap x,,n,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,742,Scalar::trmm,safe,yes,a b,,n lda ldb,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,759,Scalar::trsm,safe,yes,a b,,n lda ldb,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,779,RealScalar::rotg,safe,yes,,,,a b c s,no,NO,,n/a
+aocl-blas,crates/aocl-blas/src/lib.rs,783,RealScalar::rot,safe,yes,x y,,,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,794,RealScalar::dsdot,safe,yes,x y,,,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,798,RealScalar::symv,safe,yes,a x y,,n lda,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,814,RealScalar::syr,safe,yes,x a,,n lda,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,826,RealScalar::syr2,safe,yes,x y a,,n lda,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,840,RealScalar::ger,safe,yes,x y a,,n lda,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,855,RealScalar::sbmv,safe,yes,a x y,,n k lda,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,871,RealScalar::spmv,safe,yes,ap x y,,n,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,885,RealScalar::spr,safe,yes,x ap,,n,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,896,RealScalar::spr2,safe,yes,x y ap,,n,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,914,ComplexScalar::hemv,safe,yes,a x y,,n lda,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,932,ComplexScalar::her,safe,yes,x a,,n lda,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,944,ComplexScalar::her2,safe,yes,x y a,,n lda,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,958,ComplexScalar::geru,safe,yes,x y a,,n lda,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,972,ComplexScalar::gerc,safe,yes,x y a,,n lda,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,989,ComplexScalar::hemm,safe,yes,a b c,,n lda ldb ldc,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,1009,ComplexScalar::herk,safe,yes,a c,,n k lda ldc,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,1026,ComplexScalar::her2k,safe,yes,a b c,,n k lda ldb ldc,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,1043,ComplexScalar::hbmv,safe,yes,a x y,,n k lda,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,1059,ComplexScalar::hpmv,safe,yes,ap x y,,n,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,1073,ComplexScalar::hpr,safe,yes,x ap,,n,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,1084,ComplexScalar::hpr2,safe,yes,x y ap,,n,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,3727,BlasExt::axpby,safe,yes,x y,,,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-blas,crates/aocl-blas/src/lib.rs,3738,BlasExt::gemmt,safe,yes,a b c,,n k lda ldb ldc,,yes,NO,,REVIEW (trait method; no check on any impl path)
+aocl-lapack,crates/aocl-lapack/src/lib.rs,2162,gesv,safe,,a ipiv b,,n,,yes,direct,,checks present: read pending
+aocl-lapack,crates/aocl-lapack/src/lib.rs,2170,getrf,safe,,a ipiv,,n,,yes,via callee,,checks present: read pending
+aocl-lapack,crates/aocl-lapack/src/lib.rs,2174,getrs,safe,,a ipiv b,,n,,yes,direct,,checks present: read pending
+aocl-lapack,crates/aocl-lapack/src/lib.rs,2182,getri,safe,,a ipiv,,n,,yes,via callee,,checks present: read pending
+aocl-lapack,crates/aocl-lapack/src/lib.rs,2186,posv,safe,,a b,,n,,yes,direct,,checks present: read pending
+aocl-lapack,crates/aocl-lapack/src/lib.rs,2194,potrf,safe,,a,,n,,yes,via callee,,checks present: read pending
+aocl-lapack,crates/aocl-lapack/src/lib.rs,2198,potrs,safe,,a b,,n,,yes,direct,,checks present: read pending
+aocl-lapack,crates/aocl-lapack/src/lib.rs,2206,sysv,safe,,a ipiv b,,n,,yes,direct,,checks present: read pending
+aocl-lapack,crates/aocl-lapack/src/lib.rs,2220,hesv,safe,,a ipiv b,,n,,yes,direct,,checks present: read pending
+aocl-lapack,crates/aocl-lapack/src/lib.rs,2234,gtsv,safe,,dl d du b,,n,,yes,direct,,checks present: read pending
+aocl-lapack,crates/aocl-lapack/src/lib.rs,2248,ptsv,safe,,d e b,,n,,yes,direct,,checks present: read pending
+aocl-lapack,crates/aocl-lapack/src/lib.rs,2256,gels,safe,,a b,,n,,yes,direct,,checks present: read pending
+aocl-lapack,crates/aocl-lapack/src/lib.rs,2262,geqrf,safe,,a au,,n,,yes,via callee,,checks present: read pending
+aocl-lapack,crates/aocl-lapack/src/lib.rs,2266,gelqf,safe,,a au,,n,,yes,via callee,,checks present: read pending
 aocl-lapack,crates/aocl-lapack/src/lib.rs,2273,syev,safe,,a w,,n,,yes,NO,,REVIEW
 aocl-lapack,crates/aocl-lapack/src/lib.rs,2284,heev,safe,,a w,,n,,yes,NO,,REVIEW
 aocl-lapack,crates/aocl-lapack/src/lib.rs,2296,gesvd,safe,,a s  vt superb,,n ldu ldvt,,yes,NO,,REVIEW
 aocl-lapack,crates/aocl-lapack/src/lib.rs,2327,gesdd,safe,,a s  vt,,n ldu ldvt,,yes,NO,,REVIEW
-aocl-lapack,crates/aocl-lapack/src/lib.rs,2342,gelsd,safe,,a b s,,n,,yes,yes,,checks present: read pending
-aocl-lapack,crates/aocl-lapack/src/lib.rs,2370,gelsy,safe,,a b jpvt,,n,,yes,yes,,checks present: read pending
+aocl-lapack,crates/aocl-lapack/src/lib.rs,2342,gelsd,safe,,a b s,,n,,yes,direct,,checks present: read pending
+aocl-lapack,crates/aocl-lapack/src/lib.rs,2370,gelsy,safe,,a b jpvt,,n,,yes,direct,,checks present: read pending
 aocl-lapack,crates/aocl-lapack/src/lib.rs,2437,dtrtrs,safe,,a b,,n nrhs lda ldb,,yes,NO,,REVIEW
 aocl-lapack,crates/aocl-lapack/src/lib.rs,2466,strtrs,safe,,a b,,n nrhs lda ldb,,yes,NO,,REVIEW
 aocl-lapack,crates/aocl-lapack/src/lib.rs,2495,dtrtri,safe,,a,,n lda,,yes,NO,,REVIEW
@@ -250,68 +250,68 @@ aocl-lapack,crates/aocl-lapack/src/lib.rs,5190,dlarfg,safe,,x,,n,,yes,NO,,REVIEW
 aocl-lapack,crates/aocl-lapack/src/lib.rs,5197,slarfg,safe,,x,,n,,yes,NO,,REVIEW
 aocl-lapack,crates/aocl-lapack/src/lib.rs,5204,zlarfg,safe,,x,,n,alpha,yes,NO,,REVIEW
 aocl-lapack,crates/aocl-lapack/src/lib.rs,5224,clarfg,safe,,x,,n,alpha,yes,NO,,REVIEW
-aocl-lapack,crates/aocl-lapack/src/lib.rs,5248,dlasrt,safe,,d,,,,yes,yes,,checks present: read pending
-aocl-lapack,crates/aocl-lapack/src/lib.rs,5258,slasrt,safe,,d,,,,yes,yes,,checks present: read pending
-aocl-lapack,crates/aocl-lapack/src/lib.rs,123,Scalar::gesv,safe,yes,a ipiv b,,n nrhs lda ldb,,yes,n/a (trait decl),,READ (trait method)
-aocl-lapack,crates/aocl-lapack/src/lib.rs,135,Scalar::getrf,safe,yes,a ipiv,,n lda,,yes,n/a (trait decl),,READ (trait method)
-aocl-lapack,crates/aocl-lapack/src/lib.rs,145,Scalar::getrs,safe,yes,a ipiv b,,n nrhs lda ldb,,yes,n/a (trait decl),,READ (trait method)
-aocl-lapack,crates/aocl-lapack/src/lib.rs,158,Scalar::getri,safe,yes,a ipiv,,n lda,,yes,n/a (trait decl),,READ (trait method)
-aocl-lapack,crates/aocl-lapack/src/lib.rs,163,Scalar::posv,safe,yes,a b,,n nrhs lda ldb,,yes,n/a (trait decl),,READ (trait method)
-aocl-lapack,crates/aocl-lapack/src/lib.rs,175,Scalar::potrf,safe,yes,a,,n lda,,yes,n/a (trait decl),,READ (trait method)
-aocl-lapack,crates/aocl-lapack/src/lib.rs,178,Scalar::potrs,safe,yes,a b,,n nrhs lda ldb,,yes,n/a (trait decl),,READ (trait method)
-aocl-lapack,crates/aocl-lapack/src/lib.rs,190,Scalar::potri,safe,yes,a,,n lda,,yes,n/a (trait decl),,READ (trait method)
-aocl-lapack,crates/aocl-lapack/src/lib.rs,197,Scalar::sysv,safe,yes,a ipiv b,,n nrhs lda ldb,,yes,n/a (trait decl),,READ (trait method)
-aocl-lapack,crates/aocl-lapack/src/lib.rs,210,Scalar::sytrf,safe,yes,a ipiv,,n lda,,yes,n/a (trait decl),,READ (trait method)
-aocl-lapack,crates/aocl-lapack/src/lib.rs,220,Scalar::sytrs,safe,yes,a ipiv b,,n nrhs lda ldb,,yes,n/a (trait decl),,READ (trait method)
-aocl-lapack,crates/aocl-lapack/src/lib.rs,235,Scalar::gbsv,safe,yes,ab ipiv b,,n kl ku nrhs ldb,,yes,n/a (trait decl),,READ (trait method)
-aocl-lapack,crates/aocl-lapack/src/lib.rs,249,Scalar::gbtrf,safe,yes,ab ipiv,,n kl ku,,yes,n/a (trait decl),,READ (trait method)
-aocl-lapack,crates/aocl-lapack/src/lib.rs,261,Scalar::gbtrs,safe,yes,ab ipiv b,,n kl ku nrhs ldb,,yes,n/a (trait decl),,READ (trait method)
-aocl-lapack,crates/aocl-lapack/src/lib.rs,278,Scalar::gtsv,safe,yes,dl d du b,,n nrhs ldb,,yes,n/a (trait decl),,READ (trait method)
-aocl-lapack,crates/aocl-lapack/src/lib.rs,292,Scalar::ptsv,safe,yes,d e b,,n nrhs ldb,,yes,n/a (trait decl),,READ (trait method)
-aocl-lapack,crates/aocl-lapack/src/lib.rs,305,Scalar::gels,safe,yes,a b,,n nrhs lda ldb,,yes,n/a (trait decl),,READ (trait method)
-aocl-lapack,crates/aocl-lapack/src/lib.rs,320,Scalar::geqrf,safe,yes,a au,,n lda,,yes,n/a (trait decl),,READ (trait method)
-aocl-lapack,crates/aocl-lapack/src/lib.rs,330,Scalar::gelqf,safe,yes,a au,,n lda,,yes,n/a (trait decl),,READ (trait method)
-aocl-lapack,crates/aocl-lapack/src/lib.rs,344,Scalar::gesvd,safe,yes,a s  vt superb,,n lda ldu ldvt,,yes,n/a (trait decl),,READ (trait method)
-aocl-lapack,crates/aocl-lapack/src/lib.rs,362,Scalar::gesdd,safe,yes,a s  vt,,n lda ldu ldvt,,yes,n/a (trait decl),,READ (trait method)
-aocl-lapack,crates/aocl-lapack/src/lib.rs,380,Scalar::gelsd,safe,yes,a b s,,n nrhs lda ldb,rank,yes,n/a (trait decl),,READ (trait method)
-aocl-lapack,crates/aocl-lapack/src/lib.rs,395,Scalar::gelsy,safe,yes,a b jpvt,,n nrhs lda ldb,rank,yes,n/a (trait decl),,READ (trait method)
-aocl-lapack,crates/aocl-lapack/src/lib.rs,460,RealScalar::syev,safe,yes,a w,,n lda,,yes,n/a (trait decl),,READ (trait method)
-aocl-lapack,crates/aocl-lapack/src/lib.rs,475,RealScalar::geev,safe,yes,a wr wi vl vr,,n lda ldvl ldvr,,yes,n/a (trait decl),,READ (trait method)
-aocl-lapack,crates/aocl-lapack/src/lib.rs,494,ComplexScalar::hesv,safe,yes,a ipiv b,,n nrhs lda ldb,,yes,n/a (trait decl),,READ (trait method)
-aocl-lapack,crates/aocl-lapack/src/lib.rs,507,ComplexScalar::hetrf,safe,yes,a ipiv,,n lda,,yes,n/a (trait decl),,READ (trait method)
-aocl-lapack,crates/aocl-lapack/src/lib.rs,517,ComplexScalar::hetrs,safe,yes,a ipiv b,,n nrhs lda ldb,,yes,n/a (trait decl),,READ (trait method)
-aocl-lapack,crates/aocl-lapack/src/lib.rs,531,ComplexScalar::heev,safe,yes,a w,,n lda,,yes,n/a (trait decl),,READ (trait method)
-aocl-lapack,crates/aocl-lapack/src/lib.rs,543,ComplexScalar::geev,safe,yes,a w vl vr,,n lda ldvl ldvr,,yes,n/a (trait decl),,READ (trait method)
-aocl-fft,crates/aocl-fft/src/lib.rs,70,dft_1d_inplace,safe,,data,,,,yes,yes,,checks present: read pending
-aocl-fft,crates/aocl-fft/src/lib.rs,91,dft_2d_inplace,safe,,data,,,,yes,yes,,checks present: read pending
-aocl-fft,crates/aocl-fft/src/lib.rs,124,dft_3d_inplace,safe,,data,,,,yes,yes,,checks present: read pending
+aocl-lapack,crates/aocl-lapack/src/lib.rs,5248,dlasrt,safe,,d,,,,yes,direct,,checks present: read pending
+aocl-lapack,crates/aocl-lapack/src/lib.rs,5258,slasrt,safe,,d,,,,yes,direct,,checks present: read pending
+aocl-lapack,crates/aocl-lapack/src/lib.rs,123,Scalar::gesv,safe,yes,a ipiv b,,n nrhs lda ldb,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-lapack,crates/aocl-lapack/src/lib.rs,135,Scalar::getrf,safe,yes,a ipiv,,n lda,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-lapack,crates/aocl-lapack/src/lib.rs,145,Scalar::getrs,safe,yes,a ipiv b,,n nrhs lda ldb,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-lapack,crates/aocl-lapack/src/lib.rs,158,Scalar::getri,safe,yes,a ipiv,,n lda,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-lapack,crates/aocl-lapack/src/lib.rs,163,Scalar::posv,safe,yes,a b,,n nrhs lda ldb,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-lapack,crates/aocl-lapack/src/lib.rs,175,Scalar::potrf,safe,yes,a,,n lda,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-lapack,crates/aocl-lapack/src/lib.rs,178,Scalar::potrs,safe,yes,a b,,n nrhs lda ldb,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-lapack,crates/aocl-lapack/src/lib.rs,190,Scalar::potri,safe,yes,a,,n lda,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-lapack,crates/aocl-lapack/src/lib.rs,197,Scalar::sysv,safe,yes,a ipiv b,,n nrhs lda ldb,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-lapack,crates/aocl-lapack/src/lib.rs,210,Scalar::sytrf,safe,yes,a ipiv,,n lda,,yes,NO,,REVIEW (trait method; no check on any impl path)
+aocl-lapack,crates/aocl-lapack/src/lib.rs,220,Scalar::sytrs,safe,yes,a ipiv b,,n nrhs lda ldb,,yes,NO,,REVIEW (trait method; no check on any impl path)
+aocl-lapack,crates/aocl-lapack/src/lib.rs,235,Scalar::gbsv,safe,yes,ab ipiv b,,n kl ku nrhs ldb,,yes,NO,,REVIEW (trait method; no check on any impl path)
+aocl-lapack,crates/aocl-lapack/src/lib.rs,249,Scalar::gbtrf,safe,yes,ab ipiv,,n kl ku,,yes,NO,,REVIEW (trait method; no check on any impl path)
+aocl-lapack,crates/aocl-lapack/src/lib.rs,261,Scalar::gbtrs,safe,yes,ab ipiv b,,n kl ku nrhs ldb,,yes,NO,,REVIEW (trait method; no check on any impl path)
+aocl-lapack,crates/aocl-lapack/src/lib.rs,278,Scalar::gtsv,safe,yes,dl d du b,,n nrhs ldb,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-lapack,crates/aocl-lapack/src/lib.rs,292,Scalar::ptsv,safe,yes,d e b,,n nrhs ldb,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-lapack,crates/aocl-lapack/src/lib.rs,305,Scalar::gels,safe,yes,a b,,n nrhs lda ldb,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-lapack,crates/aocl-lapack/src/lib.rs,320,Scalar::geqrf,safe,yes,a au,,n lda,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-lapack,crates/aocl-lapack/src/lib.rs,330,Scalar::gelqf,safe,yes,a au,,n lda,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-lapack,crates/aocl-lapack/src/lib.rs,344,Scalar::gesvd,safe,yes,a s  vt superb,,n lda ldu ldvt,,yes,NO,,REVIEW (trait method; no check on any impl path)
+aocl-lapack,crates/aocl-lapack/src/lib.rs,362,Scalar::gesdd,safe,yes,a s  vt,,n lda ldu ldvt,,yes,NO,,REVIEW (trait method; no check on any impl path)
+aocl-lapack,crates/aocl-lapack/src/lib.rs,380,Scalar::gelsd,safe,yes,a b s,,n nrhs lda ldb,rank,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-lapack,crates/aocl-lapack/src/lib.rs,395,Scalar::gelsy,safe,yes,a b jpvt,,n nrhs lda ldb,rank,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-lapack,crates/aocl-lapack/src/lib.rs,460,RealScalar::syev,safe,yes,a w,,n lda,,yes,NO,,REVIEW (trait method; no check on any impl path)
+aocl-lapack,crates/aocl-lapack/src/lib.rs,475,RealScalar::geev,safe,yes,a wr wi vl vr,,n lda ldvl ldvr,,yes,NO,,REVIEW (trait method; no check on any impl path)
+aocl-lapack,crates/aocl-lapack/src/lib.rs,494,ComplexScalar::hesv,safe,yes,a ipiv b,,n nrhs lda ldb,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-lapack,crates/aocl-lapack/src/lib.rs,507,ComplexScalar::hetrf,safe,yes,a ipiv,,n lda,,yes,NO,,REVIEW (trait method; no check on any impl path)
+aocl-lapack,crates/aocl-lapack/src/lib.rs,517,ComplexScalar::hetrs,safe,yes,a ipiv b,,n nrhs lda ldb,,yes,NO,,REVIEW (trait method; no check on any impl path)
+aocl-lapack,crates/aocl-lapack/src/lib.rs,531,ComplexScalar::heev,safe,yes,a w,,n lda,,yes,NO,,REVIEW (trait method; no check on any impl path)
+aocl-lapack,crates/aocl-lapack/src/lib.rs,543,ComplexScalar::geev,safe,yes,a w vl vr,,n lda ldvl ldvr,,yes,NO,,REVIEW (trait method; no check on any impl path)
+aocl-fft,crates/aocl-fft/src/lib.rs,70,dft_1d_inplace,safe,,data,,,,yes,direct,,checks present: read pending
+aocl-fft,crates/aocl-fft/src/lib.rs,91,dft_2d_inplace,safe,,data,,,,yes,direct,,checks present: read pending
+aocl-fft,crates/aocl-fft/src/lib.rs,124,dft_3d_inplace,safe,,data,,,,yes,direct,,checks present: read pending
 aocl-fft,crates/aocl-fft/src/lib.rs,159,forward_inplace,safe,,data,,,,yes,NO,,REVIEW
 aocl-fft,crates/aocl-fft/src/lib.rs,164,backward_inplace,safe,,data,,,,yes,NO,,REVIEW
-aocl-fft,crates/aocl-fft/src/lib.rs,176,r2c_1d,safe,,input output,,,,yes,yes,,checks present: read pending
-aocl-fft,crates/aocl-fft/src/lib.rs,210,c2r_1d,safe,,input output,,n,,yes,yes,,checks present: read pending
-aocl-fft,crates/aocl-fft/src/lib.rs,274,dft_1d,safe,,,,n,,yes,yes,,checks present: read pending
-aocl-fft,crates/aocl-fft/src/lib.rs,299,dft_2d,safe,,,,,,no,yes,,n/a
-aocl-fft,crates/aocl-fft/src/lib.rs,324,dft_3d,safe,,,,,,no,yes,,n/a
-aocl-fft,crates/aocl-fft/src/lib.rs,352,r2c_1d,safe,,,,n,,yes,yes,,checks present: read pending
-aocl-fft,crates/aocl-fft/src/lib.rs,381,c2r_1d,safe,,,,n,,yes,yes,,checks present: read pending
-aocl-fft,crates/aocl-fft/src/lib.rs,410,execute_dft,safe,,input output,,,,yes,yes,,checks present: read pending
-aocl-fft,crates/aocl-fft/src/lib.rs,435,execute_r2c,safe,,input output,,,,yes,yes,,checks present: read pending
-aocl-fft,crates/aocl-fft/src/lib.rs,462,execute_c2r,safe,,input output,,,,yes,yes,,checks present: read pending
-aocl-fft,crates/aocl-fft/src/lib.rs,513,dft_1d_inplace_f32,safe,,data,,,,yes,yes,,checks present: read pending
-aocl-fft,crates/aocl-fft/src/lib.rs,533,dft_2d_inplace_f32,safe,,data,,,,yes,yes,,checks present: read pending
-aocl-fft,crates/aocl-fft/src/lib.rs,566,dft_3d_inplace_f32,safe,,data,,,,yes,yes,,checks present: read pending
+aocl-fft,crates/aocl-fft/src/lib.rs,176,r2c_1d,safe,,input output,,,,yes,direct,,checks present: read pending
+aocl-fft,crates/aocl-fft/src/lib.rs,210,c2r_1d,safe,,input output,,n,,yes,direct,,checks present: read pending
+aocl-fft,crates/aocl-fft/src/lib.rs,274,dft_1d,safe,,,,n,,yes,direct,,checks present: read pending
+aocl-fft,crates/aocl-fft/src/lib.rs,299,dft_2d,safe,,,,,,no,direct,,n/a
+aocl-fft,crates/aocl-fft/src/lib.rs,324,dft_3d,safe,,,,,,no,direct,,n/a
+aocl-fft,crates/aocl-fft/src/lib.rs,352,r2c_1d,safe,,,,n,,yes,direct,,checks present: read pending
+aocl-fft,crates/aocl-fft/src/lib.rs,381,c2r_1d,safe,,,,n,,yes,direct,,checks present: read pending
+aocl-fft,crates/aocl-fft/src/lib.rs,410,execute_dft,safe,,input output,,,,yes,direct,,checks present: read pending
+aocl-fft,crates/aocl-fft/src/lib.rs,435,execute_r2c,safe,,input output,,,,yes,direct,,checks present: read pending
+aocl-fft,crates/aocl-fft/src/lib.rs,462,execute_c2r,safe,,input output,,,,yes,direct,,checks present: read pending
+aocl-fft,crates/aocl-fft/src/lib.rs,513,dft_1d_inplace_f32,safe,,data,,,,yes,direct,,checks present: read pending
+aocl-fft,crates/aocl-fft/src/lib.rs,533,dft_2d_inplace_f32,safe,,data,,,,yes,direct,,checks present: read pending
+aocl-fft,crates/aocl-fft/src/lib.rs,566,dft_3d_inplace_f32,safe,,data,,,,yes,direct,,checks present: read pending
 aocl-fft,crates/aocl-fft/src/lib.rs,601,forward_inplace_f32,safe,,data,,,,yes,NO,,REVIEW
 aocl-fft,crates/aocl-fft/src/lib.rs,606,backward_inplace_f32,safe,,data,,,,yes,NO,,REVIEW
-aocl-fft,crates/aocl-fft/src/lib.rs,617,r2c_1d_f32,safe,,input output,,,,yes,yes,,checks present: read pending
-aocl-fft,crates/aocl-fft/src/lib.rs,650,c2r_1d_f32,safe,,input output,,n,,yes,yes,,checks present: read pending
-aocl-fft,crates/aocl-fft/src/lib.rs,700,dft_1d,safe,,,,n,,yes,yes,,checks present: read pending
-aocl-fft,crates/aocl-fft/src/lib.rs,722,dft_2d,safe,,,,,,no,yes,,n/a
-aocl-fft,crates/aocl-fft/src/lib.rs,747,dft_3d,safe,,,,,,no,yes,,n/a
-aocl-fft,crates/aocl-fft/src/lib.rs,775,r2c_1d,safe,,,,n,,yes,yes,,checks present: read pending
-aocl-fft,crates/aocl-fft/src/lib.rs,804,c2r_1d,safe,,,,n,,yes,yes,,checks present: read pending
-aocl-fft,crates/aocl-fft/src/lib.rs,833,execute_dft,safe,,input output,,,,yes,yes,,checks present: read pending
-aocl-fft,crates/aocl-fft/src/lib.rs,858,execute_r2c,safe,,input output,,,,yes,yes,,checks present: read pending
-aocl-fft,crates/aocl-fft/src/lib.rs,885,execute_c2r,safe,,input output,,,,yes,yes,,checks present: read pending
+aocl-fft,crates/aocl-fft/src/lib.rs,617,r2c_1d_f32,safe,,input output,,,,yes,direct,,checks present: read pending
+aocl-fft,crates/aocl-fft/src/lib.rs,650,c2r_1d_f32,safe,,input output,,n,,yes,direct,,checks present: read pending
+aocl-fft,crates/aocl-fft/src/lib.rs,700,dft_1d,safe,,,,n,,yes,direct,,checks present: read pending
+aocl-fft,crates/aocl-fft/src/lib.rs,722,dft_2d,safe,,,,,,no,direct,,n/a
+aocl-fft,crates/aocl-fft/src/lib.rs,747,dft_3d,safe,,,,,,no,direct,,n/a
+aocl-fft,crates/aocl-fft/src/lib.rs,775,r2c_1d,safe,,,,n,,yes,direct,,checks present: read pending
+aocl-fft,crates/aocl-fft/src/lib.rs,804,c2r_1d,safe,,,,n,,yes,direct,,checks present: read pending
+aocl-fft,crates/aocl-fft/src/lib.rs,833,execute_dft,safe,,input output,,,,yes,direct,,checks present: read pending
+aocl-fft,crates/aocl-fft/src/lib.rs,858,execute_r2c,safe,,input output,,,,yes,direct,,checks present: read pending
+aocl-fft,crates/aocl-fft/src/lib.rs,885,execute_c2r,safe,,input output,,,,yes,direct,,checks present: read pending
 aocl-math,crates/aocl-math/src/lib.rs,37,cos,safe,,,,,,no,NO,,n/a
 aocl-math,crates/aocl-math/src/lib.rs,42,cosf,safe,,,,,,no,NO,,n/a
 aocl-math,crates/aocl-math/src/lib.rs,48,sin,safe,,,,,,no,NO,,n/a
@@ -418,30 +418,30 @@ aocl-math,crates/aocl-math/src/lib.rs,546,fmin,safe,,,,,,no,NO,,n/a
 aocl-math,crates/aocl-math/src/lib.rs,550,fminf,safe,,,,,,no,NO,,n/a
 aocl-math,crates/aocl-math/src/lib.rs,556,finite,safe,,,,,,no,NO,,n/a
 aocl-math,crates/aocl-math/src/lib.rs,560,finitef,safe,,,,,,no,NO,,n/a
-aocl-math,crates/aocl-math/src/lib.rs,565,nan,safe,,,,,,no,yes,,n/a
-aocl-math,crates/aocl-math/src/lib.rs,570,nanf,safe,,,,,,no,yes,,n/a
+aocl-math,crates/aocl-math/src/lib.rs,565,nan,safe,,,,,,no,direct,,n/a
+aocl-math,crates/aocl-math/src/lib.rs,570,nanf,safe,,,,,,no,direct,,n/a
 aocl-math,crates/aocl-math/src/lib.rs,578,erf,safe,,,,,,no,NO,,n/a
 aocl-math,crates/aocl-math/src/lib.rs,582,erff,safe,,,,,,no,NO,,n/a
-aocl-sparse,crates/aocl-sparse/src/complex.rs,944,from_csr,safe,,row_ptr col_ind val,,n,,yes,yes,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/complex.rs,944,from_csr,safe,,row_ptr col_ind val,,n,,yes,direct,,checks present: read pending
 aocl-sparse,crates/aocl-sparse/src/complex.rs,998,from_library_owned,unsafe,,,,,,no,NO,,n/a
 aocl-sparse,crates/aocl-sparse/src/complex.rs,1014,dims,safe,,,,,,no,NO,,n/a
 aocl-sparse,crates/aocl-sparse/src/complex.rs,1018,nnz,safe,,,,,,no,NO,,n/a
 aocl-sparse,crates/aocl-sparse/src/complex.rs,1022,base,safe,,,,,,no,NO,,n/a
 aocl-sparse,crates/aocl-sparse/src/complex.rs,1028,as_raw,safe,,,,,,no,NO,,n/a
 aocl-sparse,crates/aocl-sparse/src/complex.rs,1033,export_csr,safe,,,,,,no,NO,,n/a
-aocl-sparse,crates/aocl-sparse/src/complex.rs,1076,axpyi,safe,,x indx y,,,,yes,yes,,checks present: read pending
-aocl-sparse,crates/aocl-sparse/src/complex.rs,1094,gthr,safe,,y indx x,,,,yes,yes,,checks present: read pending
-aocl-sparse,crates/aocl-sparse/src/complex.rs,1107,sctr,safe,,x indx y,,,,yes,yes,,checks present: read pending
-aocl-sparse,crates/aocl-sparse/src/complex.rs,1120,mv,safe,,x y,,,a descr,yes,yes,,checks present: read pending
-aocl-sparse,crates/aocl-sparse/src/complex.rs,1144,trsv,safe,,b x,,,a descr,yes,yes,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/complex.rs,1076,axpyi,safe,,x indx y,,,,yes,direct,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/complex.rs,1094,gthr,safe,,y indx x,,,,yes,direct,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/complex.rs,1107,sctr,safe,,x indx y,,,,yes,direct,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/complex.rs,1120,mv,safe,,x y,,,a descr,yes,direct,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/complex.rs,1144,trsv,safe,,b x,,,a descr,yes,direct,,checks present: read pending
 aocl-sparse,crates/aocl-sparse/src/complex.rs,1165,csrmm,safe,,b c,,n ldb ldc,a descr,yes,NO,,REVIEW
 aocl-sparse,crates/aocl-sparse/src/complex.rs,1183,spmmd,safe,,c,,ldc,a b,yes,NO,,REVIEW
 aocl-sparse,crates/aocl-sparse/src/complex.rs,1196,sp2md,safe,,c,,ldc,descr_a a descr_b b,yes,NO,,REVIEW
 aocl-sparse,crates/aocl-sparse/src/complex.rs,1225,add,safe,,,,,a b,no,NO,,n/a
-aocl-sparse,crates/aocl-sparse/src/complex.rs,1239,sorv,safe,,x b,,,descr a,yes,yes,,checks present: read pending
-aocl-sparse,crates/aocl-sparse/src/complex.rs,1261,ilu_smoother,safe,,x b,,,a descr,yes,yes,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/complex.rs,1239,sorv,safe,,x b,,,descr a,yes,direct,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/complex.rs,1261,ilu_smoother,safe,,x b,,,a descr,yes,direct,,checks present: read pending
 aocl-sparse,crates/aocl-sparse/src/complex.rs,1292,new,safe,,,,,,no,NO,,n/a
-aocl-sparse,crates/aocl-sparse/src/complex.rs,1305,set_option,safe,,,,,,no,yes,,n/a
+aocl-sparse,crates/aocl-sparse/src/complex.rs,1305,set_option,safe,,,,,,no,direct,,n/a
 aocl-sparse,crates/aocl-sparse/src/complex.rs,1317,solve,safe,,b x,,,at descr,yes,NO,,REVIEW
 aocl-sparse,crates/aocl-sparse/src/complex.rs,1363,symgs_c64,safe,,b x,,,a descr,yes,NO,,REVIEW
 aocl-sparse,crates/aocl-sparse/src/complex.rs,1389,symgs_c32,safe,,b x,,,a descr,yes,NO,,REVIEW
@@ -455,16 +455,16 @@ aocl-sparse,crates/aocl-sparse/src/complex.rs,1548,trsm_c64,safe,,b x,,n_rhs ldb
 aocl-sparse,crates/aocl-sparse/src/complex.rs,1581,trsm_c32,safe,,b x,,n_rhs ldb ldx,a descr,yes,NO,,REVIEW
 aocl-sparse,crates/aocl-sparse/src/complex.rs,1616,dotmv_c64,safe,,x y,,,a descr d,yes,NO,,REVIEW
 aocl-sparse,crates/aocl-sparse/src/complex.rs,1650,dotmv_c32,safe,,x y,,,a descr d,yes,NO,,REVIEW
-aocl-sparse,crates/aocl-sparse/src/complex.rs,1684,dotui_c64,safe,,x indx y,,,,yes,yes,,checks present: read pending
-aocl-sparse,crates/aocl-sparse/src/complex.rs,1704,dotui_c32,safe,,x indx y,,,,yes,yes,,checks present: read pending
-aocl-sparse,crates/aocl-sparse/src/complex.rs,1725,dotci_c64,safe,,x indx y,,,,yes,yes,,checks present: read pending
-aocl-sparse,crates/aocl-sparse/src/complex.rs,1745,dotci_c32,safe,,x indx y,,,,yes,yes,,checks present: read pending
-aocl-sparse,crates/aocl-sparse/src/complex.rs,1768,gthrs_c64,safe,,y x,,stride,,yes,yes,,checks present: read pending
-aocl-sparse,crates/aocl-sparse/src/complex.rs,1781,gthrs_c32,safe,,y x,,stride,,yes,yes,,checks present: read pending
-aocl-sparse,crates/aocl-sparse/src/complex.rs,1795,gthrz_c64,safe,,y indx x,,,,yes,yes,,checks present: read pending
-aocl-sparse,crates/aocl-sparse/src/complex.rs,1812,gthrz_c32,safe,,y indx x,,,,yes,yes,,checks present: read pending
-aocl-sparse,crates/aocl-sparse/src/complex.rs,1830,sctrs_c64,safe,,x y,,stride,,yes,yes,,checks present: read pending
-aocl-sparse,crates/aocl-sparse/src/complex.rs,1843,sctrs_c32,safe,,x y,,stride,,yes,yes,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/complex.rs,1684,dotui_c64,safe,,x indx y,,,,yes,direct,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/complex.rs,1704,dotui_c32,safe,,x indx y,,,,yes,direct,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/complex.rs,1725,dotci_c64,safe,,x indx y,,,,yes,direct,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/complex.rs,1745,dotci_c32,safe,,x indx y,,,,yes,direct,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/complex.rs,1768,gthrs_c64,safe,,y x,,stride,,yes,direct,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/complex.rs,1781,gthrs_c32,safe,,y x,,stride,,yes,direct,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/complex.rs,1795,gthrz_c64,safe,,y indx x,,,,yes,direct,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/complex.rs,1812,gthrz_c32,safe,,y indx x,,,,yes,direct,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/complex.rs,1830,sctrs_c64,safe,,x y,,stride,,yes,direct,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/complex.rs,1843,sctrs_c32,safe,,x y,,stride,,yes,direct,,checks present: read pending
 aocl-sparse,crates/aocl-sparse/src/complex.rs,1859,syrkd_c64,safe,,c,,ldc,a,yes,NO,,REVIEW
 aocl-sparse,crates/aocl-sparse/src/complex.rs,1890,syrkd_c32,safe,,c,,ldc,a,yes,NO,,REVIEW
 aocl-sparse,crates/aocl-sparse/src/complex.rs,1923,syprd_c64,safe,,b c,,ldb ldc,a,yes,NO,,REVIEW
@@ -473,21 +473,21 @@ aocl-sparse,crates/aocl-sparse/src/complex.rs,2000,create_csc_c64,safe,,col_ptr 
 aocl-sparse,crates/aocl-sparse/src/complex.rs,2029,create_csc_c32,safe,,col_ptr row_idx val,,n nnz,,yes,NO,,REVIEW
 aocl-sparse,crates/aocl-sparse/src/complex.rs,2060,create_tcsr_c64,safe,,row_ptr_l row_ptr_u col_idx_l col_idx_u val_l val_u,,n nnz,,yes,NO,,REVIEW
 aocl-sparse,crates/aocl-sparse/src/complex.rs,2095,create_tcsr_c32,safe,,row_ptr_l row_ptr_u col_idx_l col_idx_u val_l val_u,,n nnz,,yes,NO,,REVIEW
-aocl-sparse,crates/aocl-sparse/src/complex.rs,21,ComplexScalar::axpyi,safe,yes,x indx y,,,,yes,n/a (trait decl),,READ (trait method)
-aocl-sparse,crates/aocl-sparse/src/complex.rs,24,ComplexScalar::gthr,safe,yes,y indx x,,,,yes,n/a (trait decl),,READ (trait method)
-aocl-sparse,crates/aocl-sparse/src/complex.rs,27,ComplexScalar::sctr,safe,yes,x indx y,,,,yes,n/a (trait decl),,READ (trait method)
-aocl-sparse,crates/aocl-sparse/src/complex.rs,30,ComplexScalar::create_csr,safe,yes,,row_ptr col_idx val,n nnz,,yes,n/a (trait decl),,READ (trait method)
-aocl-sparse,crates/aocl-sparse/src/complex.rs,41,ComplexScalar::export_csr,safe,yes,,,,,no,n/a (trait decl),,n/a
-aocl-sparse,crates/aocl-sparse/src/complex.rs,54,ComplexScalar::mv,safe,yes,x y,,,descr,yes,n/a (trait decl),,READ (trait method)
-aocl-sparse,crates/aocl-sparse/src/complex.rs,65,ComplexScalar::trsv,safe,yes,b x,,,descr,yes,n/a (trait decl),,READ (trait method)
-aocl-sparse,crates/aocl-sparse/src/complex.rs,75,ComplexScalar::ilu_smoother,safe,yes,x b,,,descr,yes,n/a (trait decl),,READ (trait method)
-aocl-sparse,crates/aocl-sparse/src/complex.rs,84,ComplexScalar::itsol_init,safe,yes,,,,,no,n/a (trait decl),,n/a
-aocl-sparse,crates/aocl-sparse/src/complex.rs,87,ComplexScalar::itsol_solve,safe,yes,b x rinfo,,n,descr,yes,n/a (trait decl),,READ (trait method)
-aocl-sparse,crates/aocl-sparse/src/complex.rs,99,ComplexScalar::csrmm,safe,yes,b c,,n ldb ldc,descr,yes,n/a (trait decl),,READ (trait method)
-aocl-sparse,crates/aocl-sparse/src/complex.rs,114,ComplexScalar::spmmd,safe,yes,c,,ldc,,yes,n/a (trait decl),,READ (trait method)
-aocl-sparse,crates/aocl-sparse/src/complex.rs,124,ComplexScalar::sp2md,safe,yes,c,,ldc,descr_a descr_b,yes,n/a (trait decl),,READ (trait method)
-aocl-sparse,crates/aocl-sparse/src/complex.rs,143,ComplexScalar::add_ffi,unsafe,yes,,out,,,no,n/a (trait decl),,n/a
-aocl-sparse,crates/aocl-sparse/src/complex.rs,152,ComplexScalar::sorv,safe,yes,x b,,,descr,yes,n/a (trait decl),,READ (trait method)
+aocl-sparse,crates/aocl-sparse/src/complex.rs,21,ComplexScalar::axpyi,safe,yes,x indx y,,,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-sparse,crates/aocl-sparse/src/complex.rs,24,ComplexScalar::gthr,safe,yes,y indx x,,,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-sparse,crates/aocl-sparse/src/complex.rs,27,ComplexScalar::sctr,safe,yes,x indx y,,,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-sparse,crates/aocl-sparse/src/complex.rs,30,ComplexScalar::create_csr,safe,yes,,row_ptr col_idx val,n nnz,,yes,NO,,REVIEW (trait method; no check on any impl path)
+aocl-sparse,crates/aocl-sparse/src/complex.rs,41,ComplexScalar::export_csr,safe,yes,,,,,no,NO,,n/a
+aocl-sparse,crates/aocl-sparse/src/complex.rs,54,ComplexScalar::mv,safe,yes,x y,,,descr,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-sparse,crates/aocl-sparse/src/complex.rs,65,ComplexScalar::trsv,safe,yes,b x,,,descr,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-sparse,crates/aocl-sparse/src/complex.rs,75,ComplexScalar::ilu_smoother,safe,yes,x b,,,descr,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-sparse,crates/aocl-sparse/src/complex.rs,84,ComplexScalar::itsol_init,safe,yes,,,,,no,NO,,n/a
+aocl-sparse,crates/aocl-sparse/src/complex.rs,87,ComplexScalar::itsol_solve,safe,yes,b x rinfo,,n,descr,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-sparse,crates/aocl-sparse/src/complex.rs,99,ComplexScalar::csrmm,safe,yes,b c,,n ldb ldc,descr,yes,NO,,REVIEW (trait method; no check on any impl path)
+aocl-sparse,crates/aocl-sparse/src/complex.rs,114,ComplexScalar::spmmd,safe,yes,c,,ldc,,yes,NO,,REVIEW (trait method; no check on any impl path)
+aocl-sparse,crates/aocl-sparse/src/complex.rs,124,ComplexScalar::sp2md,safe,yes,c,,ldc,descr_a descr_b,yes,NO,,REVIEW (trait method; no check on any impl path)
+aocl-sparse,crates/aocl-sparse/src/complex.rs,143,ComplexScalar::add_ffi,unsafe,yes,,out,,,no,NO,,n/a
+aocl-sparse,crates/aocl-sparse/src/complex.rs,152,ComplexScalar::sorv,safe,yes,x b,,,descr,yes,on an impl path,,READ (trait method; check on an impl path)
 aocl-sparse,crates/aocl-sparse/src/lib.rs,79,new,safe,,,,,,no,NO,,n/a
 aocl-sparse,crates/aocl-sparse/src/lib.rs,94,as_raw,safe,,,,,,no,NO,,n/a
 aocl-sparse,crates/aocl-sparse/src/lib.rs,100,set_type,safe,,,,,,no,NO,,n/a
@@ -501,16 +501,16 @@ aocl-sparse,crates/aocl-sparse/src/lib.rs,148,diag_type,safe,,,,,,no,NO,,n/a
 aocl-sparse,crates/aocl-sparse/src/lib.rs,240,copy_mat_descr,safe,,,,,src,no,NO,,n/a
 aocl-sparse,crates/aocl-sparse/src/lib.rs,250,optimize,safe,,,,,at,no,NO,,n/a
 aocl-sparse,crates/aocl-sparse/src/lib.rs,256,version,safe,,,,,,no,NO,,n/a
-aocl-sparse,crates/aocl-sparse/src/lib.rs,1207,csrmv,safe,,csr_val csr_col_ind csr_row_ptr x y,,n,descr,yes,NO,,REVIEW
-aocl-sparse,crates/aocl-sparse/src/lib.rs,1242,axpyi,safe,,x indx y,,,,yes,yes,,checks present: read pending
-aocl-sparse,crates/aocl-sparse/src/lib.rs,1260,gthr,safe,,y indx x,,,,yes,yes,,checks present: read pending
-aocl-sparse,crates/aocl-sparse/src/lib.rs,1273,sctr,safe,,x indx y,,,,yes,yes,,checks present: read pending
-aocl-sparse,crates/aocl-sparse/src/lib.rs,1292,csrsv,safe,,csr_val csr_col_ind csr_row_ptr x y,,,descr,yes,NO,,REVIEW
-aocl-sparse,crates/aocl-sparse/src/lib.rs,1327,csr_to_dense,safe,,csr_val csr_row_ptr csr_col_ind a,,n,descr,yes,yes,,checks present: read pending
-aocl-sparse,crates/aocl-sparse/src/lib.rs,1359,csr_to_csc,safe,,csr_row_ptr csr_col_ind csr_val csc_row_ind csc_col_ptr csc_val,,n,descr,yes,yes,,checks present: read pending
-aocl-sparse,crates/aocl-sparse/src/lib.rs,1432,ellmv,safe,,ell_val ell_col_ind x y,,n,descr,yes,NO,,REVIEW
-aocl-sparse,crates/aocl-sparse/src/lib.rs,1466,bsrmv,safe,,bsr_val bsr_col_ind bsr_row_ptr x y,,nb,descr,yes,NO,,REVIEW
-aocl-sparse,crates/aocl-sparse/src/lib.rs,1550,from_csr,safe,,row_ptr col_ind val,,n,,yes,yes,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/lib.rs,1207,csrmv,safe,,csr_val csr_col_ind csr_row_ptr x y,,n,descr,yes,via callee,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/lib.rs,1242,axpyi,safe,,x indx y,,,,yes,direct,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/lib.rs,1260,gthr,safe,,y indx x,,,,yes,direct,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/lib.rs,1273,sctr,safe,,x indx y,,,,yes,direct,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/lib.rs,1292,csrsv,safe,,csr_val csr_col_ind csr_row_ptr x y,,,descr,yes,via callee,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/lib.rs,1327,csr_to_dense,safe,,csr_val csr_row_ptr csr_col_ind a,,n,descr,yes,direct,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/lib.rs,1359,csr_to_csc,safe,,csr_row_ptr csr_col_ind csr_val csc_row_ind csc_col_ptr csc_val,,n,descr,yes,direct,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/lib.rs,1432,ellmv,safe,,ell_val ell_col_ind x y,,n,descr,yes,via callee,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/lib.rs,1466,bsrmv,safe,,bsr_val bsr_col_ind bsr_row_ptr x y,,nb,descr,yes,via callee,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/lib.rs,1550,from_csr,safe,,row_ptr col_ind val,,n,,yes,direct,,checks present: read pending
 aocl-sparse,crates/aocl-sparse/src/lib.rs,1605,from_library_owned,unsafe,,,,,,no,NO,,n/a
 aocl-sparse,crates/aocl-sparse/src/lib.rs,1621,dims,safe,,,,,,no,NO,,n/a
 aocl-sparse,crates/aocl-sparse/src/lib.rs,1626,nnz,safe,,,,,,no,NO,,n/a
@@ -531,15 +531,15 @@ aocl-sparse,crates/aocl-sparse/src/lib.rs,1900,csrmm,safe,,b c,,n ldb ldc,a desc
 aocl-sparse,crates/aocl-sparse/src/lib.rs,1918,spmmd,safe,,c,,ldc,a b,yes,NO,,REVIEW
 aocl-sparse,crates/aocl-sparse/src/lib.rs,1931,sp2md,safe,,c,,ldc,descr_a a descr_b b,yes,NO,,REVIEW
 aocl-sparse,crates/aocl-sparse/src/lib.rs,1964,add,safe,,,,,a b,no,NO,,n/a
-aocl-sparse,crates/aocl-sparse/src/lib.rs,1979,sorv,safe,,x b,,,descr a,yes,yes,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/lib.rs,1979,sorv,safe,,x b,,,descr a,yes,direct,,checks present: read pending
 aocl-sparse,crates/aocl-sparse/src/lib.rs,2011,mv_f64,safe,,x y,,,a descr,yes,NO,,REVIEW
 aocl-sparse,crates/aocl-sparse/src/lib.rs,2035,mv_f32,safe,,x y,,,a descr,yes,NO,,REVIEW
 aocl-sparse,crates/aocl-sparse/src/lib.rs,2061,trsv_f64,safe,,b x,,,a descr,yes,NO,,REVIEW
 aocl-sparse,crates/aocl-sparse/src/lib.rs,2083,trsv_f32,safe,,b x,,,a descr,yes,NO,,REVIEW
 aocl-sparse,crates/aocl-sparse/src/lib.rs,2106,trsm_f64,safe,,b x,,n_rhs ldb ldx,a descr,yes,NO,,REVIEW
 aocl-sparse,crates/aocl-sparse/src/lib.rs,2136,trsm_f32,safe,,b x,,n_rhs ldb ldx,a descr,yes,NO,,REVIEW
-aocl-sparse,crates/aocl-sparse/src/lib.rs,2167,doti_f64,safe,,x indx y,,,,yes,yes,,checks present: read pending
-aocl-sparse,crates/aocl-sparse/src/lib.rs,2188,doti_f32,safe,,x indx y,,,,yes,yes,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/lib.rs,2167,doti_f64,safe,,x indx y,,,,yes,direct,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/lib.rs,2188,doti_f32,safe,,x indx y,,,,yes,direct,,checks present: read pending
 aocl-sparse,crates/aocl-sparse/src/lib.rs,2216,csr2ell_f64,safe,,csr_row_ptr csr_col_ind csr_val ell_col_ind ell_val,,,descr,yes,NO,,REVIEW
 aocl-sparse,crates/aocl-sparse/src/lib.rs,2242,csr2ell_f32,safe,,csr_row_ptr csr_col_ind csr_val ell_col_ind ell_val,,,descr,yes,NO,,REVIEW
 aocl-sparse,crates/aocl-sparse/src/lib.rs,2270,csr2dia_f64,safe,,csr_row_ptr csr_col_ind csr_val dia_offset dia_val,,n,descr,yes,NO,,REVIEW
@@ -547,7 +547,7 @@ aocl-sparse,crates/aocl-sparse/src/lib.rs,2298,csr2dia_f32,safe,,csr_row_ptr csr
 aocl-sparse,crates/aocl-sparse/src/lib.rs,2327,csr2bsr_nnz,safe,,csr_row_ptr csr_col_ind bsr_row_ptr,,n,descr,yes,NO,,REVIEW
 aocl-sparse,crates/aocl-sparse/src/lib.rs,2357,csr2bsr_f64,safe,,csr_val csr_row_ptr csr_col_ind bsr_val bsr_row_ptr bsr_col_ind,,n,descr,yes,NO,,REVIEW
 aocl-sparse,crates/aocl-sparse/src/lib.rs,2389,csr2bsr_f32,safe,,csr_val csr_row_ptr csr_col_ind bsr_val bsr_row_ptr bsr_col_ind,,n,descr,yes,NO,,REVIEW
-aocl-sparse,crates/aocl-sparse/src/lib.rs,2423,blkcsrmv_f64,safe,,asks csr_val csr_col_ind csr_row_ptr x y,,n,descr,yes,yes,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/lib.rs,2423,blkcsrmv_f64,safe,,asks csr_val csr_col_ind csr_row_ptr x y,,n,descr,yes,direct,,checks present: read pending
 aocl-sparse,crates/aocl-sparse/src/lib.rs,2466,symgs_f64,safe,,b x,,,a descr,yes,NO,,REVIEW
 aocl-sparse,crates/aocl-sparse/src/lib.rs,2488,symgs_f32,safe,,b x,,,a descr,yes,NO,,REVIEW
 aocl-sparse,crates/aocl-sparse/src/lib.rs,2511,symgs_mv_f64,safe,,b x y,,,a descr,yes,NO,,REVIEW
@@ -562,49 +562,49 @@ aocl-sparse,crates/aocl-sparse/src/lib.rs,2683,syrkd_f64,safe,,c,,ldc,a,yes,NO,,
 aocl-sparse,crates/aocl-sparse/src/lib.rs,2707,syrkd_f32,safe,,c,,ldc,a,yes,NO,,REVIEW
 aocl-sparse,crates/aocl-sparse/src/lib.rs,2732,syprd_f64,safe,,b c,,ldb ldc,a,yes,NO,,REVIEW
 aocl-sparse,crates/aocl-sparse/src/lib.rs,2762,syprd_f32,safe,,b c,,ldb ldc,a,yes,NO,,REVIEW
-aocl-sparse,crates/aocl-sparse/src/lib.rs,2845,roti_f64,safe,,x indx y,,,,yes,yes,,checks present: read pending
-aocl-sparse,crates/aocl-sparse/src/lib.rs,2867,roti_f32,safe,,x indx y,,,,yes,yes,,checks present: read pending
-aocl-sparse,crates/aocl-sparse/src/lib.rs,2889,gthrs_f64,safe,,y x,,stride,,yes,yes,,checks present: read pending
-aocl-sparse,crates/aocl-sparse/src/lib.rs,2902,gthrs_f32,safe,,y x,,stride,,yes,yes,,checks present: read pending
-aocl-sparse,crates/aocl-sparse/src/lib.rs,2916,sctrs_f64,safe,,x y,,stride,,yes,yes,,checks present: read pending
-aocl-sparse,crates/aocl-sparse/src/lib.rs,2929,sctrs_f32,safe,,x y,,stride,,yes,yes,,checks present: read pending
-aocl-sparse,crates/aocl-sparse/src/lib.rs,2944,gthrz_f64,safe,,y indx x,,,,yes,yes,,checks present: read pending
-aocl-sparse,crates/aocl-sparse/src/lib.rs,2957,gthrz_f32,safe,,y indx x,,,,yes,yes,,checks present: read pending
-aocl-sparse,crates/aocl-sparse/src/lib.rs,2973,sorv_f32,safe,,x b,,,descr a,yes,yes,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/lib.rs,2845,roti_f64,safe,,x indx y,,,,yes,direct,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/lib.rs,2867,roti_f32,safe,,x indx y,,,,yes,direct,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/lib.rs,2889,gthrs_f64,safe,,y x,,stride,,yes,direct,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/lib.rs,2902,gthrs_f32,safe,,y x,,stride,,yes,direct,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/lib.rs,2916,sctrs_f64,safe,,x y,,stride,,yes,direct,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/lib.rs,2929,sctrs_f32,safe,,x y,,stride,,yes,direct,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/lib.rs,2944,gthrz_f64,safe,,y indx x,,,,yes,direct,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/lib.rs,2957,gthrz_f32,safe,,y indx x,,,,yes,direct,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/lib.rs,2973,sorv_f32,safe,,x b,,,descr a,yes,direct,,checks present: read pending
 aocl-sparse,crates/aocl-sparse/src/lib.rs,3011,create_tcsr_f64,safe,,row_ptr_l row_ptr_u col_idx_l col_idx_u val_l val_u,,n nnz,,yes,NO,,REVIEW
 aocl-sparse,crates/aocl-sparse/src/lib.rs,3047,create_tcsr_f32,safe,,row_ptr_l row_ptr_u col_idx_l col_idx_u val_l val_u,,n nnz,,yes,NO,,REVIEW
 aocl-sparse,crates/aocl-sparse/src/lib.rs,3087,create_csc_f64,safe,,col_ptr row_idx val,,n nnz,,yes,NO,,REVIEW
 aocl-sparse,crates/aocl-sparse/src/lib.rs,3116,create_csc_f32,safe,,col_ptr row_idx val,,n nnz,,yes,NO,,REVIEW
 aocl-sparse,crates/aocl-sparse/src/lib.rs,3167,set_memory_hint,safe,,,,,at,no,NO,,n/a
-aocl-sparse,crates/aocl-sparse/src/lib.rs,3176,ilu_smoother,safe,,x b,,,a descr,yes,yes,,checks present: read pending
+aocl-sparse,crates/aocl-sparse/src/lib.rs,3176,ilu_smoother,safe,,x b,,,a descr,yes,direct,,checks present: read pending
 aocl-sparse,crates/aocl-sparse/src/lib.rs,3211,new,safe,,,,,,no,NO,,n/a
-aocl-sparse,crates/aocl-sparse/src/lib.rs,3227,set_option,safe,,,,,,no,yes,,n/a
+aocl-sparse,crates/aocl-sparse/src/lib.rs,3227,set_option,safe,,,,,,no,direct,,n/a
 aocl-sparse,crates/aocl-sparse/src/lib.rs,3242,solve,safe,,b x,,,at descr,yes,NO,,REVIEW
-aocl-sparse,crates/aocl-sparse/src/lib.rs,286,Scalar::csrmv,safe,yes,csr_val csr_col_ind csr_row_ptr x y,,n,descr,yes,n/a (trait decl),,READ (trait method)
-aocl-sparse,crates/aocl-sparse/src/lib.rs,301,Scalar::axpyi,safe,yes,x indx y,,,,yes,n/a (trait decl),,READ (trait method)
-aocl-sparse,crates/aocl-sparse/src/lib.rs,304,Scalar::gthr,safe,yes,y indx x,,,,yes,n/a (trait decl),,READ (trait method)
-aocl-sparse,crates/aocl-sparse/src/lib.rs,307,Scalar::sctr,safe,yes,x indx y,,,,yes,n/a (trait decl),,READ (trait method)
-aocl-sparse,crates/aocl-sparse/src/lib.rs,310,Scalar::csrsv,safe,yes,csr_val csr_col_ind csr_row_ptr x y,,,descr,yes,n/a (trait decl),,READ (trait method)
-aocl-sparse,crates/aocl-sparse/src/lib.rs,323,Scalar::csr_to_dense,safe,yes,csr_val csr_row_ptr csr_col_ind a,,n,descr,yes,n/a (trait decl),,READ (trait method)
-aocl-sparse,crates/aocl-sparse/src/lib.rs,336,Scalar::csr_to_csc,safe,yes,csr_row_ptr csr_col_ind csr_val csc_row_ind csc_col_ptr csc_val,,n,descr,yes,n/a (trait decl),,READ (trait method)
-aocl-sparse,crates/aocl-sparse/src/lib.rs,351,Scalar::ellmv,safe,yes,ell_val ell_col_ind x y,,n,descr,yes,n/a (trait decl),,READ (trait method)
-aocl-sparse,crates/aocl-sparse/src/lib.rs,368,Scalar::bsrmv,safe,yes,bsr_val bsr_col_ind bsr_row_ptr x y,,nb,descr,yes,n/a (trait decl),,READ (trait method)
-aocl-sparse,crates/aocl-sparse/src/lib.rs,386,Scalar::create_csr,safe,yes,,row_ptr col_idx val,n nnz,,yes,n/a (trait decl),,READ (trait method)
-aocl-sparse,crates/aocl-sparse/src/lib.rs,398,Scalar::export_csr,safe,yes,,,,,no,n/a (trait decl),,n/a
-aocl-sparse,crates/aocl-sparse/src/lib.rs,411,Scalar::ilu_smoother,safe,yes,x b,,,descr,yes,n/a (trait decl),,READ (trait method)
-aocl-sparse,crates/aocl-sparse/src/lib.rs,420,Scalar::itsol_init,safe,yes,,,,,no,n/a (trait decl),,n/a
-aocl-sparse,crates/aocl-sparse/src/lib.rs,423,Scalar::itsol_solve,safe,yes,b x rinfo,,n,descr,yes,n/a (trait decl),,READ (trait method)
-aocl-sparse,crates/aocl-sparse/src/lib.rs,440,Scalar::csr2m_ffi,unsafe,yes,,out,,,no,n/a (trait decl),,n/a
-aocl-sparse,crates/aocl-sparse/src/lib.rs,453,Scalar::csrmm,safe,yes,b c,,n ldb ldc,descr,yes,n/a (trait decl),,READ (trait method)
-aocl-sparse,crates/aocl-sparse/src/lib.rs,469,Scalar::spmmd,safe,yes,c,,ldc,,yes,n/a (trait decl),,READ (trait method)
-aocl-sparse,crates/aocl-sparse/src/lib.rs,480,Scalar::sp2md,safe,yes,c,,ldc,descr_a descr_b,yes,n/a (trait decl),,READ (trait method)
-aocl-sparse,crates/aocl-sparse/src/lib.rs,499,Scalar::add_ffi,unsafe,yes,,out,,,no,n/a (trait decl),,n/a
-aocl-sparse,crates/aocl-sparse/src/lib.rs,509,Scalar::sorv,safe,yes,x b,,,descr,yes,n/a (trait decl),,READ (trait method)
+aocl-sparse,crates/aocl-sparse/src/lib.rs,286,Scalar::csrmv,safe,yes,csr_val csr_col_ind csr_row_ptr x y,,n,descr,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-sparse,crates/aocl-sparse/src/lib.rs,301,Scalar::axpyi,safe,yes,x indx y,,,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-sparse,crates/aocl-sparse/src/lib.rs,304,Scalar::gthr,safe,yes,y indx x,,,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-sparse,crates/aocl-sparse/src/lib.rs,307,Scalar::sctr,safe,yes,x indx y,,,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-sparse,crates/aocl-sparse/src/lib.rs,310,Scalar::csrsv,safe,yes,csr_val csr_col_ind csr_row_ptr x y,,,descr,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-sparse,crates/aocl-sparse/src/lib.rs,323,Scalar::csr_to_dense,safe,yes,csr_val csr_row_ptr csr_col_ind a,,n,descr,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-sparse,crates/aocl-sparse/src/lib.rs,336,Scalar::csr_to_csc,safe,yes,csr_row_ptr csr_col_ind csr_val csc_row_ind csc_col_ptr csc_val,,n,descr,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-sparse,crates/aocl-sparse/src/lib.rs,351,Scalar::ellmv,safe,yes,ell_val ell_col_ind x y,,n,descr,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-sparse,crates/aocl-sparse/src/lib.rs,368,Scalar::bsrmv,safe,yes,bsr_val bsr_col_ind bsr_row_ptr x y,,nb,descr,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-sparse,crates/aocl-sparse/src/lib.rs,386,Scalar::create_csr,safe,yes,,row_ptr col_idx val,n nnz,,yes,NO,,REVIEW (trait method; no check on any impl path)
+aocl-sparse,crates/aocl-sparse/src/lib.rs,398,Scalar::export_csr,safe,yes,,,,,no,NO,,n/a
+aocl-sparse,crates/aocl-sparse/src/lib.rs,411,Scalar::ilu_smoother,safe,yes,x b,,,descr,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-sparse,crates/aocl-sparse/src/lib.rs,420,Scalar::itsol_init,safe,yes,,,,,no,NO,,n/a
+aocl-sparse,crates/aocl-sparse/src/lib.rs,423,Scalar::itsol_solve,safe,yes,b x rinfo,,n,descr,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-sparse,crates/aocl-sparse/src/lib.rs,440,Scalar::csr2m_ffi,unsafe,yes,,out,,,no,NO,,n/a
+aocl-sparse,crates/aocl-sparse/src/lib.rs,453,Scalar::csrmm,safe,yes,b c,,n ldb ldc,descr,yes,NO,,REVIEW (trait method; no check on any impl path)
+aocl-sparse,crates/aocl-sparse/src/lib.rs,469,Scalar::spmmd,safe,yes,c,,ldc,,yes,NO,,REVIEW (trait method; no check on any impl path)
+aocl-sparse,crates/aocl-sparse/src/lib.rs,480,Scalar::sp2md,safe,yes,c,,ldc,descr_a descr_b,yes,NO,,REVIEW (trait method; no check on any impl path)
+aocl-sparse,crates/aocl-sparse/src/lib.rs,499,Scalar::add_ffi,unsafe,yes,,out,,,no,NO,,n/a
+aocl-sparse,crates/aocl-sparse/src/lib.rs,509,Scalar::sorv,safe,yes,x b,,,descr,yes,on an impl path,,READ (trait method; check on an impl path)
 aocl-rng,crates/aocl-rng/src/lib.rs,44,new,safe,,,,,,no,NO,,n/a
 aocl-rng,crates/aocl-rng/src/lib.rs,49,with_subid,safe,,,,,,no,NO,,n/a
-aocl-rng,crates/aocl-rng/src/lib.rs,81,uniform,safe,,out,,,,yes,yes,,checks present: read pending
-aocl-rng,crates/aocl-rng/src/lib.rs,118,gaussian,safe,,out,,,,yes,yes,,checks present: read pending
-aocl-rng,crates/aocl-rng/src/lib.rs,154,exponential,safe,,out,,,,yes,yes,,checks present: read pending
+aocl-rng,crates/aocl-rng/src/lib.rs,81,uniform,safe,,out,,,,yes,direct,,checks present: read pending
+aocl-rng,crates/aocl-rng/src/lib.rs,118,gaussian,safe,,out,,,,yes,direct,,checks present: read pending
+aocl-rng,crates/aocl-rng/src/lib.rs,154,exponential,safe,,out,,,,yes,direct,,checks present: read pending
 aocl-rng,crates/aocl-rng/src/lib.rs,166,beta,safe,,out,,,,yes,NO,,REVIEW
 aocl-rng,crates/aocl-rng/src/lib.rs,173,cauchy,safe,,out,,,,yes,NO,,REVIEW
 aocl-rng,crates/aocl-rng/src/lib.rs,180,chi_squared,safe,,out,,,,yes,NO,,REVIEW
@@ -613,23 +613,23 @@ aocl-rng,crates/aocl-rng/src/lib.rs,194,gamma,safe,,out,,,,yes,NO,,REVIEW
 aocl-rng,crates/aocl-rng/src/lib.rs,201,logistic,safe,,out,,,,yes,NO,,REVIEW
 aocl-rng,crates/aocl-rng/src/lib.rs,208,lognormal,safe,,out,,,,yes,NO,,REVIEW
 aocl-rng,crates/aocl-rng/src/lib.rs,215,students_t,safe,,out,,,,yes,NO,,REVIEW
-aocl-rng,crates/aocl-rng/src/lib.rs,222,triangular,safe,,out,,,,yes,yes,,checks present: read pending
+aocl-rng,crates/aocl-rng/src/lib.rs,222,triangular,safe,,out,,,,yes,direct,,checks present: read pending
 aocl-rng,crates/aocl-rng/src/lib.rs,234,von_mises,safe,,out,,,,yes,NO,,REVIEW
 aocl-rng,crates/aocl-rng/src/lib.rs,241,weibull,safe,,out,,,,yes,NO,,REVIEW
 aocl-rng,crates/aocl-rng/src/lib.rs,250,binomial,safe,,out,,,,yes,NO,,REVIEW
 aocl-rng,crates/aocl-rng/src/lib.rs,257,geometric,safe,,out,,,,yes,NO,,REVIEW
 aocl-rng,crates/aocl-rng/src/lib.rs,266,negative_binomial,safe,,out,,,,yes,NO,,REVIEW
 aocl-rng,crates/aocl-rng/src/lib.rs,273,poisson,safe,,out,,,,yes,NO,,REVIEW
-aocl-rng,crates/aocl-rng/src/lib.rs,280,discrete_uniform,safe,,out,,,,yes,yes,,checks present: read pending
+aocl-rng,crates/aocl-rng/src/lib.rs,280,discrete_uniform,safe,,out,,,,yes,direct,,checks present: read pending
 aocl-rng,crates/aocl-rng/src/lib.rs,294,hypergeometric,safe,,out,,,,yes,NO,,REVIEW
-aocl-rng,crates/aocl-rng/src/lib.rs,309,general_discrete,safe,,ref_dist out,,,,yes,yes,,checks present: read pending
-aocl-rng,crates/aocl-rng/src/lib.rs,341,multinomial,safe,,p out,,,,yes,yes,,checks present: read pending
-aocl-rng,crates/aocl-rng/src/lib.rs,385,multinormal,safe,,xmu c out,,,,yes,yes,,checks present: read pending
-aocl-rng,crates/aocl-rng/src/lib.rs,430,skip_ahead,safe,,,,,,no,yes,,n/a
+aocl-rng,crates/aocl-rng/src/lib.rs,309,general_discrete,safe,,ref_dist out,,,,yes,direct,,checks present: read pending
+aocl-rng,crates/aocl-rng/src/lib.rs,341,multinomial,safe,,p out,,,,yes,direct,,checks present: read pending
+aocl-rng,crates/aocl-rng/src/lib.rs,385,multinormal,safe,,xmu c out,,,,yes,direct,,checks present: read pending
+aocl-rng,crates/aocl-rng/src/lib.rs,430,skip_ahead,safe,,,,,,no,direct,,n/a
 aocl-rng,crates/aocl-rng/src/lib.rs,453,leapfrog,safe,,,,,,no,NO,,n/a
-aocl-rng,crates/aocl-rng/src/lib.rs,472,multi_students_t,safe,,xmu c out,,,,yes,yes,,checks present: read pending
+aocl-rng,crates/aocl-rng/src/lib.rs,472,multi_students_t,safe,,xmu c out,,,,yes,direct,,checks present: read pending
 aocl-rng,crates/aocl-rng/src/lib.rs,542,new,safe,,p q s,,,,yes,NO,,REVIEW
-aocl-rng,crates/aocl-rng/src/lib.rs,577,sample,safe,,out,,,,yes,yes,,checks present: read pending
+aocl-rng,crates/aocl-rng/src/lib.rs,577,sample,safe,,out,,,,yes,direct,,checks present: read pending
 aocl-securerng,crates/aocl-securerng/src/lib.rs,43,is_rdrand_supported,safe,,,,,,no,NO,,n/a
 aocl-securerng,crates/aocl-securerng/src/lib.rs,48,is_rdseed_supported,safe,,,,,,no,NO,,n/a
 aocl-securerng,crates/aocl-securerng/src/lib.rs,53,rdrand_u16,safe,,,,,,no,NO,,n/a
@@ -638,76 +638,76 @@ aocl-securerng,crates/aocl-securerng/src/lib.rs,69,rdrand_u64,safe,,,,,,no,NO,,n
 aocl-securerng,crates/aocl-securerng/src/lib.rs,77,rdseed_u16,safe,,,,,,no,NO,,n/a
 aocl-securerng,crates/aocl-securerng/src/lib.rs,85,rdseed_u32,safe,,,,,,no,NO,,n/a
 aocl-securerng,crates/aocl-securerng/src/lib.rs,93,rdseed_u64,safe,,,,,,no,NO,,n/a
-aocl-securerng,crates/aocl-securerng/src/lib.rs,101,rdrand_bytes,safe,,out,,,,yes,yes,,checks present: read pending
-aocl-securerng,crates/aocl-securerng/src/lib.rs,116,rdseed_bytes,safe,,out,,,,yes,yes,,checks present: read pending
-aocl-securerng,crates/aocl-securerng/src/lib.rs,131,rdrand_u32_array,safe,,out,,,,yes,yes,,checks present: read pending
-aocl-securerng,crates/aocl-securerng/src/lib.rs,146,rdrand_u64_array,safe,,out,,,,yes,yes,,checks present: read pending
+aocl-securerng,crates/aocl-securerng/src/lib.rs,101,rdrand_bytes,safe,,out,,,,yes,direct,,checks present: read pending
+aocl-securerng,crates/aocl-securerng/src/lib.rs,116,rdseed_bytes,safe,,out,,,,yes,direct,,checks present: read pending
+aocl-securerng,crates/aocl-securerng/src/lib.rs,131,rdrand_u32_array,safe,,out,,,,yes,direct,,checks present: read pending
+aocl-securerng,crates/aocl-securerng/src/lib.rs,146,rdrand_u64_array,safe,,out,,,,yes,direct,,checks present: read pending
 aocl-securerng,crates/aocl-securerng/src/lib.rs,161,version,safe,,,,,,no,NO,,n/a
 aocl-utils,crates/aocl-utils/src/cpuid.rs,66,is_amd,safe,,,,,,no,NO,,n/a
 aocl-utils,crates/aocl-utils/src/cpuid.rs,73,is_zen_family,safe,,,,,,no,NO,,n/a
 aocl-utils,crates/aocl-utils/src/cpuid.rs,78,zen_arch,safe,,,,,,no,NO,,n/a
 aocl-utils,crates/aocl-utils/src/cpuid.rs,103,x86_64_level,safe,,,,,,no,NO,,n/a
 aocl-utils,crates/aocl-utils/src/cpuid.rs,127,has_flag,safe,,,,,,no,NO,,n/a
-aocl-utils,crates/aocl-utils/src/cpuid.rs,132,has_flags_all,safe,,flags,,,,yes,yes,,checks present: read pending
-aocl-utils,crates/aocl-utils/src/cpuid.rs,157,has_flags_any,safe,,flags,,,,yes,yes,,checks present: read pending
+aocl-utils,crates/aocl-utils/src/cpuid.rs,132,has_flags_all,safe,,flags,,,,yes,direct,,checks present: read pending
+aocl-utils,crates/aocl-utils/src/cpuid.rs,157,has_flags_any,safe,,flags,,,,yes,direct,,checks present: read pending
 aocl-utils,crates/aocl-utils/src/cpuid.rs,180,vendor_info,safe,,,,,,no,NO,,n/a
-aocl-utils,crates/aocl-utils/src/threads.rs,40,pin_threads,unsafe,,hreads,,,,no,yes,,n/a
-aocl-utils,crates/aocl-utils/src/threads.rs,57,pin_threads_custom,unsafe,,hreads affinity_vector,,,,no,yes,,n/a
-aocl-compression,crates/aocl-compression/src/lib.rs,60,compress_bound,safe,,,,,,no,NO,,n/a
-aocl-compression,crates/aocl-compression/src/lib.rs,69,compress,safe,,src,,,,yes,yes,,checks present: read pending
-aocl-compression,crates/aocl-compression/src/lib.rs,96,decompress,safe,,src,,,,yes,yes,,checks present: read pending
-aocl-compression,crates/aocl-compression/src/lib.rs,129,compress_bound,safe,,,,,,no,yes,,n/a
-aocl-compression,crates/aocl-compression/src/lib.rs,146,compress,safe,,src dst,,,,yes,yes,,checks present: read pending
-aocl-compression,crates/aocl-compression/src/lib.rs,175,compress_hc,safe,,src dst,,,,yes,yes,,checks present: read pending
-aocl-compression,crates/aocl-compression/src/lib.rs,208,decompress,safe,,src dst,,,,yes,yes,,checks present: read pending
+aocl-utils,crates/aocl-utils/src/threads.rs,40,pin_threads,unsafe,,hreads,,,,no,direct,,n/a
+aocl-utils,crates/aocl-utils/src/threads.rs,57,pin_threads_custom,unsafe,,hreads affinity_vector,,,,no,direct,,n/a
+aocl-compression,crates/aocl-compression/src/lib.rs,60,compress_bound,safe,,,,,,no,via callee,,n/a
+aocl-compression,crates/aocl-compression/src/lib.rs,69,compress,safe,,src,,,,yes,direct,,checks present: read pending
+aocl-compression,crates/aocl-compression/src/lib.rs,96,decompress,safe,,src,,,,yes,direct,,checks present: read pending
+aocl-compression,crates/aocl-compression/src/lib.rs,129,compress_bound,safe,,,,,,no,direct,,n/a
+aocl-compression,crates/aocl-compression/src/lib.rs,146,compress,safe,,src dst,,,,yes,direct,,checks present: read pending
+aocl-compression,crates/aocl-compression/src/lib.rs,175,compress_hc,safe,,src dst,,,,yes,direct,,checks present: read pending
+aocl-compression,crates/aocl-compression/src/lib.rs,208,decompress,safe,,src dst,,,,yes,direct,,checks present: read pending
 aocl-compression,crates/aocl-compression/src/lib.rs,259,max_compressed_length,safe,,,,,,no,NO,,n/a
 aocl-compression,crates/aocl-compression/src/lib.rs,264,uncompressed_length,safe,,src,,,,yes,NO,,REVIEW
 aocl-compression,crates/aocl-compression/src/lib.rs,278,validate,safe,,src,,,,yes,NO,,REVIEW
-aocl-compression,crates/aocl-compression/src/lib.rs,290,compress,safe,,src dst,,,,yes,yes,,checks present: read pending
-aocl-compression,crates/aocl-compression/src/lib.rs,306,uncompress,safe,,src dst,,,,yes,yes,,checks present: read pending
+aocl-compression,crates/aocl-compression/src/lib.rs,290,compress,safe,,src dst,,,,yes,direct,,checks present: read pending
+aocl-compression,crates/aocl-compression/src/lib.rs,306,uncompress,safe,,src dst,,,,yes,direct,,checks present: read pending
 aocl-compression,crates/aocl-compression/src/lib.rs,322,version,safe,,,,,,no,NO,,n/a
 aocl-crypto,crates/aocl-crypto/src/aead.rs,46,default_tag_len,safe,,,,,,no,NO,,n/a
-aocl-crypto,crates/aocl-crypto/src/aead.rs,91,new,safe,,key iv,,,,yes,yes,,checks present: read pending
-aocl-crypto,crates/aocl-crypto/src/aead.rs,121,new_ccm,safe,,key nonce,,,,yes,yes,,checks present: read pending
-aocl-crypto,crates/aocl-crypto/src/aead.rs,158,set_ccm_lengths,safe,,,,,,no,yes,,n/a
+aocl-crypto,crates/aocl-crypto/src/aead.rs,91,new,safe,,key iv,,,,yes,direct,,checks present: read pending
+aocl-crypto,crates/aocl-crypto/src/aead.rs,121,new_ccm,safe,,key nonce,,,,yes,direct,,checks present: read pending
+aocl-crypto,crates/aocl-crypto/src/aead.rs,158,set_ccm_lengths,safe,,,,,,no,direct,,n/a
 aocl-crypto,crates/aocl-crypto/src/aead.rs,175,set_aad,safe,,aad,,,,yes,NO,,REVIEW
-aocl-crypto,crates/aocl-crypto/src/aead.rs,183,encrypt,safe,,plaintext ciphertext,,,,yes,yes,,checks present: read pending
-aocl-crypto,crates/aocl-crypto/src/aead.rs,207,decrypt,safe,,ciphertext plaintext,,,,yes,yes,,checks present: read pending
+aocl-crypto,crates/aocl-crypto/src/aead.rs,183,encrypt,safe,,plaintext ciphertext,,,,yes,direct,,checks present: read pending
+aocl-crypto,crates/aocl-crypto/src/aead.rs,207,decrypt,safe,,ciphertext plaintext,,,,yes,direct,,checks present: read pending
 aocl-crypto,crates/aocl-crypto/src/aead.rs,230,get_tag,safe,,out,,,,yes,NO,,REVIEW
 aocl-crypto,crates/aocl-crypto/src/aead.rs,239,verify_and_decrypt,safe,,ciphertext plaintext expected_tag,,,,yes,NO,,REVIEW
-aocl-crypto,crates/aocl-crypto/src/cipher.rs,73,new,safe,,key iv,,,,yes,yes,,checks present: read pending
-aocl-crypto,crates/aocl-crypto/src/cipher.rs,102,encrypt,safe,,plaintext ciphertext,,,,yes,yes,,checks present: read pending
-aocl-crypto,crates/aocl-crypto/src/cipher.rs,124,decrypt,safe,,ciphertext plaintext,,,,yes,yes,,checks present: read pending
+aocl-crypto,crates/aocl-crypto/src/cipher.rs,73,new,safe,,key iv,,,,yes,direct,,checks present: read pending
+aocl-crypto,crates/aocl-crypto/src/cipher.rs,102,encrypt,safe,,plaintext ciphertext,,,,yes,direct,,checks present: read pending
+aocl-crypto,crates/aocl-crypto/src/cipher.rs,124,decrypt,safe,,ciphertext plaintext,,,,yes,direct,,checks present: read pending
 aocl-crypto,crates/aocl-crypto/src/digest.rs,43,output_len,safe,,,,,,no,NO,,n/a
-aocl-crypto,crates/aocl-crypto/src/digest.rs,78,new,safe,,,,,,no,NO,,n/a
-aocl-crypto,crates/aocl-crypto/src/digest.rs,100,update,safe,,data,,,,yes,yes,,checks present: read pending
+aocl-crypto,crates/aocl-crypto/src/digest.rs,78,new,safe,,,,,,no,via callee,,n/a
+aocl-crypto,crates/aocl-crypto/src/digest.rs,100,update,safe,,data,,,,yes,direct,,checks present: read pending
 aocl-crypto,crates/aocl-crypto/src/digest.rs,115,finalize,safe,,,,,,no,NO,,n/a
 aocl-crypto,crates/aocl-crypto/src/digest.rs,142,hash,safe,,data,,,,yes,NO,,REVIEW
 aocl-crypto,crates/aocl-crypto/src/ec.rs,39,key_len,safe,,,,,,no,NO,,n/a
-aocl-crypto,crates/aocl-crypto/src/ec.rs,71,new,safe,,,,,,no,NO,,n/a
-aocl-crypto,crates/aocl-crypto/src/ec.rs,95,set_private_key,safe,,private_key,,,,yes,yes,,checks present: read pending
-aocl-crypto,crates/aocl-crypto/src/ec.rs,114,derive_public_key,safe,,private_key public_key,,,,yes,yes,,checks present: read pending
-aocl-crypto,crates/aocl-crypto/src/ec.rs,140,shared_secret,safe,,peer_public_key secret,,,,yes,yes,,checks present: read pending
-aocl-crypto,crates/aocl-crypto/src/mac.rs,83,new,safe,,key,,,,yes,NO,,REVIEW
-aocl-crypto,crates/aocl-crypto/src/mac.rs,124,update,safe,,data,,,,yes,yes,,checks present: read pending
+aocl-crypto,crates/aocl-crypto/src/ec.rs,71,new,safe,,,,,,no,via callee,,n/a
+aocl-crypto,crates/aocl-crypto/src/ec.rs,95,set_private_key,safe,,private_key,,,,yes,direct,,checks present: read pending
+aocl-crypto,crates/aocl-crypto/src/ec.rs,114,derive_public_key,safe,,private_key public_key,,,,yes,direct,,checks present: read pending
+aocl-crypto,crates/aocl-crypto/src/ec.rs,140,shared_secret,safe,,peer_public_key secret,,,,yes,direct,,checks present: read pending
+aocl-crypto,crates/aocl-crypto/src/mac.rs,83,new,safe,,key,,,,yes,via callee,,checks present: read pending
+aocl-crypto,crates/aocl-crypto/src/mac.rs,124,update,safe,,data,,,,yes,direct,,checks present: read pending
 aocl-crypto,crates/aocl-crypto/src/mac.rs,135,finalize,safe,,,,,,no,NO,,n/a
 aocl-crypto,crates/aocl-crypto/src/mac.rs,162,hmac,safe,,key data,,,,yes,NO,,REVIEW
-aocl-crypto,crates/aocl-crypto/src/rsa.rs,60,new,safe,,,,,,no,NO,,n/a
+aocl-crypto,crates/aocl-crypto/src/rsa.rs,60,new,safe,,,,,,no,via callee,,n/a
 aocl-crypto,crates/aocl-crypto/src/rsa.rs,79,set_public_key,safe,,odulus,,,,yes,NO,,REVIEW
-aocl-crypto,crates/aocl-crypto/src/rsa.rs,94,set_private_key,safe,,dp dq p q qinv odulus,,,,yes,yes,,checks present: read pending
+aocl-crypto,crates/aocl-crypto/src/rsa.rs,94,set_private_key,safe,,dp dq p q qinv odulus,,,,yes,direct,,checks present: read pending
 aocl-crypto,crates/aocl-crypto/src/rsa.rs,150,add_digest,safe,,,,,,no,NO,,n/a
 aocl-crypto,crates/aocl-crypto/src/rsa.rs,155,add_mgf,safe,,,,,,no,NO,,n/a
 aocl-crypto,crates/aocl-crypto/src/rsa.rs,160,key_size_bytes,safe,,,,,,no,NO,,n/a
-aocl-crypto,crates/aocl-crypto/src/rsa.rs,166,encrypt,safe,,plaintext ciphertext,,,,yes,NO,,REVIEW
-aocl-crypto,crates/aocl-crypto/src/rsa.rs,179,decrypt,safe,,ciphertext plaintext,,,,yes,NO,,REVIEW
+aocl-crypto,crates/aocl-crypto/src/rsa.rs,166,encrypt,safe,,plaintext ciphertext,,,,yes,via callee,,checks present: read pending
+aocl-crypto,crates/aocl-crypto/src/rsa.rs,179,decrypt,safe,,ciphertext plaintext,,,,yes,via callee,,checks present: read pending
 aocl-crypto,crates/aocl-crypto/src/rsa.rs,199,encrypt_oaep,safe,,plaintext label seed ciphertext,,,,yes,NO,,REVIEW
-aocl-crypto,crates/aocl-crypto/src/rsa.rs,221,decrypt_oaep,safe,,ciphertext label plaintext,,,,yes,yes,,checks present: read pending
+aocl-crypto,crates/aocl-crypto/src/rsa.rs,221,decrypt_oaep,safe,,ciphertext label plaintext,,,,yes,direct,,checks present: read pending
 aocl-crypto,crates/aocl-crypto/src/rsa.rs,244,sign_pss,safe,,essage salt signature,,,,yes,NO,,REVIEW
 aocl-crypto,crates/aocl-crypto/src/rsa.rs,259,verify_pss,safe,,essage signature,,,,yes,NO,,REVIEW
 aocl-crypto,crates/aocl-crypto/src/rsa.rs,272,sign_pkcs1v15,safe,,essage signature,,,,yes,NO,,REVIEW
 aocl-crypto,crates/aocl-crypto/src/rsa.rs,285,verify_pkcs1v15,safe,,essage signature,,,,yes,NO,,REVIEW
 aocl-crypto,crates/aocl-crypto/src/rsa.rs,300,encrypt_pkcs1v15,safe,,plaintext random_pad ciphertext,,,,yes,NO,,REVIEW
-aocl-crypto,crates/aocl-crypto/src/rsa.rs,319,decrypt_pkcs1v15,safe,,ciphertext plaintext,,,,yes,yes,,checks present: read pending
+aocl-crypto,crates/aocl-crypto/src/rsa.rs,319,decrypt_pkcs1v15,safe,,ciphertext plaintext,,,,yes,direct,,checks present: read pending
 aocl-crypto,crates/aocl-crypto/src/rsa.rs,334,sign_hash_pss,safe,,hash salt signature,,,,yes,NO,,REVIEW
 aocl-crypto,crates/aocl-crypto/src/rsa.rs,348,verify_hash_pss,safe,,hash signature,,,,yes,NO,,REVIEW
 aocl-crypto,crates/aocl-crypto/src/rsa.rs,361,sign_hash_pkcs1v15,safe,,hash signature,,,,yes,NO,,REVIEW
@@ -716,34 +716,34 @@ aocl-crypto,crates/aocl-crypto/src/rsa.rs,387,copy_context_into,safe,,,,,dest,no
 aocl-crypto,crates/aocl-crypto/src/rsa.rs,397,as_raw,safe,,,,,,no,NO,,n/a
 aocl-crypto,crates/aocl-crypto/src/rsa.rs,404,digest_info_index,safe,,,,,,no,NO,,n/a
 aocl-crypto,crates/aocl-crypto/src/rsa.rs,410,digest_info_size,safe,,,,,,no,NO,,n/a
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,752,mean,safe,,x out,,,,yes,NO,,REVIEW
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,763,variance,safe,,x ean_out variance_out,,,,yes,NO,,REVIEW
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,787,geometric_mean,safe,,x out,,,,yes,NO,,REVIEW
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,799,harmonic_mean,safe,,x out,,,,yes,NO,,REVIEW
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,810,skewness,safe,,x ean_out variance_out skew_out,,,,yes,NO,,REVIEW
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,834,kurtosis,safe,,x ean_out variance_out kurtosis_out,,,,yes,NO,,REVIEW
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,859,moment,safe,,x ean_out oment_out,,k,,yes,NO,,REVIEW
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,886,quantile,safe,,x quantile_out,,,,yes,NO,,REVIEW
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,910,five_point_summary,safe,,x in lower edian pper ax,,,,yes,NO,,REVIEW
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,938,covariance_matrix,safe,,x cov,,,,yes,NO,,REVIEW
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,958,correlation_matrix,safe,,x corr,,,,yes,NO,,REVIEW
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,752,mean,safe,,x out,,,,yes,via callee,,checks present: read pending
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,763,variance,safe,,x ean_out variance_out,,,,yes,via callee,,checks present: read pending
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,787,geometric_mean,safe,,x out,,,,yes,via callee,,checks present: read pending
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,799,harmonic_mean,safe,,x out,,,,yes,via callee,,checks present: read pending
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,810,skewness,safe,,x ean_out variance_out skew_out,,,,yes,via callee,,checks present: read pending
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,834,kurtosis,safe,,x ean_out variance_out kurtosis_out,,,,yes,via callee,,checks present: read pending
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,859,moment,safe,,x ean_out oment_out,,k,,yes,via callee,,checks present: read pending
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,886,quantile,safe,,x quantile_out,,,,yes,via callee,,checks present: read pending
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,910,five_point_summary,safe,,x in lower edian pper ax,,,,yes,via callee,,checks present: read pending
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,938,covariance_matrix,safe,,x cov,,,,yes,via callee,,checks present: read pending
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,958,correlation_matrix,safe,,x corr,,,,yes,via callee,,checks present: read pending
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1054,new,safe,,,,,,no,NO,,n/a
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1073,with_jacobian,safe,,,,,,no,NO,,n/a
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1113,handle_mut,safe,,,,,,no,NO,,n/a
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1120,set_bounds,safe,,,,,,no,yes,,n/a
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1156,set_weights,safe,,weights,,,,yes,yes,,checks present: read pending
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1182,fit,safe,,coef,,,,yes,yes,,checks present: read pending
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1120,set_bounds,safe,,,,,,no,direct,,n/a
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1156,set_weights,safe,,weights,,,,yes,direct,,checks present: read pending
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1182,fit,safe,,coef,,,,yes,direct,,checks present: read pending
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1216,info,safe,,,,,,no,NO,,n/a
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1269,new,safe,,,,,,no,NO,,n/a
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1282,set_int_option,safe,,,,,,no,yes,,n/a
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1294,set_string_option,safe,,,,,,no,yes,,n/a
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1305,load_csv,safe,,,,,,no,yes,,n/a
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1282,set_int_option,safe,,,,,,no,direct,,n/a
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1294,set_string_option,safe,,,,,,no,direct,,n/a
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1305,load_csv,safe,,,,,,no,direct,,n/a
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1313,n_rows,safe,,,,,,no,NO,,n/a
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1321,n_cols,safe,,,,,,no,NO,,n/a
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1329,dims,safe,,,,,,no,NO,,n/a
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1336,select_columns,safe,,,,,,no,yes,,n/a
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1351,select_rows,safe,,,,,,no,yes,,n/a
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1368,extract_f64,safe,,data,,,,yes,yes,,checks present: read pending
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1336,select_columns,safe,,,,,,no,direct,,n/a
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1351,select_rows,safe,,,,,,no,direct,,n/a
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1368,extract_f64,safe,,data,,,,yes,direct,,checks present: read pending
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1391,as_raw,safe,,,,,,no,NO,,n/a
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1732,linear_kernel,safe,,x d,,n k,,yes,NO,,REVIEW
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1745,rbf_kernel,safe,,x d,,n k,,yes,NO,,REVIEW
@@ -752,51 +752,51 @@ aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1789,sigmoid_kernel,sa
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1810,pairwise_distances,safe,,x d,,n k,,yes,NO,,REVIEW
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1887,new_double,safe,,,,,,no,NO,,n/a
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1903,new_single,safe,,,,,,no,NO,,n/a
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1919,set_int_option,safe,,,,,,no,yes,,n/a
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1929,set_string_option,safe,,,,,,no,yes,,n/a
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1919,set_int_option,safe,,,,,,no,direct,,n/a
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1929,set_string_option,safe,,,,,,no,direct,,n/a
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1940,as_raw,safe,,,,,,no,NO,,n/a
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1945,info,safe,,,,,,no,NO,,n/a
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1952,last_error_message,safe,,,,,,no,NO,,n/a
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2011,new,safe,,,,,,no,NO,,n/a
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2020,fit,safe,,data,,,,yes,yes,,checks present: read pending
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2044,predict,safe,,y labels,,,,yes,yes,,checks present: read pending
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2020,fit,safe,,data,,,,yes,direct,,checks present: read pending
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2044,predict,safe,,y labels,,,,yes,direct,,checks present: read pending
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2090,new,safe,,,,,,no,NO,,n/a
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2097,fit,safe,,data,,,,yes,yes,,checks present: read pending
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2124,transform,safe,,x out,,,,yes,yes,,checks present: read pending
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2097,fit,safe,,data,,,,yes,direct,,checks present: read pending
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2124,transform,safe,,x out,,,,yes,direct,,checks present: read pending
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2222,new,safe,,,,,,no,NO,,n/a
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2232,handle_mut,safe,,,,,,no,NO,,n/a
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2238,fit,safe,,x_train y_train,,,,yes,yes,,checks present: read pending
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2281,predict,safe,,x_test labels,,,,yes,yes,,checks present: read pending
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2321,kneighbors,safe,,x_test n_ind n_dist,,k,,yes,yes,,checks present: read pending
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2238,fit,safe,,x_train y_train,,,,yes,direct,,checks present: read pending
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2281,predict,safe,,x_test labels,,,,yes,direct,,checks present: read pending
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2321,kneighbors,safe,,x_test n_ind n_dist,,k,,yes,direct,,checks present: read pending
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2352,classes,safe,,classes,,,,yes,NO,,REVIEW
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2375,predict_proba,safe,,x_test proba,,,,yes,NO,,REVIEW
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2445,new_mse,safe,,,,,,no,NO,,n/a
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2450,new_logistic,safe,,,,,,no,NO,,n/a
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2467,handle_mut,safe,,,,,,no,NO,,n/a
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2472,kind,safe,,,,,,no,NO,,n/a
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2478,fit,safe,,x y,,,,yes,yes,,checks present: read pending
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2478,fit,safe,,x y,,,,yes,direct,,checks present: read pending
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2529,coefficients,safe,,,,,,no,NO,,n/a
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2588,predict,safe,,x predictions,,,,yes,yes,,checks present: read pending
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2632,evaluate,safe,,x y predictions,,,,yes,yes,,checks present: read pending
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2588,predict,safe,,x predictions,,,,yes,direct,,checks present: read pending
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2632,evaluate,safe,,x y predictions,,,,yes,direct,,checks present: read pending
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2707,new,safe,,,,,,no,NO,,n/a
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2719,handle_mut,safe,,,,,,no,NO,,n/a
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2724,fit,safe,,data,,,,yes,yes,,checks present: read pending
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2724,fit,safe,,data,,,,yes,direct,,checks present: read pending
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2766,n_clusters,safe,,,,,,no,NO,,n/a
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2783,n_core_samples,safe,,,,,,no,NO,,n/a
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2800,labels,safe,,,,,,no,yes,,n/a
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2800,labels,safe,,,,,,no,direct,,n/a
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2820,core_sample_indices,safe,,,,,,no,NO,,n/a
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2862,new,safe,,,,,,no,NO,,n/a
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2868,handle_mut,safe,,,,,,no,NO,,n/a
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2875,fit,safe,,x y,,,,yes,yes,,checks present: read pending
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2933,predict,safe,,x_test labels,,,,yes,yes,,checks present: read pending
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2970,score,safe,,x_test y_test,,,,yes,yes,,checks present: read pending
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2875,fit,safe,,x y,,,,yes,direct,,checks present: read pending
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2933,predict,safe,,x_test labels,,,,yes,direct,,checks present: read pending
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,2970,score,safe,,x_test y_test,,,,yes,direct,,checks present: read pending
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,3004,predict_proba,safe,,x_test y_proba,,ldy,,yes,NO,,REVIEW
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,3029,predict_log_proba,safe,,x_test y_log_proba,,ldy,,yes,NO,,REVIEW
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,3071,new,safe,,,,,,no,NO,,n/a
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,3077,handle_mut,safe,,,,,,no,NO,,n/a
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,3083,fit,safe,,x y,,,,yes,yes,,checks present: read pending
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,3141,predict,safe,,x_test labels,,,,yes,yes,,checks present: read pending
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,3177,score,safe,,x_test y_test,,,,yes,yes,,checks present: read pending
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,3083,fit,safe,,x y,,,,yes,direct,,checks present: read pending
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,3141,predict,safe,,x_test labels,,,,yes,direct,,checks present: read pending
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,3177,score,safe,,x_test y_test,,,,yes,direct,,checks present: read pending
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,3209,predict_proba,safe,,x_test y_proba,,ldy,,yes,NO,,REVIEW
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,3234,predict_log_proba,safe,,x_test y_log_proba,,ldy,,yes,NO,,REVIEW
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,3327,new_svc,safe,,,,,,no,NO,,n/a
@@ -805,26 +805,26 @@ aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,3335,new_svr,safe,,,,,
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,3339,new_nu_svr,safe,,,,,,no,NO,,n/a
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,3351,handle_mut,safe,,,,,,no,NO,,n/a
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,3356,kind,safe,,,,,,no,NO,,n/a
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,3364,fit,safe,,x y,,,,yes,yes,,checks present: read pending
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,3413,predict,safe,,x_test predictions,,,,yes,yes,,checks present: read pending
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,3448,score,safe,,x_test y_test,,,,yes,NO,,REVIEW
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,3364,fit,safe,,x y,,,,yes,direct,,checks present: read pending
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,3413,predict,safe,,x_test predictions,,,,yes,direct,,checks present: read pending
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,3448,score,safe,,x_test y_test,,,,yes,via callee,,checks present: read pending
 aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,3475,decision_function,safe,,x_test decision_values,,,,yes,NO,,REVIEW
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,156,Scalar::mean,safe,yes,x out,,ldx,,yes,n/a (trait decl),,READ (trait method)
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,172,Scalar::variance,safe,yes,x ean_out variance_out,,ldx,,yes,n/a (trait decl),,READ (trait method)
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,185,Scalar::geometric_mean,safe,yes,x out,,ldx,,yes,n/a (trait decl),,READ (trait method)
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,196,Scalar::harmonic_mean,safe,yes,x out,,ldx,,yes,n/a (trait decl),,READ (trait method)
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,207,Scalar::skewness,safe,yes,x ean_out variance_out skew_out,,ldx,,yes,n/a (trait decl),,READ (trait method)
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,221,Scalar::kurtosis,safe,yes,x ean_out variance_out kurtosis_out,,ldx,,yes,n/a (trait decl),,READ (trait method)
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,236,Scalar::moment,safe,yes,x ean_out oment_out,,ldx k,,yes,n/a (trait decl),,READ (trait method)
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,250,Scalar::quantile,safe,yes,x quantile_out,,ldx,,yes,n/a (trait decl),,READ (trait method)
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,264,Scalar::five_point_summary,safe,yes,x in lower edian pper ax,,ldx,,yes,n/a (trait decl),,READ (trait method)
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,280,Scalar::covariance_matrix,safe,yes,x cov,,ldx,,yes,n/a (trait decl),,READ (trait method)
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,293,Scalar::correlation_matrix,safe,yes,x corr,,ldx,,yes,n/a (trait decl),,READ (trait method)
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1448,DistScalar::pairwise_distances,safe,yes,x d,,n k ldx ldy,,yes,n/a (trait decl),,READ (trait method)
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1514,KernelScalar::linear_kernel,safe,yes,x d,,n k ldx ldy,,yes,n/a (trait decl),,READ (trait method)
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1528,KernelScalar::rbf_kernel,safe,yes,x d,,n k ldx ldy,,yes,n/a (trait decl),,READ (trait method)
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1543,KernelScalar::polynomial_kernel,safe,yes,x d,,n k ldx ldy,,yes,n/a (trait decl),,READ (trait method)
-aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1560,KernelScalar::sigmoid_kernel,safe,yes,x d,,n k ldx ldy,,yes,n/a (trait decl),,READ (trait method)
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,156,Scalar::mean,safe,yes,x out,,ldx,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,172,Scalar::variance,safe,yes,x ean_out variance_out,,ldx,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,185,Scalar::geometric_mean,safe,yes,x out,,ldx,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,196,Scalar::harmonic_mean,safe,yes,x out,,ldx,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,207,Scalar::skewness,safe,yes,x ean_out variance_out skew_out,,ldx,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,221,Scalar::kurtosis,safe,yes,x ean_out variance_out kurtosis_out,,ldx,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,236,Scalar::moment,safe,yes,x ean_out oment_out,,ldx k,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,250,Scalar::quantile,safe,yes,x quantile_out,,ldx,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,264,Scalar::five_point_summary,safe,yes,x in lower edian pper ax,,ldx,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,280,Scalar::covariance_matrix,safe,yes,x cov,,ldx,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,293,Scalar::correlation_matrix,safe,yes,x corr,,ldx,,yes,on an impl path,,READ (trait method; check on an impl path)
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1448,DistScalar::pairwise_distances,safe,yes,x d,,n k ldx ldy,,yes,NO,,REVIEW (trait method; no check on any impl path)
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1514,KernelScalar::linear_kernel,safe,yes,x d,,n k ldx ldy,,yes,NO,,REVIEW (trait method; no check on any impl path)
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1528,KernelScalar::rbf_kernel,safe,yes,x d,,n k ldx ldy,,yes,NO,,REVIEW (trait method; no check on any impl path)
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1543,KernelScalar::polynomial_kernel,safe,yes,x d,,n k ldx ldy,,yes,NO,,REVIEW (trait method; no check on any impl path)
+aocl-data-analytics,crates/aocl-data-analytics/src/lib.rs,1560,KernelScalar::sigmoid_kernel,safe,yes,x d,,n k ldx ldy,,yes,NO,,REVIEW (trait method; no check on any impl path)
 aocl-scalapack,crates/aocl-scalapack/src/lib.rs,97,new,safe,,,,,,no,NO,,n/a
 aocl-scalapack,crates/aocl-scalapack/src/lib.rs,135,shape,safe,,,,,,no,NO,,n/a
 aocl-scalapack,crates/aocl-scalapack/src/lib.rs,142,coords,safe,,,,,,no,NO,,n/a

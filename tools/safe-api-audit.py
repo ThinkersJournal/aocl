@@ -144,6 +144,47 @@ def parse(text, f):
     return rows
 
 
+ANYFN = re.compile(r"(?<!\w)fn\s+(\w+)")
+CALL = re.compile(r"(?<!\w)(?:T|Self|S|F)::(\w+)\(")
+
+
+def defs_index(texts):
+    """name -> list of (head_has_check, callee_names) for EVERY fn with a body in the given sources (incl. non-pub and macro bodies)."""
+    idx = {}
+    for t in texts:
+        src = strip_comments(t.replace(chr(13) + NL, NL))
+        for m in ANYFN.finditer(src):
+            j = m.end()
+            if src[j:j + 1] == "<":
+                j = balanced(src, j, "<", ">") + 1
+                if j <= 0:
+                    continue
+            k = src.find("(", j)
+            if k < 0:
+                continue
+            e = balanced(src, k, "(", ")")
+            b = src.find("{", e)
+            semi = src.find(";", e)
+            if b < 0 or (0 <= semi < b):
+                continue
+            body = src[b:balanced(src, b, "{", "}") + 1]
+            head = body.split("unsafe", 1)[0]
+            idx.setdefault(m.group(1), []).append((bool(CHECK.search(head)), sorted(set(CALL.findall(body)))))
+    return idx
+
+
+def deep_validated(name, idx, depth=3, seen=None):
+    """A check is PRESENT on some path: in a definition of `name`, or in the (T::/Self::) callees of its definitions, to `depth`."""
+    seen = seen or set()
+    if name in seen or depth < 0:
+        return False
+    seen.add(name)
+    for has, callees in idx.get(name, []):
+        if has or any(deep_validated(c, idx, depth - 1, seen) for c in callees):
+            return True
+    return False
+
+
 def main():
     csv_path = sys.argv[sys.argv.index("--csv") + 1] if "--csv" in sys.argv else None
     rows, summary = [], {}
@@ -151,8 +192,12 @@ def main():
         files = subprocess.run(["git", "ls-files", f"crates/aocl-{w}/src"], capture_output=True, text=True, check=True).stdout.split()
         files = [f for f in files if f.endswith(".rs")]
         tot = safe = uns = scope = auto = tr = 0
+        texts = {f: open(f, encoding="utf8", errors="replace").read() for f in files}
+        idx = defs_index(texts.values())
         for f in files:
-            for r in parse(open(f, encoding="utf8", errors="replace").read(), f):
+            for r in parse(texts[f], f):
+                short = r["fn"].split("::")[-1]
+                r["deep"] = deep_validated(short, idx)
                 trait = r["trait_method"]
                 tot += 1
                 uns += r["unsafe"]
@@ -160,18 +205,18 @@ def main():
                 tr += trait
                 if r["in_scope"]:
                     scope += 1
-                    auto += r["validated"]
+                    auto += r["deep"]
                 verdict = "n/a"
                 if r["in_scope"]:
-                    verdict = "READ (trait method)" if trait else ("checks present: read pending" if r["validated"] else "REVIEW")
+                    verdict = ("READ (trait method; check on an impl path)" if r["deep"] else "REVIEW (trait method; no check on any impl path)") if trait else ("checks present: read pending" if r["deep"] else "REVIEW")
                 rows.append({"crate": f"aocl-{w}", "file": r["file"], "line": r["line"], "fn": r["fn"], "kind": "unsafe" if r["unsafe"] else "safe",
                              "trait_method": "yes" if trait else "", "slice_args": " ".join(r["slices"]), "ptr_args": " ".join(r["ptrs"]),
                              "size_args": " ".join(r["sizes"]), "handle_args": " ".join(r["handles"]), "in_scope": "yes" if r["in_scope"] else "no",
-                             "check_before_ffi_heuristic": "n/a (trait decl)" if trait else ("yes" if r["validated"] else "NO"),
+                             "check_before_ffi_heuristic": ("on an impl path" if r["deep"] else "NO") if trait else ("direct" if r["validated"] else ("via callee" if r["deep"] else "NO")),
                              "guard_page_test": "", "verdict": verdict})
         summary[w] = (tot, safe, uns, tr, scope, auto)
     print("enumeration: git ls-files crates/aocl-<wrapper>/src + comment-stripped regex over `pub [unsafe] fn` and `pub trait` methods (balanced parens/braces)")
-    hdr = ("pub fn+trait fn", "safe", "unsafe", "of which trait", "in scope", "check present")
+    hdr = ("pub fn+trait fn", "safe", "unsafe", "of which trait", "in scope", "check on a path")
     print(f"{'wrapper':22}" + "".join(f"{h:>16}" for h in hdr))
     T = [0] * 6
     for w, v in summary.items():
