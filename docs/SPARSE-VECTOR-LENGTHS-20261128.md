@@ -9,3 +9,9 @@ Measured on Windows x64, AOCL 6.0.68 (LP64), `crates/aocl-sparse/tests/vector_le
 Rule added: `x`, `y`, `b` must be AT LEAST as long as the matrix needs (as `sorv` and the complex `mv`/`trsv` already did): `mv`/`dotmv`: `x >= n, y >= m` for `Trans::No`, swapped for `T`/`C`; `trsv`: `b, x >= m`; `symgs`: `b >= m, x >= n`; `symgs_mv`: also `y >= m`. A longer slice is accepted (the library reads the first elements).
 
 **Not covered here (same defect class suspected, NOT demonstrated, listed so the next PR can take them):** the dense-matrix functions (`csrmm`, `trsm`, `spmmd`, `sp2md`, `syrkd`, `syprd`, real and complex: output sizes depend on `ldb`/`ldc`/`order`/`n_rhs`), and the array-argument functions `csrmv`, `ellmv`, `bsrmv`, `blkcsrmv`. The iterative solvers were not read.
+
+## Dense-matrix arguments (`tests/dense_lengths.rs`, same method)
+
+`csrmm`, `spmmd`, `sp2md`, `trsm`, `syrkd`, `syprd` (real and complex): 152 tests = 128 one-element-short cases + 24 exact-size controls (per precision: f64, f32, Complex64, Complex32; both layouts; `op` none and transpose; the complex `trsm` has a fixed row-major order). Before the fix (record `C:/Projects/.lane-state/sparse-dense-lengths-before.txt`): **128 of 128 ACCESS VIOLATION**; the 24 controls pass. After: 152 of 152 pass, each in its own process; `cargo test -p aocl-sparse` all pass. Rule: `ld >= minor extent` and `len >= (major - 1) * ld + minor` (column-major: major = cols, minor = rows). The complex `trsm` size was probed directly: 12 elements for a 4 x 3 row-major system is accepted, 11 faults.
+
+Cleared by probe: `SparseMatrix::from_csr` rejects (the library refuses) all five malformed structures tried (column index past `n`, negative column, `row_ptr` entry past nnz, decreasing `row_ptr`, last `row_ptr` != nnz), so the handle-based functions cannot be sent past `x` by a bad matrix.
