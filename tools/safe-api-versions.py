@@ -52,7 +52,7 @@ def main():
     if arg("--versions"):
         versions = arg("--versions").split(",")
     os.makedirs(os.path.join(work, "results"), exist_ok=True)
-    env = dict(os.environ, CARGO_TARGET_DIR=os.path.join(work, "target"))
+    env = dict(os.environ, CARGO_TARGET_DIR=os.path.join(work, "target"), KMP_DUPLICATE_LIB_OK="TRUE")
     for ver in versions:
         out_csv = os.path.join(work, "results", f"{crate}-{ver}.csv")
         if os.path.exists(out_csv):
@@ -95,7 +95,7 @@ def main():
                 w.writeheader()
                 w.writerows(rows)
             continue
-        gens = {"blas": "gen-blas-harness.py", "lapack": "gen-lapack-harness.py"}[gen]
+        gens = {"blas": "gen-blas-harness.py", "lapack": "gen-lapack-harness.py", "da": "gen-da-harness.py"}[gen]
         code = subprocess.run([sys.executable, os.path.join(HERE, gens), "--fns", ",".join(sorted(names))], capture_output=True, text=True).stdout
         open(os.path.join(d, "tests", "generated_guard.rs"), "w", encoding="utf8").write(code)
         man = os.path.join(d, "Cargo.toml")
