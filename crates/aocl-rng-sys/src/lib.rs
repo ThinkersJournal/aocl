@@ -17,8 +17,7 @@
 //! For a safe, idiomatic API see [`aocl-rng`](https://docs.rs/aocl-rng).
 
 #![allow(
-    non_camel_case_types,
-    dead_code,
+    non_camel_case_types,
     unused_imports,
     improper_ctypes,
     reason = "declarations mirror the guide's C names and signatures"

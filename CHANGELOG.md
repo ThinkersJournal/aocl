@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- **All 12 `-sys` crates: removed the crate-wide `dead_code` allow from `src/lib.rs`** (version: pm-assist to allocate; patch). It hid nothing today (bindgen items are `pub`; `cargo check --workspace --lib` has 0 warnings without it, Windows measured, Linux unmeasured) but it blinded CodeRipper's MOD-011 reachability check: its own per-run known-dead-sentinel control was not detected, so the check reported "failed to run" on every `-sys` crate (portfolio sweep red on main). Measured on `aocl-fft-sys` with coderipper 0.48.1: before, `coderipper check MOD-011` could not run; after, it ran clean. Size: 12 one-line deletions.
+
 ## 0.2.29 - 2026-11-27 (PM-allocated; aocl-sparse index-range and stride validation for every index-array function (the roti siblings), red-first tests; patch on 0.2.x)
 
 - **`aocl-sparse`: the index-range validation of `roti` now covers every sibling function that takes an index array or a stride** (found in review of #45): `axpyi`, `gthr`, `sctr`, `doti_f64/f32`, `gthrz_f64/f32`, the complex `axpyi`/`gthr`/`sctr`, `dotui_*`, `dotci_*`, `gthrz_*`, and the strided `gthrs_*`/`sctrs_*` (real and complex) refuse a negative or too-large index, a wrong number of indices, a non-positive stride, and a strided access past the dense vector, with `InvalidArgument` before the library is called. Before, such a call read or wrote outside the dense vector inside the library from safe code. Same published versions as the `roti` finding (`aocl-sparse` 0.1.0 to 0.2.26: 0.2.26 carries the `roti` fix only). Indices are zero-based (no index-base argument exists for these routines).

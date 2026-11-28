@@ -20,8 +20,7 @@
 #![allow(
     non_upper_case_globals,
     non_camel_case_types,
-    non_snake_case,
-    dead_code,
+    non_snake_case,
     unused_imports,
     improper_ctypes,
     reason = "declarations mirror the guide's C names and signatures"
