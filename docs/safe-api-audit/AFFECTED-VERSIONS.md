@@ -4,12 +4,12 @@ Measured, not read: for every published version of the crate the guard-page harn
 
 ## aocl-sparse
 
-Versions measured: 0.1.0, 0.2.2, 0.2.4, 0.2.5, 0.2.26, 0.2.40, 0.2.43, 0.2.46.
+Versions measured: 0.1.0, 0.2.2, 0.2.4, 0.2.5, 0.2.26, 0.2.40, 0.2.43, 0.2.46, 0.2.49.
 
 | function family | first affected | last affected (published so far) | holes (short cases) at last affected | fixed in |
 |---|---|---|---|---|
-| bsrmv | 0.2.2 | 0.2.46 | 6 | PENDING: #70 |
-| csr2bsr | 0.2.2 | 0.2.46 | 14 | PENDING: #70 |
+| bsrmv | 0.2.2 | 0.2.49 | 6 | PENDING: #70 |
+| csr2bsr | 0.2.2 | 0.2.49 | 14 | PENDING: #70 |
 | csr2dia | 0.2.2 | 0.2.43 | 8 | 0.2.46 (published 2026-11-28) |
 | csr2ell | 0.2.2 | 0.2.43 | 10 | 0.2.46 (published 2026-11-28) |
 | csrmm | 0.2.2 | 0.2.43 | 32 | 0.2.46 (published 2026-11-28) |
@@ -32,7 +32,7 @@ Versions measured: 0.1.0, 0.2.2, 0.2.4, 0.2.5, 0.2.26, 0.2.40, 0.2.43, 0.2.46.
 
 ## aocl-blas
 
-Versions measured: 0.1.0, 0.2.5, 0.2.40, 0.2.43, 0.2.46.
+Versions measured: 0.1.0, 0.2.5, 0.2.40, 0.2.43, 0.2.46, 0.2.49.
 
 | function family | first affected | last affected (published so far) | holes (short cases) at last affected | fixed in |
 |---|---|---|---|---|
@@ -42,67 +42,67 @@ Versions measured: 0.1.0, 0.2.5, 0.2.40, 0.2.43, 0.2.46.
 
 ## aocl-lapack
 
-Versions measured: 0.1.0, 0.2.5, 0.2.40, 0.2.43, 0.2.46.
+Versions measured: 0.1.0, 0.2.5, 0.2.40, 0.2.43, 0.2.46, 0.2.49.
 
 | function family | first affected | last affected (published so far) | holes (short cases) at last affected | fixed in |
 |---|---|---|---|---|
-| cgebrd | 0.1.0 | 0.2.46 | 5 | PENDING: #69 (next after #68) |
+| cgebrd | 0.1.0 | 0.2.49 | 5 | PENDING: #69 (next after #68) |
 | cgecon | 0.1.0 | 0.2.46 | 1 | 0.2.49 (group B #67, merged; unpublished) |
-| cgeev | 0.1.0 | 0.2.46 | 4 | PENDING: #68 (0.2.50 armed) |
+| cgeev | 0.1.0 | 0.2.49 | 4 | PENDING: #68 (0.2.50 armed) |
 | cgehrd | 0.1.0 | 0.2.46 | 2 | 0.2.49 (group B #67, merged; unpublished) |
 | cgelss | 0.1.0 | 0.2.46 | 3 | 0.2.49 (group B #67, merged; unpublished) |
 | cgeqp3 | 0.1.0 | 0.2.46 | 3 | 0.2.49 (group B #67, merged; unpublished) |
-| cggev | 0.1.0 | 0.2.46 | 6 | PENDING: #68 (0.2.50 armed) |
-| cheevd | 0.1.0 | 0.2.46 | 2 | PENDING: #68 (0.2.50 armed) |
-| cheevr | 0.1.0 | 0.2.46 | 4 | PENDING: #68 (0.2.50 armed) |
-| chegv | 0.1.0 | 0.2.46 | 3 | PENDING: #68 (0.2.50 armed) |
+| cggev | 0.1.0 | 0.2.49 | 6 | PENDING: #68 (0.2.50 armed) |
+| cheevd | 0.1.0 | 0.2.49 | 2 | PENDING: #68 (0.2.50 armed) |
+| cheevr | 0.1.0 | 0.2.49 | 4 | PENDING: #68 (0.2.50 armed) |
+| chegv | 0.1.0 | 0.2.49 | 3 | PENDING: #68 (0.2.50 armed) |
 | chetrf | 0.1.0 | 0.2.46 | 2 | 0.2.49 (group B #67, merged; unpublished) |
 | chetri | 0.1.0 | 0.2.46 | 2 | 0.2.49 (group B #67, merged; unpublished) |
 | chetrs | 0.1.0 | 0.2.46 | 3 | 0.2.49 (group B #67, merged; unpublished) |
 | clacpy | 0.1.0 | 0.2.46 | 2 | 0.2.49 (group B #67, merged; unpublished) |
 | clange | 0.1.0 | 0.2.46 | 1 | 0.2.49 (group B #67, merged; unpublished) |
-| clarfg | 0.1.0 | 0.2.46 | 1 | PENDING: #69 (next after #68) |
+| clarfg | 0.1.0 | 0.2.49 | 1 | PENDING: #69 (next after #68) |
 | cpocon | 0.1.0 | 0.2.46 | 1 | 0.2.49 (group B #67, merged; unpublished) |
 | csytrf | 0.1.0 | 0.2.46 | 2 | 0.2.49 (group B #67, merged; unpublished) |
 | csytri | 0.1.0 | 0.2.46 | 2 | 0.2.49 (group B #67, merged; unpublished) |
 | csytrs | 0.1.0 | 0.2.46 | 3 | 0.2.49 (group B #67, merged; unpublished) |
-| cunglq | 0.1.0 | 0.2.46 | 2 | PENDING: #69 (next after #68) |
+| cunglq | 0.1.0 | 0.2.49 | 2 | PENDING: #69 (next after #68) |
 | cungqr | 0.1.0 | 0.2.46 | 2 | 0.2.49 (group B #67, merged; unpublished) |
-| cungtr | 0.1.0 | 0.2.46 | 2 | PENDING: #69 (next after #68) |
-| cunmlq | 0.1.0 | 0.2.46 | 3 | PENDING: #69 (next after #68) |
-| cunmqr | 0.1.0 | 0.2.46 | 3 | PENDING: #69 (next after #68) |
-| dgebrd | 0.1.0 | 0.2.46 | 5 | PENDING: #69 (next after #68) |
+| cungtr | 0.1.0 | 0.2.49 | 2 | PENDING: #69 (next after #68) |
+| cunmlq | 0.1.0 | 0.2.49 | 3 | PENDING: #69 (next after #68) |
+| cunmqr | 0.1.0 | 0.2.49 | 3 | PENDING: #69 (next after #68) |
+| dgebrd | 0.1.0 | 0.2.49 | 5 | PENDING: #69 (next after #68) |
 | dgecon | 0.1.0 | 0.2.46 | 1 | 0.2.49 (group B #67, merged; unpublished) |
-| dgees | 0.1.0 | 0.2.46 | 4 | PENDING: #68 (0.2.50 armed) |
-| dgeev | 0.1.0 | 0.2.46 | 5 | PENDING: #68 (0.2.50 armed) |
+| dgees | 0.1.0 | 0.2.49 | 4 | PENDING: #68 (0.2.50 armed) |
+| dgeev | 0.1.0 | 0.2.49 | 5 | PENDING: #68 (0.2.50 armed) |
 | dgehrd | 0.1.0 | 0.2.46 | 2 | 0.2.49 (group B #67, merged; unpublished) |
 | dgelss | 0.1.0 | 0.2.46 | 3 | 0.2.49 (group B #67, merged; unpublished) |
 | dgeqp3 | 0.1.0 | 0.2.46 | 3 | 0.2.49 (group B #67, merged; unpublished) |
-| dggev | 0.1.0 | 0.2.46 | 7 | PENDING: #68 (0.2.50 armed) |
+| dggev | 0.1.0 | 0.2.49 | 7 | PENDING: #68 (0.2.50 armed) |
 | dlacpy | 0.1.0 | 0.2.46 | 2 | 0.2.49 (group B #67, merged; unpublished) |
 | dlange | 0.1.0 | 0.2.46 | 1 | 0.2.49 (group B #67, merged; unpublished) |
-| dlarfg | 0.1.0 | 0.2.46 | 1 | PENDING: #69 (next after #68) |
-| dorglq | 0.1.0 | 0.2.46 | 2 | PENDING: #69 (next after #68) |
+| dlarfg | 0.1.0 | 0.2.49 | 1 | PENDING: #69 (next after #68) |
+| dorglq | 0.1.0 | 0.2.49 | 2 | PENDING: #69 (next after #68) |
 | dorgqr | 0.1.0 | 0.2.46 | 2 | 0.2.49 (group B #67, merged; unpublished) |
-| dorgtr | 0.1.0 | 0.2.46 | 2 | PENDING: #69 (next after #68) |
-| dormlq | 0.1.0 | 0.2.46 | 3 | PENDING: #69 (next after #68) |
-| dormqr | 0.1.0 | 0.2.46 | 3 | PENDING: #69 (next after #68) |
+| dorgtr | 0.1.0 | 0.2.49 | 2 | PENDING: #69 (next after #68) |
+| dormlq | 0.1.0 | 0.2.49 | 3 | PENDING: #69 (next after #68) |
+| dormqr | 0.1.0 | 0.2.49 | 3 | PENDING: #69 (next after #68) |
 | dpocon | 0.1.0 | 0.2.46 | 1 | 0.2.49 (group B #67, merged; unpublished) |
 | dpotri | 0.1.0 | 0.2.46 | 1 | 0.2.49 (group B #67, merged; unpublished) |
-| dsyevd | 0.1.0 | 0.2.46 | 2 | PENDING: #68 (0.2.50 armed) |
-| dsyevr | 0.1.0 | 0.2.46 | 4 | PENDING: #68 (0.2.50 armed) |
-| dsygv | 0.1.0 | 0.2.46 | 3 | PENDING: #68 (0.2.50 armed) |
+| dsyevd | 0.1.0 | 0.2.49 | 2 | PENDING: #68 (0.2.50 armed) |
+| dsyevr | 0.1.0 | 0.2.49 | 4 | PENDING: #68 (0.2.50 armed) |
+| dsygv | 0.1.0 | 0.2.49 | 3 | PENDING: #68 (0.2.50 armed) |
 | dsytrf | 0.1.0 | 0.2.46 | 2 | 0.2.49 (group B #67, merged; unpublished) |
 | dsytri | 0.1.0 | 0.2.46 | 2 | 0.2.49 (group B #67, merged; unpublished) |
 | dsytrs | 0.1.0 | 0.2.46 | 3 | 0.2.49 (group B #67, merged; unpublished) |
 | dtrtri | 0.1.0 | 0.2.46 | 1 | 0.2.49 (group B #67, merged; unpublished) |
 | dtrtrs | 0.1.0 | 0.2.46 | 2 | 0.2.49 (group B #67, merged; unpublished) |
 | gelqf | 0.1.0 | 0.2.46 | 4 | 0.2.48 (group A #66, merged; unpublished) |
-| gelsd | 0.1.0 | 0.2.46 | 8 | PENDING: #69 (next after #68) |
-| gelsy | 0.1.0 | 0.2.46 | 8 | PENDING: #69 (next after #68) |
+| gelsd | 0.1.0 | 0.2.49 | 8 | PENDING: #69 (next after #68) |
+| gelsy | 0.1.0 | 0.2.49 | 8 | PENDING: #69 (next after #68) |
 | geqrf | 0.1.0 | 0.2.46 | 4 | 0.2.48 (group A #66, merged; unpublished) |
-| gesdd | 0.1.0 | 0.2.46 | 16 | PENDING: #69 (next after #68) |
-| gesvd | 0.1.0 | 0.2.46 | 20 | PENDING: #69 (next after #68) |
+| gesdd | 0.1.0 | 0.2.49 | 16 | PENDING: #69 (next after #68) |
+| gesvd | 0.1.0 | 0.2.49 | 20 | PENDING: #69 (next after #68) |
 | getrf | 0.1.0 | 0.2.46 | 2 | 0.2.48 (group A #66, merged; unpublished) |
 | getri | 0.1.0 | 0.2.46 | 2 | 0.2.48 (group A #66, merged; unpublished) |
 | getrs | 0.1.0 | 0.2.46 | 6 | 0.2.48 (group A #66, merged; unpublished) |
@@ -113,27 +113,27 @@ Versions measured: 0.1.0, 0.2.5, 0.2.40, 0.2.43, 0.2.46.
 | potrf | 0.1.0 | 0.2.46 | 2 | 0.2.48 (group A #66, merged; unpublished) |
 | potrs | 0.1.0 | 0.2.46 | 2 | 0.2.48 (group A #66, merged; unpublished) |
 | ptsv | 0.1.0 | 0.2.46 | 8 | 0.2.48 (group A #66, merged; unpublished) |
-| sgebrd | 0.1.0 | 0.2.46 | 5 | PENDING: #69 (next after #68) |
+| sgebrd | 0.1.0 | 0.2.49 | 5 | PENDING: #69 (next after #68) |
 | sgecon | 0.1.0 | 0.2.46 | 1 | 0.2.49 (group B #67, merged; unpublished) |
-| sgees | 0.1.0 | 0.2.46 | 4 | PENDING: #68 (0.2.50 armed) |
-| sgeev | 0.1.0 | 0.2.46 | 5 | PENDING: #68 (0.2.50 armed) |
+| sgees | 0.1.0 | 0.2.49 | 4 | PENDING: #68 (0.2.50 armed) |
+| sgeev | 0.1.0 | 0.2.49 | 5 | PENDING: #68 (0.2.50 armed) |
 | sgehrd | 0.1.0 | 0.2.46 | 2 | 0.2.49 (group B #67, merged; unpublished) |
 | sgelss | 0.1.0 | 0.2.46 | 3 | 0.2.49 (group B #67, merged; unpublished) |
 | sgeqp3 | 0.1.0 | 0.2.46 | 3 | 0.2.49 (group B #67, merged; unpublished) |
-| sggev | 0.1.0 | 0.2.46 | 7 | PENDING: #68 (0.2.50 armed) |
+| sggev | 0.1.0 | 0.2.49 | 7 | PENDING: #68 (0.2.50 armed) |
 | slacpy | 0.1.0 | 0.2.46 | 2 | 0.2.49 (group B #67, merged; unpublished) |
 | slange | 0.1.0 | 0.2.46 | 1 | 0.2.49 (group B #67, merged; unpublished) |
-| slarfg | 0.1.0 | 0.2.46 | 1 | PENDING: #69 (next after #68) |
-| sorglq | 0.1.0 | 0.2.46 | 2 | PENDING: #69 (next after #68) |
+| slarfg | 0.1.0 | 0.2.49 | 1 | PENDING: #69 (next after #68) |
+| sorglq | 0.1.0 | 0.2.49 | 2 | PENDING: #69 (next after #68) |
 | sorgqr | 0.1.0 | 0.2.46 | 2 | 0.2.49 (group B #67, merged; unpublished) |
-| sorgtr | 0.1.0 | 0.2.46 | 2 | PENDING: #69 (next after #68) |
-| sormlq | 0.1.0 | 0.2.46 | 3 | PENDING: #69 (next after #68) |
-| sormqr | 0.1.0 | 0.2.46 | 3 | PENDING: #69 (next after #68) |
+| sorgtr | 0.1.0 | 0.2.49 | 2 | PENDING: #69 (next after #68) |
+| sormlq | 0.1.0 | 0.2.49 | 3 | PENDING: #69 (next after #68) |
+| sormqr | 0.1.0 | 0.2.49 | 3 | PENDING: #69 (next after #68) |
 | spocon | 0.1.0 | 0.2.46 | 1 | 0.2.49 (group B #67, merged; unpublished) |
 | spotri | 0.1.0 | 0.2.46 | 1 | 0.2.49 (group B #67, merged; unpublished) |
-| ssyevd | 0.1.0 | 0.2.46 | 2 | PENDING: #68 (0.2.50 armed) |
-| ssyevr | 0.1.0 | 0.2.46 | 4 | PENDING: #68 (0.2.50 armed) |
-| ssygv | 0.1.0 | 0.2.46 | 3 | PENDING: #68 (0.2.50 armed) |
+| ssyevd | 0.1.0 | 0.2.49 | 2 | PENDING: #68 (0.2.50 armed) |
+| ssyevr | 0.1.0 | 0.2.49 | 4 | PENDING: #68 (0.2.50 armed) |
+| ssygv | 0.1.0 | 0.2.49 | 3 | PENDING: #68 (0.2.50 armed) |
 | ssytrf | 0.1.0 | 0.2.46 | 2 | 0.2.49 (group B #67, merged; unpublished) |
 | ssytri | 0.1.0 | 0.2.46 | 2 | 0.2.49 (group B #67, merged; unpublished) |
 | ssytrs | 0.1.0 | 0.2.46 | 3 | 0.2.49 (group B #67, merged; unpublished) |
@@ -141,31 +141,31 @@ Versions measured: 0.1.0, 0.2.5, 0.2.40, 0.2.43, 0.2.46.
 | strtrs | 0.1.0 | 0.2.46 | 2 | 0.2.49 (group B #67, merged; unpublished) |
 | syev | 0.1.0 | 0.2.46 | 4 | 0.2.48 (group A #66, merged; unpublished) |
 | sysv | 0.1.0 | 0.2.46 | 6 | 0.2.48 (group A #66, merged; unpublished) |
-| zgebrd | 0.1.0 | 0.2.46 | 5 | PENDING: #69 (next after #68) |
+| zgebrd | 0.1.0 | 0.2.49 | 5 | PENDING: #69 (next after #68) |
 | zgecon | 0.1.0 | 0.2.46 | 1 | 0.2.49 (group B #67, merged; unpublished) |
-| zgeev | 0.1.0 | 0.2.46 | 4 | PENDING: #68 (0.2.50 armed) |
+| zgeev | 0.1.0 | 0.2.49 | 4 | PENDING: #68 (0.2.50 armed) |
 | zgehrd | 0.1.0 | 0.2.46 | 2 | 0.2.49 (group B #67, merged; unpublished) |
 | zgelss | 0.1.0 | 0.2.46 | 3 | 0.2.49 (group B #67, merged; unpublished) |
 | zgeqp3 | 0.1.0 | 0.2.46 | 3 | 0.2.49 (group B #67, merged; unpublished) |
-| zggev | 0.1.0 | 0.2.46 | 6 | PENDING: #68 (0.2.50 armed) |
-| zheevd | 0.1.0 | 0.2.46 | 2 | PENDING: #68 (0.2.50 armed) |
-| zheevr | 0.1.0 | 0.2.46 | 4 | PENDING: #68 (0.2.50 armed) |
-| zhegv | 0.1.0 | 0.2.46 | 3 | PENDING: #68 (0.2.50 armed) |
+| zggev | 0.1.0 | 0.2.49 | 6 | PENDING: #68 (0.2.50 armed) |
+| zheevd | 0.1.0 | 0.2.49 | 2 | PENDING: #68 (0.2.50 armed) |
+| zheevr | 0.1.0 | 0.2.49 | 4 | PENDING: #68 (0.2.50 armed) |
+| zhegv | 0.1.0 | 0.2.49 | 3 | PENDING: #68 (0.2.50 armed) |
 | zhetrf | 0.1.0 | 0.2.46 | 2 | 0.2.49 (group B #67, merged; unpublished) |
 | zhetri | 0.1.0 | 0.2.46 | 2 | 0.2.49 (group B #67, merged; unpublished) |
 | zhetrs | 0.1.0 | 0.2.46 | 3 | 0.2.49 (group B #67, merged; unpublished) |
 | zlacpy | 0.1.0 | 0.2.46 | 2 | 0.2.49 (group B #67, merged; unpublished) |
 | zlange | 0.1.0 | 0.2.46 | 1 | 0.2.49 (group B #67, merged; unpublished) |
-| zlarfg | 0.1.0 | 0.2.46 | 1 | PENDING: #69 (next after #68) |
+| zlarfg | 0.1.0 | 0.2.49 | 1 | PENDING: #69 (next after #68) |
 | zpocon | 0.1.0 | 0.2.46 | 1 | 0.2.49 (group B #67, merged; unpublished) |
 | zsytrf | 0.1.0 | 0.2.46 | 2 | 0.2.49 (group B #67, merged; unpublished) |
 | zsytri | 0.1.0 | 0.2.46 | 2 | 0.2.49 (group B #67, merged; unpublished) |
 | zsytrs | 0.1.0 | 0.2.46 | 3 | 0.2.49 (group B #67, merged; unpublished) |
-| zunglq | 0.1.0 | 0.2.46 | 2 | PENDING: #69 (next after #68) |
+| zunglq | 0.1.0 | 0.2.49 | 2 | PENDING: #69 (next after #68) |
 | zungqr | 0.1.0 | 0.2.46 | 2 | 0.2.49 (group B #67, merged; unpublished) |
-| zungtr | 0.1.0 | 0.2.46 | 2 | PENDING: #69 (next after #68) |
-| zunmlq | 0.1.0 | 0.2.46 | 3 | PENDING: #69 (next after #68) |
-| zunmqr | 0.1.0 | 0.2.46 | 3 | PENDING: #69 (next after #68) |
+| zungtr | 0.1.0 | 0.2.49 | 2 | PENDING: #69 (next after #68) |
+| zunmlq | 0.1.0 | 0.2.49 | 3 | PENDING: #69 (next after #68) |
+| zunmqr | 0.1.0 | 0.2.49 | 3 | PENDING: #69 (next after #68) |
 
 120 families with at least one HOLE.
 
