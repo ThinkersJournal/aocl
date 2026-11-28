@@ -1508,6 +1508,18 @@ pub fn bsrmv<T: Scalar>(
     beta: T,
     y: &mut [T],
 ) -> Result<()> {
+    if bsr_dim == 0 {
+        return Err(Error::InvalidArgument("bsrmv: bsr_dim is 0".into()));
+    }
+    check_csr_arrays(
+        "bsrmv",
+        mb,
+        Some(nb),
+        descr.index_base(),
+        bsr_row_ptr,
+        bsr_col_ind,
+        bsr_val.len() / (bsr_dim * bsr_dim),
+    )?;
     T::bsrmv(
         op,
         alpha,
@@ -2430,6 +2442,24 @@ pub fn csr2bsr_nnz(
     block_dim: usize,
     bsr_row_ptr: &mut [sys::aoclsparse_int],
 ) -> Result<usize> {
+    if block_dim == 0 {
+        return Err(Error::InvalidArgument("csr2bsr_nnz: block_dim is 0".into()));
+    }
+    check_csr_arrays(
+        "csr2bsr_nnz",
+        m,
+        Some(n),
+        descr.index_base(),
+        csr_row_ptr,
+        csr_col_ind,
+        csr_col_ind.len(),
+    )?;
+    check_len(
+        "csr2bsr_nnz",
+        "bsr_row_ptr",
+        bsr_row_ptr.len(),
+        m.div_ceil(block_dim) + 1,
+    )?;
     let mut bsr_nnz: sys::aoclsparse_int = 0;
     let status = unsafe {
         sys::aoclsparse_csr2bsr_nnz(
@@ -2464,6 +2494,37 @@ pub fn csr2bsr_f64(
     bsr_row_ptr: &mut [sys::aoclsparse_int],
     bsr_col_ind: &mut [sys::aoclsparse_int],
 ) -> Result<()> {
+    if block_dim == 0 {
+        return Err(Error::InvalidArgument("csr2bsr: block_dim is 0".into()));
+    }
+    check_csr_arrays(
+        "csr2bsr",
+        m,
+        Some(n),
+        descr.index_base(),
+        csr_row_ptr,
+        csr_col_ind,
+        csr_val.len(),
+    )?;
+    let mb = m.div_ceil(block_dim);
+    check_len("csr2bsr", "bsr_row_ptr", bsr_row_ptr.len(), mb + 1)?;
+    let mut count_ptr = vec![0 as sys::aoclsparse_int; mb + 1];
+    let nnzb = csr2bsr_nnz(
+        m,
+        n,
+        descr,
+        csr_row_ptr,
+        csr_col_ind,
+        block_dim,
+        &mut count_ptr,
+    )?;
+    check_len(
+        "csr2bsr",
+        "bsr_val",
+        bsr_val.len(),
+        nnzb * block_dim * block_dim,
+    )?;
+    check_len("csr2bsr", "bsr_col_ind", bsr_col_ind.len(), nnzb)?;
     let status = unsafe {
         sys::aoclsparse_dcsr2bsr(
             m as sys::aoclsparse_int,
@@ -2496,6 +2557,37 @@ pub fn csr2bsr_f32(
     bsr_row_ptr: &mut [sys::aoclsparse_int],
     bsr_col_ind: &mut [sys::aoclsparse_int],
 ) -> Result<()> {
+    if block_dim == 0 {
+        return Err(Error::InvalidArgument("csr2bsr: block_dim is 0".into()));
+    }
+    check_csr_arrays(
+        "csr2bsr",
+        m,
+        Some(n),
+        descr.index_base(),
+        csr_row_ptr,
+        csr_col_ind,
+        csr_val.len(),
+    )?;
+    let mb = m.div_ceil(block_dim);
+    check_len("csr2bsr", "bsr_row_ptr", bsr_row_ptr.len(), mb + 1)?;
+    let mut count_ptr = vec![0 as sys::aoclsparse_int; mb + 1];
+    let nnzb = csr2bsr_nnz(
+        m,
+        n,
+        descr,
+        csr_row_ptr,
+        csr_col_ind,
+        block_dim,
+        &mut count_ptr,
+    )?;
+    check_len(
+        "csr2bsr",
+        "bsr_val",
+        bsr_val.len(),
+        nnzb * block_dim * block_dim,
+    )?;
+    check_len("csr2bsr", "bsr_col_ind", bsr_col_ind.len(), nnzb)?;
     let status = unsafe {
         sys::aoclsparse_scsr2bsr(
             m as sys::aoclsparse_int,

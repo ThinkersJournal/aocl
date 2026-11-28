@@ -12,6 +12,38 @@ pub use aocl_error::{Error, Result};
 use aocl_types::sealed::Sealed;
 pub use aocl_types::Layout;
 
+/// Validate a dense `rows x cols` matrix argument with leading dimension `ld` in `layout`: `ld` at least the minor extent and the buffer
+/// at least `(major - 1) * ld + minor` elements. The library does not check (access violation one element short, AOCL 6.0.68).
+fn check_dense(
+    name: &str,
+    what: &str,
+    layout: Layout,
+    rows: usize,
+    cols: usize,
+    ld: usize,
+    len: usize,
+) -> Result<()> {
+    if rows == 0 || cols == 0 {
+        return Ok(());
+    }
+    let (major, minor) = match layout {
+        Layout::RowMajor => (rows, cols),
+        Layout::ColMajor => (cols, rows),
+    };
+    if ld < minor {
+        return Err(Error::InvalidArgument(format!(
+            "{name}: {what} has ld={ld}, the {rows}x{cols} matrix needs at least {minor}"
+        )));
+    }
+    let need = (major - 1) * ld + minor;
+    if len < need {
+        return Err(Error::InvalidArgument(format!(
+            "{name}: {what}.len()={len}, the {rows}x{cols} matrix with ld={ld} needs {need}"
+        )));
+    }
+    Ok(())
+}
+
 fn layout_raw(l: Layout) -> sys::da_order {
     match l {
         Layout::RowMajor => sys::da_order__row_major,
@@ -1478,6 +1510,12 @@ macro_rules! impl_dist_scalar {
                 p: Self,
                 metric: Metric,
             ) -> Result<()> {
+                check_dense("pairwise_distances", "x", layout, m, k, ldx, x.len())?;
+                if let Some(yv) = y {
+                    check_dense("pairwise_distances", "y", layout, n, k, ldy, yv.len())?;
+                }
+                let d_cols = if y.is_some() { n } else { m };
+                check_dense("pairwise_distances", "d", layout, m, d_cols, ldd, d.len())?;
                 let y_ptr = y.map(|s| s.as_ptr()).unwrap_or(std::ptr::null());
                 let status = unsafe {
                     sys::$fn(
@@ -1588,6 +1626,12 @@ macro_rules! impl_kernel_scalar {
                 d: &mut [Self],
                 ldd: usize,
             ) -> Result<()> {
+                check_dense("linear_kernel", "x", layout, m, k, ldx, x.len())?;
+                if let Some(yv) = y {
+                    check_dense("linear_kernel", "y", layout, n, k, ldy, yv.len())?;
+                }
+                let d_cols = if y.is_some() { n } else { m };
+                check_dense("linear_kernel", "d", layout, m, d_cols, ldd, d.len())?;
                 let y_ptr = y.map(|s| s.as_ptr()).unwrap_or(std::ptr::null());
                 let status = unsafe {
                     sys::$linear(
@@ -1619,6 +1663,12 @@ macro_rules! impl_kernel_scalar {
                 ldd: usize,
                 gamma: Self,
             ) -> Result<()> {
+                check_dense("rbf_kernel", "x", layout, m, k, ldx, x.len())?;
+                if let Some(yv) = y {
+                    check_dense("rbf_kernel", "y", layout, n, k, ldy, yv.len())?;
+                }
+                let d_cols = if y.is_some() { n } else { m };
+                check_dense("rbf_kernel", "d", layout, m, d_cols, ldd, d.len())?;
                 let y_ptr = y.map(|s| s.as_ptr()).unwrap_or(std::ptr::null());
                 let status = unsafe {
                     sys::$rbf(
@@ -1653,6 +1703,12 @@ macro_rules! impl_kernel_scalar {
                 degree: i64,
                 coef0: Self,
             ) -> Result<()> {
+                check_dense("polynomial_kernel", "x", layout, m, k, ldx, x.len())?;
+                if let Some(yv) = y {
+                    check_dense("polynomial_kernel", "y", layout, n, k, ldy, yv.len())?;
+                }
+                let d_cols = if y.is_some() { n } else { m };
+                check_dense("polynomial_kernel", "d", layout, m, d_cols, ldd, d.len())?;
                 let y_ptr = y.map(|s| s.as_ptr()).unwrap_or(std::ptr::null());
                 let status = unsafe {
                     sys::$poly(
@@ -1688,6 +1744,12 @@ macro_rules! impl_kernel_scalar {
                 gamma: Self,
                 coef0: Self,
             ) -> Result<()> {
+                check_dense("sigmoid_kernel", "x", layout, m, k, ldx, x.len())?;
+                if let Some(yv) = y {
+                    check_dense("sigmoid_kernel", "y", layout, n, k, ldy, yv.len())?;
+                }
+                let d_cols = if y.is_some() { n } else { m };
+                check_dense("sigmoid_kernel", "d", layout, m, d_cols, ldd, d.len())?;
                 let y_ptr = y.map(|s| s.as_ptr()).unwrap_or(std::ptr::null());
                 let status = unsafe {
                     sys::$sigmoid(
