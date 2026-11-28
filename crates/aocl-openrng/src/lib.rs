@@ -25,6 +25,17 @@ use aocl_error::{Error, Result};
 use aocl_openrng_sys as sys;
 use core::ffi::{c_char, c_int};
 use std::ffi::CString;
+use std::sync::{Mutex, MutexGuard};
+
+/// Every call into the library holds this lock. The guide's thread-safety text (ch. 10.1.7) is not yet read or measured here, and
+/// the library may keep process-wide state (lazily built tables, CPU dispatch): the `aocl-data-analytics` NLLS solver did, and
+/// two threads in it were measured to corrupt each other. Until `tests/` (PM-run) shows concurrent use of separate streams is safe,
+/// calls are serialised. Lock poisoning is ignored (a panic cannot leave the library half-called: no callback crosses back).
+static LIB: Mutex<()> = Mutex::new(());
+
+fn lock() -> MutexGuard<'static, ()> {
+    LIB.lock().unwrap_or_else(|e| e.into_inner())
+}
 
 /// Convert a Rust length into the library's `openrng_int_t`, refusing what does not fit.
 fn int(name: &str, len: usize) -> Result<sys::openrng_int_t> {
@@ -79,6 +90,7 @@ fn check(status: c_int) -> Result<()> {
 
 /// `(major, minor, patch)` of the linked library (`openRngGetVersion`; it is in the header but not in the guide).
 pub fn version() -> (i32, i32, i32) {
+    let _lib = lock();
     let (mut a, mut b, mut c) = (0i32, 0i32, 0i32);
     // SAFETY: three valid, writable i32 out-pointers.
     unsafe { sys::openRngGetVersion(&mut a, &mut b, &mut c) };
@@ -87,6 +99,7 @@ pub fn version() -> (i32, i32, i32) {
 
 /// Number of basic generators registered with the library (`vslGetNumRegBrngs`).
 pub fn registered_brngs() -> Result<usize> {
+    let _lib = lock();
     // SAFETY: no arguments.
     let n = unsafe { sys::vslGetNumRegBrngs() };
     usize::try_from(n).map_err(|_| Error::Status {
@@ -231,6 +244,11 @@ pub struct Stream {
 impl Stream {
     /// `vslNewStream`: a stream of generator `brng` seeded with `seed`.
     pub fn new(brng: Brng, seed: u32) -> Result<Stream> {
+        if matches!(brng, Brng::Sobol | Brng::Niederr) {
+            return Err(Error::InvalidArgument(format!(
+                "{brng:?} is quasi-random and needs a dimension: use the `unsafe` Stream::from_params (what `vslNewStream` does with it is UNMEASURED)"
+            )));
+        }
         // SAFETY: the id is one of the library's generator ids; seed is by value.
         unsafe { Stream::with_brng_id(brng.id(), seed) }
     }
@@ -240,6 +258,7 @@ impl Stream {
     /// # Safety
     /// Whether the library validates an arbitrary id is UNMEASURED (the guide documents `VSL_RNG_ERROR_INVALID_BRNG_INDEX`).
     pub unsafe fn with_brng_id(id: i32, seed: u32) -> Result<Stream> {
+        let _lib = lock();
         let mut ptr: sys::VSLStreamStatePtr = core::ptr::null_mut();
         // SAFETY: ptr is a valid out-pointer.
         let st = unsafe {
@@ -260,6 +279,7 @@ impl Stream {
     /// many words as the generator's initialisation in the guide lists (`tests/params_guard.rs`, PM-run, records the minimum on
     /// a guard page for each generator; until that is read, treat any shorter slice as undefined behaviour).
     pub unsafe fn from_params(brng: Brng, params: &[u32]) -> Result<Stream> {
+        let _lib = lock();
         let n = int("params", params.len())?;
         let mut ptr: sys::VSLStreamStatePtr = core::ptr::null_mut();
         // SAFETY: ptr is a valid out-pointer; params is readable for n words; the rest is the caller's contract.
@@ -282,6 +302,7 @@ impl Stream {
 
     /// `vslGetStreamStateBrng`: the generator id of this stream.
     pub fn brng_id(&self) -> Result<i32> {
+        let _lib = lock();
         // SAFETY: self.ptr is a live stream.
         let id = unsafe { sys::vslGetStreamStateBrng(self.ptr) };
         if id < 0 {
@@ -292,12 +313,28 @@ impl Stream {
 
     /// `vslCopyStreamState`: copy the state of `src` into this stream. The generators must be the same.
     pub fn copy_state_from(&mut self, src: &Stream) -> Result<()> {
+        let _lib = lock();
+        // The library copies the source's state into this stream: if it does not compare the generators itself, a different
+        // generator's state is a different size (UNMEASURED which); refuse here.
         // SAFETY: both are live streams.
+        let (a, b) = unsafe {
+            (
+                sys::vslGetStreamStateBrng(self.ptr),
+                sys::vslGetStreamStateBrng(src.ptr),
+            )
+        };
+        if a < 0 || b < 0 || a != b {
+            return Err(Error::InvalidArgument(format!(
+                "copy_state_from: generators differ or are unknown (destination id {a}, source id {b})"
+            )));
+        }
+        // SAFETY: both are live streams of the same generator.
         check(unsafe { sys::vslCopyStreamState(self.ptr, src.ptr) })
     }
 
     /// `vslLeapfrogStream`: this stream becomes the `k`-th of `nstreams` interleaved streams (`0 <= k < nstreams`).
     pub fn leapfrog(&mut self, k: usize, nstreams: usize) -> Result<()> {
+        let _lib = lock();
         if nstreams == 0 || k >= nstreams {
             return Err(Error::InvalidArgument(format!(
                 "leapfrog: need 0 <= k < nstreams, got k={k}, nstreams={nstreams}"
@@ -310,6 +347,7 @@ impl Stream {
 
     /// `vslSkipAheadStream`: skip `nskip` outputs.
     pub fn skip_ahead(&mut self, nskip: i64) -> Result<()> {
+        let _lib = lock();
         if nskip < 0 {
             return Err(Error::InvalidArgument(format!(
                 "skip_ahead: {nskip} is negative"
@@ -324,6 +362,7 @@ impl Stream {
     /// # Safety
     /// The number of words each generator requires is UNMEASURED; fewer than it reads is a read past the slice.
     pub unsafe fn skip_ahead_ex(&mut self, nskip: &[u64]) -> Result<()> {
+        let _lib = lock();
         let n = int("nskip", nskip.len())?;
         // SAFETY: nskip readable for n words; the rest is the caller's contract.
         check(unsafe { sys::vslSkipAheadStreamEx(self.ptr, n, nskip.as_ptr()) })
@@ -331,6 +370,7 @@ impl Stream {
 
     /// `vslSaveStreamM`: the state as an opaque value that [`SavedStream::restore`] turns back into a stream.
     pub fn save(&self) -> Result<SavedStream> {
+        let _lib = lock();
         // SAFETY: live stream.
         let size = unsafe { sys::vslGetStreamSize(self.ptr) };
         if size < 0 {
@@ -344,6 +384,7 @@ impl Stream {
 
     /// `vslSaveStreamF`: save the state to a file.
     pub fn save_to_file(&self, path: &std::path::Path) -> Result<()> {
+        let _lib = lock();
         let c = path_cstring(path)?;
         // SAFETY: live stream, NUL-terminated path.
         check(unsafe { sys::vslSaveStreamF(self.ptr, c.as_ptr()) })
@@ -355,6 +396,7 @@ impl Stream {
     /// The library trusts the file's contents (a crafted file can name a generator and sizes the library then believes). Only
     /// load files this program or a trusted one wrote.
     pub unsafe fn load_from_file(path: &std::path::Path) -> Result<Stream> {
+        let _lib = lock();
         let c = path_cstring(path)?;
         let mut ptr: sys::VSLStreamStatePtr = core::ptr::null_mut();
         // SAFETY: out-pointer and path are valid; the contents are the caller's contract.
@@ -368,6 +410,7 @@ impl Stream {
     /// The library reads as many bytes as the saved stream's own header says, not as many as `bytes.len()`; `bytes` must come from
     /// [`SavedStream::as_bytes`] of an untruncated value. Prefer [`SavedStream::restore`].
     pub unsafe fn load_from_memory(bytes: &[u8]) -> Result<Stream> {
+        let _lib = lock();
         let mut ptr: sys::VSLStreamStatePtr = core::ptr::null_mut();
         // SAFETY: out-pointer is valid; the length is the caller's contract.
         check(unsafe { sys::vslLoadStreamM(&mut ptr, bytes.as_ptr() as *const c_char) })?;
@@ -379,6 +422,7 @@ impl Stream {
     /// `viRngUniformBits`: fills `out` with the generator's raw 32-bit-or-wider words (see the guide: the word is generator
     /// dependent).
     pub fn uniform_bits(&mut self, out: &mut [u32]) -> Result<()> {
+        let _lib = lock();
         let n = int("out", out.len())?;
         // SAFETY: out is writable for n words.
         check(unsafe { sys::viRngUniformBits(0, self.ptr, n, out.as_mut_ptr()) })
@@ -386,6 +430,7 @@ impl Stream {
 
     /// `viRngUniformBits32`: 32 random bits per element.
     pub fn uniform_bits32(&mut self, out: &mut [u32]) -> Result<()> {
+        let _lib = lock();
         let n = int("out", out.len())?;
         // SAFETY: out is writable for n words.
         check(unsafe { sys::viRngUniformBits32(0, self.ptr, n, out.as_mut_ptr()) })
@@ -393,6 +438,7 @@ impl Stream {
 
     /// `viRngUniformBits64`: 64 random bits per element.
     pub fn uniform_bits64(&mut self, out: &mut [u64]) -> Result<()> {
+        let _lib = lock();
         let n = int("out", out.len())?;
         // SAFETY: out is writable for n 64-bit words.
         check(unsafe { sys::viRngUniformBits64(0, self.ptr, n, out.as_mut_ptr()) })
@@ -402,6 +448,7 @@ impl Stream {
 
     /// `viRngUniform`: integers uniform on `[a, b)`.
     pub fn uniform_int(&mut self, out: &mut [i32], a: i32, b: i32) -> Result<()> {
+        let _lib = lock();
         let n = int("out", out.len())?;
         // SAFETY: out is writable for n ints.
         check(unsafe { sys::viRngUniform(0, self.ptr, n, out.as_mut_ptr(), a, b) })
@@ -409,6 +456,7 @@ impl Stream {
 
     /// `viRngBernoulli`.
     pub fn bernoulli(&mut self, out: &mut [i32], p: f64) -> Result<()> {
+        let _lib = lock();
         let n = int("out", out.len())?;
         // SAFETY: out is writable for n ints.
         check(unsafe { sys::viRngBernoulli(0, self.ptr, n, out.as_mut_ptr(), p) })
@@ -416,6 +464,7 @@ impl Stream {
 
     /// `viRngBinomial`.
     pub fn binomial(&mut self, out: &mut [i32], ntrial: i32, p: f64) -> Result<()> {
+        let _lib = lock();
         let n = int("out", out.len())?;
         // SAFETY: out is writable for n ints.
         check(unsafe { sys::viRngBinomial(0, self.ptr, n, out.as_mut_ptr(), ntrial, p) })
@@ -423,6 +472,7 @@ impl Stream {
 
     /// `viRngGeometric`.
     pub fn geometric(&mut self, out: &mut [i32], p: f64) -> Result<()> {
+        let _lib = lock();
         let n = int("out", out.len())?;
         // SAFETY: out is writable for n ints.
         check(unsafe { sys::viRngGeometric(0, self.ptr, n, out.as_mut_ptr(), p) })
@@ -430,6 +480,7 @@ impl Stream {
 
     /// `viRngHypergeometric`: population `l`, `s` successes, `m` draws.
     pub fn hypergeometric(&mut self, out: &mut [i32], l: i32, s: i32, m: i32) -> Result<()> {
+        let _lib = lock();
         let n = int("out", out.len())?;
         // SAFETY: out is writable for n ints.
         check(unsafe { sys::viRngHypergeometric(0, self.ptr, n, out.as_mut_ptr(), l, s, m) })
@@ -437,6 +488,7 @@ impl Stream {
 
     /// `viRngNegBinomial` (the header declares two spellings, `viRngNegBinomial` and `viRngNegbinomial`; this calls the first).
     pub fn neg_binomial(&mut self, out: &mut [i32], a: f64, p: f64) -> Result<()> {
+        let _lib = lock();
         let n = int("out", out.len())?;
         // SAFETY: out is writable for n ints.
         check(unsafe { sys::viRngNegBinomial(0, self.ptr, n, out.as_mut_ptr(), a, p) })
@@ -444,6 +496,7 @@ impl Stream {
 
     /// `viRngNegbinomial`, the header's second spelling (recorded so a difference between the two would be seen).
     pub fn negbinomial(&mut self, out: &mut [i32], a: f64, p: f64) -> Result<()> {
+        let _lib = lock();
         let n = int("out", out.len())?;
         // SAFETY: out is writable for n ints.
         check(unsafe { sys::viRngNegbinomial(0, self.ptr, n, out.as_mut_ptr(), a, p) })
@@ -451,6 +504,7 @@ impl Stream {
 
     /// `viRngPoisson`.
     pub fn poisson(&mut self, out: &mut [i32], lambda: f64, method: PoissonMethod) -> Result<()> {
+        let _lib = lock();
         let n = int("out", out.len())?;
         let m = match method {
             PoissonMethod::Ptpe => sys::VSL_RNG_METHOD_POISSON_PTPE,
@@ -470,6 +524,7 @@ impl Stream {
 
     /// `viRngPoissonV`: one lambda per output element (`lambda.len() == out.len()`).
     pub fn poisson_v(&mut self, out: &mut [i32], lambda: &[f64]) -> Result<()> {
+        let _lib = lock();
         if lambda.len() != out.len() {
             return Err(Error::InvalidArgument(format!(
                 "poisson_v: {} outputs but {} lambdas",
@@ -485,14 +540,10 @@ impl Stream {
     /// `viRngMultinomial`: `out` holds `trials_count = out.len() / k` experiments of `k` counts each (`out.len()` must be a
     /// multiple of `k`, `p.len() == k`); each experiment distributes `ntrial` trials.
     pub fn multinomial(&mut self, out: &mut [i32], ntrial: i32, p: &[f64]) -> Result<()> {
+        let _lib = lock();
         let k = p.len();
-        if k == 0 || out.len() % k != 0 {
-            return Err(Error::InvalidArgument(format!(
-                "multinomial: out.len() {} must be a nonzero multiple of k = p.len() = {k}",
-                out.len()
-            )));
-        }
-        let n = int("experiments", out.len() / k)?;
+        let experiments = multinomial_shape(out.len(), k)?;
+        let n = int("experiments", experiments)?;
         let kk = c_int::try_from(k)
             .map_err(|_| Error::InvalidArgument("multinomial: k does not fit int".into()))?;
         // SAFETY: out is writable for n*k ints and p readable for k doubles (checked above).
@@ -500,6 +551,16 @@ impl Stream {
             sys::viRngMultinomial(0, self.ptr, n, out.as_mut_ptr(), ntrial, kk, p.as_ptr())
         })
     }
+}
+
+/// `out.len()` must be `experiments * k` with `k = p.len() > 0`; returns `experiments`.
+fn multinomial_shape(out_len: usize, k: usize) -> Result<usize> {
+    if k == 0 || out_len % k != 0 {
+        return Err(Error::InvalidArgument(format!(
+            "multinomial: out.len() {out_len} must be a nonzero multiple of k = p.len() = {k}"
+        )));
+    }
+    Ok(out_len / k)
 }
 
 fn path_cstring(path: &std::path::Path) -> Result<CString> {
@@ -519,6 +580,7 @@ impl Clone for Stream {
 impl Stream {
     /// `vslCopyStream` with the status returned.
     pub fn try_clone(&self) -> Result<Stream> {
+        let _lib = lock();
         let mut ptr: sys::VSLStreamStatePtr = core::ptr::null_mut();
         // SAFETY: out-pointer valid; self.ptr is a live stream.
         check(unsafe { sys::vslCopyStream(&mut ptr, self.ptr) })?;
@@ -528,6 +590,7 @@ impl Stream {
 
 impl Drop for Stream {
     fn drop(&mut self) {
+        let _lib = lock();
         // SAFETY: self.ptr is a stream this value owns; the library nulls it.
         let _ = unsafe { sys::vslDeleteStream(&mut self.ptr) };
     }
@@ -578,6 +641,7 @@ macro_rules! dist {
         impl Stream {
             $(#[$m])*
             pub fn $name(&mut self, out: &mut [f64], $($arg: f64,)* $mv: $meth) -> Result<()> {
+                let _lib = lock();
                 let n = int("out", out.len())?;
                 let method = $conv;
                 // SAFETY: out is writable for n doubles.
@@ -585,6 +649,7 @@ macro_rules! dist {
             }
             $(#[$m])*
             pub fn $name32(&mut self, out: &mut [f32], $($arg: f32,)* $mv: $meth) -> Result<()> {
+                let _lib = lock();
                 let n = int("out", out.len())?;
                 let method = $conv;
                 // SAFETY: out is writable for n floats.
@@ -622,12 +687,14 @@ macro_rules! dist0 {
         impl Stream {
             $(#[$m])*
             pub fn $name(&mut self, out: &mut [f64], $($arg: f64),*) -> Result<()> {
+                let _lib = lock();
                 let n = int("out", out.len())?;
                 // SAFETY: out is writable for n doubles.
                 check(unsafe { sys::$d(0, self.ptr, n, out.as_mut_ptr(), $($arg),*) })
             }
             $(#[$m])*
             pub fn $name32(&mut self, out: &mut [f32], $($arg: f32),*) -> Result<()> {
+                let _lib = lock();
                 let n = int("out", out.len())?;
                 // SAFETY: out is writable for n floats.
                 check(unsafe { sys::$s(0, self.ptr, n, out.as_mut_ptr(), $($arg),*) })
@@ -648,6 +715,7 @@ dist0!(/// `vdRngBeta` / `vsRngBeta`.
 impl Stream {
     /// `vdRngChiSquare`: `v` degrees of freedom.
     pub fn chi_square(&mut self, out: &mut [f64], v: i32) -> Result<()> {
+        let _lib = lock();
         let n = int("out", out.len())?;
         // SAFETY: out is writable for n doubles.
         check(unsafe { sys::vdRngChiSquare(0, self.ptr, n, out.as_mut_ptr(), v) })
@@ -655,6 +723,7 @@ impl Stream {
 
     /// `vsRngChiSquare`.
     pub fn chi_square_f32(&mut self, out: &mut [f32], v: i32) -> Result<()> {
+        let _lib = lock();
         let n = int("out", out.len())?;
         // SAFETY: out is writable for n floats.
         check(unsafe { sys::vsRngChiSquare(0, self.ptr, n, out.as_mut_ptr(), v) })
@@ -671,6 +740,7 @@ impl Stream {
         chol: &[f64],
         method: GaussianMethod,
     ) -> Result<()> {
+        let _lib = lock();
         let (n, d, m) = mv_check(
             "gaussian_mv",
             out.len(),
@@ -705,6 +775,7 @@ impl Stream {
         chol: &[f32],
         method: GaussianMethod,
     ) -> Result<()> {
+        let _lib = lock();
         let (n, d, m) = mv_check(
             "gaussian_mv_f32",
             out.len(),
@@ -779,6 +850,7 @@ mod tests {
 
     #[test]
     fn matrix_storage_element_counts() {
+        let _lib = lock();
         assert_eq!(MatrixStorage::Full.len(3), Some(9));
         assert_eq!(MatrixStorage::Packed.len(3), Some(6));
         assert_eq!(MatrixStorage::Diagonal.len(3), Some(3));
@@ -788,6 +860,7 @@ mod tests {
 
     #[test]
     fn mv_check_rejects_every_wrong_shape() {
+        let _lib = lock();
         let ok = mv_check("t", 6, 3, MatrixStorage::Packed, 3, 6);
         assert!(ok.is_ok(), "{ok:?}");
         for (out, d, st, m, c) in [
@@ -811,6 +884,7 @@ mod tests {
 
     #[test]
     fn status_mapping() {
+        let _lib = lock();
         assert!(check(sys::VSL_ERROR_OK).is_ok());
         assert!(matches!(
             check(sys::VSL_ERROR_MEM_FAILURE),
@@ -836,6 +910,7 @@ mod tests {
 
     #[test]
     fn brng_ids_round_trip_and_are_distinct() {
+        let _lib = lock();
         for b in Brng::ALL {
             assert_eq!(Brng::from_id(b.id()), Some(b));
         }
@@ -848,6 +923,7 @@ mod tests {
 
     #[test]
     fn int_refuses_what_does_not_fit() {
+        let _lib = lock();
         assert!(int("t", 4).is_ok());
         if core::mem::size_of::<sys::openrng_int_t>() == 4 {
             assert!(matches!(
@@ -855,5 +931,35 @@ mod tests {
                 Err(Error::InvalidArgument(_))
             ));
         }
+    }
+
+    #[test]
+    fn multinomial_shape_checks() {
+        assert_eq!(multinomial_shape(12, 4).unwrap(), 3);
+        assert_eq!(multinomial_shape(0, 4).unwrap(), 0);
+        for (o, k) in [(5, 4), (4, 0), (0, 0), (11, 3)] {
+            assert!(
+                matches!(multinomial_shape(o, k), Err(Error::InvalidArgument(_))),
+                "{o} {k}"
+            );
+        }
+    }
+
+    /// `Stream` must stay `!Send` and `!Sync` until the library's thread-safety is measured (ambiguity trick: this fails to
+    /// compile, via two blanket impls, the day `Stream` becomes `Send`).
+    #[test]
+    fn stream_is_neither_send_nor_sync() {
+        trait AmbiguousIfSend<A> {
+            fn some_item() {}
+        }
+        impl<T: ?Sized> AmbiguousIfSend<()> for T {}
+        impl<T: ?Sized + Send> AmbiguousIfSend<u8> for T {}
+        trait AmbiguousIfSync<A> {
+            fn some_item() {}
+        }
+        impl<T: ?Sized> AmbiguousIfSync<()> for T {}
+        impl<T: ?Sized + Sync> AmbiguousIfSync<u8> for T {}
+        <Stream as AmbiguousIfSend<_>>::some_item();
+        <Stream as AmbiguousIfSync<_>>::some_item();
     }
 }
