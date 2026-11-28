@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.41 - 2026-11-27 (PM-allocated; drops the unused libc dependency from aocl-blas-sys, aocl-fft-sys and aocl-lapack-sys (before: unused-dependency warning x3; after: 0 warnings), records pm-kernels' written rulings, rng-sys NOTICE wording per the review: manifests and docs; patch on 0.2.x)
 
 - **`aocl-blas-sys`, `aocl-fft-sys`, `aocl-lapack-sys`: drop the unused `libc` dependency** (and the `libc` entry of `[workspace.dependencies]`; patch; version: pm-assist to allocate). The 2026-11-24 cleanup (ROADMAP row 11) covered seven `-sys` crates and left these three because publication was held. Measured (Windows, real bindgen, no `DOCS_RS`): before, `cargo check -p aocl-{fft,lapack,blas}-sys` prints `unused dependency libc` for each; after, `cargo check` of the three finishes with 0 warnings. Grep: no `libc::`, `extern crate libc` or `ctypes_prefix` in those crates; their bindings use `std::os::raw` (control: 5,426 / 505 / 7,971 `std::os::raw` or `core::ffi` hits in blas / fft / lapack bindings). Linux unmeasured. **Docs, same PR:** the PM's written rulings are recorded (blas/lapack-sys NOTICE terms accepted, board 518, 2026-11-26; `aocl`, `aocl-sys`, `aocl-rng`: no hold, first 0.2.x publish 2026-11-28, read-back pending) and the `aocl-rng-sys` NOTICE wording is corrected to "in the source since 0.2.12, first published in 0.2.13" (0.2.12 was never published).
 
