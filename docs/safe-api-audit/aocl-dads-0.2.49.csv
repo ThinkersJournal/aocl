@@ -1,0 +1,6 @@
+test,outcome,exit_code,seconds
+extract_control,OK-control,0,0.04
+extract_oversized_lddata,HOLE,3221225477,0.04
+extract_rows_short_data,HOLE,3221225477,0.04
+extract_short_data,HOLE,3221225477,0.03
+extract_unknown_key,OTHER(rc=101),101,0.04
