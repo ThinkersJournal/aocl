@@ -55,18 +55,18 @@ static-link = [
 ]
 
 [dependencies]
-aocl-blas-sys           = { version = "0.3", path = "../aocl-blas-sys",           optional = true }
-aocl-lapack-sys         = { version = "0.3", path = "../aocl-lapack-sys",         optional = true }
-aocl-fft-sys            = { version = "0.3", path = "../aocl-fft-sys",            optional = true }
-aocl-math-sys           = { version = "0.3", path = "../aocl-math-sys",           optional = true }
-aocl-sparse-sys         = { version = "0.3", path = "../aocl-sparse-sys",         optional = true }
-aocl-rng-sys            = { version = "0.3", path = "../aocl-rng-sys",            optional = true }
-aocl-securerng-sys      = { version = "0.3", path = "../aocl-securerng-sys",      optional = true }
-aocl-utils-sys          = { version = "0.3", path = "../aocl-utils-sys",          optional = true }
-aocl-compression-sys    = { version = "0.3", path = "../aocl-compression-sys",    optional = true }
-aocl-crypto-sys         = { version = "0.3", path = "../aocl-crypto-sys",         optional = true }
-aocl-data-analytics-sys = { version = "0.3", path = "../aocl-data-analytics-sys", optional = true }
-aocl-scalapack-sys      = { version = "0.3", path = "../aocl-scalapack-sys",      optional = true }
+aocl-blas-sys           = { version = "0.4", path = "../aocl-blas-sys",           optional = true }
+aocl-lapack-sys         = { version = "0.4", path = "../aocl-lapack-sys",         optional = true }
+aocl-fft-sys            = { version = "0.4", path = "../aocl-fft-sys",            optional = true }
+aocl-math-sys           = { version = "0.4", path = "../aocl-math-sys",           optional = true }
+aocl-sparse-sys         = { version = "0.4", path = "../aocl-sparse-sys",         optional = true }
+aocl-rng-sys            = { version = "0.4", path = "../aocl-rng-sys",            optional = true }
+aocl-securerng-sys      = { version = "0.4", path = "../aocl-securerng-sys",      optional = true }
+aocl-utils-sys          = { version = "0.4", path = "../aocl-utils-sys",          optional = true }
+aocl-compression-sys    = { version = "0.4", path = "../aocl-compression-sys",    optional = true }
+aocl-crypto-sys         = { version = "0.4", path = "../aocl-crypto-sys",         optional = true }
+aocl-data-analytics-sys = { version = "0.4", path = "../aocl-data-analytics-sys", optional = true }
+aocl-scalapack-sys      = { version = "0.4", path = "../aocl-scalapack-sys",      optional = true }
 
 [package.metadata.docs.rs]
 default-target = "x86_64-unknown-linux-gnu"

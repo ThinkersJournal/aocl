@@ -12,8 +12,8 @@ categories = ["api-bindings", "mathematics", "science"]
 keywords = ["aocl", "amd", "fft", "fftw"]
 
 [dependencies]
-aocl-fft-sys = { version = "0.3", path = "../aocl-fft-sys" }
-aocl-error = { version = "0.3", path = "../aocl-error" }
+aocl-fft-sys = { version = "0.4", path = "../aocl-fft-sys" }
+aocl-error = { version = "0.4", path = "../aocl-error" }
 
 [features]
 default = []
