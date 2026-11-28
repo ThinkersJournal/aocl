@@ -1,29 +1,45 @@
 0.1.0 vector_lengths (no output) | error: could not compile `aocl-sparse` (lib) due to 2 previous errors
 0.1.0 dense_lengths (no output) | error: could not compile `aocl-sparse` (lib) due to 2 previous errors
 0.1.0 raw_array_lengths (no output) | error: could not compile `aocl-sparse` (lib) due to 2 previous errors
-0.2.2 vector_lengths aocl-sparse/vector_lengths: 48 tests in 3s; HOLE=36, OK-refused(asserted)=12 | 
-0.2.2 dense_lengths aocl-sparse/dense_lengths: 152 tests in 9s; HOLE=128, OK-refused(asserted)=24 | 
+0.1.0 remaining_lengths (no output) | error: could not compile `aocl-sparse` (lib) due to 2 previous errors
+0.2.2 vector_lengths aocl-sparse/vector_lengths: 48 tests in 2s; HOLE=36, OK-refused(asserted)=12 | 
+0.2.2 dense_lengths aocl-sparse/dense_lengths: 152 tests in 7s; HOLE=128, OK-refused(asserted)=24 | 
 0.2.2 raw_array_lengths aocl-sparse/raw_array_lengths: 72 tests in 3s; HOLE=28, OK-control=10, OK-refused(asserted)=24, OTHER(rc=101)=10 | 
-0.2.4 vector_lengths aocl-sparse/vector_lengths: 48 tests in 3s; HOLE=36, OK-refused(asserted)=12 | 
-0.2.4 dense_lengths aocl-sparse/dense_lengths: 152 tests in 10s; HOLE=128, OK-refused(asserted)=24 | 
-0.2.4 raw_array_lengths aocl-sparse/raw_array_lengths: 72 tests in 4s; HOLE=28, OK-control=10, OK-refused(asserted)=24, OTHER(rc=101)=10 | 
-0.2.5 vector_lengths aocl-sparse/vector_lengths: 48 tests in 3s; HOLE=36, OK-refused(asserted)=12 | 
-0.2.5 dense_lengths aocl-sparse/dense_lengths: 152 tests in 10s; HOLE=128, OK-refused(asserted)=24 | 
+0.2.2 remaining_lengths aocl-sparse/remaining_lengths: 41 tests in 1s; HOLE=20, OK-control=7, OK-refused(asserted)=10, OTHER(rc=101)=4 | 
+0.2.4 vector_lengths aocl-sparse/vector_lengths: 48 tests in 2s; HOLE=36, OK-refused(asserted)=12 | 
+0.2.4 dense_lengths aocl-sparse/dense_lengths: 152 tests in 7s; HOLE=128, OK-refused(asserted)=24 | 
+0.2.4 raw_array_lengths aocl-sparse/raw_array_lengths: 72 tests in 2s; HOLE=28, OK-control=10, OK-refused(asserted)=24, OTHER(rc=101)=10 | 
+0.2.4 remaining_lengths aocl-sparse/remaining_lengths: 41 tests in 1s; HOLE=20, OK-control=7, OK-refused(asserted)=10, OTHER(rc=101)=4 | 
+0.2.5 vector_lengths aocl-sparse/vector_lengths: 48 tests in 2s; HOLE=36, OK-refused(asserted)=12 | 
+0.2.5 dense_lengths aocl-sparse/dense_lengths: 152 tests in 6s; HOLE=128, OK-refused(asserted)=24 | 
 0.2.5 raw_array_lengths aocl-sparse/raw_array_lengths: 72 tests in 3s; HOLE=28, OK-control=10, OK-refused(asserted)=24, OTHER(rc=101)=10 | 
-0.2.26 vector_lengths aocl-sparse/vector_lengths: 48 tests in 3s; HOLE=36, OK-refused(asserted)=12 | 
-0.2.26 dense_lengths aocl-sparse/dense_lengths: 152 tests in 12s; HOLE=128, OK-refused(asserted)=24 | 
-0.2.26 raw_array_lengths aocl-sparse/raw_array_lengths: 72 tests in 4s; HOLE=28, OK-control=10, OK-refused(asserted)=24, OTHER(rc=101)=10 | 
-0.2.40 vector_lengths aocl-sparse/vector_lengths: 48 tests in 4s; HOLE=36, OK-refused(asserted)=12 | 
-0.2.40 dense_lengths aocl-sparse/dense_lengths: 152 tests in 9s; HOLE=128, OK-refused(asserted)=24 | 
+0.2.5 remaining_lengths aocl-sparse/remaining_lengths: 41 tests in 1s; HOLE=20, OK-control=7, OK-refused(asserted)=10, OTHER(rc=101)=4 | 
+0.2.26 vector_lengths aocl-sparse/vector_lengths: 48 tests in 2s; HOLE=36, OK-refused(asserted)=12 | 
+0.2.26 dense_lengths aocl-sparse/dense_lengths: 152 tests in 6s; HOLE=128, OK-refused(asserted)=24 | 
+0.2.26 raw_array_lengths aocl-sparse/raw_array_lengths: 72 tests in 3s; HOLE=28, OK-control=10, OK-refused(asserted)=24, OTHER(rc=101)=10 | 
+0.2.26 remaining_lengths aocl-sparse/remaining_lengths: 41 tests in 1s; HOLE=20, OK-control=7, OK-refused(asserted)=10, OTHER(rc=101)=4 | 
+0.2.40 vector_lengths aocl-sparse/vector_lengths: 48 tests in 2s; HOLE=36, OK-refused(asserted)=12 | 
+0.2.40 dense_lengths aocl-sparse/dense_lengths: 152 tests in 6s; HOLE=128, OK-refused(asserted)=24 | 
 0.2.40 raw_array_lengths aocl-sparse/raw_array_lengths: 72 tests in 3s; HOLE=28, OK-control=10, OK-refused(asserted)=24, OTHER(rc=101)=10 | 
+0.2.40 remaining_lengths aocl-sparse/remaining_lengths: 41 tests in 1s; HOLE=20, OK-control=7, OK-refused(asserted)=10, OTHER(rc=101)=4 | 
 0.2.43 vector_lengths aocl-sparse/vector_lengths: 48 tests in 2s; HOLE=36, OK-refused(asserted)=12 | 
-0.2.43 dense_lengths aocl-sparse/dense_lengths: 152 tests in 9s; HOLE=128, OK-refused(asserted)=24 | 
-0.2.43 raw_array_lengths aocl-sparse/raw_array_lengths: 72 tests in 3s; HOLE=28, OK-control=10, OK-refused(asserted)=24, OTHER(rc=101)=10 | 
+0.2.43 dense_lengths aocl-sparse/dense_lengths: 152 tests in 6s; HOLE=128, OK-refused(asserted)=24 | 
+0.2.43 raw_array_lengths aocl-sparse/raw_array_lengths: 72 tests in 2s; HOLE=28, OK-control=10, OK-refused(asserted)=24, OTHER(rc=101)=10 | 
+0.2.43 remaining_lengths aocl-sparse/remaining_lengths: 41 tests in 1s; HOLE=20, OK-control=7, OK-refused(asserted)=10, OTHER(rc=101)=4 | 
 0.2.46 vector_lengths aocl-sparse/vector_lengths: 48 tests in 2s; OK-refused(asserted)=48 | 
-0.2.46 dense_lengths aocl-sparse/dense_lengths: 152 tests in 6s; OK-refused(asserted)=152 | 
-0.2.46 raw_array_lengths aocl-sparse/raw_array_lengths: 72 tests in 3s; OK-control=10, OK-refused(asserted)=62 | 
+0.2.46 dense_lengths aocl-sparse/dense_lengths: 152 tests in 5s; OK-refused(asserted)=152 | 
+0.2.46 raw_array_lengths aocl-sparse/raw_array_lengths: 72 tests in 2s; OK-control=10, OK-refused(asserted)=62 | 
+0.2.46 remaining_lengths aocl-sparse/remaining_lengths: 41 tests in 1s; HOLE=20, OK-control=7, OK-refused(asserted)=10, OTHER(rc=101)=4 | 
 
 aocl-sparse: function family | versions measured with that family | HOLE in versions
+bsrmv (real_f32) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43', '0.2.46']
+bsrmv (real_f64) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43', '0.2.46']
+bsrmv_block (real_f32) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43', '0.2.46']
+bsrmv_block (real_f64) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43', '0.2.46']
+csr2bsr (real_f32) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43', '0.2.46']
+csr2bsr (real_f64) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43', '0.2.46']
+csr2bsr_nnz (real_f32) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43', '0.2.46']
+csr2bsr_nnz (real_f64) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43', '0.2.46']
 csr2dia (real_f32) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
 csr2dia (real_f64) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
 csr2ell (real_f32) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']

@@ -74,7 +74,7 @@ def main():
                         names.add(r["fn"].split("::")[-1])
         os.makedirs(os.path.join(d, "tests"), exist_ok=True)
         if gen == "sparse":
-            targets = ["vector_lengths", "dense_lengths", "raw_array_lengths"]
+            targets = ["vector_lengths", "dense_lengths", "raw_array_lengths", "remaining_lengths"]
             repo_tests = os.path.join(os.path.dirname(HERE), "crates", "aocl-sparse", "tests")
             man = os.path.join(d, "Cargo.toml")
             t = open(man, encoding="utf8").read()

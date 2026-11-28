@@ -15,9 +15,13 @@ D = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "docs", "safe
 FIXED = {
     ("aocl-sparse", "*"): "0.2.46 (published 2026-11-28)",
     ("aocl-blas", "gemmt"): "0.2.47 (merged, not yet published)",
-    ("aocl-lapack", "generic"): "PENDING: #66 armed as 0.2.48 (group A: 21 generic trait methods)",
-    ("aocl-lapack", "typed"): "PENDING: group B branch lane/lapack-typed-lengths (opens after #66)",
+    ("aocl-lapack", "generic"): "0.2.48 (group A #66, merged; unpublished)",
+    ("aocl-lapack", "typed"): "0.2.49 (group B #67, merged; unpublished)",
+    ("aocl-lapack", "eigen"): "PENDING: #68 (0.2.50 armed)",
+    ("aocl-lapack", "factor"): "PENDING: #69 (next after #68)",
 }
+EIGEN = {"geev", "syevd", "heevd", "syevr", "heevr", "sygv", "hegv", "gees", "ggev"}
+FACTOR = {"gebrd", "larfg", "orgtr", "ungtr", "orglq", "unglq", "ormqr", "unmqr", "ormlq", "unmlq", "gesvd", "gesdd", "gelsd", "gelsy"}
 GENERIC = {"gesv", "getrf", "getrs", "getri", "posv", "potrf", "potrs", "potri", "sysv", "sytrf", "sytrs", "hesv", "hetrf", "hetrs", "gtsv", "ptsv", "gels", "geqrf", "gelqf", "syev", "heev"}
 
 
@@ -37,7 +41,7 @@ def load(crate):
 
 def family(crate, test):
     if crate == "aocl-sparse":
-        m = re.match(r"(real_f64|real_f32|cplx_c64|cplx_c32)::(\w+?)_(short|col|rowptr|no_|t_|controls?)", test)
+        m = re.match(r"(real_f64|real_f32|cplx_c64|cplx_c32)::(\w+?)_(short|col|block|rowptr|no_|t_|controls?|nnz_)", test)
         return (m.group(2) if m else None)
     m = re.match(r"(.+?)_(f64|f32|c64|c32)_", test)
     return m.group(1) if m else None
@@ -71,15 +75,16 @@ def main():
             last = hv[-1]
             n = sum(1 for o in fam[f][last] if o == "HOLE")
             if crate == "aocl-sparse":
-                fx = FIXED[(crate, "*")]
+                fx = "PENDING: #70" if f in ("bsrmv", "csr2bsr", "csr2bsr_nnz") else FIXED[(crate, "*")]
             elif crate == "aocl-blas":
                 fx = FIXED[(crate, "gemmt")]
             else:
-                fx = FIXED[(crate, "generic" if f in GENERIC else "typed")]
+                base = f[1:] if f[0] in "dszc" and f[1:] in EIGEN | FACTOR else f
+                fx = FIXED[(crate, "generic" if f in GENERIC else "eigen" if base in EIGEN else "factor" if (base in FACTOR or f in FACTOR) else "typed")]
             print(f"| {f} | {hv[0]} | {hv[-1]} | {n} | {fx} |")
             rows += 1
         print(f"\n{rows} families with at least one HOLE.\n")
-    print("## Not measured (read pending)\n\nsparse `bsrmv`, `blkcsrmv`, `csr2bsr(_nnz)`, `create_csc`, `create_tcsr`, `solve`; lapack band / `geev` / `gesvd` / `gesdd` / `gelsd` / `gelsy` / `syevd` / `syevr` / `gesvdx` / `ggev` / `gees` / `sygv` / `orm*` / `orgtr` / `orgbr` / `orglq` / `larfg` / `lasrt` / `gebrd`; blas trait methods with explicit `inc`/`ld`, pack/compute/batch/rotm/sdsdot/csrot/zdrot; and the crates data-analytics, crypto, fft, rng, scalapack, math, compression, securerng, utils, openrng. `aocl-sparse` 0.1.0 did not compile with the harness (2 errors in its own lib against current dependencies) and is unmeasured; the functions are present in its source.\n")
+    print("## Not measured (read pending)\n\nsparse `blkcsrmv` (no safe mask constructor), `create_csc` / `create_tcsr` (raw handle, no safe sink); lapack band `gb*`, `gesvdx`, `orgbr`, `lasrt`, and the trait-level `RealScalar::geev` / `ComplexScalar::geev` called directly (the typed free functions are measured); blas trait methods with explicit `inc`/`ld`, pack/compute/batch/rotm/sdsdot/csrot/zdrot; and the crates data-analytics, crypto, fft, rng, scalapack, math, compression, securerng, utils, openrng. `aocl-sparse` 0.1.0 did not compile with the harness (2 errors in its own lib against current dependencies) and is unmeasured; the functions are present in its source.\n")
 
 
 if __name__ == "__main__":
