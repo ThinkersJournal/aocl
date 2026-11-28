@@ -11,7 +11,12 @@ regression file: short cases must be refused, controls must succeed).
     python tools/gen-lapack-harness.py [--only NAME] [--assert] > crates/aocl-lapack/tests/generated_guard.rs
 Only the rows of RULES are covered; every other row of the audit table stays "read pending".
 """
+import os
 import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from harness_trim import trim  # noqa: E402
+
 
 NL = chr(10)
 RULES = []
@@ -24,23 +29,26 @@ def rule(name, kinds, slices, call, variants=None, typed=False):
 
 
 # slices: (arg name, size expr in M/N/R(=NRHS), mutable?, init kind) with init: "id" identity, "one" ones, "piv" ones (i32)
-def S(a, size, mut=1, init="one", ty=None):
-    return (a, size, mut, init, ty)
+def S(a, size, mut=1, init="one", ty=None, derived=False):
+    """derived=True: the free function derives this dimension from the slice (nrhs = b.len() / n), so a shorter slice is a smaller problem, not a hole."""
+    return (a, size, mut, init, ty, derived)
 
 
 # ---- linear systems (generic names) ----
-rule("gesv", "rc", [S("a", "N*N", 1, "id"), S("ipiv", "N", 1, "piv", "i32"), S("b", "N*R")], "gesv::<T>(N, {a}, {ipiv}, {b})")
+rule("gesv", "rc", [S("a", "N*N", 1, "id"), S("ipiv", "N", 1, "piv", "i32"), S("b", "N*R", 1, "one", None, True)], "gesv::<T>(N, {a}, {ipiv}, {b})")
 rule("getrf", "rc", [S("a", "M*N", 1, "id"), S("ipiv", "M", 1, "piv", "i32")], "getrf::<T>(M, N, {a}, {ipiv})")
-rule("getrs", "rc", [S("a", "N*N", 0, "id"), S("ipiv", "N", 0, "piv", "i32"), S("b", "N*R")], "getrs::<T>(Trans::No, N, {a}, {ipiv}, {b})")
+rule("getrs", "rc", [S("a", "N*N", 0, "id"), S("ipiv", "N", 0, "piv", "i32"), S("b", "N*R", 1, "one", None, True)], "getrs::<T>(Trans::No, N, {a}, {ipiv}, {b})")
 rule("getri", "rc", [S("a", "N*N", 1, "id"), S("ipiv", "N", 0, "piv", "i32")], "getri::<T>(N, {a}, {ipiv})")
-rule("posv", "rc", [S("a", "N*N", 1, "id"), S("b", "N*R")], "posv::<T>(Uplo::Upper, N, {a}, {b})")
+rule("posv", "rc", [S("a", "N*N", 1, "id"), S("b", "N*R", 1, "one", None, True)], "posv::<T>(Uplo::Upper, N, {a}, {b})")
 rule("potrf", "rc", [S("a", "N*N", 1, "id")], "potrf::<T>(Uplo::Upper, N, {a})")
-rule("potrs", "rc", [S("a", "N*N", 0, "id"), S("b", "N*R")], "potrs::<T>(Uplo::Upper, N, {a}, {b})")
-rule("sysv", "rc", [S("a", "N*N", 1, "id"), S("ipiv", "N", 1, "piv", "i32"), S("b", "N*R")], "sysv::<T>(Uplo::Upper, N, {a}, {ipiv}, {b})")
-rule("hesv", "c", [S("a", "N*N", 1, "id"), S("ipiv", "N", 1, "piv", "i32"), S("b", "N*R")], "hesv::<T>(Uplo::Upper, N, {a}, {ipiv}, {b})")
-rule("gtsv", "rc", [S("dl", "(N-1)"), S("d", "N"), S("du", "(N-1)"), S("b", "N*R")], "gtsv::<T>(N, {dl}, {d}, {du}, {b})")
+rule("potrs", "rc", [S("a", "N*N", 0, "id"), S("b", "N*R", 1, "one", None, True)], "potrs::<T>(Uplo::Upper, N, {a}, {b})")
+rule("sysv", "rc", [S("a", "N*N", 1, "id"), S("ipiv", "N", 1, "piv", "i32"), S("b", "N*R", 1, "one", None, True)], "sysv::<T>(Uplo::Upper, N, {a}, {ipiv}, {b})")
+rule("hesv", "c", [S("a", "N*N", 1, "id"), S("ipiv", "N", 1, "piv", "i32"), S("b", "N*R", 1, "one", None, True)], "hesv::<T>(Uplo::Upper, N, {a}, {ipiv}, {b})")
+rule("gtsv", "rc", [S("dl", "(N-1)"), S("d", "N"), S("du", "(N-1)"), S("b", "N*R", 1, "one", None, True)], "gtsv::<T>(N, {dl}, {d}, {du}, {b})")
 rule("geqrf", "rc", [S("a", "M*N", 1, "id"), S("tau", "M")], "geqrf::<T>(M, N, {a}, {tau})")
 rule("gelqf", "rc", [S("a", "M*N", 1, "id"), S("tau", "M")], "gelqf::<T>(M, N, {a}, {tau})")
+rule("heev", "c", [S("a", "N*N", 1, "id"), S("w", "N", 1, "one", "real")], "heev::<T>(Compute::ValuesAndVectors, Uplo::Upper, N, {a}, {w})")
+rule("ptsv", "rc", [S("d", "N", 1, "one", "real"), S("e", "(N-1)", 1, "zero"), S("b", "N*R", 1, "one", None, True)], "ptsv::<T>(N, {d}, {e}, {b})")
 rule("syev", "r", [S("a", "N*N", 1, "id"), S("w", "N")], "syev::<T>(Compute::ValuesAndVectors, Uplo::Upper, N, {a}, {w})")
 # ---- typed (explicit lda) ----
 rule("{p}trtrs", "r", [S("a", "N*N", 0, "id"), S("b", "N*R")], "{p}trtrs(Uplo::Upper, Trans::No, aocl_types::Diag::NonUnit, N, R, {a}, N, {b}, R)", typed=True)
@@ -56,11 +64,11 @@ rule("{p}hetrs", "c", [S("a", "N*N", 0, "id"), S("ipiv", "N", 0, "piv", "i32"), 
 rule("{p}hetri", "c", [S("a", "N*N", 1, "id"), S("ipiv", "N", 0, "piv", "i32")], "{p}hetri(Uplo::Upper, N, {a}, N, {ipiv})", typed=True)
 rule("{p}gecon", "rc", [S("a", "N*N", 0, "id")], "{p}gecon(Norm::One, N, {a}, N, ONE_RL).map(|_| ())", typed=True)
 rule("{p}pocon", "rc", [S("a", "N*N", 0, "id")], "{p}pocon(Uplo::Upper, N, {a}, N, ONE_RL).map(|_| ())", typed=True)
-rule("{p}gehrd", "rc", [S("a", "N*N", 1, "id"), S("tau", "N")], "{p}gehrd(N, 1, N as i32, {a}, N, {tau})", typed=True)
+rule("{p}gehrd", "rc", [S("a", "N*N", 1, "id"), S("tau", "(N-1)")], "{p}gehrd(N, 1, N as i32, {a}, N, {tau})", typed=True)
 rule("{p}geqp3", "rc", [S("a", "M*N", 1, "id"), S("jpvt", "N", 1, "piv", "i32"), S("tau", "M")], "{p}geqp3(M, N, {a}, N, {jpvt}, {tau})", typed=True)
 rule("{p}gelss", "rc", [S("a", "M*N", 1, "id"), S("b", "N*R"), S("s", "M", 1, "one", "real")], "{p}gelss(M, N, R, {a}, N, {b}, R, {s}, ONE_RL).map(|_| ())", typed=True)
-rule("{p}orgqr", "r", [S("a", "M*N", 1, "id"), S("tau", "M", 0)], "{p}orgqr(M, M, M, {a}, N, {tau})", typed=True)
-rule("{p}ungqr", "c", [S("a", "M*N", 1, "id"), S("tau", "M", 0)], "{p}ungqr(M, M, M, {a}, N, {tau})", typed=True)
+rule("{p}orgqr", "r", [S("a", "((M-1)*N+M)", 1, "id"), S("tau", "M", 0)], "{p}orgqr(M, M, M, {a}, N, {tau})", typed=True)
+rule("{p}ungqr", "c", [S("a", "((M-1)*N+M)", 1, "id"), S("tau", "M", 0)], "{p}ungqr(M, M, M, {a}, N, {tau})", typed=True)
 
 KIND = {
     "f64": ("f64", "d", "1.0", "0.0"), "f32": ("f32", "s", "1.0f32", "0.0f32"),
@@ -72,6 +80,7 @@ KIND = {
 def main():
     only = sys.argv[sys.argv.index("--only") + 1] if "--only" in sys.argv else None
     assert_mode = "--assert" in sys.argv
+    group = sys.argv[sys.argv.index("--group") + 1] if "--group" in sys.argv else None
     out = []
     w = out.append
     w("//! GENERATED by tools/gen-lapack-harness.py (do not edit): guard-page harness for free `pub fn`s of aocl-lapack, see that script.")
@@ -113,6 +122,8 @@ fn report<T: core::fmt::Debug>(name: &str, r: core::result::Result<T, aocl_error
     for name, kinds, slices, call, variants, typed in RULES:
         if only and name.replace("{p}", "") != only and name != only:
             continue
+        if (group == "generic" and typed) or (group == "typed" and not typed):
+            continue
         ks = {"r": ["f64", "f32"], "c": ["c64", "c32"], "rc": ["f64", "f32", "c64", "c32"]}[kinds]
         for kind in ks:
             t, p, one, zero = KIND[kind]
@@ -127,21 +138,26 @@ fn report<T: core::fmt::Debug>(name: &str, r: core::result::Result<T, aocl_error
                     return s[4] or t
 
                 def initexpr(s, zero_one):
-                    a, size, mut, init, ty = s
+                    a, size, mut, init, ty, _d = s
                     if ty == "i32":
                         return "|_| 1i32"
                     if ty == "real":
                         return "|_| " + ("1.0" if kind in ("f64", "c64") else "1.0f32")
+                    if init == "zero":
+                        return f"|_| {zero}"
                     if init == "id":
-                        return f"|i| if i % ({size.split('*')[1] if '*' in size else 'N'} + 1) == 0 {{ {one} }} else {{ {zero} }}"
+                        return f"|i| if i % (N + 1) == 0 {{ {one} }} else {{ {zero} }}"  # row-major, lda = N: the diagonal
                     return f"|_| {one}"
 
                 def call_with(short):
                     c = call.replace("{p}", p).replace("::<T>", f"::<{t}>").replace("ONE_RL", one_rl)
-                    for a, size, mut, init, ty in slices:
+                    for a, size, mut, init, ty, _d in slices:
                         c = c.replace("{" + a + "}", a if a == short else ("&mut " if mut else "&") + "v_" + a)
                     if c.startswith("NR:"):
-                        c = "{ let _ = " + c[3:] + "; Ok::<(), aocl_error::Error>(()) }"
+                        if assert_mode and short:
+                            c = "std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| { " + c[3:] + "; })).map_err(|_| aocl_error::Error::InvalidArgument(String::from(\"panicked\")))"
+                        else:
+                            c = "{ " + c[3:] + "; Ok::<(), aocl_error::Error>(()) }"
                     return c
 
                 lets = lambda skip: "".join(
@@ -150,11 +166,13 @@ fn report<T: core::fmt::Debug>(name: &str, r: core::result::Result<T, aocl_error
                 w("#[test]" + NL + f"fn {tag}_control() {{ {lets(None)}let r = {call_with(None)}; {ctl} }}")
                 for s in slices:
                     a = s[0]
+                    if s[5]:
+                        continue
                     tail = (f'assert!(r.is_err(), "{tag}_short_{a}: a buffer one element short must be refused before the FFI call");' if assert_mode
                             else f'report("{tag}_short_{a}", r.map(|_| ()));')
                     w("#[test]" + NL + f"fn {tag}_short_{a}() {{ {lets(a)}let r = at_guard::<{ty_of(s)}, _>(({s[1]}) - 1, {initexpr(s, 1)}, |{a}| {call_with(a)}); {tail} }}")
                     count += 1
-    print(NL.join(out))
+    print(trim(NL.join(out)))
     print(f"// {count} short cases", file=sys.stderr)
 
 

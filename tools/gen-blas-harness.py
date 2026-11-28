@@ -14,7 +14,11 @@ status is asserted on short cases).
 
     python tools/gen-blas-harness.py > crates/aocl-blas/tests/generated_guard.rs
 """
+import os
 import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from harness_trim import trim  # noqa: E402
 
 M, N, K = 3, 4, 5
 # name: (generic param list names for the call, [(arg name, size expr, mutable)], call template, scalar kinds)
@@ -180,8 +184,9 @@ fn report<T: core::fmt::Debug>(name: &str, r: core::result::Result<T, aocl_error
                     tail = (f"assert!(r.is_err(), \"{tag}_short_{a}: a buffer one element short must be refused before the FFI call\");" if assert_mode else f"report(\"{tag}_short_{a}\", r.map(|_| ()));")
                     w("#[test]" + NL + f"fn {tag}_short_{a}() {{ {lets}let r = at_guard::<{t}, _>({sizes[a]} - 1, {fill}, |{a}| {call_with(a)}); {tail} }}")
                     count += 1
-    print(NL.join(out))
+    print(trim(NL.join(out)))
     print(f"// {count} short cases", file=sys.stderr)
+
 
 
 NL = chr(10)
