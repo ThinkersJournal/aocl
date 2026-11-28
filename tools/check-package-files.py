@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """First-publish checklist: for every crate, list the files `cargo package` would ship and FAIL when a crate that carries a
 provenance statement lacks one. A crate needs NOTICE in its package when its directory has a NOTICE, its sources point at the
-clean-room tables (`docs/cleanroom/`), OR its README mentions NOTICE or provenance (wrappers too); every crate needs README.md and a LICENSE-* file. Run before EVERY first publish:
+clean-room tables (`docs/cleanroom/`), OR its README mentions NOTICE or provenance (wrappers too), OR it depends on an aocl-*-sys crate that has a NOTICE (wrappers inherit the duty); every crate needs README.md and a LICENSE-* file. Run before EVERY first publish:
     python tools/check-package-files.py [crate ...]      # exit 1 on any problem; prints each package's NOTICE/README/LICENSE
 Why: aocl-rng-sys 0.2.11 was published without its NOTICE (found on crates.io after publishing)."""
 import glob, os, re, subprocess, sys
@@ -23,8 +23,12 @@ for name in names:
     readme = open(os.path.join(d, "README.md"), encoding="utf8", errors="replace").read() if os.path.exists(os.path.join(d, "README.md")) else ""
     # A crate needs NOTICE in its package when its directory has one, its sources/README point at the clean-room tables, or
     # its README mentions NOTICE or provenance (wrappers too): a README that says "see NOTICE" must not dangle.
+    # A wrapper inherits the duty of the -sys crate it depends on: when that crate's directory has a NOTICE, the wrapper ships one too.
+    cargo_toml = open(os.path.join(d, "Cargo.toml"), encoding="utf8", errors="replace").read()
+    inherits = any(os.path.exists(os.path.join(REPO, "crates", dep, "NOTICE")) for dep in set(re.findall(r"(?m)^(aocl-[a-z0-9-]+-sys)\s*=", cargo_toml)))
     needs_notice = (
-        os.path.exists(os.path.join(d, "NOTICE"))
+        inherits
+        or os.path.exists(os.path.join(d, "NOTICE"))
         or "docs/cleanroom/" in srcs
         or re.search(r"(?<![\w.-])NOTICE(?![\w.])", readme)  # our NOTICE, not AMD's NOTICE.txt
         or re.search(r"(?im)(\*\*provenance\b|^provenance\b)", readme)  # a Provenance statement, not a link to PROVENANCE-QUESTIONS.md
