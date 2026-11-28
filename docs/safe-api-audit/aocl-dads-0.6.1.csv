@@ -1,0 +1,6 @@
+test,outcome,exit_code,seconds
+extract_control,OK-control,0,0.15
+extract_oversized_lddata,OK-refused(asserted),0,0.15
+extract_rows_short_data,OK-refused(asserted),0,0.16
+extract_short_data,OK-refused(asserted),0,0.16
+extract_unknown_key,OK-refused(asserted),0,0.16
