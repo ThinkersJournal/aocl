@@ -112,6 +112,7 @@ pub fn registered_brngs() -> Result<usize> {
 /// A basic random number generator. `Wh` and `Mt2203` come in numbered families (the id is `base + index`, MKL convention); the
 /// index semantics are UNMEASURED here, so they are reachable only through [`Stream::with_brng_id`] (`unsafe`).
 /// `Nondeterm`, the abstract generators and `vslRegisterBrng` stay out of the safe API (they take callbacks or hardware sources).
+/// **Measured in this 6.0.0 build (lp64 and ilp64): `uniform_bits32` on `Mcg31`, `R250` and `Mrg32k3a` is refused with status -4103 "basic generator not supported"** (a safe `Err`); `Mcg59`, `Mt19937`, `Sfmt19937`, `Ars5` and `Philox4x32x10` accept it and round-trip save/restore. `leapfrog` is refused (-4097) on `Philox4x32x10` and `Mt19937`.
 /// `Sobol` and `Niederr` are quasi-random: they want a dimension, which is the first parameter of [`Stream::from_params`].
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[non_exhaustive]
@@ -276,8 +277,10 @@ impl Stream {
     ///
     /// # Safety
     /// How many parameters each generator reads is UNMEASURED: the library may read more than `params.len()`. Pass at least as
-    /// many words as the generator's initialisation in the guide lists (`tests/params_guard.rs`, PM-run, records the minimum on
-    /// a guard page for each generator; until that is read, treat any shorter slice as undefined behaviour).
+    /// many words as the generator's initialisation in the guide lists. **UNMEASURED beyond one probe:** with `params` ending at a
+    /// guard page, the 6.0.0 build returned normally (no read past `n`) for Philox n=1..3, MT19937 n=1,2, MRG32K3A n=1,3, MCG31,
+    /// R250, SFMT19937 n=1, ARS5 n=1,2, Sobol n=1 (Niederr n=1 was refused, -1); nothing else (n=0, other counts, other
+    /// generators) was tried, so a shorter slice than a generator needs stays undefined behaviour here.
     pub unsafe fn from_params(brng: Brng, params: &[u32]) -> Result<Stream> {
         let _lib = lock();
         let n = int("params", params.len())?;
@@ -478,7 +481,7 @@ impl Stream {
         check(unsafe { sys::viRngGeometric(0, self.ptr, n, out.as_mut_ptr(), p) })
     }
 
-    /// `viRngHypergeometric`: population `l`, `s` successes, `m` draws.
+    /// `viRngHypergeometric`: population `l`, `s` successes, `m` draws. **This AOCL-OpenRNG 6.0.0 build refuses it: status -1 "feature not implemented" (measured on the PM's Windows lp64 and ilp64 builds, docs/cleanroom/openrng/MEASUREMENT.md); the call returns `Err`, nothing is written.**
     pub fn hypergeometric(&mut self, out: &mut [i32], l: i32, s: i32, m: i32) -> Result<()> {
         let _lib = lock();
         let n = int("out", out.len())?;
@@ -486,7 +489,7 @@ impl Stream {
         check(unsafe { sys::viRngHypergeometric(0, self.ptr, n, out.as_mut_ptr(), l, s, m) })
     }
 
-    /// `viRngNegBinomial` (the header declares two spellings, `viRngNegBinomial` and `viRngNegbinomial`; this calls the first).
+    /// `viRngNegBinomial` (the header declares two spellings, `viRngNegBinomial` and `viRngNegbinomial`; this calls the first). **This AOCL-OpenRNG 6.0.0 build refuses it: status -1 "feature not implemented" (measured on the PM's Windows lp64 and ilp64 builds, docs/cleanroom/openrng/MEASUREMENT.md); the call returns `Err`, nothing is written.**
     pub fn neg_binomial(&mut self, out: &mut [i32], a: f64, p: f64) -> Result<()> {
         let _lib = lock();
         let n = int("out", out.len())?;
@@ -494,7 +497,7 @@ impl Stream {
         check(unsafe { sys::viRngNegBinomial(0, self.ptr, n, out.as_mut_ptr(), a, p) })
     }
 
-    /// `viRngNegbinomial`, the header's second spelling (recorded so a difference between the two would be seen).
+    /// `viRngNegbinomial`, the header's second spelling (the two spellings behave the same in this build). **This AOCL-OpenRNG 6.0.0 build refuses it: status -1 "feature not implemented" (measured on the PM's Windows lp64 and ilp64 builds, docs/cleanroom/openrng/MEASUREMENT.md); the call returns `Err`, nothing is written.**
     pub fn negbinomial(&mut self, out: &mut [i32], a: f64, p: f64) -> Result<()> {
         let _lib = lock();
         let n = int("out", out.len())?;
@@ -522,7 +525,7 @@ impl Stream {
         })
     }
 
-    /// `viRngPoissonV`: one lambda per output element (`lambda.len() == out.len()`).
+    /// `viRngPoissonV`: one lambda per output element (`lambda.len() == out.len()`). **This AOCL-OpenRNG 6.0.0 build refuses it: status -1 "feature not implemented" (measured on the PM's Windows lp64 and ilp64 builds, docs/cleanroom/openrng/MEASUREMENT.md); the call returns `Err`, nothing is written.**
     pub fn poisson_v(&mut self, out: &mut [i32], lambda: &[f64]) -> Result<()> {
         let _lib = lock();
         if lambda.len() != out.len() {
@@ -709,11 +712,11 @@ dist0!(/// `vdRngGumbel` / `vsRngGumbel`.
     gumbel, gumbel_f32, vdRngGumbel, vsRngGumbel; (a, beta));
 dist0!(/// `vdRngLaplace` / `vsRngLaplace`.
     laplace, laplace_f32, vdRngLaplace, vsRngLaplace; (a, beta));
-dist0!(/// `vdRngBeta` / `vsRngBeta`.
+dist0!(/// `vdRngBeta` / `vsRngBeta`. **This AOCL-OpenRNG 6.0.0 build refuses it: status -1 "feature not implemented" (measured on the PM's Windows lp64 and ilp64 builds, docs/cleanroom/openrng/MEASUREMENT.md); the call returns `Err`, nothing is written.**
     beta, beta_f32, vdRngBeta, vsRngBeta; (p, q, a, beta));
 
 impl Stream {
-    /// `vdRngChiSquare`: `v` degrees of freedom.
+    /// `vdRngChiSquare`: `v` degrees of freedom. **This AOCL-OpenRNG 6.0.0 build refuses it: status -1 "feature not implemented" (measured on the PM's Windows lp64 and ilp64 builds, docs/cleanroom/openrng/MEASUREMENT.md); the call returns `Err`, nothing is written.**
     pub fn chi_square(&mut self, out: &mut [f64], v: i32) -> Result<()> {
         let _lib = lock();
         let n = int("out", out.len())?;
@@ -721,7 +724,7 @@ impl Stream {
         check(unsafe { sys::vdRngChiSquare(0, self.ptr, n, out.as_mut_ptr(), v) })
     }
 
-    /// `vsRngChiSquare`.
+    /// `vsRngChiSquare`. **This AOCL-OpenRNG 6.0.0 build refuses it: status -1 "feature not implemented" (measured on the PM's Windows lp64 and ilp64 builds, docs/cleanroom/openrng/MEASUREMENT.md); the call returns `Err`, nothing is written.**
     pub fn chi_square_f32(&mut self, out: &mut [f32], v: i32) -> Result<()> {
         let _lib = lock();
         let n = int("out", out.len())?;
