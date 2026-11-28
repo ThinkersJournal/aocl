@@ -12,9 +12,9 @@ categories = ["api-bindings", "science"]
 keywords = ["aocl", "amd", "machine-learning", "statistics"]
 
 [dependencies]
-aocl-data-analytics-sys = { version = "0.2", path = "../aocl-data-analytics-sys" }
-aocl-error = { version = "0.2", path = "../aocl-error" }
-aocl-types = { version = "0.2", path = "../aocl-types" }
+aocl-data-analytics-sys = { version = "0.3", path = "../aocl-data-analytics-sys" }
+aocl-error = { version = "0.3", path = "../aocl-error" }
+aocl-types = { version = "0.3", path = "../aocl-types" }
 
 [features]
 default = []

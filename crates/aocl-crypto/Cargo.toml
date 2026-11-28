@@ -12,8 +12,8 @@ categories = ["api-bindings", "cryptography"]
 keywords = ["aocl", "amd", "alcp", "sha", "crypto"]
 
 [dependencies]
-aocl-crypto-sys = { version = "0.2", path = "../aocl-crypto-sys" }
-aocl-error = { version = "0.2", path = "../aocl-error" }
+aocl-crypto-sys = { version = "0.3", path = "../aocl-crypto-sys" }
+aocl-error = { version = "0.3", path = "../aocl-error" }
 
 [features]
 default = []
