@@ -38,7 +38,7 @@ as a C prototype. Anything the guide does not state is UNKNOWN and left out.
 - RNG: the 80 lowercase C names match our current lowercase names 80/80 both ways (0 only-ours, 0 only-guide); signatures were NOT compared.
 
 ## Status
-Math: `aocl-math-sys` and `aocl-math` are wired from the 218 scalar rows (`MATH-WIRING.md`, with the breaking list). RNG stays UNWIRED and UNPUBLISHED (pm-kernels ruling 2026-11-27: `rng_int_t` width, `fc32_t`/`fc64_t`/`long double` and the two `UINI`/`UGEN` names are not in the guide; a later behavioural probe by a session that has not read headers may settle `rng_int_t`, recorded as a measurement). Nothing is published; 0.1.0 stays yanked.
+Math: `aocl-math-sys` and `aocl-math` are wired from the 218 scalar rows (`MATH-WIRING.md`, with the breaking list). [Status 2026-11-28: `aocl-rng-sys` 0.2.11 and 0.2.13 and `aocl-math-sys` 0.2.7..0.2.9 ARE published on crates.io; `aocl-rng` (the wrapper) stays at 0.1.0; text below is the 2026-11-27 state.] RNG stays UNWIRED and UNPUBLISHED (pm-kernels ruling 2026-11-27: `rng_int_t` width, `fc32_t`/`fc64_t`/`long double` and the two `UINI`/`UGEN` names are not in the guide; a later behavioural probe by a session that has not read headers may settle `rng_int_t`, recorded as a measurement). Nothing was published at that date; 0.1.0 stays yanked.
 
 ## Added on lane/cleanroom-rng2 (2026-11-27): provenance for the correction rows
 | Rows | What | Input | Provenance table | Measurement |
