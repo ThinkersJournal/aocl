@@ -266,6 +266,108 @@ pub fn numroc(n: usize, nb: usize, iproc: usize, isrcproc: usize, nprocs: usize)
 }
 
 // =========================================================================
+//   Argument validation (the library trusts every pointer: a slice shorter than the descriptor's local extent is an out-of-bounds access)
+// =========================================================================
+
+/// Local rows and columns of the matrix `desc` describes on THIS process (0 x 0 off the grid).
+fn local_dims(desc: &BlockCyclic) -> (usize, usize) {
+    let d = desc.as_raw();
+    let (mut nprow, mut npcol, mut myrow, mut mycol): (Int, Int, Int, Int) = (0, 0, -1, -1);
+    unsafe { sys::Cblacs_gridinfo(d[1], &mut nprow, &mut npcol, &mut myrow, &mut mycol) };
+    if myrow < 0
+        || mycol < 0
+        || nprow <= 0
+        || npcol <= 0
+        || d[2] < 0
+        || d[3] < 0
+        || d[4] <= 0
+        || d[5] <= 0
+    {
+        return (0, 0);
+    }
+    (
+        numroc(
+            d[2] as usize,
+            d[4] as usize,
+            myrow as usize,
+            d[6].max(0) as usize,
+            nprow as usize,
+        ),
+        numroc(
+            d[3] as usize,
+            d[5] as usize,
+            mycol as usize,
+            d[7].max(0) as usize,
+            npcol as usize,
+        ),
+    )
+}
+
+/// The `rows x cols` submatrix at (`ia`, `ja`) must lie inside the global matrix `desc` describes, and `len` must cover this process's
+/// local part of it: `(local_cols - 1) * lld + local_rows` elements. (Tests: `tests/guard_lengths.rs`.)
+fn check_matrix(
+    what: &str,
+    len: usize,
+    ia: Int,
+    ja: Int,
+    rows: usize,
+    cols: usize,
+    desc: &BlockCyclic,
+) -> Result<()> {
+    let d = desc.as_raw();
+    if ia < 1
+        || ja < 1
+        || (ia as i64 - 1) + rows as i64 > d[2] as i64
+        || (ja as i64 - 1) + cols as i64 > d[3] as i64
+    {
+        return Err(Error::InvalidArgument(format!(
+            "{what}: a {rows} x {cols} block at ({ia}, {ja}) does not lie inside the {} x {} matrix its descriptor describes",
+            d[2], d[3]
+        )));
+    }
+    let (lr, lc) = local_dims(desc);
+    let need = if lr == 0 || lc == 0 {
+        0
+    } else {
+        (lc - 1) * d[8].max(0) as usize + lr
+    };
+    if len < need {
+        return Err(Error::InvalidArgument(format!(
+            "{what}: {len} elements, the descriptor needs {need} locally"
+        )));
+    }
+    Ok(())
+}
+
+fn check_len(what: &str, len: usize, need: usize) -> Result<()> {
+    if len < need {
+        return Err(Error::InvalidArgument(format!(
+            "{what}: {len} elements, {need} are needed"
+        )));
+    }
+    Ok(())
+}
+
+/// ipiv of an LU / solve: LOCr(M_A) + MB_A entries.
+fn check_ipiv(what: &str, len: usize, desc: &BlockCyclic) -> Result<()> {
+    check_len(
+        what,
+        len,
+        local_dims(desc).0 + desc.as_raw()[4].max(0) as usize,
+    )
+}
+
+/// `lwork` is the workspace size the library will use: it must fit in `work` (`-1` asks for the optimal size, written to `work[0]`).
+fn check_work(what: &str, len: usize, lwork: Int) -> Result<()> {
+    if lwork < -1 {
+        return Err(Error::InvalidArgument(format!(
+            "{what}: lwork {lwork} is invalid"
+        )));
+    }
+    check_len(what, len, if lwork == -1 { 1 } else { lwork as usize })
+}
+
+// =========================================================================
 //   Distributed solve / GEMM / factorization
 // =========================================================================
 
@@ -285,6 +387,9 @@ pub fn pdgesv(
     jb: Int,
     descb: &BlockCyclic,
 ) -> Result<()> {
+    check_matrix("pdgesv: A", a.len(), ia, ja, n, n, desca)?;
+    check_matrix("pdgesv: B", b.len(), ib, jb, n, nrhs, descb)?;
+    check_ipiv("pdgesv: ipiv", ipiv.len(), desca)?;
     let n_i = n as Int;
     let nrhs_i = nrhs as Int;
     let mut info: Int = 0;
@@ -328,7 +433,12 @@ pub fn pdgemm(
     ic: Int,
     jc: Int,
     descc: &BlockCyclic,
-) {
+) -> Result<()> {
+    let (ar, ac) = if trans_a == Trans::No { (m, k) } else { (k, m) };
+    let (br, bc) = if trans_b == Trans::No { (k, n) } else { (n, k) };
+    check_matrix("pdgemm: A", a.len(), ia, ja, ar, ac, desca)?;
+    check_matrix("pdgemm: B", b.len(), ib, jb, br, bc, descb)?;
+    check_matrix("pdgemm: C", c.len(), ic, jc, m, n, descc)?;
     let m_i = m as Int;
     let n_i = n as Int;
     let k_i = k as Int;
@@ -357,6 +467,7 @@ pub fn pdgemm(
             descc.as_raw().as_ptr(),
         );
     }
+    Ok(())
 }
 
 /// Distributed double-precision Cholesky factorization.
@@ -368,6 +479,7 @@ pub fn pdpotrf(
     ja: Int,
     desca: &BlockCyclic,
 ) -> Result<()> {
+    check_matrix("pdpotrf: A", a.len(), ia, ja, n, n, desca)?;
     let n_i = n as Int;
     let u = uplo_char(uplo);
     let mut info: Int = 0;
@@ -395,6 +507,8 @@ pub fn pdgetrf(
     desca: &BlockCyclic,
     ipiv: &mut [Int],
 ) -> Result<()> {
+    check_matrix("pdgetrf: A", a.len(), ia, ja, m, n, desca)?;
+    check_ipiv("pdgetrf: ipiv", ipiv.len(), desca)?;
     let m_i = m as Int;
     let n_i = n as Int;
     let mut info: Int = 0;
@@ -428,6 +542,9 @@ pub fn pdgetrs(
     jb: Int,
     descb: &BlockCyclic,
 ) -> Result<()> {
+    check_matrix("pdgetrs: A", a.len(), ia, ja, n, n, desca)?;
+    check_matrix("pdgetrs: B", b.len(), ib, jb, n, nrhs, descb)?;
+    check_ipiv("pdgetrs: ipiv", ipiv.len(), desca)?;
     let t = trans_char(trans);
     let n_i = n as Int;
     let nrhs_i = nrhs as Int;
@@ -466,6 +583,8 @@ pub fn pdpotrs(
     jb: Int,
     descb: &BlockCyclic,
 ) -> Result<()> {
+    check_matrix("pdpotrs: A", a.len(), ia, ja, n, n, desca)?;
+    check_matrix("pdpotrs: B", b.len(), ib, jb, n, nrhs, descb)?;
     let u = uplo_char(uplo);
     let n_i = n as Int;
     let nrhs_i = nrhs as Int;
@@ -524,6 +643,12 @@ pub fn pdsyev(
     work: &mut [f64],
     lwork: Int,
 ) -> Result<()> {
+    check_matrix("pdsyev: A", a.len(), ia, ja, n, n, desca)?;
+    check_len("pdsyev: w", w.len(), n)?;
+    if compute == EigCompute::ValuesAndVectors {
+        check_matrix("pdsyev: Z", z.len(), iz, jz, n, n, descz)?;
+    }
+    check_work("pdsyev: work", work.len(), lwork)?;
     let j = compute.job_char();
     let u = uplo_char(uplo);
     let n_i = n as Int;
@@ -568,6 +693,9 @@ pub fn pdgels(
     work: &mut [f64],
     lwork: Int,
 ) -> Result<()> {
+    check_matrix("pdgels: A", a.len(), ia, ja, m, n, desca)?;
+    check_matrix("pdgels: B", b.len(), ib, jb, m.max(n), nrhs, descb)?;
+    check_work("pdgels: work", work.len(), lwork)?;
     let t = trans_char(trans);
     let m_i = m as Int;
     let n_i = n as Int;
@@ -607,6 +735,9 @@ pub fn pdgeqrf(
     work: &mut [f64],
     lwork: Int,
 ) -> Result<()> {
+    check_matrix("pdgeqrf: A", a.len(), ia, ja, m, n, desca)?;
+    check_len("pdgeqrf: tau", tau.len(), local_dims(desca).1)?;
+    check_work("pdgeqrf: work", work.len(), lwork)?;
     let m_i = m as Int;
     let n_i = n as Int;
     let mut info: Int = 0;
@@ -645,6 +776,9 @@ pub fn psgesv(
     jb: Int,
     descb: &BlockCyclic,
 ) -> Result<()> {
+    check_matrix("psgesv: A", a.len(), ia, ja, n, n, desca)?;
+    check_matrix("psgesv: B", b.len(), ib, jb, n, nrhs, descb)?;
+    check_ipiv("psgesv: ipiv", ipiv.len(), desca)?;
     let n_i = n as Int;
     let nrhs_i = nrhs as Int;
     let mut info: Int = 0;
@@ -688,7 +822,12 @@ pub fn psgemm(
     ic: Int,
     jc: Int,
     descc: &BlockCyclic,
-) {
+) -> Result<()> {
+    let (ar, ac) = if trans_a == Trans::No { (m, k) } else { (k, m) };
+    let (br, bc) = if trans_b == Trans::No { (k, n) } else { (n, k) };
+    check_matrix("psgemm: A", a.len(), ia, ja, ar, ac, desca)?;
+    check_matrix("psgemm: B", b.len(), ib, jb, br, bc, descb)?;
+    check_matrix("psgemm: C", c.len(), ic, jc, m, n, descc)?;
     let m_i = m as Int;
     let n_i = n as Int;
     let k_i = k as Int;
@@ -717,6 +856,7 @@ pub fn psgemm(
             descc.as_raw().as_ptr(),
         );
     }
+    Ok(())
 }
 
 /// Single-precision distributed Cholesky factorisation. See [`pdpotrf`].
@@ -728,6 +868,7 @@ pub fn pspotrf(
     ja: Int,
     desca: &BlockCyclic,
 ) -> Result<()> {
+    check_matrix("pspotrf: A", a.len(), ia, ja, n, n, desca)?;
     let n_i = n as Int;
     let u = uplo_char(uplo);
     let mut info: Int = 0;
@@ -755,6 +896,8 @@ pub fn psgetrf(
     desca: &BlockCyclic,
     ipiv: &mut [Int],
 ) -> Result<()> {
+    check_matrix("psgetrf: A", a.len(), ia, ja, m, n, desca)?;
+    check_ipiv("psgetrf: ipiv", ipiv.len(), desca)?;
     let m_i = m as Int;
     let n_i = n as Int;
     let mut info: Int = 0;
@@ -789,6 +932,9 @@ pub fn psgetrs(
     jb: Int,
     descb: &BlockCyclic,
 ) -> Result<()> {
+    check_matrix("psgetrs: A", a.len(), ia, ja, n, n, desca)?;
+    check_matrix("psgetrs: B", b.len(), ib, jb, n, nrhs, descb)?;
+    check_ipiv("psgetrs: ipiv", ipiv.len(), desca)?;
     let n_i = n as Int;
     let nrhs_i = nrhs as Int;
     let t = trans_char(trans);
@@ -827,6 +973,8 @@ pub fn pspotrs(
     jb: Int,
     descb: &BlockCyclic,
 ) -> Result<()> {
+    check_matrix("pspotrs: A", a.len(), ia, ja, n, n, desca)?;
+    check_matrix("pspotrs: B", b.len(), ib, jb, n, nrhs, descb)?;
     let n_i = n as Int;
     let nrhs_i = nrhs as Int;
     let u = uplo_char(uplo);
@@ -867,6 +1015,12 @@ pub fn pssyev(
     work: &mut [f32],
     lwork: Int,
 ) -> Result<()> {
+    check_matrix("pssyev: A", a.len(), ia, ja, n, n, desca)?;
+    check_len("pssyev: w", w.len(), n)?;
+    if compute == EigCompute::ValuesAndVectors {
+        check_matrix("pssyev: Z", z.len(), iz, jz, n, n, descz)?;
+    }
+    check_work("pssyev: work", work.len(), lwork)?;
     let n_i = n as Int;
     let jobz = match compute {
         EigCompute::ValuesOnly => b'N' as c_char,
@@ -914,6 +1068,9 @@ pub fn psgels(
     work: &mut [f32],
     lwork: Int,
 ) -> Result<()> {
+    check_matrix("psgels: A", a.len(), ia, ja, m, n, desca)?;
+    check_matrix("psgels: B", b.len(), ib, jb, m.max(n), nrhs, descb)?;
+    check_work("psgels: work", work.len(), lwork)?;
     let m_i = m as Int;
     let n_i = n as Int;
     let nrhs_i = nrhs as Int;
@@ -954,6 +1111,9 @@ pub fn psgeqrf(
     work: &mut [f32],
     lwork: Int,
 ) -> Result<()> {
+    check_matrix("psgeqrf: A", a.len(), ia, ja, m, n, desca)?;
+    check_len("psgeqrf: tau", tau.len(), local_dims(desca).1)?;
+    check_work("psgeqrf: work", work.len(), lwork)?;
     let m_i = m as Int;
     let n_i = n as Int;
     let lwork = lwork as Int;
@@ -995,6 +1155,9 @@ pub fn pcgesv(
     jb: Int,
     descb: &BlockCyclic,
 ) -> Result<()> {
+    check_matrix("pcgesv: A", a.len(), ia, ja, n, n, desca)?;
+    check_matrix("pcgesv: B", b.len(), ib, jb, n, nrhs, descb)?;
+    check_ipiv("pcgesv: ipiv", ipiv.len(), desca)?;
     let n_i = n as Int;
     let nrhs_i = nrhs as Int;
     let mut info: Int = 0;
@@ -1033,6 +1196,9 @@ pub fn pzgesv(
     jb: Int,
     descb: &BlockCyclic,
 ) -> Result<()> {
+    check_matrix("pzgesv: A", a.len(), ia, ja, n, n, desca)?;
+    check_matrix("pzgesv: B", b.len(), ib, jb, n, nrhs, descb)?;
+    check_ipiv("pzgesv: ipiv", ipiv.len(), desca)?;
     let n_i = n as Int;
     let nrhs_i = nrhs as Int;
     let mut info: Int = 0;

@@ -41,3 +41,7 @@ harness = false
 [[test]]
 name = "grid2d_mpi"
 harness = false
+
+[[test]]
+name = "guard_lengths"
+harness = false

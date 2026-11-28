@@ -125,7 +125,8 @@ fn main() {
             1,
             1,
             &desc,
-        );
+        )
+        .expect("psgemm");
         for lj in 0..loc_cols {
             for i in 0..N {
                 let want = serial(trans == Trans::T, alpha, beta, i, global_col(lj));
