@@ -12,3 +12,11 @@
 )]
 
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
+
+// Compile-time guard: `alc_cipher_state_t` has three `__attribute__((aligned(64))) Uint64 [64]` members (cipher.h): the struct is
+// 64-aligned and 1600 bytes (3 * 512 + 4 rounded up to 64); bindgen reproduces that (C and C++ agree, measured:
+// docs/SYS-LAYOUT-AUDIT-20261127.md). It is only ever passed by pointer.
+const _: () = {
+    assert!(core::mem::align_of::<alc_cipher_state_t>() == 64);
+    assert!(core::mem::size_of::<alc_cipher_state_t>() == 1600);
+};
