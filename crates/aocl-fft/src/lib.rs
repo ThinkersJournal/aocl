@@ -1080,3 +1080,271 @@ mod tests {
         assert!((out_b[0][0] - 8.0).abs() < 1e-4);
     }
 }
+
+/// Wrapper tests against naive O(N^2) DFT references (computed in f64, independent of the library).
+#[cfg(test)]
+mod reference_tests {
+    use super::*;
+
+    /// Deterministic pseudo-random signal in [-1, 1) (LCG, fixed seed).
+    fn signal(len: usize, seed: u64) -> Vec<[f64; 2]> {
+        let mut s = seed;
+        let mut next = || {
+            s = s
+                .wrapping_mul(6364136223846793005)
+                .wrapping_add(1442695040888963407);
+            ((s >> 11) as f64 / (1u64 << 53) as f64) * 2.0 - 1.0
+        };
+        (0..len).map(|_| [next(), next()]).collect()
+    }
+
+    /// Naive N-d DFT over row-major `shape`; sign -1 = forward, +1 = backward (unnormalised).
+    fn naive(shape: &[usize], x: &[[f64; 2]], sign: f64) -> Vec<[f64; 2]> {
+        let total: usize = shape.iter().product();
+        let idx = |mut flat: usize| -> Vec<usize> {
+            let mut v = vec![0; shape.len()];
+            for d in (0..shape.len()).rev() {
+                v[d] = flat % shape[d];
+                flat /= shape[d];
+            }
+            v
+        };
+        (0..total)
+            .map(|k| {
+                let kk = idx(k);
+                let (mut re, mut im) = (0.0, 0.0);
+                for (j, xj) in x.iter().enumerate() {
+                    let jj = idx(j);
+                    let mut phase = 0.0;
+                    for d in 0..shape.len() {
+                        phase += (kk[d] * jj[d]) as f64 / shape[d] as f64;
+                    }
+                    let a = sign * 2.0 * std::f64::consts::PI * phase;
+                    re += xj[0] * a.cos() - xj[1] * a.sin();
+                    im += xj[0] * a.sin() + xj[1] * a.cos();
+                }
+                [re, im]
+            })
+            .collect()
+    }
+
+    /// Naive real-to-complex DFT, first n/2+1 bins.
+    fn naive_r2c(x: &[f64]) -> Vec<[f64; 2]> {
+        let cx: Vec<[f64; 2]> = x.iter().map(|&v| [v, 0.0]).collect();
+        naive(&[x.len()], &cx, -1.0)[..x.len() / 2 + 1].to_vec()
+    }
+
+    macro_rules! fft_ref_tests {
+        ($m:ident, $T:ty, $tol:expr, $Plan:ident, $d1:ident, $d2:ident, $d3:ident,
+         $r2c:ident, $c2r:ident) => {
+            mod $m {
+                use super::*;
+                const TOL: f64 = $tol;
+
+                fn to_t(v: &[[f64; 2]]) -> Vec<[$T; 2]> {
+                    v.iter().map(|c| [c[0] as $T, c[1] as $T]).collect()
+                }
+                fn check(got: &[[$T; 2]], want: &[[f64; 2]], what: &str) {
+                    assert_eq!(got.len(), want.len());
+                    for (i, (g, w)) in got.iter().zip(want).enumerate() {
+                        assert!(
+                            (g[0] as f64 - w[0]).abs() < TOL && (g[1] as f64 - w[1]).abs() < TOL,
+                            "{what}[{i}]: got {g:?} want {w:?}"
+                        );
+                    }
+                }
+                // Reference computed from the f32/f64-rounded input so only the transform differs.
+                fn rounded(v: &[[f64; 2]]) -> Vec<[f64; 2]> {
+                    to_t(v).iter().map(|c| [c[0] as f64, c[1] as f64]).collect()
+                }
+
+                #[test]
+                fn one_d_inplace_matches_naive_dft() {
+                    for &n in &[1usize, 2, 7, 12, 16] {
+                        for (dir, sign) in [(Direction::Forward, -1.0), (Direction::Backward, 1.0)]
+                        {
+                            let x = rounded(&signal(n, 11 + n as u64));
+                            let mut buf = to_t(&x);
+                            $d1(dir, &mut buf).unwrap();
+                            check(&buf, &naive(&[n], &x, sign), "dft_1d_inplace");
+                        }
+                    }
+                }
+
+                #[test]
+                fn one_d_inplace_impulse_and_empty() {
+                    // delta at index 1 -> X[k] = exp(-2 pi i k / n)
+                    let n = 8;
+                    let mut buf = vec![[0 as $T, 0 as $T]; n];
+                    buf[1] = [1 as $T, 0 as $T];
+                    $d1(Direction::Forward, &mut buf).unwrap();
+                    let want: Vec<[f64; 2]> = (0..n)
+                        .map(|k| {
+                            let a = -2.0 * std::f64::consts::PI * k as f64 / n as f64;
+                            [a.cos(), a.sin()]
+                        })
+                        .collect();
+                    check(&buf, &want, "impulse");
+                    let mut empty: [[$T; 2]; 0] = [];
+                    $d1(Direction::Forward, &mut empty).unwrap();
+                }
+
+                #[test]
+                fn two_d_inplace_matches_naive_and_rejects_short_buffer() {
+                    for &(n0, n1) in &[(3usize, 5usize), (4, 4), (1, 6)] {
+                        let x = rounded(&signal(n0 * n1, 21));
+                        let mut buf = to_t(&x);
+                        $d2(Direction::Forward, n0, n1, &mut buf).unwrap();
+                        check(&buf, &naive(&[n0, n1], &x, -1.0), "dft_2d_inplace");
+                    }
+                    let mut short = vec![[0 as $T, 0 as $T]; 5];
+                    assert!(matches!(
+                        $d2(Direction::Forward, 3, 2, &mut short),
+                        Err(Error::InvalidArgument(_))
+                    ));
+                }
+
+                #[test]
+                fn three_d_inplace_matches_naive_and_rejects_short_buffer() {
+                    for &(n0, n1, n2) in &[(2usize, 3usize, 4usize), (3, 3, 3)] {
+                        for (dir, sign) in [(Direction::Forward, -1.0), (Direction::Backward, 1.0)]
+                        {
+                            let x = rounded(&signal(n0 * n1 * n2, 31));
+                            let mut buf = to_t(&x);
+                            $d3(dir, n0, n1, n2, &mut buf).unwrap();
+                            check(&buf, &naive(&[n0, n1, n2], &x, sign), "dft_3d_inplace");
+                        }
+                    }
+                    let mut short = vec![[0 as $T, 0 as $T]; 7];
+                    assert!(matches!(
+                        $d3(Direction::Forward, 2, 2, 2, &mut short),
+                        Err(Error::InvalidArgument(_))
+                    ));
+                }
+
+                #[test]
+                fn plan_dft_2d_and_3d_match_naive() {
+                    let x = rounded(&signal(12, 41));
+                    let plan = $Plan::dft_2d(3, 4, Direction::Forward).unwrap();
+                    let mut input = to_t(&x);
+                    let mut out = vec![[0 as $T, 0 as $T]; 12];
+                    plan.execute_dft(&mut input, &mut out).unwrap();
+                    check(&out, &naive(&[3, 4], &x, -1.0), "Plan::dft_2d");
+
+                    let x = rounded(&signal(24, 42));
+                    let plan = $Plan::dft_3d(2, 3, 4, Direction::Backward).unwrap();
+                    let mut input = to_t(&x);
+                    let mut out = vec![[0 as $T, 0 as $T]; 24];
+                    plan.execute_dft(&mut input, &mut out).unwrap();
+                    check(&out, &naive(&[2, 3, 4], &x, 1.0), "Plan::dft_3d");
+                }
+
+                #[test]
+                fn plan_r2c_matches_naive_and_c2r_inverts_it() {
+                    for &n in &[8usize, 9] {
+                        let real: Vec<f64> = signal(n, 51).iter().map(|c| c[0]).collect();
+                        let real_t: Vec<$T> = real.iter().map(|&v| v as $T).collect();
+                        let real_r: Vec<f64> = real_t.iter().map(|&v| v as f64).collect();
+                        let fwd = $Plan::r2c_1d(n).unwrap();
+                        let mut input = real_t.clone();
+                        let mut spec = vec![[0 as $T, 0 as $T]; n / 2 + 1];
+                        fwd.execute_r2c(&mut input, &mut spec).unwrap();
+                        check(&spec, &naive_r2c(&real_r), "execute_r2c");
+
+                        // c2r of the reference spectrum gives n * x (unnormalised).
+                        let bwd = $Plan::c2r_1d(n).unwrap();
+                        let mut cin = to_t(&naive_r2c(&real_r));
+                        let mut out = vec![0 as $T; n];
+                        bwd.execute_c2r(&mut cin, &mut out).unwrap();
+                        for (g, w) in out.iter().zip(&real_r) {
+                            assert!(
+                                (*g as f64 / n as f64 - w).abs() < TOL,
+                                "execute_c2r {g} vs {w}"
+                            );
+                        }
+                    }
+                }
+
+                #[test]
+                fn r2c_c2r_execute_reject_wrong_kind_or_short_buffers() {
+                    let c2c = $Plan::dft_1d(8, Direction::Forward).unwrap();
+                    let mut r = vec![0 as $T; 8];
+                    let mut c = vec![[0 as $T, 0 as $T]; 8];
+                    assert!(matches!(
+                        c2c.execute_r2c(&mut r, &mut c),
+                        Err(Error::InvalidArgument(_))
+                    ));
+                    assert!(matches!(
+                        c2c.execute_c2r(&mut c, &mut r),
+                        Err(Error::InvalidArgument(_))
+                    ));
+                    let p = $Plan::r2c_1d(8).unwrap();
+                    let mut short = vec![[0 as $T, 0 as $T]; 4]; // needs 5
+                    assert!(matches!(
+                        p.execute_r2c(&mut r, &mut short),
+                        Err(Error::InvalidArgument(_))
+                    ));
+                    let q = $Plan::c2r_1d(8).unwrap();
+                    let mut sin = vec![[0 as $T, 0 as $T]; 4];
+                    assert!(matches!(
+                        q.execute_c2r(&mut sin, &mut r),
+                        Err(Error::InvalidArgument(_))
+                    ));
+                }
+
+                #[test]
+                fn parseval_holds_for_3d_forward() {
+                    // sum |X|^2 = N * sum |x|^2
+                    let (n0, n1, n2) = (3, 4, 2);
+                    let x = rounded(&signal(n0 * n1 * n2, 61));
+                    let mut buf = to_t(&x);
+                    $d3(Direction::Forward, n0, n1, n2, &mut buf).unwrap();
+                    let e_t: f64 = buf
+                        .iter()
+                        .map(|c| (c[0] as f64).powi(2) + (c[1] as f64).powi(2))
+                        .sum();
+                    let e_x: f64 = x.iter().map(|c| c[0] * c[0] + c[1] * c[1]).sum();
+                    assert!((e_t - 24.0 * e_x).abs() < TOL * 24.0 * e_x.max(1.0) * 10.0);
+                }
+
+                #[test]
+                fn r2c_one_shot_matches_naive() {
+                    let real: Vec<f64> = signal(10, 71).iter().map(|c| c[1]).collect();
+                    let mut input: Vec<$T> = real.iter().map(|&v| v as $T).collect();
+                    let r: Vec<f64> = input.iter().map(|&v| v as f64).collect();
+                    let mut spec = vec![[0 as $T, 0 as $T]; 6];
+                    $r2c(&mut input, &mut spec).unwrap();
+                    check(&spec, &naive_r2c(&r), "r2c_1d");
+                    let mut back = vec![0 as $T; 10];
+                    $c2r(10, &mut spec, &mut back).unwrap();
+                    for (g, w) in back.iter().zip(&r) {
+                        assert!((*g as f64 / 10.0 - w).abs() < TOL);
+                    }
+                }
+            }
+        };
+    }
+
+    fft_ref_tests!(
+        f64_ref,
+        f64,
+        1e-10,
+        Plan,
+        dft_1d_inplace,
+        dft_2d_inplace,
+        dft_3d_inplace,
+        r2c_1d,
+        c2r_1d
+    );
+    fft_ref_tests!(
+        f32_ref,
+        f32,
+        2e-4,
+        PlanF32,
+        dft_1d_inplace_f32,
+        dft_2d_inplace_f32,
+        dft_3d_inplace_f32,
+        r2c_1d_f32,
+        c2r_1d_f32
+    );
+}
