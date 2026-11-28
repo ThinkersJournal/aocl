@@ -283,7 +283,15 @@ impl Plan {
         let p = scratch.as_mut_ptr() as *mut sys::fftw_complex;
         let plan = {
             let _g = PLANNER_LOCK.lock().unwrap_or_else(|e| e.into_inner());
-            unsafe { sys::fftw_plan_dft_1d(n_i, p, p, direction.raw(), sys::FFTW_ESTIMATE) }
+            unsafe {
+                sys::fftw_plan_dft_1d(
+                    n_i,
+                    p,
+                    p,
+                    direction.raw(),
+                    sys::FFTW_ESTIMATE | sys::FFTW_UNALIGNED,
+                )
+            }
         };
         if plan.is_null() {
             return Err(Error::AllocationFailed("fft"));
@@ -308,7 +316,16 @@ impl Plan {
         let p = scratch.as_mut_ptr() as *mut sys::fftw_complex;
         let plan = {
             let _g = PLANNER_LOCK.lock().unwrap_or_else(|e| e.into_inner());
-            unsafe { sys::fftw_plan_dft_2d(n0_i, n1_i, p, p, direction.raw(), sys::FFTW_ESTIMATE) }
+            unsafe {
+                sys::fftw_plan_dft_2d(
+                    n0_i,
+                    n1_i,
+                    p,
+                    p,
+                    direction.raw(),
+                    sys::FFTW_ESTIMATE | sys::FFTW_UNALIGNED,
+                )
+            }
         };
         if plan.is_null() {
             return Err(Error::AllocationFailed("fft"));
@@ -335,7 +352,15 @@ impl Plan {
         let plan = {
             let _g = PLANNER_LOCK.lock().unwrap_or_else(|e| e.into_inner());
             unsafe {
-                sys::fftw_plan_dft_3d(n0_i, n1_i, n2_i, p, p, direction.raw(), sys::FFTW_ESTIMATE)
+                sys::fftw_plan_dft_3d(
+                    n0_i,
+                    n1_i,
+                    n2_i,
+                    p,
+                    p,
+                    direction.raw(),
+                    sys::FFTW_ESTIMATE | sys::FFTW_UNALIGNED,
+                )
             }
         };
         if plan.is_null() {
@@ -363,7 +388,7 @@ impl Plan {
                     n_i,
                     in_buf.as_mut_ptr(),
                     out_buf.as_mut_ptr() as *mut sys::fftw_complex,
-                    sys::FFTW_ESTIMATE,
+                    sys::FFTW_ESTIMATE | sys::FFTW_UNALIGNED,
                 )
             }
         };
@@ -392,7 +417,7 @@ impl Plan {
                     n_i,
                     in_buf.as_mut_ptr() as *mut sys::fftw_complex,
                     out_buf.as_mut_ptr(),
-                    sys::FFTW_ESTIMATE,
+                    sys::FFTW_ESTIMATE | sys::FFTW_UNALIGNED,
                 )
             }
         };
@@ -706,7 +731,15 @@ impl PlanF32 {
         let p = scratch.as_mut_ptr() as *mut sys::fftwf_complex;
         let plan = {
             let _g = PLANNER_LOCK.lock().unwrap_or_else(|e| e.into_inner());
-            unsafe { sys::fftwf_plan_dft_1d(n_i, p, p, direction.raw(), sys::FFTW_ESTIMATE) }
+            unsafe {
+                sys::fftwf_plan_dft_1d(
+                    n_i,
+                    p,
+                    p,
+                    direction.raw(),
+                    sys::FFTW_ESTIMATE | sys::FFTW_UNALIGNED,
+                )
+            }
         };
         if plan.is_null() {
             return Err(Error::AllocationFailed("fft"));
@@ -731,7 +764,16 @@ impl PlanF32 {
         let p = scratch.as_mut_ptr() as *mut sys::fftwf_complex;
         let plan = {
             let _g = PLANNER_LOCK.lock().unwrap_or_else(|e| e.into_inner());
-            unsafe { sys::fftwf_plan_dft_2d(n0_i, n1_i, p, p, direction.raw(), sys::FFTW_ESTIMATE) }
+            unsafe {
+                sys::fftwf_plan_dft_2d(
+                    n0_i,
+                    n1_i,
+                    p,
+                    p,
+                    direction.raw(),
+                    sys::FFTW_ESTIMATE | sys::FFTW_UNALIGNED,
+                )
+            }
         };
         if plan.is_null() {
             return Err(Error::AllocationFailed("fft"));
@@ -758,7 +800,15 @@ impl PlanF32 {
         let plan = {
             let _g = PLANNER_LOCK.lock().unwrap_or_else(|e| e.into_inner());
             unsafe {
-                sys::fftwf_plan_dft_3d(n0_i, n1_i, n2_i, p, p, direction.raw(), sys::FFTW_ESTIMATE)
+                sys::fftwf_plan_dft_3d(
+                    n0_i,
+                    n1_i,
+                    n2_i,
+                    p,
+                    p,
+                    direction.raw(),
+                    sys::FFTW_ESTIMATE | sys::FFTW_UNALIGNED,
+                )
             }
         };
         if plan.is_null() {
@@ -786,7 +836,7 @@ impl PlanF32 {
                     n_i,
                     in_buf.as_mut_ptr(),
                     out_buf.as_mut_ptr() as *mut sys::fftwf_complex,
-                    sys::FFTW_ESTIMATE,
+                    sys::FFTW_ESTIMATE | sys::FFTW_UNALIGNED,
                 )
             }
         };
@@ -815,7 +865,7 @@ impl PlanF32 {
                     n_i,
                     in_buf.as_mut_ptr() as *mut sys::fftwf_complex,
                     out_buf.as_mut_ptr(),
-                    sys::FFTW_ESTIMATE,
+                    sys::FFTW_ESTIMATE | sys::FFTW_UNALIGNED,
                 )
             }
         };
