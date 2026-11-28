@@ -53,6 +53,8 @@ fn check(err: sys::alc_error_t) -> Result<()> {
 pub struct Rsa {
     handle: sys::_alc_rsa_handle,
     _context: Box<[u8]>,
+    /// The digest added with `add_digest` (its output length is the OAEP seed length).
+    digest: Option<DigestMode>,
 }
 
 impl Rsa {
@@ -70,6 +72,7 @@ impl Rsa {
         Ok(Self {
             handle,
             _context: context,
+            digest: None,
         })
     }
 
@@ -148,7 +151,9 @@ impl Rsa {
     /// Set the digest used for OAEP padding (encrypt / decrypt) and
     /// PSS sign / verify.
     pub fn add_digest(&mut self, digest: DigestMode) -> Result<()> {
-        check(unsafe { sys::alcp_rsa_add_digest(&mut self.handle, digest.raw()) })
+        check(unsafe { sys::alcp_rsa_add_digest(&mut self.handle, digest.raw()) })?;
+        self.digest = Some(digest);
+        Ok(())
     }
 
     /// Set the digest used by the OAEP / PSS mask-generation function.
@@ -163,7 +168,21 @@ impl Rsa {
 
     /// Encrypt with the public key. Plaintext length must equal the key
     /// size in bytes (use OAEP for shorter inputs).
+    /// `buf` must hold at least one key-size block: every signature / ciphertext (and the raw plaintext of a no-padding decrypt) is
+    /// written as a full block, and the library does not check the buffer (a buffer one byte short is an access violation on AOCL
+    /// 6.0.68, `tests/guard_lengths.rs`).
+    fn require_block(&mut self, name: &str, what: &str, len: usize) -> Result<usize> {
+        let k = self.key_size_bytes();
+        if k == 0 || len < k {
+            return Err(Error::InvalidArgument(format!(
+                "{name}: {what} is {len} bytes, the key needs {k} (set the key first)"
+            )));
+        }
+        Ok(k)
+    }
+
     pub fn encrypt(&mut self, plaintext: &[u8], ciphertext: &mut [u8]) -> Result<()> {
+        self.require_block("encrypt", "ciphertext", ciphertext.len())?;
         check(unsafe {
             sys::alcp_rsa_publickey_encrypt(
                 &mut self.handle,
@@ -182,6 +201,7 @@ impl Rsa {
         ciphertext: &[u8],
         plaintext: &mut [u8],
     ) -> Result<()> {
+        self.require_block("decrypt", "plaintext", plaintext.len())?;
         check(unsafe {
             sys::alcp_rsa_privatekey_decrypt(
                 &mut self.handle,
@@ -203,6 +223,14 @@ impl Rsa {
         seed: &[u8],
         ciphertext: &mut [u8],
     ) -> Result<()> {
+        self.require_block("encrypt_oaep", "ciphertext", ciphertext.len())?;
+        let hlen = self.digest.map_or(0, |d| d.output_len());
+        if seed.len() < hlen {
+            return Err(Error::InvalidArgument(format!(
+                "encrypt_oaep: seed is {} bytes, the OAEP digest needs {hlen} (call add_digest first)",
+                seed.len()
+            )));
+        }
         check(unsafe {
             sys::alcp_rsa_publickey_encrypt_oaep(
                 &mut self.handle,
@@ -242,6 +270,7 @@ impl Rsa {
     /// PSS sign: produce a signature over `message`. `salt` length is
     /// caller's choice (typically the digest output size).
     pub fn sign_pss(&mut self, message: &[u8], salt: &[u8], signature: &mut [u8]) -> Result<()> {
+        self.require_block("sign_pss", "signature", signature.len())?;
         check(unsafe {
             sys::alcp_rsa_privatekey_sign_pss(
                 &mut self.handle,
@@ -270,6 +299,7 @@ impl Rsa {
 
     /// PKCS#1 v1.5 sign.
     pub fn sign_pkcs1v15(&mut self, message: &[u8], signature: &mut [u8]) -> Result<()> {
+        self.require_block("sign_pkcs1v15", "signature", signature.len())?;
         check(unsafe {
             sys::alcp_rsa_privatekey_sign_pkcs1v15(
                 &mut self.handle,
@@ -303,6 +333,22 @@ impl Rsa {
         random_pad: &[u8],
         ciphertext: &mut [u8],
     ) -> Result<()> {
+        let k = self.require_block("encrypt_pkcs1v15", "ciphertext", ciphertext.len())?;
+        // EME-PKCS1-v1_5 (RFC 8017 7.2.1): 0x00 0x02 PS 0x00 M with |PS| >= 8, so |M| <= k - 11 and the library reads k - 3 - |M| pad bytes.
+        if plaintext.len() + 11 > k {
+            return Err(Error::InvalidArgument(format!(
+                "encrypt_pkcs1v15: plaintext is {} bytes, at most {} fit a {k}-byte key",
+                plaintext.len(),
+                k.saturating_sub(11)
+            )));
+        }
+        let need = k - 3 - plaintext.len();
+        if random_pad.len() < need {
+            return Err(Error::InvalidArgument(format!(
+                "encrypt_pkcs1v15: random_pad is {} bytes, {need} are read",
+                random_pad.len()
+            )));
+        }
         check(unsafe {
             sys::alcp_rsa_publickey_encrypt_pkcs1v15(
                 &mut self.handle,
@@ -332,6 +378,7 @@ impl Rsa {
 
     /// Sign an already-computed digest using PSS padding.
     pub fn sign_hash_pss(&mut self, hash: &[u8], salt: &[u8], signature: &mut [u8]) -> Result<()> {
+        self.require_block("sign_hash_pss", "signature", signature.len())?;
         check(unsafe {
             sys::alcp_rsa_privatekey_sign_hash_pss(
                 &mut self.handle,
@@ -359,6 +406,7 @@ impl Rsa {
 
     /// Sign an already-computed digest using PKCS#1 v1.5 padding.
     pub fn sign_hash_pkcs1v15(&mut self, hash: &[u8], signature: &mut [u8]) -> Result<()> {
+        self.require_block("sign_hash_pkcs1v15", "signature", signature.len())?;
         check(unsafe {
             sys::alcp_rsa_privatekey_sign_hash_pkcs1v15(
                 &mut self.handle,
