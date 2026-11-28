@@ -118,6 +118,18 @@ jobs:
       - name: cargo fmt --check
         run: cargo fmt --all -- --check
 
+  workflows:
+    name: "Workflow files parse (every .github/workflows file; a broken fixture must be rejected)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Install PyYAML
+        run: python3 -m pip install --user pyyaml==6.0.2
+      - name: Parse every workflow file (control fixture first)
+        run: python3 tools/check-workflows.py
+
   deny:
     name: cargo deny (advisories, licences, bans, sources)
     runs-on: ubuntu-latest

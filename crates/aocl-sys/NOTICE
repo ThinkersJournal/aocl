@@ -1,0 +1,6 @@
+NOTICE for aocl-sys
+
+Provenance. This crate is an umbrella that re-exports the per-component `aocl-*-sys` crates (each behind a cargo feature) and contains no declarations of its own. The provenance of the declarations a feature pulls in (the AOCL header files they were generated from, or the AMD documentation they were written from, and the AMD licence text that applies) is stated in the NOTICE of that crate: `crates/aocl-<component>-sys/NOTICE` at
+https://github.com/ThinkersJournal/aocl, shipped in the matching `aocl-<component>-sys` package on crates.io. This crate contains no AMD library or header.
+
+AOCL is not shipped. Through the enabled features this crate links an AOCL library that the user has installed; the user accepts AMD's licence for that library. AMD, the AMD arrow logo and AOCL are trademarks of Advanced Micro Devices, Inc.; their use here is for identification only. Not legal advice.

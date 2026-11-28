@@ -26,10 +26,9 @@ libflame = []
 scalapack-fal = []
 
 [dependencies]
-libc.workspace = true
 
 [build-dependencies]
-aocl-build = { version = "0.2", path = "../aocl-build" }
+aocl-build = { version = "0.6", path = "../aocl-build" }
 
 [package.metadata.docs.rs]
 default-target = "x86_64-unknown-linux-gnu"

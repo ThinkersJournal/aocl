@@ -1,0 +1,11 @@
+# CONTROL FIXTURE for tools/check-workflows.py: deliberately invalid YAML, the exact defect that silently disabled
+# selfhosted.yml (an unquoted ": " inside a step name). The checker MUST reject this file. Not under .github/workflows.
+name: broken
+on:
+  workflow_dispatch:
+jobs:
+  j:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wrapper tests (needs KMP_DUPLICATE_LIB_OK=TRUE: AMD issue 2)
+        run: echo hi

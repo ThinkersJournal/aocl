@@ -3793,6 +3793,20 @@ impl BlasExt for f32 {
         c: &mut [Self],
         ldc: usize,
     ) -> Result<()> {
+        check_gemm_shapes(
+            layout,
+            trans_a,
+            trans_b,
+            n,
+            n,
+            k,
+            a.len(),
+            lda,
+            b.len(),
+            ldb,
+            c.len(),
+            ldc,
+        )?;
         unsafe {
             sys::cblas_sgemmt(
                 layout_raw(layout),
@@ -3855,6 +3869,20 @@ impl BlasExt for f64 {
         c: &mut [Self],
         ldc: usize,
     ) -> Result<()> {
+        check_gemm_shapes(
+            layout,
+            trans_a,
+            trans_b,
+            n,
+            n,
+            k,
+            a.len(),
+            lda,
+            b.len(),
+            ldb,
+            c.len(),
+            ldc,
+        )?;
         unsafe {
             sys::cblas_dgemmt(
                 layout_raw(layout),
@@ -3917,6 +3945,20 @@ impl BlasExt for Complex32 {
         c: &mut [Self],
         ldc: usize,
     ) -> Result<()> {
+        check_gemm_shapes(
+            layout,
+            trans_a,
+            trans_b,
+            n,
+            n,
+            k,
+            a.len(),
+            lda,
+            b.len(),
+            ldb,
+            c.len(),
+            ldc,
+        )?;
         unsafe {
             sys::cblas_cgemmt(
                 layout_raw(layout),
@@ -3979,6 +4021,20 @@ impl BlasExt for Complex64 {
         c: &mut [Self],
         ldc: usize,
     ) -> Result<()> {
+        check_gemm_shapes(
+            layout,
+            trans_a,
+            trans_b,
+            n,
+            n,
+            k,
+            a.len(),
+            lda,
+            b.len(),
+            ldb,
+            c.len(),
+            ldc,
+        )?;
         unsafe {
             sys::cblas_zgemmt(
                 layout_raw(layout),
@@ -4368,6 +4424,73 @@ impl PackId {
     }
 }
 
+/// Packed-GEMM operand shape: the `rows x cols` matrix `op(X)` is (`m x k` for A, `k x n` for B) and `src` holds it as `trans` says.
+fn check_pack_src(
+    name: &str,
+    layout: Layout,
+    id: PackId,
+    trans: Trans,
+    m: usize,
+    n: usize,
+    k: usize,
+    src_len: usize,
+    ld: usize,
+) -> Result<()> {
+    let (r, c) = match id {
+        PackId::A => (m, k),
+        PackId::B => (k, n),
+    };
+    let (rows, cols) = match trans {
+        Trans::No => (r, c),
+        Trans::T | Trans::C => (c, r),
+    };
+    check_matrix(name, layout, rows, cols, ld, src_len)
+}
+
+/// A packed buffer must cover `?gemm_pack_get_size` BYTES (measured on AOCL 6.0.68: `dgemm_pack_get_size(A, 6, 5, 4)` = 1152, the
+/// library writes into that range; the doc of `?gemm_pack` used to say elements).
+fn check_packed_len<T>(name: &str, bytes_needed: usize, len: usize) -> Result<()> {
+    let have = len.saturating_mul(core::mem::size_of::<T>());
+    if have < bytes_needed {
+        return Err(Error::InvalidArgument(format!(
+            "{name}: packed buffer is {have} bytes, {bytes_needed} are needed (?gemm_pack_get_size)"
+        )));
+    }
+    Ok(())
+}
+
+/// One `?gemm_compute` operand: unpacked (`CblasNoTrans` 111 / `CblasTrans` 112 / `CblasConjTrans` 113: an `rows x cols` matrix) or
+/// `CblasPacked` (151: a buffer made by `?gemm_pack`).
+#[allow(
+    clippy::too_many_arguments,
+    reason = "mirrors the CBLAS argument list of one ?gemm_compute operand"
+)]
+fn check_compute_operand<T>(
+    name: &str,
+    layout: Layout,
+    flag: sys::f77_int,
+    id: PackId,
+    m: usize,
+    n: usize,
+    k: usize,
+    len: usize,
+    ld: usize,
+    pack_bytes: usize,
+) -> Result<()> {
+    let (r, c) = match id {
+        PackId::A => (m, k),
+        PackId::B => (k, n),
+    };
+    match flag {
+        111 => check_matrix(name, layout, r, c, ld, len),
+        112 | 113 => check_matrix(name, layout, c, r, ld, len),
+        151 => check_packed_len::<T>(name, pack_bytes, len),
+        other => Err(Error::InvalidArgument(format!(
+            "{name}: unknown CBLAS transpose / packed flag {other}"
+        ))),
+    }
+}
+
 /// Required size in bytes (or elements; see AOCL-BLAS docs) for a packed
 /// `f32` GEMM operand. Pair with [`sgemm_pack`] / [`sgemm_compute`].
 pub fn sgemm_pack_get_size(id: PackId, m: usize, n: usize, k: usize) -> usize {
@@ -4396,8 +4519,7 @@ pub fn dgemm_pack_get_size(id: PackId, m: usize, n: usize, k: usize) -> usize {
 }
 
 /// Pack `src` into the BLIS-specific packed format used by
-/// [`sgemm_compute`]. `dest` must be at least
-/// [`sgemm_pack_get_size`] elements long.
+/// [`sgemm_compute`]. `dest` must cover [`sgemm_pack_get_size`] BYTES (measured: the size is in bytes).
 pub fn sgemm_pack(
     layout: Layout,
     id: PackId,
@@ -4409,7 +4531,13 @@ pub fn sgemm_pack(
     src: &[f32],
     ld: usize,
     dest: &mut [f32],
-) {
+) -> Result<()> {
+    check_pack_src("sgemm_pack: src", layout, id, trans, m, n, k, src.len(), ld)?;
+    check_packed_len::<f32>(
+        "sgemm_pack: dest",
+        sgemm_pack_get_size(id, m, n, k),
+        dest.len(),
+    )?;
     unsafe {
         sys::cblas_sgemm_pack(
             layout_raw(layout),
@@ -4424,6 +4552,7 @@ pub fn sgemm_pack(
             dest.as_mut_ptr(),
         );
     }
+    Ok(())
 }
 
 /// `f64` packed-GEMM packing. See [`sgemm_pack`].
@@ -4438,7 +4567,13 @@ pub fn dgemm_pack(
     src: &[f64],
     ld: usize,
     dest: &mut [f64],
-) {
+) -> Result<()> {
+    check_pack_src("dgemm_pack: src", layout, id, trans, m, n, k, src.len(), ld)?;
+    check_packed_len::<f64>(
+        "dgemm_pack: dest",
+        dgemm_pack_get_size(id, m, n, k),
+        dest.len(),
+    )?;
     unsafe {
         sys::cblas_dgemm_pack(
             layout_raw(layout),
@@ -4453,6 +4588,7 @@ pub fn dgemm_pack(
             dest.as_mut_ptr(),
         );
     }
+    Ok(())
 }
 
 /// Compute `C := op_A(A) · op_B(B) + β · C` using one or both pre-packed
@@ -4473,7 +4609,32 @@ pub fn sgemm_compute(
     beta: f32,
     c: &mut [f32],
     ldc: usize,
-) {
+) -> Result<()> {
+    check_compute_operand::<f32>(
+        "sgemm_compute: A",
+        layout,
+        trans_a,
+        PackId::A,
+        m,
+        n,
+        k,
+        a.len(),
+        lda,
+        sgemm_pack_get_size(PackId::A, m, n, k),
+    )?;
+    check_compute_operand::<f32>(
+        "sgemm_compute: B",
+        layout,
+        trans_b,
+        PackId::B,
+        m,
+        n,
+        k,
+        b.len(),
+        ldb,
+        sgemm_pack_get_size(PackId::B, m, n, k),
+    )?;
+    check_matrix("sgemm_compute: C", layout, m, n, ldc, c.len())?;
     unsafe {
         sys::cblas_sgemm_compute(
             layout_raw(layout),
@@ -4491,6 +4652,7 @@ pub fn sgemm_compute(
             ldc as sys::f77_int,
         );
     }
+    Ok(())
 }
 
 /// `Complex32` Strassen-like GEMM (`3M` algorithm) — equivalent to
@@ -4511,7 +4673,21 @@ pub fn cgemm3m(
     beta: Complex32,
     c: &mut [Complex32],
     ldc: usize,
-) {
+) -> Result<()> {
+    check_gemm_shapes(
+        layout,
+        trans_a,
+        trans_b,
+        m,
+        n,
+        k,
+        a.len(),
+        lda,
+        b.len(),
+        ldb,
+        c.len(),
+        ldc,
+    )?;
     unsafe {
         sys::cblas_cgemm3m(
             layout_raw(layout),
@@ -4530,6 +4706,7 @@ pub fn cgemm3m(
             ldc as sys::f77_int,
         );
     }
+    Ok(())
 }
 
 /// `Complex64` Strassen-like GEMM. See [`cgemm3m`].
@@ -4548,7 +4725,21 @@ pub fn zgemm3m(
     beta: Complex64,
     c: &mut [Complex64],
     ldc: usize,
-) {
+) -> Result<()> {
+    check_gemm_shapes(
+        layout,
+        trans_a,
+        trans_b,
+        m,
+        n,
+        k,
+        a.len(),
+        lda,
+        b.len(),
+        ldb,
+        c.len(),
+        ldc,
+    )?;
     unsafe {
         sys::cblas_zgemm3m(
             layout_raw(layout),
@@ -4567,6 +4758,7 @@ pub fn zgemm3m(
             ldc as sys::f77_int,
         );
     }
+    Ok(())
 }
 
 /// "Complex absolute value" `|Re(z)| + |Im(z)|` for a `Complex32` —
@@ -4595,7 +4787,32 @@ pub fn dgemm_compute(
     beta: f64,
     c: &mut [f64],
     ldc: usize,
-) {
+) -> Result<()> {
+    check_compute_operand::<f64>(
+        "dgemm_compute: A",
+        layout,
+        trans_a,
+        PackId::A,
+        m,
+        n,
+        k,
+        a.len(),
+        lda,
+        dgemm_pack_get_size(PackId::A, m, n, k),
+    )?;
+    check_compute_operand::<f64>(
+        "dgemm_compute: B",
+        layout,
+        trans_b,
+        PackId::B,
+        m,
+        n,
+        k,
+        b.len(),
+        ldb,
+        dgemm_pack_get_size(PackId::B, m, n, k),
+    )?;
+    check_matrix("dgemm_compute: C", layout, m, n, ldc, c.len())?;
     unsafe {
         sys::cblas_dgemm_compute(
             layout_raw(layout),
@@ -4613,6 +4830,7 @@ pub fn dgemm_compute(
             ldc as sys::f77_int,
         );
     }
+    Ok(())
 }
 
 // ===========================================================================
@@ -5927,7 +6145,7 @@ mod reference_tests {
             T,
             &mut [T],
             usize,
-        ),
+        ) -> Result<()>,
     ) {
         let (m, n, k) = (5usize, 4usize, 3usize);
         let (alpha, beta) = (T::mk(1.5, -0.5), T::mk(0.5, 0.25));
@@ -5967,7 +6185,8 @@ mod reference_tests {
                     let mut c = c0.clone();
                     f(
                         l, ta, tb, m, n, k, alpha, &a, lda, &b, ldb, beta, &mut c, ldc,
-                    );
+                    )
+                    .unwrap();
                     let (g, w) = mask(l, ldc, (m, n), &c, &want);
                     close(&g, &w, &format!("gemm3m {l:?} {ta:?} {tb:?}"));
                 }
@@ -6169,8 +6388,8 @@ mod reference_tests {
                             sys::CBLAS_TRANSPOSE_CblasTrans
                         } as sys::f77_int;
                         // alpha is applied when packing A; B is packed with alpha = 1
-                        $pack(l, PackId::A, ta, m, n, k, alpha_a as $T, &a, lda, &mut pa);
-                        $pack(l, PackId::B, Trans::No, m, n, k, 1.0, &b, ldb, &mut pb);
+                        $pack(l, PackId::A, ta, m, n, k, alpha_a as $T, &a, lda, &mut pa).unwrap();
+                        $pack(l, PackId::B, Trans::No, m, n, k, 1.0, &b, ldb, &mut pb).unwrap();
                         let want = gemm_ref(
                             l,
                             ta,
@@ -6191,13 +6410,15 @@ mod reference_tests {
                         let mut c = c0.clone();
                         $compute(
                             l, PACKED, no, m, n, k, &pa, lda, &b, ldb, beta as $T, &mut c, ldc,
-                        );
+                        )
+                        .unwrap();
                         let (g, w) = mask(l, ldc, (m, n), &c, &want);
                         close(&g, &w, &format!("compute(A packed) {l:?} {ta:?}"));
                         let mut c = c0.clone();
                         $compute(
                             l, PACKED, PACKED, m, n, k, &pa, lda, &pb, ldb, beta as $T, &mut c, ldc,
-                        );
+                        )
+                        .unwrap();
                         let (g, w) = mask(l, ldc, (m, n), &c, &want);
                         close(&g, &w, &format!("compute(both packed) {l:?} {ta:?}"));
                         // (A plain, B packed): alpha is not in the product, so compare with alpha = 1
@@ -6219,7 +6440,8 @@ mod reference_tests {
                             let mut c = c0.clone();
                             $compute(
                                 l, no, PACKED, m, n, k, &a, lda, &pb, ldb, beta as $T, &mut c, ldc,
-                            );
+                            )
+                            .unwrap();
                             let (g, w) = mask(l, ldc, (m, n), &c, &want1);
                             close(&g, &w, &format!("compute(B packed) {l:?}"));
                         }

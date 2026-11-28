@@ -198,7 +198,8 @@ fn main() {
                 1,
                 1,
                 &d,
-            );
+            )
+            .expect("pdgemm");
             let (lr, lc) = lay.local_dims(N, N);
             for lj in 0..lc {
                 for li in 0..lr {

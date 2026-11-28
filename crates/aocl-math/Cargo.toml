@@ -12,9 +12,9 @@ categories = ["api-bindings", "mathematics", "science"]
 keywords = ["aocl", "amd", "libm", "math"]
 
 [dependencies]
-aocl-math-sys = { version = "0.2", path = "../aocl-math-sys" }
-aocl-error = { version = "0.2", path = "../aocl-error" }
-aocl-types = { version = "0.2", path = "../aocl-types" }
+aocl-math-sys = { version = "0.6", path = "../aocl-math-sys" }
+aocl-error = { version = "0.6", path = "../aocl-error" }
+aocl-types = { version = "0.6", path = "../aocl-types" }
 
 [features]
 default = []

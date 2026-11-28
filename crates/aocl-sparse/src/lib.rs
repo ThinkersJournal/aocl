@@ -1216,6 +1216,15 @@ pub fn csrmv<T: Scalar>(
     beta: T,
     y: &mut [T],
 ) -> Result<()> {
+    check_csr_arrays(
+        "csrmv",
+        m,
+        Some(n),
+        descr.index_base(),
+        csr_row_ptr,
+        csr_col_ind,
+        csr_val.len(),
+    )?;
     T::csrmv(
         Trans::No,
         alpha,
@@ -1300,6 +1309,15 @@ pub fn csrsv<T: Scalar>(
     x: &[T],
     y: &mut [T],
 ) -> Result<()> {
+    check_csr_arrays(
+        "csrsv",
+        m,
+        Some(m),
+        descr.index_base(),
+        csr_row_ptr,
+        csr_col_ind,
+        csr_val.len(),
+    )?;
     T::csrsv(op, alpha, m, csr_val, csr_col_ind, csr_row_ptr, descr, x, y)
 }
 
@@ -1442,6 +1460,19 @@ pub fn ellmv<T: Scalar>(
     beta: T,
     y: &mut [T],
 ) -> Result<()> {
+    let slots = m * ell_width;
+    check_len("ellmv", "ell_val", ell_val.len(), slots)?;
+    check_len("ellmv", "ell_col_ind", ell_col_ind.len(), slots)?;
+    let b = base_offset(descr.index_base());
+    if let Some(&bad) = ell_col_ind[..slots].iter().find(|&&c| {
+        let q = i64::from(c) - b;
+        q != -1 && (q < 0 || q as usize >= n) // -1 relative to the base is the padding slot of `csr2ell`
+    }) {
+        return Err(Error::InvalidArgument(format!(
+            "ellmv: column index {bad} outside the matrix (n = {n}, base {:?})",
+            descr.index_base()
+        )));
+    }
     T::ellmv(
         op,
         alpha,
@@ -1477,6 +1508,18 @@ pub fn bsrmv<T: Scalar>(
     beta: T,
     y: &mut [T],
 ) -> Result<()> {
+    if bsr_dim == 0 {
+        return Err(Error::InvalidArgument("bsrmv: bsr_dim is 0".into()));
+    }
+    check_csr_arrays(
+        "bsrmv",
+        mb,
+        Some(nb),
+        descr.index_base(),
+        bsr_row_ptr,
+        bsr_col_ind,
+        bsr_val.len() / (bsr_dim * bsr_dim),
+    )?;
     T::bsrmv(
         op,
         alpha,
@@ -1910,6 +1953,9 @@ pub fn csrmm<T: Scalar>(
     c: &mut [T],
     ldc: usize,
 ) -> Result<()> {
+    let (ar, ac) = opdims(op, a.m, a.n);
+    check_dense("csrmm", "B", order, ac, n, ldb, b.len())?;
+    check_dense("csrmm", "C", order, ar, n, ldc, c.len())?;
     T::csrmm(op, alpha, a.as_raw(), descr, order, b, n, ldb, beta, c, ldc)
 }
 
@@ -1923,6 +1969,8 @@ pub fn spmmd<T: Scalar>(
     c: &mut [T],
     ldc: usize,
 ) -> Result<()> {
+    let (ar, _) = opdims(op, a.m, a.n);
+    check_dense("spmmd", "C", layout, ar, b.n, ldc, c.len())?;
     T::spmmd(op, a.as_raw(), b.as_raw(), layout, c, ldc)
 }
 
@@ -1941,6 +1989,9 @@ pub fn sp2md<T: Scalar>(
     layout: Order,
     ldc: usize,
 ) -> Result<()> {
+    let (ar, _) = opdims(op_a, a.m, a.n);
+    let (_, bc) = opdims(op_b, b.m, b.n);
+    check_dense("sp2md", "C", layout, ar, bc, ldc, c.len())?;
     T::sp2md(
         op_a,
         descr_a,
@@ -2017,6 +2068,9 @@ pub fn mv_f64(
     beta: f64,
     y: &mut [f64],
 ) -> Result<()> {
+    let (xl, yl) = mv_lens(op, a.m, a.n);
+    check_len("mv_f64", "x", x.len(), xl)?;
+    check_len("mv_f64", "y", y.len(), yl)?;
     let status = unsafe {
         sys::aoclsparse_dmv(
             trans_raw(op),
@@ -2041,6 +2095,9 @@ pub fn mv_f32(
     beta: f32,
     y: &mut [f32],
 ) -> Result<()> {
+    let (xl, yl) = mv_lens(op, a.m, a.n);
+    check_len("mv_f32", "x", x.len(), xl)?;
+    check_len("mv_f32", "y", y.len(), yl)?;
     let status = unsafe {
         sys::aoclsparse_smv(
             trans_raw(op),
@@ -2066,6 +2123,8 @@ pub fn trsv_f64(
     b: &[f64],
     x: &mut [f64],
 ) -> Result<()> {
+    check_len("trsv_f64", "b", b.len(), a.m)?;
+    check_len("trsv_f64", "x", x.len(), a.m)?;
     let status = unsafe {
         sys::aoclsparse_dtrsv(
             trans_raw(op),
@@ -2088,6 +2147,8 @@ pub fn trsv_f32(
     b: &[f32],
     x: &mut [f32],
 ) -> Result<()> {
+    check_len("trsv_f32", "b", b.len(), a.m)?;
+    check_len("trsv_f32", "x", x.len(), a.m)?;
     let status = unsafe {
         sys::aoclsparse_strsv(
             trans_raw(op),
@@ -2115,6 +2176,8 @@ pub fn trsm_f64(
     x: &mut [f64],
     ldx: usize,
 ) -> Result<()> {
+    check_dense("trsm", "B", order, a.m, n_rhs, ldb, b.len())?;
+    check_dense("trsm", "X", order, a.m, n_rhs, ldx, x.len())?;
     let status = unsafe {
         sys::aoclsparse_dtrsm(
             trans_raw(op),
@@ -2145,6 +2208,8 @@ pub fn trsm_f32(
     x: &mut [f32],
     ldx: usize,
 ) -> Result<()> {
+    check_dense("trsm", "B", order, a.m, n_rhs, ldb, b.len())?;
+    check_dense("trsm", "X", order, a.m, n_rhs, ldx, x.len())?;
     let status = unsafe {
         sys::aoclsparse_strsm(
             trans_raw(op),
@@ -2223,6 +2288,17 @@ pub fn csr2ell_f64(
     ell_val: &mut [f64],
     ell_width: usize,
 ) -> Result<()> {
+    check_csr_arrays(
+        "csr2ell",
+        m,
+        None,
+        descr.index_base(),
+        csr_row_ptr,
+        csr_col_ind,
+        csr_val.len(),
+    )?;
+    check_len("csr2ell", "ell_col_ind", ell_col_ind.len(), m * ell_width)?;
+    check_len("csr2ell", "ell_val", ell_val.len(), m * ell_width)?;
     let status = unsafe {
         sys::aoclsparse_dcsr2ell(
             m as sys::aoclsparse_int,
@@ -2249,6 +2325,17 @@ pub fn csr2ell_f32(
     ell_val: &mut [f32],
     ell_width: usize,
 ) -> Result<()> {
+    check_csr_arrays(
+        "csr2ell",
+        m,
+        None,
+        descr.index_base(),
+        csr_row_ptr,
+        csr_col_ind,
+        csr_val.len(),
+    )?;
+    check_len("csr2ell", "ell_col_ind", ell_col_ind.len(), m * ell_width)?;
+    check_len("csr2ell", "ell_val", ell_val.len(), m * ell_width)?;
     let status = unsafe {
         sys::aoclsparse_scsr2ell(
             m as sys::aoclsparse_int,
@@ -2278,6 +2365,17 @@ pub fn csr2dia_f64(
     dia_offset: &mut [sys::aoclsparse_int],
     dia_val: &mut [f64],
 ) -> Result<()> {
+    check_csr_arrays(
+        "csr2dia",
+        m,
+        Some(n),
+        descr.index_base(),
+        csr_row_ptr,
+        csr_col_ind,
+        csr_val.len(),
+    )?;
+    check_len("csr2dia", "dia_offset", dia_offset.len(), dia_num_diag)?;
+    check_len("csr2dia", "dia_val", dia_val.len(), m * dia_num_diag)?;
     let status = unsafe {
         sys::aoclsparse_dcsr2dia(
             m as sys::aoclsparse_int,
@@ -2306,6 +2404,17 @@ pub fn csr2dia_f32(
     dia_offset: &mut [sys::aoclsparse_int],
     dia_val: &mut [f32],
 ) -> Result<()> {
+    check_csr_arrays(
+        "csr2dia",
+        m,
+        Some(n),
+        descr.index_base(),
+        csr_row_ptr,
+        csr_col_ind,
+        csr_val.len(),
+    )?;
+    check_len("csr2dia", "dia_offset", dia_offset.len(), dia_num_diag)?;
+    check_len("csr2dia", "dia_val", dia_val.len(), m * dia_num_diag)?;
     let status = unsafe {
         sys::aoclsparse_scsr2dia(
             m as sys::aoclsparse_int,
@@ -2333,6 +2442,24 @@ pub fn csr2bsr_nnz(
     block_dim: usize,
     bsr_row_ptr: &mut [sys::aoclsparse_int],
 ) -> Result<usize> {
+    if block_dim == 0 {
+        return Err(Error::InvalidArgument("csr2bsr_nnz: block_dim is 0".into()));
+    }
+    check_csr_arrays(
+        "csr2bsr_nnz",
+        m,
+        Some(n),
+        descr.index_base(),
+        csr_row_ptr,
+        csr_col_ind,
+        csr_col_ind.len(),
+    )?;
+    check_len(
+        "csr2bsr_nnz",
+        "bsr_row_ptr",
+        bsr_row_ptr.len(),
+        m.div_ceil(block_dim) + 1,
+    )?;
     let mut bsr_nnz: sys::aoclsparse_int = 0;
     let status = unsafe {
         sys::aoclsparse_csr2bsr_nnz(
@@ -2367,6 +2494,37 @@ pub fn csr2bsr_f64(
     bsr_row_ptr: &mut [sys::aoclsparse_int],
     bsr_col_ind: &mut [sys::aoclsparse_int],
 ) -> Result<()> {
+    if block_dim == 0 {
+        return Err(Error::InvalidArgument("csr2bsr: block_dim is 0".into()));
+    }
+    check_csr_arrays(
+        "csr2bsr",
+        m,
+        Some(n),
+        descr.index_base(),
+        csr_row_ptr,
+        csr_col_ind,
+        csr_val.len(),
+    )?;
+    let mb = m.div_ceil(block_dim);
+    check_len("csr2bsr", "bsr_row_ptr", bsr_row_ptr.len(), mb + 1)?;
+    let mut count_ptr = vec![0 as sys::aoclsparse_int; mb + 1];
+    let nnzb = csr2bsr_nnz(
+        m,
+        n,
+        descr,
+        csr_row_ptr,
+        csr_col_ind,
+        block_dim,
+        &mut count_ptr,
+    )?;
+    check_len(
+        "csr2bsr",
+        "bsr_val",
+        bsr_val.len(),
+        nnzb * block_dim * block_dim,
+    )?;
+    check_len("csr2bsr", "bsr_col_ind", bsr_col_ind.len(), nnzb)?;
     let status = unsafe {
         sys::aoclsparse_dcsr2bsr(
             m as sys::aoclsparse_int,
@@ -2399,6 +2557,37 @@ pub fn csr2bsr_f32(
     bsr_row_ptr: &mut [sys::aoclsparse_int],
     bsr_col_ind: &mut [sys::aoclsparse_int],
 ) -> Result<()> {
+    if block_dim == 0 {
+        return Err(Error::InvalidArgument("csr2bsr: block_dim is 0".into()));
+    }
+    check_csr_arrays(
+        "csr2bsr",
+        m,
+        Some(n),
+        descr.index_base(),
+        csr_row_ptr,
+        csr_col_ind,
+        csr_val.len(),
+    )?;
+    let mb = m.div_ceil(block_dim);
+    check_len("csr2bsr", "bsr_row_ptr", bsr_row_ptr.len(), mb + 1)?;
+    let mut count_ptr = vec![0 as sys::aoclsparse_int; mb + 1];
+    let nnzb = csr2bsr_nnz(
+        m,
+        n,
+        descr,
+        csr_row_ptr,
+        csr_col_ind,
+        block_dim,
+        &mut count_ptr,
+    )?;
+    check_len(
+        "csr2bsr",
+        "bsr_val",
+        bsr_val.len(),
+        nnzb * block_dim * block_dim,
+    )?;
+    check_len("csr2bsr", "bsr_col_ind", bsr_col_ind.len(), nnzb)?;
     let status = unsafe {
         sys::aoclsparse_scsr2bsr(
             m as sys::aoclsparse_int,
@@ -2471,6 +2660,8 @@ pub fn symgs_f64(
     b: &[f64],
     x: &mut [f64],
 ) -> Result<()> {
+    check_len("symgs_f64", "b", b.len(), a.m)?;
+    check_len("symgs_f64", "x", x.len(), a.n)?;
     let status = unsafe {
         sys::aoclsparse_dsymgs(
             trans_raw(op),
@@ -2493,6 +2684,8 @@ pub fn symgs_f32(
     b: &[f32],
     x: &mut [f32],
 ) -> Result<()> {
+    check_len("symgs_f32", "b", b.len(), a.m)?;
+    check_len("symgs_f32", "x", x.len(), a.n)?;
     let status = unsafe {
         sys::aoclsparse_ssymgs(
             trans_raw(op),
@@ -2517,6 +2710,9 @@ pub fn symgs_mv_f64(
     x: &mut [f64],
     y: &mut [f64],
 ) -> Result<()> {
+    check_len("symgs_mv_f64", "b", b.len(), a.m)?;
+    check_len("symgs_mv_f64", "x", x.len(), a.n)?;
+    check_len("symgs_mv_f64", "y", y.len(), a.m)?;
     let status = unsafe {
         sys::aoclsparse_dsymgs_mv(
             trans_raw(op),
@@ -2541,6 +2737,9 @@ pub fn symgs_mv_f32(
     x: &mut [f32],
     y: &mut [f32],
 ) -> Result<()> {
+    check_len("symgs_mv_f32", "b", b.len(), a.m)?;
+    check_len("symgs_mv_f32", "x", x.len(), a.n)?;
+    check_len("symgs_mv_f32", "y", y.len(), a.m)?;
     let status = unsafe {
         sys::aoclsparse_ssymgs_mv(
             trans_raw(op),
@@ -2636,6 +2835,9 @@ pub fn dotmv_f64(
     y: &mut [f64],
     d: &mut f64,
 ) -> Result<()> {
+    let (xl, yl) = mv_lens(op, a.m, a.n);
+    check_len("dotmv_f64", "x", x.len(), xl)?;
+    check_len("dotmv_f64", "y", y.len(), yl)?;
     let status = unsafe {
         sys::aoclsparse_ddotmv(
             trans_raw(op),
@@ -2662,6 +2864,9 @@ pub fn dotmv_f32(
     y: &mut [f32],
     d: &mut f32,
 ) -> Result<()> {
+    let (xl, yl) = mv_lens(op, a.m, a.n);
+    check_len("dotmv_f32", "x", x.len(), xl)?;
+    check_len("dotmv_f32", "y", y.len(), yl)?;
     let status = unsafe {
         sys::aoclsparse_sdotmv(
             trans_raw(op),
@@ -2689,6 +2894,8 @@ pub fn syrkd_f64(
     order_c: Order,
     ldc: usize,
 ) -> Result<()> {
+    let (r, _) = opdims(op_a, a.m, a.n);
+    check_dense("syrkd", "C", order_c, r, r, ldc, c.len())?;
     let status = unsafe {
         sys::aoclsparse_dsyrkd(
             trans_raw(op_a),
@@ -2713,6 +2920,8 @@ pub fn syrkd_f32(
     order_c: Order,
     ldc: usize,
 ) -> Result<()> {
+    let (r, _) = opdims(op_a, a.m, a.n);
+    check_dense("syrkd", "C", order_c, r, r, ldc, c.len())?;
     let status = unsafe {
         sys::aoclsparse_ssyrkd(
             trans_raw(op_a),
@@ -2741,6 +2950,13 @@ pub fn syprd_f64(
     order_c: Order,
     ldc: usize,
 ) -> Result<()> {
+    let (bd, cd) = if op_a == Trans::No {
+        (a.n, a.m)
+    } else {
+        (a.m, a.n)
+    };
+    check_dense("syprd", "B", order_b, bd, bd, ldb, b.len())?;
+    check_dense("syprd", "C", order_c, cd, cd, ldc, c.len())?;
     let status = unsafe {
         sys::aoclsparse_dsyprd(
             trans_raw(op_a),
@@ -2771,6 +2987,13 @@ pub fn syprd_f32(
     order_c: Order,
     ldc: usize,
 ) -> Result<()> {
+    let (bd, cd) = if op_a == Trans::No {
+        (a.n, a.m)
+    } else {
+        (a.m, a.n)
+    };
+    check_dense("syprd", "B", order_b, bd, bd, ldb, b.len())?;
+    check_dense("syprd", "C", order_c, cd, cd, ldc, c.len())?;
     let status = unsafe {
         sys::aoclsparse_ssyprd(
             trans_raw(op_a),
@@ -2786,6 +3009,123 @@ pub fn syprd_f32(
         )
     };
     check_status("sparse", status)
+}
+
+/// Length of `x` and `y` that `op(A)` (`m x n`) needs for a mat-vec: `y := op(A) x` has `m` rows for `op = No` and `n` for `T`/`C`.
+pub(crate) fn mv_lens(op: Trans, m: usize, n: usize) -> (usize, usize) {
+    match op {
+        Trans::No => (n, m),
+        Trans::T | Trans::C => (m, n),
+    }
+}
+
+/// The library does not check the length of the dense vectors it is handed (found in review of #45: a short `x` or `y` is read or
+/// written past its end; access violation on AOCL 6.0.68, `tests/vector_lengths.rs`). `Err` unless `have >= need`.
+pub(crate) fn check_len(name: &str, what: &str, have: usize, need: usize) -> Result<()> {
+    if have < need {
+        return Err(Error::InvalidArgument(format!(
+            "{name}: {what}.len()={have}, the matrix needs {need}"
+        )));
+    }
+    Ok(())
+}
+
+fn base_offset(base: IndexBase) -> i64 {
+    match base {
+        IndexBase::Zero => 0,
+        IndexBase::One => 1,
+    }
+}
+
+/// Validate the CSR arrays handed straight to a raw-array routine (no handle: `create_csr` is what refuses a malformed matrix, and
+/// these routines bypass it): `row_ptr` has `m + 1` entries, is non-decreasing from a non-negative start, its last entry does not
+/// exceed `col_ind` or `val`, and every column index of a stored entry lies in `[base, base + n)`. The library trusts all of this: a
+/// column index past `n` or a `row_ptr` entry past the arrays reads outside them (access violation on AOCL 6.0.68,
+/// `tests/raw_array_lengths.rs`).
+pub(crate) fn check_csr_arrays(
+    name: &str,
+    m: usize,
+    n: Option<usize>,
+    base: IndexBase,
+    row_ptr: &[sys::aoclsparse_int],
+    col_ind: &[sys::aoclsparse_int],
+    val_len: usize,
+) -> Result<()> {
+    check_len(name, "csr_row_ptr", row_ptr.len(), m + 1)?;
+    let b = base_offset(base);
+    let mut prev = i64::MIN;
+    for &p in &row_ptr[..=m] {
+        let q = i64::from(p) - b;
+        if q < 0 || q < prev {
+            return Err(Error::InvalidArgument(format!(
+                "{name}: csr_row_ptr is not non-decreasing from the index base ({base:?}): entry {p}"
+            )));
+        }
+        prev = q;
+    }
+    let (first, last) = (
+        (i64::from(row_ptr[0]) - b) as usize,
+        (i64::from(row_ptr[m]) - b) as usize,
+    );
+    if last > col_ind.len() || last > val_len {
+        return Err(Error::InvalidArgument(format!(
+            "{name}: csr_row_ptr says {last} stored entries, csr_col_ind has {} and csr_val has {val_len}",
+            col_ind.len()
+        )));
+    }
+    if let Some(n) = n {
+        if let Some(&bad) = col_ind[first..last].iter().find(|&&c| {
+            let q = i64::from(c) - b;
+            q < 0 || q as usize >= n
+        }) {
+            return Err(Error::InvalidArgument(format!(
+                "{name}: column index {bad} outside [{b}, {}) (n = {n}, base {base:?})",
+                b + n as i64
+            )));
+        }
+    }
+    Ok(())
+}
+
+/// Shape of `op(A)` for an `m x n` matrix: `(rows, cols)`.
+pub(crate) fn opdims(op: Trans, m: usize, n: usize) -> (usize, usize) {
+    match op {
+        Trans::No => (m, n),
+        Trans::T | Trans::C => (n, m),
+    }
+}
+
+/// Validate a dense `rows x cols` matrix argument with leading dimension `ld` in `order`: `ld` must be at least the minor extent and the
+/// buffer must hold `(major - 1) * ld + minor` elements. The library does not check this (a buffer one element short is an access
+/// violation on AOCL 6.0.68, `tests/dense_lengths.rs`). An empty matrix reads nothing.
+pub(crate) fn check_dense(
+    name: &str,
+    what: &str,
+    order: Order,
+    rows: usize,
+    cols: usize,
+    ld: usize,
+    len: usize,
+) -> Result<()> {
+    if rows == 0 || cols == 0 {
+        return Ok(());
+    }
+    let (major, minor) = match order {
+        Order::ColMajor => (cols, rows),
+        Order::RowMajor => (rows, cols),
+    };
+    if ld < minor {
+        return Err(Error::InvalidArgument(format!(
+            "{name}: {what} has ld={ld}, the {rows}x{cols} {order:?} matrix needs at least {minor}"
+        )));
+    }
+    let need = (major - 1) * ld + minor;
+    if len < need {
+        return Err(Error::InvalidArgument(format!(
+            "{name}: {what}.len()={len}, the {rows}x{cols} {order:?} matrix with ld={ld} needs {need}"
+        )));
+    }
+    Ok(())
 }
 
 /// Validate an index array before the library sees it (found in review of #45: only `roti` was checked). The library does not

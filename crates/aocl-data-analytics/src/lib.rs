@@ -12,6 +12,38 @@ pub use aocl_error::{Error, Result};
 use aocl_types::sealed::Sealed;
 pub use aocl_types::Layout;
 
+/// Validate a dense `rows x cols` matrix argument with leading dimension `ld` in `layout`: `ld` at least the minor extent and the buffer
+/// at least `(major - 1) * ld + minor` elements. The library does not check (access violation one element short, AOCL 6.0.68).
+fn check_dense(
+    name: &str,
+    what: &str,
+    layout: Layout,
+    rows: usize,
+    cols: usize,
+    ld: usize,
+    len: usize,
+) -> Result<()> {
+    if rows == 0 || cols == 0 {
+        return Ok(());
+    }
+    let (major, minor) = match layout {
+        Layout::RowMajor => (rows, cols),
+        Layout::ColMajor => (cols, rows),
+    };
+    if ld < minor {
+        return Err(Error::InvalidArgument(format!(
+            "{name}: {what} has ld={ld}, the {rows}x{cols} matrix needs at least {minor}"
+        )));
+    }
+    let need = (major - 1) * ld + minor;
+    if len < need {
+        return Err(Error::InvalidArgument(format!(
+            "{name}: {what}.len()={len}, the {rows}x{cols} matrix with ld={ld} needs {need}"
+        )));
+    }
+    Ok(())
+}
+
 fn layout_raw(l: Layout) -> sys::da_order {
     match l {
         Layout::RowMajor => sys::da_order__row_major,
@@ -1260,6 +1292,9 @@ impl<'a> std::fmt::Debug for Nlls<'a> {
 /// caller-provided buffers.
 pub struct Datastore {
     raw: sys::da_datastore,
+    /// Extent (rows, columns) of every selection made through this wrapper, by key: the library cannot be asked for it, and
+    /// `extract_f64` writes exactly that block into a caller buffer it does not check.
+    selections: std::collections::HashMap<String, (usize, usize)>,
 }
 
 unsafe impl Send for Datastore {}
@@ -1273,7 +1308,10 @@ impl Datastore {
         if raw.is_null() {
             return Err(Error::AllocationFailed("data-analytics"));
         }
-        Ok(Self { raw })
+        Ok(Self {
+            raw,
+            selections: std::collections::HashMap::new(),
+        })
     }
 
     /// Set an integer-valued datastore option (e.g.
@@ -1306,7 +1344,10 @@ impl Datastore {
         let cs = std::ffi::CString::new(path)
             .map_err(|e| Error::InvalidArgument(format!("load_csv: {e}")))?;
         let status = unsafe { sys::da_data_load_from_csv(self.raw, cs.as_ptr()) };
-        check_status("data-analytics", status)
+        check_status("data-analytics", status)?;
+        // a new table: earlier selections no longer describe it
+        self.selections.clear();
+        Ok(())
     }
 
     /// Number of rows currently held by the store.
@@ -1344,7 +1385,11 @@ impl Datastore {
                 ubound as sys::da_int,
             )
         };
-        check_status("data-analytics", status)
+        check_status("data-analytics", status)?;
+        let rows = self.n_rows()?;
+        self.selections
+            .insert(key.to_string(), (rows, ubound - lbound + 1));
+        Ok(())
     }
 
     /// Select a contiguous range of rows into the named selection `key`.
@@ -1359,7 +1404,11 @@ impl Datastore {
                 ubound as sys::da_int,
             )
         };
-        check_status("data-analytics", status)
+        check_status("data-analytics", status)?;
+        let cols = self.n_cols()?;
+        self.selections
+            .insert(key.to_string(), (ubound - lbound + 1, cols));
+        Ok(())
     }
 
     /// Extract the named selection into `data` as `f64` values, in the
@@ -1374,6 +1423,20 @@ impl Datastore {
     ) -> Result<()> {
         let cs = std::ffi::CString::new(key)
             .map_err(|e| Error::InvalidArgument(format!("extract_f64: {e}")))?;
+        let Some(&(rows, cols)) = self.selections.get(key) else {
+            return Err(Error::InvalidArgument(format!(
+                "extract_f64: no selection named {key:?} was made through select_columns / select_rows"
+            )));
+        };
+        check_dense(
+            "extract_f64",
+            "data",
+            layout,
+            rows,
+            cols,
+            lddata,
+            data.len(),
+        )?;
         let status = unsafe {
             sys::da_data_extract_selection_real_d(
                 self.raw,
@@ -1478,6 +1541,12 @@ macro_rules! impl_dist_scalar {
                 p: Self,
                 metric: Metric,
             ) -> Result<()> {
+                check_dense("pairwise_distances", "x", layout, m, k, ldx, x.len())?;
+                if let Some(yv) = y {
+                    check_dense("pairwise_distances", "y", layout, n, k, ldy, yv.len())?;
+                }
+                let d_cols = if y.is_some() { n } else { m };
+                check_dense("pairwise_distances", "d", layout, m, d_cols, ldd, d.len())?;
                 let y_ptr = y.map(|s| s.as_ptr()).unwrap_or(std::ptr::null());
                 let status = unsafe {
                     sys::$fn(
@@ -1588,6 +1657,12 @@ macro_rules! impl_kernel_scalar {
                 d: &mut [Self],
                 ldd: usize,
             ) -> Result<()> {
+                check_dense("linear_kernel", "x", layout, m, k, ldx, x.len())?;
+                if let Some(yv) = y {
+                    check_dense("linear_kernel", "y", layout, n, k, ldy, yv.len())?;
+                }
+                let d_cols = if y.is_some() { n } else { m };
+                check_dense("linear_kernel", "d", layout, m, d_cols, ldd, d.len())?;
                 let y_ptr = y.map(|s| s.as_ptr()).unwrap_or(std::ptr::null());
                 let status = unsafe {
                     sys::$linear(
@@ -1619,6 +1694,12 @@ macro_rules! impl_kernel_scalar {
                 ldd: usize,
                 gamma: Self,
             ) -> Result<()> {
+                check_dense("rbf_kernel", "x", layout, m, k, ldx, x.len())?;
+                if let Some(yv) = y {
+                    check_dense("rbf_kernel", "y", layout, n, k, ldy, yv.len())?;
+                }
+                let d_cols = if y.is_some() { n } else { m };
+                check_dense("rbf_kernel", "d", layout, m, d_cols, ldd, d.len())?;
                 let y_ptr = y.map(|s| s.as_ptr()).unwrap_or(std::ptr::null());
                 let status = unsafe {
                     sys::$rbf(
@@ -1653,6 +1734,12 @@ macro_rules! impl_kernel_scalar {
                 degree: i64,
                 coef0: Self,
             ) -> Result<()> {
+                check_dense("polynomial_kernel", "x", layout, m, k, ldx, x.len())?;
+                if let Some(yv) = y {
+                    check_dense("polynomial_kernel", "y", layout, n, k, ldy, yv.len())?;
+                }
+                let d_cols = if y.is_some() { n } else { m };
+                check_dense("polynomial_kernel", "d", layout, m, d_cols, ldd, d.len())?;
                 let y_ptr = y.map(|s| s.as_ptr()).unwrap_or(std::ptr::null());
                 let status = unsafe {
                     sys::$poly(
@@ -1688,6 +1775,12 @@ macro_rules! impl_kernel_scalar {
                 gamma: Self,
                 coef0: Self,
             ) -> Result<()> {
+                check_dense("sigmoid_kernel", "x", layout, m, k, ldx, x.len())?;
+                if let Some(yv) = y {
+                    check_dense("sigmoid_kernel", "y", layout, n, k, ldy, yv.len())?;
+                }
+                let d_cols = if y.is_some() { n } else { m };
+                check_dense("sigmoid_kernel", "d", layout, m, d_cols, ldd, d.len())?;
                 let y_ptr = y.map(|s| s.as_ptr()).unwrap_or(std::ptr::null());
                 let status = unsafe {
                     sys::$sigmoid(
@@ -2048,6 +2141,15 @@ impl KMeans {
         y: &[f64],
         labels: &mut [i32],
     ) -> Result<()> {
+        check_dense(
+            "kmeans predict",
+            "y",
+            Layout::ColMajor,
+            k_samples,
+            k_features,
+            k_samples,
+            y.len(),
+        )?;
         if labels.len() < k_samples {
             return Err(Error::InvalidArgument(format!(
                 "predict: labels length {} < k_samples = {k_samples}",
@@ -2328,6 +2430,33 @@ impl KNearestNeighbours {
         k: usize,
         return_distance: bool,
     ) -> Result<()> {
+        check_dense(
+            "kneighbors",
+            "x_test",
+            Layout::ColMajor,
+            n_queries,
+            n_features,
+            n_queries,
+            x_test.len(),
+        )?;
+        if n_ind.len() < n_queries * k {
+            return Err(Error::InvalidArgument(format!(
+                "kneighbors: n_ind has {} elements, {} are needed",
+                n_ind.len(),
+                n_queries * k
+            )));
+        }
+        if return_distance {
+            check_dense(
+                "kneighbors",
+                "n_dist",
+                Layout::ColMajor,
+                n_queries,
+                k,
+                n_queries,
+                n_dist.len(),
+            )?;
+        }
         let mut out = IntsOut::new(n_ind.len());
         let status = unsafe {
             sys::da_nn_kneighbors_d(
@@ -2379,6 +2508,30 @@ impl KNearestNeighbours {
         x_test: &[f64],
         proba: &mut [f64],
     ) -> Result<()> {
+        check_dense(
+            "predict_proba",
+            "x_test",
+            Layout::ColMajor,
+            n_queries,
+            n_features,
+            n_queries,
+            x_test.len(),
+        )?;
+        let n_classes = {
+            let mut c = self.train_y.clone();
+            c.sort_unstable();
+            c.dedup();
+            c.len()
+        };
+        check_dense(
+            "predict_proba",
+            "proba",
+            Layout::ColMajor,
+            n_queries,
+            n_classes,
+            n_queries,
+            proba.len(),
+        )?;
         let status = unsafe {
             sys::da_nn_classifier_predict_proba_d(
                 self.handle.raw,
@@ -2974,6 +3127,15 @@ impl DecisionTree {
         x_test: &[f64],
         y_test: &[i32],
     ) -> Result<f64> {
+        check_dense(
+            "score",
+            "x_test",
+            Layout::ColMajor,
+            n_samples,
+            n_features,
+            n_samples,
+            x_test.len(),
+        )?;
         if y_test.len() < n_samples {
             return Err(Error::InvalidArgument(format!(
                 "score: y_test length {} < n_samples = {n_samples}",
@@ -3010,6 +3172,24 @@ impl DecisionTree {
         n_class: usize,
         ldy: usize,
     ) -> Result<()> {
+        check_dense(
+            "predict_proba",
+            "x_test",
+            Layout::ColMajor,
+            n_samples,
+            n_features,
+            n_samples,
+            x_test.len(),
+        )?;
+        check_dense(
+            "predict_proba",
+            "y_proba",
+            Layout::ColMajor,
+            n_samples,
+            n_class,
+            ldy,
+            y_proba.len(),
+        )?;
         let status = unsafe {
             sys::da_tree_predict_proba_d(
                 self.handle.raw,
@@ -3035,6 +3215,24 @@ impl DecisionTree {
         n_class: usize,
         ldy: usize,
     ) -> Result<()> {
+        check_dense(
+            "predict_log_proba",
+            "x_test",
+            Layout::ColMajor,
+            n_samples,
+            n_features,
+            n_samples,
+            x_test.len(),
+        )?;
+        check_dense(
+            "predict_log_proba",
+            "y_log_proba",
+            Layout::ColMajor,
+            n_samples,
+            n_class,
+            ldy,
+            y_log_proba.len(),
+        )?;
         let status = unsafe {
             sys::da_tree_predict_log_proba_d(
                 self.handle.raw,
@@ -3181,6 +3379,15 @@ impl DecisionForest {
         x_test: &[f64],
         y_test: &[i32],
     ) -> Result<f64> {
+        check_dense(
+            "score",
+            "x_test",
+            Layout::ColMajor,
+            n_samples,
+            n_features,
+            n_samples,
+            x_test.len(),
+        )?;
         if y_test.len() < n_samples {
             return Err(Error::InvalidArgument(format!(
                 "score: y_test length {} < n_samples = {n_samples}",
@@ -3215,6 +3422,24 @@ impl DecisionForest {
         n_class: usize,
         ldy: usize,
     ) -> Result<()> {
+        check_dense(
+            "predict_proba",
+            "x_test",
+            Layout::ColMajor,
+            n_samples,
+            n_features,
+            n_samples,
+            x_test.len(),
+        )?;
+        check_dense(
+            "predict_proba",
+            "y_proba",
+            Layout::ColMajor,
+            n_samples,
+            n_class,
+            ldy,
+            y_proba.len(),
+        )?;
         let status = unsafe {
             sys::da_forest_predict_proba_d(
                 self.handle.raw,
@@ -3240,6 +3465,24 @@ impl DecisionForest {
         n_class: usize,
         ldy: usize,
     ) -> Result<()> {
+        check_dense(
+            "predict_log_proba",
+            "x_test",
+            Layout::ColMajor,
+            n_samples,
+            n_features,
+            n_samples,
+            x_test.len(),
+        )?;
+        check_dense(
+            "predict_log_proba",
+            "y_log_proba",
+            Layout::ColMajor,
+            n_samples,
+            n_class,
+            ldy,
+            y_log_proba.len(),
+        )?;
         let status = unsafe {
             sys::da_forest_predict_log_proba_d(
                 self.handle.raw,
@@ -3320,6 +3563,8 @@ impl DecisionShape {
 pub struct Svm {
     handle: Handle,
     kind: SvmKind,
+    /// Number of distinct labels seen by `fit` (0 before a fit; classification models only), for the decision-function size.
+    n_class: usize,
 }
 
 impl Svm {
@@ -3344,7 +3589,11 @@ impl Svm {
         let handle = Handle::new_double(HandleKind::Svm)?;
         let status = unsafe { sys::da_svm_select_model_d(handle.raw, kind.raw()) };
         check_status("data-analytics", status)?;
-        Ok(Self { handle, kind })
+        Ok(Self {
+            handle,
+            kind,
+            n_class: 0,
+        })
     }
 
     /// Borrow the underlying handle to set SVM-specific options.
@@ -3374,6 +3623,12 @@ impl Svm {
                 "svm fit: y length {} < n_samples = {n_samples}",
                 y.len()
             )));
+        }
+        if matches!(self.kind, SvmKind::Svc | SvmKind::NuSvc) {
+            let mut c: Vec<i64> = y[..n_samples].iter().map(|v| *v as i64).collect();
+            c.sort_unstable();
+            c.dedup();
+            self.n_class = c.len();
         }
         let lda = n_samples;
         let status = unsafe {
@@ -3452,6 +3707,21 @@ impl Svm {
         x_test: &[f64],
         y_test: &[f64],
     ) -> Result<f64> {
+        check_dense(
+            "svm score",
+            "x_test",
+            Layout::ColMajor,
+            n_samples,
+            n_features,
+            n_samples,
+            x_test.len(),
+        )?;
+        if y_test.len() < n_samples {
+            return Err(Error::InvalidArgument(format!(
+                "svm score: y_test has {} elements, {n_samples} are needed",
+                y_test.len()
+            )));
+        }
         let mut s = 0.0_f64;
         let status = unsafe {
             sys::da_svm_score_d(
@@ -3481,6 +3751,33 @@ impl Svm {
         decision_values: &mut [f64],
         ldd: usize,
     ) -> Result<()> {
+        check_dense(
+            "decision_function",
+            "x_test",
+            Layout::ColMajor,
+            n_samples,
+            n_features,
+            n_samples,
+            x_test.len(),
+        )?;
+        // columns: one per class pair for one-vs-one, one per class for one-vs-rest, a single column for two classes or a regression model
+        let cols = if self.n_class <= 2 {
+            1
+        } else {
+            match shape {
+                DecisionShape::Ovo => self.n_class * (self.n_class - 1) / 2,
+                DecisionShape::Ovr => self.n_class,
+            }
+        };
+        check_dense(
+            "decision_function",
+            "decision_values",
+            Layout::ColMajor,
+            n_samples,
+            cols,
+            ldd,
+            decision_values.len(),
+        )?;
         let status = unsafe {
             sys::da_svm_decision_function_d(
                 self.handle.raw,

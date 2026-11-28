@@ -12,8 +12,8 @@ categories = ["api-bindings", "compression"]
 keywords = ["aocl", "amd", "lz4", "zstd", "compression"]
 
 [dependencies]
-aocl-compression-sys = { version = "0.2", path = "../aocl-compression-sys" }
-aocl-error = { version = "0.2", path = "../aocl-error" }
+aocl-compression-sys = { version = "0.6", path = "../aocl-compression-sys" }
+aocl-error = { version = "0.6", path = "../aocl-error" }
 
 [features]
 default = []
