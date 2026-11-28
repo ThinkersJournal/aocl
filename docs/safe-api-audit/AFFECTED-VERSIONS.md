@@ -36,7 +36,7 @@ Versions measured: 0.1.0, 0.2.5, 0.2.40, 0.2.43, 0.2.46, 0.2.49.
 
 | function family | first affected | last affected (published so far) | holes (short cases) at last affected | fixed in |
 |---|---|---|---|---|
-| gemmt | 0.1.0 | 0.2.46 | 12 | 0.2.47 (merged, not yet published) |
+| gemmt | 0.1.0 | 0.2.46 | 12 | 0.2.47 (published in 0.2.49; 0.2.49 measured clean) |
 
 1 families with at least one HOLE.
 

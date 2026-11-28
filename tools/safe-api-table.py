@@ -14,7 +14,7 @@ D = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "docs", "safe
 # fixed-in, as of the audit head (PUBLISHED = on crates.io; MERGED = on main, not yet published; ARMED = in the gate; PENDING)
 FIXED = {
     ("aocl-sparse", "*"): "0.2.46 (published 2026-11-28)",
-    ("aocl-blas", "gemmt"): "0.2.47 (merged, not yet published)",
+    ("aocl-blas", "gemmt"): "0.2.47 (published in 0.2.49; 0.2.49 measured clean)",
     ("aocl-lapack", "generic"): "0.2.48 (group A #66, merged; unpublished)",
     ("aocl-lapack", "typed"): "0.2.49 (group B #67, merged; unpublished)",
     ("aocl-lapack", "eigen"): "PENDING: #68 (0.2.50 armed)",
