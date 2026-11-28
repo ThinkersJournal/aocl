@@ -24,7 +24,6 @@ header-only-unexported = []
 blis = []
 
 [dependencies]
-libc.workspace = true
 
 [build-dependencies]
 aocl-build = { version = "0.2", path = "../aocl-build" }
