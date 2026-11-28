@@ -1175,6 +1175,9 @@ pub fn csrmm<T: ComplexScalar>(
     c: &mut [T],
     ldc: usize,
 ) -> Result<()> {
+    let (ar, ac) = crate::opdims(op, a.m, a.n);
+    crate::check_dense("csrmm", "B", order, ac, n, ldb, b.len())?;
+    crate::check_dense("csrmm", "C", order, ar, n, ldc, c.len())?;
     T::csrmm(op, alpha, a.as_raw(), descr, order, b, n, ldb, beta, c, ldc)
 }
 
@@ -1188,6 +1191,8 @@ pub fn spmmd<T: ComplexScalar>(
     c: &mut [T],
     ldc: usize,
 ) -> Result<()> {
+    let (ar, _) = crate::opdims(op, a.m, a.n);
+    crate::check_dense("spmmd", "C", layout, ar, b.n, ldc, c.len())?;
     T::spmmd(op, a.as_raw(), b.as_raw(), layout, c, ldc)
 }
 
@@ -1206,6 +1211,9 @@ pub fn sp2md<T: ComplexScalar>(
     layout: Order,
     ldc: usize,
 ) -> Result<()> {
+    let (ar, _) = crate::opdims(op_a, a.m, a.n);
+    let (_, bc) = crate::opdims(op_b, b.m, b.n);
+    crate::check_dense("sp2md", "C", layout, ar, bc, ldc, c.len())?;
     T::sp2md(
         op_a,
         descr_a,
@@ -1566,6 +1574,8 @@ pub fn trsm_c64(
     x: &mut [Complex64],
     ldx: usize,
 ) -> Result<()> {
+    crate::check_dense("trsm", "B", Order::RowMajor, a.m, n_rhs, ldb, b.len())?;
+    crate::check_dense("trsm", "X", Order::RowMajor, a.m, n_rhs, ldx, x.len())?;
     let alpha_raw = sys::aoclsparse_double_complex_ {
         real: alpha.re,
         imag: alpha.im,
@@ -1599,6 +1609,8 @@ pub fn trsm_c32(
     x: &mut [Complex32],
     ldx: usize,
 ) -> Result<()> {
+    crate::check_dense("trsm", "B", Order::RowMajor, a.m, n_rhs, ldb, b.len())?;
+    crate::check_dense("trsm", "X", Order::RowMajor, a.m, n_rhs, ldx, x.len())?;
     let alpha_raw = sys::aoclsparse_float_complex {
         real: alpha.re,
         imag: alpha.im,
@@ -1881,6 +1893,8 @@ pub fn syrkd_c64(
     order_c: Order,
     ldc: usize,
 ) -> Result<()> {
+    let (r, _) = crate::opdims(op_a, a.m, a.n);
+    crate::check_dense("syrkd", "C", order_c, r, r, ldc, c.len())?;
     let alpha_raw = sys::aoclsparse_double_complex_ {
         real: alpha.re,
         imag: alpha.im,
@@ -1912,6 +1926,8 @@ pub fn syrkd_c32(
     order_c: Order,
     ldc: usize,
 ) -> Result<()> {
+    let (r, _) = crate::opdims(op_a, a.m, a.n);
+    crate::check_dense("syrkd", "C", order_c, r, r, ldc, c.len())?;
     let alpha_raw = sys::aoclsparse_float_complex {
         real: alpha.re,
         imag: alpha.im,
@@ -1948,6 +1964,13 @@ pub fn syprd_c64(
     order_c: Order,
     ldc: usize,
 ) -> Result<()> {
+    let (bd, cd) = if op_a == Trans::No {
+        (a.n, a.m)
+    } else {
+        (a.m, a.n)
+    };
+    crate::check_dense("syprd", "B", order_b, bd, bd, ldb, b.len())?;
+    crate::check_dense("syprd", "C", order_c, cd, cd, ldc, c.len())?;
     let alpha_raw = sys::aoclsparse_double_complex_ {
         real: alpha.re,
         imag: alpha.im,
@@ -1985,6 +2008,13 @@ pub fn syprd_c32(
     order_c: Order,
     ldc: usize,
 ) -> Result<()> {
+    let (bd, cd) = if op_a == Trans::No {
+        (a.n, a.m)
+    } else {
+        (a.m, a.n)
+    };
+    crate::check_dense("syprd", "B", order_b, bd, bd, ldb, b.len())?;
+    crate::check_dense("syprd", "C", order_c, cd, cd, ldc, c.len())?;
     let alpha_raw = sys::aoclsparse_float_complex {
         real: alpha.re,
         imag: alpha.im,
