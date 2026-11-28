@@ -1,0 +1,85 @@
+0.1.0 vector_lengths (no output) | error: could not compile `aocl-sparse` (lib) due to 2 previous errors
+0.1.0 dense_lengths (no output) | error: could not compile `aocl-sparse` (lib) due to 2 previous errors
+0.1.0 raw_array_lengths (no output) | error: could not compile `aocl-sparse` (lib) due to 2 previous errors
+0.2.2 vector_lengths aocl-sparse/vector_lengths: 48 tests in 3s; HOLE=36, OK-refused(asserted)=12 | 
+0.2.2 dense_lengths aocl-sparse/dense_lengths: 152 tests in 9s; HOLE=128, OK-refused(asserted)=24 | 
+0.2.2 raw_array_lengths aocl-sparse/raw_array_lengths: 72 tests in 3s; HOLE=28, OK-control=10, OK-refused(asserted)=24, OTHER(rc=101)=10 | 
+0.2.4 vector_lengths aocl-sparse/vector_lengths: 48 tests in 3s; HOLE=36, OK-refused(asserted)=12 | 
+0.2.4 dense_lengths aocl-sparse/dense_lengths: 152 tests in 10s; HOLE=128, OK-refused(asserted)=24 | 
+0.2.4 raw_array_lengths aocl-sparse/raw_array_lengths: 72 tests in 4s; HOLE=28, OK-control=10, OK-refused(asserted)=24, OTHER(rc=101)=10 | 
+0.2.5 vector_lengths aocl-sparse/vector_lengths: 48 tests in 3s; HOLE=36, OK-refused(asserted)=12 | 
+0.2.5 dense_lengths aocl-sparse/dense_lengths: 152 tests in 10s; HOLE=128, OK-refused(asserted)=24 | 
+0.2.5 raw_array_lengths aocl-sparse/raw_array_lengths: 72 tests in 3s; HOLE=28, OK-control=10, OK-refused(asserted)=24, OTHER(rc=101)=10 | 
+0.2.26 vector_lengths aocl-sparse/vector_lengths: 48 tests in 3s; HOLE=36, OK-refused(asserted)=12 | 
+0.2.26 dense_lengths aocl-sparse/dense_lengths: 152 tests in 12s; HOLE=128, OK-refused(asserted)=24 | 
+0.2.26 raw_array_lengths aocl-sparse/raw_array_lengths: 72 tests in 4s; HOLE=28, OK-control=10, OK-refused(asserted)=24, OTHER(rc=101)=10 | 
+0.2.40 vector_lengths aocl-sparse/vector_lengths: 48 tests in 4s; HOLE=36, OK-refused(asserted)=12 | 
+0.2.40 dense_lengths aocl-sparse/dense_lengths: 152 tests in 9s; HOLE=128, OK-refused(asserted)=24 | 
+0.2.40 raw_array_lengths aocl-sparse/raw_array_lengths: 72 tests in 3s; HOLE=28, OK-control=10, OK-refused(asserted)=24, OTHER(rc=101)=10 | 
+0.2.43 vector_lengths aocl-sparse/vector_lengths: 48 tests in 2s; HOLE=36, OK-refused(asserted)=12 | 
+0.2.43 dense_lengths aocl-sparse/dense_lengths: 152 tests in 9s; HOLE=128, OK-refused(asserted)=24 | 
+0.2.43 raw_array_lengths aocl-sparse/raw_array_lengths: 72 tests in 3s; HOLE=28, OK-control=10, OK-refused(asserted)=24, OTHER(rc=101)=10 | 
+0.2.46 vector_lengths aocl-sparse/vector_lengths: 48 tests in 2s; OK-refused(asserted)=48 | 
+0.2.46 dense_lengths aocl-sparse/dense_lengths: 152 tests in 6s; OK-refused(asserted)=152 | 
+0.2.46 raw_array_lengths aocl-sparse/raw_array_lengths: 72 tests in 3s; OK-control=10, OK-refused(asserted)=62 | 
+
+aocl-sparse: function family | versions measured with that family | HOLE in versions
+csr2dia (real_f32) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+csr2dia (real_f64) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+csr2ell (real_f32) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+csr2ell (real_f64) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+csrmm (cplx_c32) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+csrmm (cplx_c64) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+csrmm (real_f32) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+csrmm (real_f64) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+csrmv (real_f32) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+csrmv (real_f64) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+csrsv (real_f32) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+csrsv (real_f64) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+dotmv (cplx_c32) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+dotmv (cplx_c64) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+dotmv (real_f32) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+dotmv (real_f64) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+ellmv (real_f32) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+ellmv (real_f64) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+mv (cplx_c32)  present 0.2.2..0.2.46  HOLE in none
+mv (cplx_c64)  present 0.2.2..0.2.46  HOLE in none
+mv (real_f32)  present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+mv (real_f64)  present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+sp2md (cplx_c32) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+sp2md (cplx_c64) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+sp2md (real_f32) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+sp2md (real_f64) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+spmmd (cplx_c32) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+spmmd (cplx_c64) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+spmmd (real_f32) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+spmmd (real_f64) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+symgs (cplx_c32) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+symgs (cplx_c64) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+symgs (real_f32) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+symgs (real_f64) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+symgs_mv (cplx_c32) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+symgs_mv (cplx_c64) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+symgs_mv (real_f32) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+symgs_mv (real_f64) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+syprd (cplx_c32) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+syprd (cplx_c64) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+syprd (real_f32) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+syprd (real_f64) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+syrkd (cplx_c32) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+syrkd (cplx_c64) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+syrkd (real_f32) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+syrkd (real_f64) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+trsm (cplx_c32) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+trsm (cplx_c64) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+trsm (real_f32) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+trsm (real_f64) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+trsm_row (cplx_c32) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+trsm_row (cplx_c64) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+trsm_row (real_f32) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+trsm_row (real_f64) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+trsv (cplx_c32) present 0.2.2..0.2.46  HOLE in none
+trsv (cplx_c64) present 0.2.2..0.2.46  HOLE in none
+trsv (real_f32) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+trsv (real_f64) present 0.2.2..0.2.46  HOLE in ['0.2.2', '0.2.4', '0.2.5', '0.2.26', '0.2.40', '0.2.43']
+exit=0
