@@ -15,9 +15,9 @@ crates = [a for a in sys.argv[1:] if not a.startswith("--")] or WRAPPERS
 
 
 def split_tests(text):
-    """-> (non-test text, test text): the #[cfg(test)] mod body (brace matched) is the test part."""
+    """-> (non-test text, test text): the #[cfg(test)] / #[cfg(all(test, ...))] mod body (brace matched) is the test part."""
     test, keep, i = [], [], 0
-    pat = re.compile(r"#\[cfg\(test\)\]\s*(?:#\[[^\]]*\]\s*)*mod\s+\w+\s*\{")
+    pat = re.compile(r"#\[cfg\((?:all\(\s*)?test\b[^\]]*\]\s*(?:#\[[^\]]*\]\s*)*mod\s+\w+\s*\{")  # `cfg(test)` and `cfg(all(test, windows))`
     while True:
         m = pat.search(text, i)
         if not m:
