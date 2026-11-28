@@ -26,7 +26,6 @@
 #![allow(
     non_snake_case,
     non_camel_case_types,
-    dead_code,
     clippy::all,
     reason = "bindgen output mirrors the C headers: names, unused items and C-only types are not ours to change"
 )]
