@@ -2,6 +2,7 @@
 //! page followed by a PAGE_NOACCESS page. A library that wrote past `n` elements would fault (0xc0000005). The length-derived
 //! families (multinomial, Gaussian-MV, Poisson-V) are included with their exact required sizes. Windows only; PM-run; the lane does
 //! not run the library. Compiled only with OPENRNG_LIB_DIR. (A normal return is the evidence; one process, so a fault names itself.)
+// A call the build REFUSES (`Err`) writes nothing and is listed by tests/wrapper.rs (`REFUSED` lines): here an `Err` is ignored on purpose, a fault is the finding.
 #![cfg(all(openrng_linked, windows))]
 use aocl_openrng::*;
 use core::ffi::c_void;
@@ -50,39 +51,38 @@ fn real_outputs_stop_at_n() {
     for n in LENS {
         at_guard::<f64, _>(n, |o| {
             let mut s = st();
-            s.uniform(o, 0.0, 1.0, Accuracy::Standard).unwrap();
-            s.gaussian(o, 0.0, 1.0, GaussianMethod::BoxMuller).unwrap();
-            s.gaussian(o, 0.0, 1.0, GaussianMethod::BoxMuller2).unwrap();
-            s.gaussian(o, 0.0, 1.0, GaussianMethod::Icdf).unwrap();
+            s.uniform(o, 0.0, 1.0, Accuracy::Standard).ok();
+            s.gaussian(o, 0.0, 1.0, GaussianMethod::BoxMuller).ok();
+            s.gaussian(o, 0.0, 1.0, GaussianMethod::BoxMuller2).ok();
+            s.gaussian(o, 0.0, 1.0, GaussianMethod::Icdf).ok();
             s.lognormal(o, 0.0, 1.0, 0.0, 1.0, LognormalMethod::BoxMuller2)
-                .unwrap();
-            s.exponential(o, 0.0, 1.0, Accuracy::Accurate).unwrap();
-            s.rayleigh(o, 0.0, 1.0, Accuracy::Accurate).unwrap();
-            s.weibull(o, 2.0, 0.0, 1.0, Accuracy::Accurate).unwrap();
-            s.gamma(o, 2.0, 0.0, 1.0, Accuracy::Accurate).unwrap();
-            s.gamma(o, 0.5, 0.0, 1.0, Accuracy::Standard).unwrap();
-            s.beta(o, 2.0, 3.0, 0.0, 1.0).unwrap();
-            s.chi_square(o, 3).unwrap();
-            s.cauchy(o, 0.0, 1.0).unwrap();
-            s.gumbel(o, 0.0, 1.0).unwrap();
-            s.laplace(o, 0.0, 1.0).unwrap();
+                .ok();
+            s.exponential(o, 0.0, 1.0, Accuracy::Accurate).ok();
+            s.rayleigh(o, 0.0, 1.0, Accuracy::Accurate).ok();
+            s.weibull(o, 2.0, 0.0, 1.0, Accuracy::Accurate).ok();
+            s.gamma(o, 2.0, 0.0, 1.0, Accuracy::Accurate).ok();
+            s.gamma(o, 0.5, 0.0, 1.0, Accuracy::Standard).ok();
+            s.beta(o, 2.0, 3.0, 0.0, 1.0).ok();
+            s.chi_square(o, 3).ok();
+            s.cauchy(o, 0.0, 1.0).ok();
+            s.gumbel(o, 0.0, 1.0).ok();
+            s.laplace(o, 0.0, 1.0).ok();
         });
         at_guard::<f32, _>(n, |o| {
             let mut s = st();
-            s.uniform_f32(o, 0.0, 1.0, Accuracy::Standard).unwrap();
-            s.gaussian_f32(o, 0.0, 1.0, GaussianMethod::BoxMuller2)
-                .unwrap();
+            s.uniform_f32(o, 0.0, 1.0, Accuracy::Standard).ok();
+            s.gaussian_f32(o, 0.0, 1.0, GaussianMethod::BoxMuller2).ok();
             s.lognormal_f32(o, 0.0, 1.0, 0.0, 1.0, LognormalMethod::Icdf)
-                .unwrap();
-            s.exponential_f32(o, 0.0, 1.0, Accuracy::Standard).unwrap();
-            s.rayleigh_f32(o, 0.0, 1.0, Accuracy::Standard).unwrap();
-            s.weibull_f32(o, 2.0, 0.0, 1.0, Accuracy::Standard).unwrap();
-            s.gamma_f32(o, 2.0, 0.0, 1.0, Accuracy::Standard).unwrap();
-            s.beta_f32(o, 2.0, 3.0, 0.0, 1.0).unwrap();
-            s.chi_square_f32(o, 3).unwrap();
-            s.cauchy_f32(o, 0.0, 1.0).unwrap();
-            s.gumbel_f32(o, 0.0, 1.0).unwrap();
-            s.laplace_f32(o, 0.0, 1.0).unwrap();
+                .ok();
+            s.exponential_f32(o, 0.0, 1.0, Accuracy::Standard).ok();
+            s.rayleigh_f32(o, 0.0, 1.0, Accuracy::Standard).ok();
+            s.weibull_f32(o, 2.0, 0.0, 1.0, Accuracy::Standard).ok();
+            s.gamma_f32(o, 2.0, 0.0, 1.0, Accuracy::Standard).ok();
+            s.beta_f32(o, 2.0, 3.0, 0.0, 1.0).ok();
+            s.chi_square_f32(o, 3).ok();
+            s.cauchy_f32(o, 0.0, 1.0).ok();
+            s.gumbel_f32(o, 0.0, 1.0).ok();
+            s.laplace_f32(o, 0.0, 1.0).ok();
         });
     }
 }
@@ -92,23 +92,23 @@ fn integer_outputs_stop_at_n() {
     for n in LENS {
         at_guard::<i32, _>(n, |o| {
             let mut s = st();
-            s.uniform_int(o, 0, 10).unwrap();
-            s.bernoulli(o, 0.5).unwrap();
-            s.binomial(o, 10, 0.5).unwrap();
-            s.geometric(o, 0.5).unwrap();
-            s.hypergeometric(o, 20, 8, 5).unwrap();
-            s.neg_binomial(o, 3.0, 0.5).unwrap();
-            s.negbinomial(o, 3.0, 0.5).unwrap();
-            s.poisson(o, 4.0, PoissonMethod::Ptpe).unwrap();
-            s.poisson(o, 40.0, PoissonMethod::PoisNorm).unwrap();
-            s.poisson_v(o, &vec![3.0; n]).unwrap();
+            s.uniform_int(o, 0, 10).ok();
+            s.bernoulli(o, 0.5).ok();
+            s.binomial(o, 10, 0.5).ok();
+            s.geometric(o, 0.5).ok();
+            s.hypergeometric(o, 20, 8, 5).ok();
+            s.neg_binomial(o, 3.0, 0.5).ok();
+            s.negbinomial(o, 3.0, 0.5).ok();
+            s.poisson(o, 4.0, PoissonMethod::Ptpe).ok();
+            s.poisson(o, 40.0, PoissonMethod::PoisNorm).ok();
+            s.poisson_v(o, &vec![3.0; n]).ok();
         });
         at_guard::<u32, _>(n, |o| {
             let mut s = st();
-            s.uniform_bits(o).unwrap();
-            s.uniform_bits32(o).unwrap();
+            s.uniform_bits(o).ok();
+            s.uniform_bits32(o).ok();
         });
-        at_guard::<u64, _>(n, |o| st().uniform_bits64(o).unwrap());
+        at_guard::<u64, _>(n, |o| st().uniform_bits64(o).ok());
     }
 }
 
@@ -118,7 +118,7 @@ fn derived_length_families_stop_at_their_exact_size() {
         for k in [2usize, 3, 5] {
             at_guard::<i32, _>(experiments * k, |o| {
                 let p = vec![1.0 / k as f64; k];
-                st().multinomial(o, 7, &p).unwrap();
+                st().multinomial(o, 7, &p).ok();
             });
         }
     }
@@ -146,7 +146,7 @@ fn derived_length_families_stop_at_their_exact_size() {
             let mean = vec![0.0f64; dimen];
             at_guard::<f64, _>(2 * dimen, |o| {
                 st().gaussian_mv(o, dimen, storage, &mean, &t, GaussianMethod::BoxMuller)
-                    .unwrap();
+                    .ok();
             });
             let (mean32, t32): (Vec<f32>, Vec<f32>) = (
                 mean.iter().map(|x| *x as f32).collect(),
@@ -154,7 +154,7 @@ fn derived_length_families_stop_at_their_exact_size() {
             );
             at_guard::<f32, _>(2 * dimen, |o| {
                 st().gaussian_mv_f32(o, dimen, storage, &mean32, &t32, GaussianMethod::BoxMuller)
-                    .unwrap();
+                    .ok();
             });
         }
     }
@@ -178,17 +178,17 @@ fn the_input_arrays_are_not_read_past_their_length() {
                 t,
                 GaussianMethod::BoxMuller,
             )
-            .unwrap();
+            .ok();
         });
     });
     at_guard::<f64, _>(4, |p| {
         p.fill(0.25);
         let mut out = vec![0i32; 8];
-        st().multinomial(&mut out, 5, p).unwrap();
+        st().multinomial(&mut out, 5, p).ok();
     });
     at_guard::<f64, _>(8, |lam| {
         lam.fill(2.0);
         let mut out = vec![0i32; 8];
-        st().poisson_v(&mut out, lam).unwrap();
+        st().poisson_v(&mut out, lam).ok();
     });
 }

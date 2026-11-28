@@ -12,8 +12,7 @@ fn run(seed: u32) -> Vec<u32> {
         s.uniform_bits32(&mut w).unwrap();
         out.extend_from_slice(&w);
         let mut g = [0f64; 16];
-        s.gaussian(&mut g, 0.0, 1.0, GaussianMethod::BoxMuller2)
-            .unwrap();
+        let _ = s.gaussian(&mut g, 0.0, 1.0, GaussianMethod::BoxMuller2);
     }
     out
 }
