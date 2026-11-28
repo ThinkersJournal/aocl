@@ -2875,6 +2875,15 @@ pub fn dgeev(
     vr: &mut [f64],
     ldvr: usize,
 ) -> Result<()> {
+    check_matrix("geev: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_vec("geev: wr", wr.len(), n)?;
+    check_vec("geev: wi", wi.len(), n)?;
+    if compute_vl {
+        check_matrix("geev: VL", Layout::RowMajor, n, n, ldvl, vl.len())?;
+    }
+    if compute_vr {
+        check_matrix("geev: VR", Layout::RowMajor, n, n, ldvr, vr.len())?;
+    }
     let jobvl = if compute_vl { b'V' } else { b'N' } as c_char;
     let jobvr = if compute_vr { b'V' } else { b'N' } as c_char;
     let info = unsafe {
@@ -2910,6 +2919,15 @@ pub fn sgeev(
     vr: &mut [f32],
     ldvr: usize,
 ) -> Result<()> {
+    check_matrix("geev: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_vec("geev: wr", wr.len(), n)?;
+    check_vec("geev: wi", wi.len(), n)?;
+    if compute_vl {
+        check_matrix("geev: VL", Layout::RowMajor, n, n, ldvl, vl.len())?;
+    }
+    if compute_vr {
+        check_matrix("geev: VR", Layout::RowMajor, n, n, ldvr, vr.len())?;
+    }
     let jobvl = if compute_vl { b'V' } else { b'N' } as c_char;
     let jobvr = if compute_vr { b'V' } else { b'N' } as c_char;
     let info = unsafe {
@@ -2944,6 +2962,14 @@ pub fn zgeev(
     vr: &mut [Complex64],
     ldvr: usize,
 ) -> Result<()> {
+    check_matrix("geev: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_vec("geev: w", w.len(), n)?;
+    if compute_vl {
+        check_matrix("geev: VL", Layout::RowMajor, n, n, ldvl, vl.len())?;
+    }
+    if compute_vr {
+        check_matrix("geev: VR", Layout::RowMajor, n, n, ldvr, vr.len())?;
+    }
     let jobvl = if compute_vl { b'V' } else { b'N' } as c_char;
     let jobvr = if compute_vr { b'V' } else { b'N' } as c_char;
     let info = unsafe {
@@ -2977,6 +3003,14 @@ pub fn cgeev(
     vr: &mut [Complex32],
     ldvr: usize,
 ) -> Result<()> {
+    check_matrix("geev: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_vec("geev: w", w.len(), n)?;
+    if compute_vl {
+        check_matrix("geev: VL", Layout::RowMajor, n, n, ldvl, vl.len())?;
+    }
+    if compute_vr {
+        check_matrix("geev: VR", Layout::RowMajor, n, n, ldvr, vr.len())?;
+    }
     let jobvl = if compute_vl { b'V' } else { b'N' } as c_char;
     let jobvr = if compute_vr { b'V' } else { b'N' } as c_char;
     let info = unsafe {
@@ -3013,6 +3047,9 @@ pub fn dsygv(
     ldb: usize,
     w: &mut [f64],
 ) -> Result<()> {
+    check_matrix("sygv: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_matrix("sygv: B", Layout::RowMajor, n, n, ldb, b.len())?;
+    check_vec("sygv: w", w.len(), n)?;
     let jobz = if compute_vectors { b'V' } else { b'N' } as c_char;
     let info = unsafe {
         sys::LAPACKE_dsygv(
@@ -3043,6 +3080,9 @@ pub fn ssygv(
     ldb: usize,
     w: &mut [f32],
 ) -> Result<()> {
+    check_matrix("sygv: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_matrix("sygv: B", Layout::RowMajor, n, n, ldb, b.len())?;
+    check_vec("sygv: w", w.len(), n)?;
     let jobz = if compute_vectors { b'V' } else { b'N' } as c_char;
     let info = unsafe {
         sys::LAPACKE_ssygv(
@@ -3073,6 +3113,9 @@ pub fn zhegv(
     ldb: usize,
     w: &mut [f64],
 ) -> Result<()> {
+    check_matrix("hegv: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_matrix("hegv: B", Layout::RowMajor, n, n, ldb, b.len())?;
+    check_vec("hegv: w", w.len(), n)?;
     let jobz = if compute_vectors { b'V' } else { b'N' } as c_char;
     let info = unsafe {
         sys::LAPACKE_zhegv(
@@ -3103,6 +3146,9 @@ pub fn chegv(
     ldb: usize,
     w: &mut [f32],
 ) -> Result<()> {
+    check_matrix("hegv: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_matrix("hegv: B", Layout::RowMajor, n, n, ldb, b.len())?;
+    check_vec("hegv: w", w.len(), n)?;
     let jobz = if compute_vectors { b'V' } else { b'N' } as c_char;
     let info = unsafe {
         sys::LAPACKE_chegv(
@@ -3489,6 +3535,8 @@ pub fn dsyevd(
     lda: usize,
     w: &mut [f64],
 ) -> Result<()> {
+    check_matrix("syevd: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_vec("syevd: w", w.len(), n)?;
     let jobz = if jobz_v { b'V' } else { b'N' } as c_char;
     lapack_call!(
         "lapack",
@@ -3511,6 +3559,8 @@ pub fn ssyevd(
     lda: usize,
     w: &mut [f32],
 ) -> Result<()> {
+    check_matrix("syevd: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_vec("syevd: w", w.len(), n)?;
     let jobz = if jobz_v { b'V' } else { b'N' } as c_char;
     lapack_call!(
         "lapack",
@@ -3533,6 +3583,8 @@ pub fn zheevd(
     lda: usize,
     w: &mut [f64],
 ) -> Result<()> {
+    check_matrix("heevd: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_vec("heevd: w", w.len(), n)?;
     let jobz = if jobz_v { b'V' } else { b'N' } as c_char;
     lapack_call!(
         "lapack",
@@ -3555,6 +3607,8 @@ pub fn cheevd(
     lda: usize,
     w: &mut [f32],
 ) -> Result<()> {
+    check_matrix("heevd: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_vec("heevd: w", w.len(), n)?;
     let jobz = if jobz_v { b'V' } else { b'N' } as c_char;
     lapack_call!(
         "lapack",
@@ -3591,6 +3645,33 @@ pub fn dsyevr(
     ldz: usize,
     isuppz: &mut [Int],
 ) -> Result<usize> {
+    check_matrix("syevr: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_vec("syevr: w", w.len(), n)?;
+    if jobz_v {
+        check_matrix(
+            "syevr: Z",
+            Layout::RowMajor,
+            n,
+            if range == Range::Indices {
+                (iu - il + 1).max(0) as usize
+            } else {
+                n
+            },
+            ldz,
+            z.len(),
+        )?;
+    }
+    if jobz_v {
+        check_vec(
+            "syevr: isuppz",
+            isuppz.len(),
+            2 * (if range == Range::Indices {
+                (iu - il + 1).max(0) as usize
+            } else {
+                n
+            }),
+        )?;
+    }
     let jobz = if jobz_v { b'V' } else { b'N' } as c_char;
     let mut m: Int = 0;
     let info = unsafe {
@@ -3636,6 +3717,33 @@ pub fn ssyevr(
     ldz: usize,
     isuppz: &mut [Int],
 ) -> Result<usize> {
+    check_matrix("syevr: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_vec("syevr: w", w.len(), n)?;
+    if jobz_v {
+        check_matrix(
+            "syevr: Z",
+            Layout::RowMajor,
+            n,
+            if range == Range::Indices {
+                (iu - il + 1).max(0) as usize
+            } else {
+                n
+            },
+            ldz,
+            z.len(),
+        )?;
+    }
+    if jobz_v {
+        check_vec(
+            "syevr: isuppz",
+            isuppz.len(),
+            2 * (if range == Range::Indices {
+                (iu - il + 1).max(0) as usize
+            } else {
+                n
+            }),
+        )?;
+    }
     let jobz = if jobz_v { b'V' } else { b'N' } as c_char;
     let mut m: Int = 0;
     let info = unsafe {
@@ -3681,6 +3789,33 @@ pub fn zheevr(
     ldz: usize,
     isuppz: &mut [Int],
 ) -> Result<usize> {
+    check_matrix("heevr: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_vec("heevr: w", w.len(), n)?;
+    if jobz_v {
+        check_matrix(
+            "heevr: Z",
+            Layout::RowMajor,
+            n,
+            if range == Range::Indices {
+                (iu - il + 1).max(0) as usize
+            } else {
+                n
+            },
+            ldz,
+            z.len(),
+        )?;
+    }
+    if jobz_v {
+        check_vec(
+            "heevr: isuppz",
+            isuppz.len(),
+            2 * (if range == Range::Indices {
+                (iu - il + 1).max(0) as usize
+            } else {
+                n
+            }),
+        )?;
+    }
     let jobz = if jobz_v { b'V' } else { b'N' } as c_char;
     let mut m: Int = 0;
     let info = unsafe {
@@ -3726,6 +3861,33 @@ pub fn cheevr(
     ldz: usize,
     isuppz: &mut [Int],
 ) -> Result<usize> {
+    check_matrix("heevr: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_vec("heevr: w", w.len(), n)?;
+    if jobz_v {
+        check_matrix(
+            "heevr: Z",
+            Layout::RowMajor,
+            n,
+            if range == Range::Indices {
+                (iu - il + 1).max(0) as usize
+            } else {
+                n
+            },
+            ldz,
+            z.len(),
+        )?;
+    }
+    if jobz_v {
+        check_vec(
+            "heevr: isuppz",
+            isuppz.len(),
+            2 * (if range == Range::Indices {
+                (iu - il + 1).max(0) as usize
+            } else {
+                n
+            }),
+        )?;
+    }
     let jobz = if jobz_v { b'V' } else { b'N' } as c_char;
     let mut m: Int = 0;
     let info = unsafe {
@@ -3976,6 +4138,17 @@ pub fn dggev(
     vr: &mut [f64],
     ldvr: usize,
 ) -> Result<()> {
+    check_matrix("ggev: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_matrix("ggev: B", Layout::RowMajor, n, n, ldb, b.len())?;
+    check_vec("ggev: alphar", alphar.len(), n)?;
+    check_vec("ggev: alphai", alphai.len(), n)?;
+    check_vec("ggev: beta", beta.len(), n)?;
+    if compute_vl {
+        check_matrix("ggev: VL", Layout::RowMajor, n, n, ldvl, vl.len())?;
+    }
+    if compute_vr {
+        check_matrix("ggev: VR", Layout::RowMajor, n, n, ldvr, vr.len())?;
+    }
     let jobvl = if compute_vl { b'V' } else { b'N' } as c_char;
     let jobvr = if compute_vr { b'V' } else { b'N' } as c_char;
     lapack_call!(
@@ -4016,6 +4189,17 @@ pub fn sggev(
     vr: &mut [f32],
     ldvr: usize,
 ) -> Result<()> {
+    check_matrix("ggev: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_matrix("ggev: B", Layout::RowMajor, n, n, ldb, b.len())?;
+    check_vec("ggev: alphar", alphar.len(), n)?;
+    check_vec("ggev: alphai", alphai.len(), n)?;
+    check_vec("ggev: beta", beta.len(), n)?;
+    if compute_vl {
+        check_matrix("ggev: VL", Layout::RowMajor, n, n, ldvl, vl.len())?;
+    }
+    if compute_vr {
+        check_matrix("ggev: VR", Layout::RowMajor, n, n, ldvr, vr.len())?;
+    }
     let jobvl = if compute_vl { b'V' } else { b'N' } as c_char;
     let jobvr = if compute_vr { b'V' } else { b'N' } as c_char;
     lapack_call!(
@@ -4056,6 +4240,16 @@ pub fn zggev(
     vr: &mut [Complex64],
     ldvr: usize,
 ) -> Result<()> {
+    check_matrix("ggev: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_matrix("ggev: B", Layout::RowMajor, n, n, ldb, b.len())?;
+    check_vec("ggev: alpha", alpha.len(), n)?;
+    check_vec("ggev: beta", beta.len(), n)?;
+    if compute_vl {
+        check_matrix("ggev: VL", Layout::RowMajor, n, n, ldvl, vl.len())?;
+    }
+    if compute_vr {
+        check_matrix("ggev: VR", Layout::RowMajor, n, n, ldvr, vr.len())?;
+    }
     let jobvl = if compute_vl { b'V' } else { b'N' } as c_char;
     let jobvr = if compute_vr { b'V' } else { b'N' } as c_char;
     lapack_call!(
@@ -4094,6 +4288,16 @@ pub fn cggev(
     vr: &mut [Complex32],
     ldvr: usize,
 ) -> Result<()> {
+    check_matrix("ggev: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_matrix("ggev: B", Layout::RowMajor, n, n, ldb, b.len())?;
+    check_vec("ggev: alpha", alpha.len(), n)?;
+    check_vec("ggev: beta", beta.len(), n)?;
+    if compute_vl {
+        check_matrix("ggev: VL", Layout::RowMajor, n, n, ldvl, vl.len())?;
+    }
+    if compute_vr {
+        check_matrix("ggev: VR", Layout::RowMajor, n, n, ldvr, vr.len())?;
+    }
     let jobvl = if compute_vl { b'V' } else { b'N' } as c_char;
     let jobvr = if compute_vr { b'V' } else { b'N' } as c_char;
     lapack_call!(
@@ -4132,6 +4336,12 @@ pub fn dgees(
     vs: &mut [f64],
     ldvs: usize,
 ) -> Result<usize> {
+    check_matrix("gees: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_vec("gees: wr", wr.len(), n)?;
+    check_vec("gees: wi", wi.len(), n)?;
+    if compute_vs {
+        check_matrix("gees: VS", Layout::RowMajor, n, n, ldvs, vs.len())?;
+    }
     let jobvs = if compute_vs { b'V' } else { b'N' } as c_char;
     let mut sdim: Int = 0;
     let info = unsafe {
@@ -4165,6 +4375,12 @@ pub fn sgees(
     vs: &mut [f32],
     ldvs: usize,
 ) -> Result<usize> {
+    check_matrix("gees: A", Layout::RowMajor, n, n, lda, a.len())?;
+    check_vec("gees: wr", wr.len(), n)?;
+    check_vec("gees: wi", wi.len(), n)?;
+    if compute_vs {
+        check_matrix("gees: VS", Layout::RowMajor, n, n, ldvs, vs.len())?;
+    }
     let jobvs = if compute_vs { b'V' } else { b'N' } as c_char;
     let mut sdim: Int = 0;
     let info = unsafe {
