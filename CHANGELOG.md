@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.43 - 2026-11-27 (PM-allocated; aocl-sparse tests/wrappers.rs clippy-clean under --all-targets -D warnings (21 errors to 0; one reasoned type_complexity allow for fn-pointer test helpers): tests only; patch on 0.2.x)
+
+- **`aocl-sparse` `tests/wrappers.rs`: clippy-clean under `--all-targets -D warnings`** (tests only; version: pm-assist to allocate; patch). Hosted CI runs clippy on the DOCS_RS stub only, so these were never seen: 21 errors on main (19 `type_complexity` on the test helpers' `fn`-pointer parameters, one `redundant_guard`, one `needless_range_loop`). Fixed the two code ones (`(0.0, _)` pattern; `for (i, ai) in a.iter().enumerate().take(4)`), and the 19 with ONE file-level `#![allow(clippy::type_complexity, reason = ...)]` (each signature is the wrapper's own, used once: ~20 one-use aliases would only restate them). Measured (Windows, AOCL 6.0.68): `cargo clippy -p aocl-sparse --all-targets -- -D warnings` 21 errors before, 0 after; `cargo test -p aocl-sparse --test wrappers` 32 passed. fmt clean. Linux unmeasured.
+
 ## 0.2.42 - 2026-11-27 (PM-allocated; aocl-sys: NOTICE added (0.2.40 was published without one; check-package-files.py was BAD for aocl-sys on main) and its README, ROADMAP and THIRD-PARTY-NOTICES read-back of the 0.2.40 publish; docs and package files only; patch on 0.2.x)
 
 - **aocl-sys 0.2.40 shipped without NOTICE; added.** No yank and no republish (PM ruling 2026-11-28: licences and README shipped, the umbrella carries no AMD text; a packaging gap only); the fix ships in 0.2.42.
