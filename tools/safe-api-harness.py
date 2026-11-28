@@ -36,6 +36,7 @@ def child_env():
     env = dict(os.environ)
     dirs = sorted({os.path.dirname(p) for p in glob.glob(AOCL + r"\**\*.dll", recursive=True) if "ILP64" not in p})
     env["PATH"] = ";".join(dirs + [ONEAPI]) + ";" + env.get("PATH", "") + ";" + os.environ.get("OPENSSL_DIR", "C:/Program Files/Git/mingw64/bin")  # OpenSSL 3 libcrypto for aocl-crypto (AOCL does not ship it)
+    env["PATH"] += ";" + ";".join([r"C:\Program Files (x86)\Intel\oneAPI\compiler\2026.1\bin", r"C:\Program Files (x86)\Intel\oneAPI\mpi\2021.18\bin", r"C:\Program Files (x86)\Intel\oneAPI\mpi\2021.18\opt\mpi\libfabric\bin"])  # Intel MPI runtime for aocl-scalapack (impi.dll)
     env.setdefault("LIBCLANG_PATH", LIBCLANG)
     return env
 

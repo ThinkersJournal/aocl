@@ -73,15 +73,15 @@ def main():
                     for r in audit.parse(open(os.path.join(root, f), encoding="utf8", errors="replace").read(), f):
                         names.add(r["fn"].split("::")[-1])
         os.makedirs(os.path.join(d, "tests"), exist_ok=True)
-        if gen in ("sparse", "fft", "crypto", "rng"):
+        if gen in ("sparse", "fft", "crypto", "rng", "scalapack", "compression"):
             targets = ["vector_lengths", "dense_lengths", "raw_array_lengths", "remaining_lengths"] if gen == "sparse" else ["guard_lengths"]  # crypto / rng: hand-written guard_lengths.rs
-            repo_tests = os.path.join(os.path.dirname(HERE), "crates", "aocl-sparse", "tests") if gen == "sparse" else {"sparse": None, "fft": os.environ.get("FFT_TESTS_DIR", "C:/Projects/aocl-wt-fft/crates/aocl-fft/tests"), "crypto": os.environ.get("CRYPTO_TESTS_DIR", "C:/Projects/aocl-wt-audit2/crates/aocl-crypto/tests"), "rng": os.environ.get("RNG_TESTS_DIR", "C:/Projects/aocl-wt-rng/crates/aocl-rng/tests")}[gen]
+            repo_tests = os.path.join(os.path.dirname(HERE), "crates", "aocl-sparse", "tests") if gen == "sparse" else {"sparse": None, "fft": os.environ.get("FFT_TESTS_DIR", "C:/Projects/aocl-wt-fft/crates/aocl-fft/tests"), "crypto": os.environ.get("CRYPTO_TESTS_DIR", "C:/Projects/aocl-wt-audit2/crates/aocl-crypto/tests"), "rng": os.environ.get("RNG_TESTS_DIR", "C:/Projects/aocl-wt-rng/crates/aocl-rng/tests"), "scalapack": os.environ.get("SCAL_TESTS_DIR", "C:/Projects/aocl-wt-audit2/crates/aocl-scalapack/tests"), "compression": "C:/Projects/aocl-wt-audit2/crates/aocl-compression/tests"}[gen]
             man = os.path.join(d, "Cargo.toml")
             t = open(man, encoding="utf8").read()
             for tg in targets:
                 open(os.path.join(d, "tests", tg + ".rs"), "w", encoding="utf8").write(open(os.path.join(repo_tests, tg + ".rs"), encoding="utf8").read())
                 if f'name = "{tg}"' not in t:
-                    open(man, "a", encoding="utf8").write(chr(10) + "[[test]]" + chr(10) + f'name = "{tg}"' + chr(10) + f'path = "tests/{tg}.rs"' + chr(10))
+                    open(man, "a", encoding="utf8").write(chr(10) + "[[test]]" + chr(10) + f'name = "{tg}"' + chr(10) + f'path = "tests/{tg}.rs"' + chr(10) + ("harness = false" + chr(10) if gen == "scalapack" else ""))
             rows = []
             for tg in targets:
                 oc = os.path.join(work, "results", f"{crate}-{ver}-{tg}.csv")
@@ -112,7 +112,7 @@ def main():
         if not os.path.exists(p):
             continue
         for row in csv.DictReader(open(p, encoding="utf8")):
-            if gen in ("crypto", "rng"):
+            if gen in ("crypto", "rng", "scalapack", "compression"):
                 if "control" in row["test"]:
                     continue
                 fam.setdefault(row["test"], {}).setdefault(ver, []).append(row["outcome"])
