@@ -904,6 +904,14 @@ macro_rules! impl_real {
                 b: &mut [Self],
                 ldb: usize,
             ) -> Result<()> {
+                let (br, bc) = if layout == Layout::RowMajor {
+                    (n, (2 * kl + ku + 1))
+                } else {
+                    ((2 * kl + ku + 1), n)
+                };
+                check_matrix("gbsv: AB", layout, br, bc, ldab, ab.len())?;
+                check_vec("gbsv: ipiv", ipiv.len(), n)?;
+                check_matrix("gbsv: B", layout, n, nrhs, ldb, b.len())?;
                 let info = unsafe {
                     sys::$gbsv(
                         layout_raw(layout),
@@ -931,6 +939,13 @@ macro_rules! impl_real {
                 ldab: usize,
                 ipiv: &mut [Int],
             ) -> Result<()> {
+                let (br, bc) = if layout == Layout::RowMajor {
+                    (n, (2 * kl + ku + 1))
+                } else {
+                    ((2 * kl + ku + 1), n)
+                };
+                check_matrix("gbtrf: AB", layout, br, bc, ldab, ab.len())?;
+                check_vec("gbtrf: ipiv", ipiv.len(), m.min(n))?;
                 let info = unsafe {
                     sys::$gbtrf(
                         layout_raw(layout),
@@ -959,6 +974,14 @@ macro_rules! impl_real {
                 b: &mut [Self],
                 ldb: usize,
             ) -> Result<()> {
+                let (br, bc) = if layout == Layout::RowMajor {
+                    (n, (2 * kl + ku + 1))
+                } else {
+                    ((2 * kl + ku + 1), n)
+                };
+                check_matrix("gbtrs: AB", layout, br, bc, ldab, ab.len())?;
+                check_vec("gbtrs: ipiv", ipiv.len(), n)?;
+                check_matrix("gbtrs: B", layout, n, nrhs, ldb, b.len())?;
                 let info = unsafe {
                     sys::$gbtrs(
                         layout_raw(layout),
@@ -1357,6 +1380,15 @@ macro_rules! impl_real {
                 vr: &mut [Self],
                 ldvr: usize,
             ) -> Result<()> {
+                check_matrix("geev: A", layout, n, n, lda, a.len())?;
+                check_vec("geev: wr", wr.len(), n)?;
+                check_vec("geev: wi", wi.len(), n)?;
+                if compute_left == Compute::ValuesAndVectors {
+                    check_matrix("geev: VL", layout, n, n, ldvl, vl.len())?;
+                }
+                if compute_right == Compute::ValuesAndVectors {
+                    check_matrix("geev: VR", layout, n, n, ldvr, vr.len())?;
+                }
                 let info = unsafe {
                     sys::$geev(
                         layout_raw(layout),
@@ -1761,6 +1793,14 @@ macro_rules! impl_complex {
                 b: &mut [Self],
                 ldb: usize,
             ) -> Result<()> {
+                let (br, bc) = if layout == Layout::RowMajor {
+                    (n, (2 * kl + ku + 1))
+                } else {
+                    ((2 * kl + ku + 1), n)
+                };
+                check_matrix("gbsv: AB", layout, br, bc, ldab, ab.len())?;
+                check_vec("gbsv: ipiv", ipiv.len(), n)?;
+                check_matrix("gbsv: B", layout, n, nrhs, ldb, b.len())?;
                 let info = unsafe {
                     sys::$gbsv(
                         layout_raw(layout),
@@ -1788,6 +1828,13 @@ macro_rules! impl_complex {
                 ldab: usize,
                 ipiv: &mut [Int],
             ) -> Result<()> {
+                let (br, bc) = if layout == Layout::RowMajor {
+                    (n, (2 * kl + ku + 1))
+                } else {
+                    ((2 * kl + ku + 1), n)
+                };
+                check_matrix("gbtrf: AB", layout, br, bc, ldab, ab.len())?;
+                check_vec("gbtrf: ipiv", ipiv.len(), m.min(n))?;
                 let info = unsafe {
                     sys::$gbtrf(
                         layout_raw(layout),
@@ -1816,6 +1863,14 @@ macro_rules! impl_complex {
                 b: &mut [Self],
                 ldb: usize,
             ) -> Result<()> {
+                let (br, bc) = if layout == Layout::RowMajor {
+                    (n, (2 * kl + ku + 1))
+                } else {
+                    ((2 * kl + ku + 1), n)
+                };
+                check_matrix("gbtrs: AB", layout, br, bc, ldab, ab.len())?;
+                check_vec("gbtrs: ipiv", ipiv.len(), n)?;
+                check_matrix("gbtrs: B", layout, n, nrhs, ldb, b.len())?;
                 let info = unsafe {
                     sys::$gbtrs(
                         layout_raw(layout),
@@ -2266,6 +2321,14 @@ macro_rules! impl_complex {
                 vr: &mut [Self],
                 ldvr: usize,
             ) -> Result<()> {
+                check_matrix("geev: A", layout, n, n, lda, a.len())?;
+                check_vec("geev: w", w.len(), n)?;
+                if compute_left == Compute::ValuesAndVectors {
+                    check_matrix("geev: VL", layout, n, n, ldvl, vl.len())?;
+                }
+                if compute_right == Compute::ValuesAndVectors {
+                    check_matrix("geev: VR", layout, n, n, ldvr, vr.len())?;
+                }
                 let info = unsafe {
                     sys::$geev(
                         layout_raw(layout),
@@ -3938,6 +4001,15 @@ pub fn dgesvdx(
     ldvt: usize,
     superb: &mut [Int],
 ) -> Result<usize> {
+    check_matrix("gesvdx: A", Layout::RowMajor, m, n, lda, a.len())?;
+    check_vec("gesvdx: s", s.len(), m.min(n))?;
+    if jobu_v {
+        check_matrix("gesvdx: U", Layout::RowMajor, m, m.min(n), ldu, u.len())?;
+    }
+    if jobvt_v {
+        check_matrix("gesvdx: VT", Layout::RowMajor, m.min(n), n, ldvt, vt.len())?;
+    }
+    check_vec("gesvdx: superb", superb.len(), 12 * m.min(n))?;
     let jobu = if jobu_v { b'V' } else { b'N' } as c_char;
     let jobvt = if jobvt_v { b'V' } else { b'N' } as c_char;
     let mut ns: Int = 0;
@@ -3988,6 +4060,15 @@ pub fn sgesvdx(
     ldvt: usize,
     superb: &mut [Int],
 ) -> Result<usize> {
+    check_matrix("gesvdx: A", Layout::RowMajor, m, n, lda, a.len())?;
+    check_vec("gesvdx: s", s.len(), m.min(n))?;
+    if jobu_v {
+        check_matrix("gesvdx: U", Layout::RowMajor, m, m.min(n), ldu, u.len())?;
+    }
+    if jobvt_v {
+        check_matrix("gesvdx: VT", Layout::RowMajor, m.min(n), n, ldvt, vt.len())?;
+    }
+    check_vec("gesvdx: superb", superb.len(), 12 * m.min(n))?;
     let jobu = if jobu_v { b'V' } else { b'N' } as c_char;
     let jobvt = if jobvt_v { b'V' } else { b'N' } as c_char;
     let mut ns: Int = 0;
@@ -4038,6 +4119,15 @@ pub fn zgesvdx(
     ldvt: usize,
     superb: &mut [Int],
 ) -> Result<usize> {
+    check_matrix("gesvdx: A", Layout::RowMajor, m, n, lda, a.len())?;
+    check_vec("gesvdx: s", s.len(), m.min(n))?;
+    if jobu_v {
+        check_matrix("gesvdx: U", Layout::RowMajor, m, m.min(n), ldu, u.len())?;
+    }
+    if jobvt_v {
+        check_matrix("gesvdx: VT", Layout::RowMajor, m.min(n), n, ldvt, vt.len())?;
+    }
+    check_vec("gesvdx: superb", superb.len(), 12 * m.min(n))?;
     let jobu = if jobu_v { b'V' } else { b'N' } as c_char;
     let jobvt = if jobvt_v { b'V' } else { b'N' } as c_char;
     let mut ns: Int = 0;
@@ -4088,6 +4178,15 @@ pub fn cgesvdx(
     ldvt: usize,
     superb: &mut [Int],
 ) -> Result<usize> {
+    check_matrix("gesvdx: A", Layout::RowMajor, m, n, lda, a.len())?;
+    check_vec("gesvdx: s", s.len(), m.min(n))?;
+    if jobu_v {
+        check_matrix("gesvdx: U", Layout::RowMajor, m, m.min(n), ldu, u.len())?;
+    }
+    if jobvt_v {
+        check_matrix("gesvdx: VT", Layout::RowMajor, m.min(n), n, ldvt, vt.len())?;
+    }
+    check_vec("gesvdx: superb", superb.len(), 12 * m.min(n))?;
     let jobu = if jobu_v { b'V' } else { b'N' } as c_char;
     let jobvt = if jobvt_v { b'V' } else { b'N' } as c_char;
     let mut ns: Int = 0;
@@ -5646,6 +5745,16 @@ pub fn dorgbr(
     lda: usize,
     tau: &[f64],
 ) -> Result<()> {
+    check_matrix("orgbr: A", Layout::RowMajor, m, n, lda, a.len())?;
+    check_vec(
+        "orgbr: tau",
+        tau.len(),
+        if matches!(vect, BidiagVect::Q) {
+            m.min(k)
+        } else {
+            n.min(k)
+        },
+    )?;
     lapack_call!(
         "lapack",
         LAPACKE_dorgbr,
@@ -5669,6 +5778,16 @@ pub fn sorgbr(
     lda: usize,
     tau: &[f32],
 ) -> Result<()> {
+    check_matrix("orgbr: A", Layout::RowMajor, m, n, lda, a.len())?;
+    check_vec(
+        "orgbr: tau",
+        tau.len(),
+        if matches!(vect, BidiagVect::Q) {
+            m.min(k)
+        } else {
+            n.min(k)
+        },
+    )?;
     lapack_call!(
         "lapack",
         LAPACKE_sorgbr,
@@ -5692,6 +5811,16 @@ pub fn zungbr(
     lda: usize,
     tau: &[Complex64],
 ) -> Result<()> {
+    check_matrix("ungbr: A", Layout::RowMajor, m, n, lda, a.len())?;
+    check_vec(
+        "ungbr: tau",
+        tau.len(),
+        if matches!(vect, BidiagVect::Q) {
+            m.min(k)
+        } else {
+            n.min(k)
+        },
+    )?;
     lapack_call!(
         "lapack",
         LAPACKE_zungbr,
@@ -5715,6 +5844,16 @@ pub fn cungbr(
     lda: usize,
     tau: &[Complex32],
 ) -> Result<()> {
+    check_matrix("ungbr: A", Layout::RowMajor, m, n, lda, a.len())?;
+    check_vec(
+        "ungbr: tau",
+        tau.len(),
+        if matches!(vect, BidiagVect::Q) {
+            m.min(k)
+        } else {
+            n.min(k)
+        },
+    )?;
     lapack_call!(
         "lapack",
         LAPACKE_cungbr,
